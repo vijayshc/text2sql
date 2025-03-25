@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text2SQL Assistant</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Text2SQL Assistant</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="viewSchemaBtn">View Schema</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <!-- Workspace Selection -->
+            <div class="col-md-3 mb-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Workspace</h5>
+                    </div>
+                    <div class="card-body">
+                        <select class="form-select" id="workspaceSelect">
+                            {% for workspace in workspaces %}
+                            <option value="{{ workspace.name }}">{{ workspace.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <small class="text-muted workspace-description mt-2 d-block"></small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9">
+                <!-- Query Input -->
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Natural Language Query</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="queryInput" 
+                                   placeholder="Ask a question about your data...">
+                            <button class="btn btn-primary" id="submitQuery">Submit</button>
+                        </div>
+                        <div id="queryProgress" class="mt-3 d-none">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="progress-status">Processing query...</span>
+                                <span class="progress-percentage">0%</span>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                     role="progressbar" style="width: 0%" 
+                                     aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results Section -->
+                <div class="card">
+                    <div class="card-header">
+                        <ul class="nav nav-tabs card-header-tabs" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="results-tab" data-bs-toggle="tab" 
+                                   href="#results" role="tab">Results</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="steps-tab" data-bs-toggle="tab" 
+                                   href="#steps" role="tab">Steps</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="sql-tab" data-bs-toggle="tab" 
+                                   href="#sql" role="tab">SQL</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="explanation-tab" data-bs-toggle="tab" 
+                                   href="#explanation" role="tab">Explanation</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-body">
+                        <div class="tab-content">
+                            <!-- Results Tab -->
+                            <div class="tab-pane fade show active" id="results" role="tabpanel">
+                                <div class="table-responsive">
+                                    <table id="resultsTable" class="table table-striped table-bordered dt-responsive nowrap">
+                                        <thead>
+                                            <tr></tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Steps Tab -->
+                            <div class="tab-pane fade" id="steps" role="tabpanel">
+                                <div id="steps-container"></div>
+                            </div>
+
+                            <!-- SQL Tab -->
+                            <div class="tab-pane fade" id="sql" role="tabpanel">
+                                <pre class="bg-light p-3 rounded"><code id="sqlCode"></code></pre>
+                            </div>
+
+                            <!-- Explanation Tab -->
+                            <div class="tab-pane fade" id="explanation" role="tabpanel">
+                                <div id="explanationText" class="p-3"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schema Modal -->
+    <div class="modal fade" id="schemaModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Database Schema</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="schema-filter mb-3">
+                        <label for="tableFilter" class="form-label">Filter Tables:</label>
+                        <select class="form-select" id="tableFilter">
+                            <option value="all">All Tables</option>
+                        </select>
+                    </div>
+                    <div id="schemaContent"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="position-fixed top-50 start-50 translate-middle d-none">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

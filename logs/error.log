@@ -1,0 +1,1208 @@
+2025-03-24 23:57:25 - ERROR - [app.py:146] - Query processing error: None
+2025-03-24 23:57:29 - ERROR - [app.py:146] - Query processing error: None
+2025-03-25 00:01:32 - ERROR - [app.py:146] - Query processing error: None
+2025-03-25 00:02:39 - ERROR - [app.py:146] - Query processing error: (sqlite3.OperationalError) no such column: name
+[SQL: SELECT * FROM customers WHERE name LIKE 'J%';]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-03-25 00:04:03 - ERROR - [app.py:146] - Query processing error: None
+2025-03-25 00:05:06 - ERROR - [app.py:146] - Query processing error: None
+2025-03-25 00:09:34 - ERROR - [app.py:146] - Query processing error: (sqlite3.OperationalError) no such column: orders.product_id
+[SQL: SELECT 
+    products.product_id,
+    products.name,
+    SUM(orders.total_amount) AS total_sales
+FROM 
+    orders
+JOIN 
+    products ON orders.product_id = products.product_id
+GROUP BY 
+    products.product_id, products.name
+ORDER BY 
+    total_sales DESC
+LIMIT 5;]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-03-25 00:22:50 - ERROR - [app.py:146] - Query processing error: None
+2025-03-25 00:22:54 - ERROR - [app.py:146] - Query processing error: None
+2025-03-25 00:25:52 - ERROR - [app.py:146] - Query processing error: None
+2025-03-25 00:27:02 - ERROR - [app.py:146] - Query processing error: None
+2025-03-25 00:28:34 - ERROR - [app.py:146] - Query processing error: None
+2025-03-25 00:31:30 - ERROR - [app.py:146] - Query processing error: None
+2025-03-25 00:41:27 - ERROR - [intent_agent.py:73] - Intent detection error after 0.24s: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/agents/intent_agent.py", line 51, in detect_intent
+    response = self.ai_client.client.complete(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/ai/inference/_patch.py", line 728, in complete
+    pipeline_response: PipelineResponse = self._client._pipeline.run(  # pylint: disable=protected-access
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 240, in run
+    return first_node.send(pipeline_request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 2 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_redirect.py", line 204, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 573, in send
+    raise err
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 551, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 3 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 128, in send
+    self._sender.send(request.http_request, **request.context.options),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/transport/_requests_basic.py", line 409, in send
+    raise error
+azure.core.exceptions.ServiceResponseError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2025-03-25 00:41:27 - ERROR - [table_agent.py:84] - Table selection error after 0.03s: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/agents/table_agent.py", line 53, in get_relevant_tables
+    messages = [
+                 
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/ai/inference/_patch.py", line 728, in complete
+    pipeline_response: PipelineResponse = self._client._pipeline.run(  # pylint: disable=protected-access
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 240, in run
+    return first_node.send(pipeline_request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 2 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_redirect.py", line 204, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 573, in send
+    raise err
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 551, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 3 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 128, in send
+    self._sender.send(request.http_request, **request.context.options),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/transport/_requests_basic.py", line 409, in send
+    raise error
+azure.core.exceptions.ServiceResponseError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2025-03-25 00:41:27 - ERROR - [column_agent.py:93] - Column pruning error after 0.05s: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/agents/column_agent.py", line 59, in prune_columns
+    return ""
+              
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/ai/inference/_patch.py", line 728, in complete
+    pipeline_response: PipelineResponse = self._client._pipeline.run(  # pylint: disable=protected-access
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 240, in run
+    return first_node.send(pipeline_request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 2 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_redirect.py", line 204, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 573, in send
+    raise err
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 551, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 3 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 128, in send
+    self._sender.send(request.http_request, **request.context.options),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/transport/_requests_basic.py", line 409, in send
+    raise error
+azure.core.exceptions.ServiceResponseError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2025-03-25 00:41:27 - ERROR - [azure_client.py:121] - SQL generation error after 0.01s: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/utils/azure_client.py", line 84, in generate_sql
+    response = self.client.complete(
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/ai/inference/_patch.py", line 728, in complete
+    pipeline_response: PipelineResponse = self._client._pipeline.run(  # pylint: disable=protected-access
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 240, in run
+    return first_node.send(pipeline_request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 2 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_redirect.py", line 204, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 573, in send
+    raise err
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 551, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 3 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 128, in send
+    self._sender.send(request.http_request, **request.context.options),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/transport/_requests_basic.py", line 409, in send
+    raise error
+azure.core.exceptions.ServiceResponseError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2025-03-25 00:41:27 - ERROR - [app.py:146] - Query processing error: None
+2025-03-25 00:42:04 - ERROR - [database.py:194] - SQL error after 0.00s: (sqlite3.OperationalError) no such table: sales_products
+[SQL: SELECT p.product_id, p.name, SUM(sp.quantity_sold) AS total_quantity_sold
+FROM products p
+JOIN sales_products sp ON p.product_id = sp.product_id
+GROUP BY p.product_id, p.name
+ORDER BY total_quantity_sold DESC
+LIMIT 5;]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Traceback (most recent call last):
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.OperationalError: no such table: sales_products
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/utils/database.py", line 150, in execute_query
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1414, in execute
+    return meth(
+           ^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 486, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1638, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1842, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1983, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2326, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such table: sales_products
+[SQL: SELECT p.product_id, p.name, SUM(sp.quantity_sold) AS total_quantity_sold
+FROM products p
+JOIN sales_products sp ON p.product_id = sp.product_id
+GROUP BY p.product_id, p.name
+ORDER BY total_quantity_sold DESC
+LIMIT 5;]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-03-25 00:42:05 - ERROR - [app.py:146] - Query processing error: (sqlite3.OperationalError) no such table: sales_products
+[SQL: SELECT p.product_id, p.name, SUM(sp.quantity_sold) AS total_quantity_sold
+FROM products p
+JOIN sales_products sp ON p.product_id = sp.product_id
+GROUP BY p.product_id, p.name
+ORDER BY total_quantity_sold DESC
+LIMIT 5;]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-03-25 00:55:49,906 [ERROR] text2sql [app.py:146]: Query processing error: None
+2025-03-25 00:55:49 - ERROR - [app.py:146] - Query processing error: None
+2025-03-25 00:56:38,682 [ERROR] text2sql [app.py:146]: Query processing error: None
+2025-03-25 00:56:38 - ERROR - [app.py:146] - Query processing error: None
+2025-03-25 00:58:54,280 [INFO] text2sql.azure [azure_client.py:20]: Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-25 00:58:54,280 [INFO] text2sql.azure [azure_client.py:21]: Using model: Phi-3.5-mini-instruct
+2025-03-25 00:58:54,322 [INFO] text2sql.azure [azure_client.py:29]: Azure AI Client initialized successfully
+2025-03-25 00:58:54,323 [INFO] text2sql.schema_manager [schema_manager.py:34]: Loading schema from /home/vijay/text2sql/config/data/schema.json
+2025-03-25 00:58:54,323 [INFO] text2sql.schema_manager [schema_manager.py:41]: Loaded 1 workspaces from schema file
+2025-03-25 00:58:54,323 [INFO] text2sql.azure [azure_client.py:20]: Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-25 00:58:54,323 [INFO] text2sql.azure [azure_client.py:21]: Using model: Phi-3.5-mini-instruct
+2025-03-25 00:58:54,324 [INFO] text2sql.azure [azure_client.py:29]: Azure AI Client initialized successfully
+2025-03-25 00:58:54,324 [INFO] text2sql.schema_manager [schema_manager.py:34]: Loading schema from /home/vijay/text2sql/config/data/schema.json
+2025-03-25 00:58:54,324 [INFO] text2sql.schema_manager [schema_manager.py:41]: Loaded 1 workspaces from schema file
+2025-03-25 00:58:54,324 [INFO] text2sql.azure [azure_client.py:20]: Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-25 00:58:54,324 [INFO] text2sql.azure [azure_client.py:21]: Using model: Phi-3.5-mini-instruct
+2025-03-25 00:58:54,325 [INFO] text2sql.azure [azure_client.py:29]: Azure AI Client initialized successfully
+2025-03-25 00:58:54,325 [INFO] text2sql.schema_manager [schema_manager.py:34]: Loading schema from /home/vijay/text2sql/config/data/schema.json
+2025-03-25 00:58:54,325 [INFO] text2sql.schema_manager [schema_manager.py:41]: Loaded 1 workspaces from schema file
+2025-03-25 00:58:54,325 [INFO] text2sql.azure [azure_client.py:20]: Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-25 00:58:54,326 [INFO] text2sql.azure [azure_client.py:21]: Using model: Phi-3.5-mini-instruct
+2025-03-25 00:58:54,326 [INFO] text2sql.azure [azure_client.py:29]: Azure AI Client initialized successfully
+2025-03-25 00:58:54,326 [INFO] text2sql.database [database.py:18]: Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-25 00:58:54,327 [INFO] text2sql.schema_manager [schema_manager.py:34]: Loading schema from /home/vijay/text2sql/config/data/schema.json
+2025-03-25 00:58:54,327 [INFO] text2sql.schema_manager [schema_manager.py:41]: Loaded 1 workspaces from schema file
+2025-03-25 00:58:56,011 [INFO] text2sql.azure [azure_client.py:20]: Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-25 00:58:56,012 [INFO] text2sql.azure [azure_client.py:21]: Using model: Phi-3.5-mini-instruct
+2025-03-25 00:58:56,119 [INFO] text2sql.azure [azure_client.py:29]: Azure AI Client initialized successfully
+2025-03-25 00:58:56,120 [INFO] text2sql.schema_manager [schema_manager.py:34]: Loading schema from /home/vijay/text2sql/config/data/schema.json
+2025-03-25 00:58:56,120 [INFO] text2sql.schema_manager [schema_manager.py:41]: Loaded 1 workspaces from schema file
+2025-03-25 00:58:56,121 [INFO] text2sql.azure [azure_client.py:20]: Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-25 00:58:56,121 [INFO] text2sql.azure [azure_client.py:21]: Using model: Phi-3.5-mini-instruct
+2025-03-25 00:58:56,122 [INFO] text2sql.azure [azure_client.py:29]: Azure AI Client initialized successfully
+2025-03-25 00:58:56,122 [INFO] text2sql.schema_manager [schema_manager.py:34]: Loading schema from /home/vijay/text2sql/config/data/schema.json
+2025-03-25 00:58:56,123 [INFO] text2sql.schema_manager [schema_manager.py:41]: Loaded 1 workspaces from schema file
+2025-03-25 00:58:56,123 [INFO] text2sql.azure [azure_client.py:20]: Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-25 00:58:56,123 [INFO] text2sql.azure [azure_client.py:21]: Using model: Phi-3.5-mini-instruct
+2025-03-25 00:58:56,124 [INFO] text2sql.azure [azure_client.py:29]: Azure AI Client initialized successfully
+2025-03-25 00:58:56,125 [INFO] text2sql.schema_manager [schema_manager.py:34]: Loading schema from /home/vijay/text2sql/config/data/schema.json
+2025-03-25 00:58:56,125 [INFO] text2sql.schema_manager [schema_manager.py:41]: Loaded 1 workspaces from schema file
+2025-03-25 00:58:56,125 [INFO] text2sql.azure [azure_client.py:20]: Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-25 00:58:56,126 [INFO] text2sql.azure [azure_client.py:21]: Using model: Phi-3.5-mini-instruct
+2025-03-25 00:58:56,127 [INFO] text2sql.azure [azure_client.py:29]: Azure AI Client initialized successfully
+2025-03-25 00:58:56,128 [INFO] text2sql.database [database.py:18]: Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-25 00:58:56,128 [INFO] text2sql.schema_manager [schema_manager.py:34]: Loading schema from /home/vijay/text2sql/config/data/schema.json
+2025-03-25 00:58:56,129 [INFO] text2sql.schema_manager [schema_manager.py:41]: Loaded 1 workspaces from schema file
+2025-03-25 00:59:08,108 [INFO] text2sql [app.py:127]: Processing query: 'Get me all the customers whose name starts with J' in workspace 'Default'
+2025-03-25 00:59:08,115 [INFO] text2sql.sql_generator [sql_generator.py:34]: Processing query: 'Get me all the customers whose name starts with J'
+2025-03-25 00:59:08,119 [INFO] text2sql.agents.intent [intent_agent.py:27]: Intent detection started for query: 'Get me all the customers whose name starts with J'
+2025-03-25 00:59:08,122 [DEBUG] text2sql.agents.intent [intent_agent.py:56]: Sending request to AI model for intent detection
+2025-03-25 00:59:08,124 [DEBUG] text2sql.agents.intent [intent_agent.py:57]: Prompt: ["You are an intent classification agent for a Text-to-SQL system. \nYour job is to determine the intent of a user's query. Classify the intent into one of these categories:\n- data_retrieval: User wants to retrieve data from the database (requires SQL generation)\n- schema_exploration: User wants to explore the database schema (tables, columns, etc.)\n- metadata_request: User wants information about the database itself (size, structure, etc.)\n- general_question: General question not related to SQL generation\nReturn ONLY the intent category as your response, with no additional text.\n\nExamples:\n- \"How many customers made purchases last month?\" \u2192 data_retrieval\n- \"Show me the database schema\" \u2192 schema_exploration\n- \"What tables are in the database?\" \u2192 metadata_request\n- \"How does this system work?\" \u2192 general_question", "Classify this query: Get me all the customers whose name starts with J"]
+2025-03-25 00:59:10,021 [DEBUG] text2sql.agents.intent [intent_agent.py:65]: Raw model response for intent: 'data_retrieval'
+2025-03-25 00:59:10,037 [INFO] text2sql.agents.intent [intent_agent.py:72]: Intent detected: 'data_retrieval' with confidence 1.0
+2025-03-25 00:59:10,049 [INFO] text2sql.agents.intent [intent_agent.py:76]: Intent detection completed in 1.93s
+2025-03-25 00:59:10,098 [INFO] text2sql.sql_generator [sql_generator.py:39]: Detected intent: data_retrieval
+2025-03-25 00:59:10,098 [INFO] text2sql.sql_generator [sql_generator.py:109]: Starting SQL generation process
+2025-03-25 00:59:10,099 [INFO] text2sql.database [database.py:24]: Attempting database connection
+2025-03-25 00:59:10,299 [INFO] text2sql.database [database.py:28]: Database connection established in 0.20s
+2025-03-25 00:59:10,309 [INFO] text2sql.agents.table [table_agent.py:28]: Table selection started for query: 'Get me all the customers whose name starts with J'
+2025-03-25 00:59:10,318 [INFO] text2sql.agents.table [table_agent.py:34]: Available tables (5): customers, products, orders, order_items, sales_metrics
+2025-03-25 00:59:10,324 [DEBUG] text2sql.agents.table [table_agent.py:64]: Sending request to AI model for table selection
+2025-03-25 00:59:10,369 [DEBUG] text2sql.agents.table [table_agent.py:65]: Prompt: ["You are a table selection agent for a Text-to-SQL system.\nYour job is to identify which database tables are most relevant to a user query.\nYou will be provided with table names and their descriptions.\nReturn ONLY the names of relevant tables, separated by commas. Be selective and choose\nonly the tables that are directly needed to answer the query. If you're unsure,\ninclude tables that might be related. Return only table names in your response.", "Available tables:\ncustomers: Customer information and profiles\nproducts: Product catalog and inventory\norders: Customer orders and transactions\norder_items: Individual items within each order\nsales_metrics: Aggregated sales data by channel\n\nUser query: Get me all the customers whose name starts with J"]
+2025-03-25 00:59:12,243 [DEBUG] text2sql.agents.table [table_agent.py:73]: Raw model response: 'customers'
+2025-03-25 00:59:12,258 [INFO] text2sql.agents.table [table_agent.py:94]: Table selection completed in 1.95s. Selected: customers
+2025-03-25 00:59:12,290 [INFO] text2sql.agents.column [column_agent.py:29]: Column pruning started for query: 'Get me all the customers whose name starts with J'
+2025-03-25 00:59:12,305 [INFO] text2sql.agents.column [column_agent.py:30]: Processing tables: customers
+2025-03-25 00:59:12,306 [DEBUG] text2sql.agents.column [column_agent.py:89]: Sending request to AI model for column selection
+2025-03-25 00:59:12,389 [DEBUG] text2sql.agents.column [column_agent.py:90]: Prompt: ["You are a column selection agent for a Text-to-SQL system.\nYour job is to identify which columns from the provided tables are most relevant to a user query.\nFor each table, select only the columns that will be needed to answer the query.\nReturn your answer as a JSON object with table names as keys and arrays of column names as values.\nAlways include primary key columns even if not directly mentioned in the query.\nConsider columns that might be needed for:\n1. Selection criteria (WHERE clauses)\n2. Joining tables (foreign keys)\n3. Aggregations or grouping\n4. Sorting or ordering\n5. Final result display", "Schema:\nTable: customers\nDescription: Customer information and profiles\nColumns:\n- customer_id (INTEGER): Unique customer identifier\n- first_name (TEXT): Customer's first name\n- last_name (TEXT): Customer's last name\n- email (TEXT): Customer's email address (unique)\n- phone (TEXT): Customer's phone number\n- address (TEXT): Customer's street address\n- city (TEXT): Customer's city\n- state (TEXT): Customer's state/province\n- country (TEXT): Customer's country\n- postal_code (TEXT): Customer's postal/zip code\n- registration_date (TEXT): Date when customer registered\n\n\nUser query: Get me all the customers whose name starts with J"]
+2025-03-25 00:59:21,799 [DEBUG] text2sql.agents.column [column_agent.py:98]: Raw model response: '```json
+{
+  "customers": ["customer_id", "first_name", "last_name"]
+}
+```
+
+Explanation: To answer the query that requests all customers whose name starts with 'J', we need the `customer_id` to uniquely identify each customer, and both `first_name` and `last_name` to use the starting letters of the names to filter the records. The primary key `customer_id` is included even though it's not directly used in the query; it's essential for identifying each record uniquely. The other columns are not required for this specific query and would not be included in the result.'
+2025-03-25 00:59:21,803 [DEBUG] text2sql.agents.column [column_agent.py:138]: Parsing column selection from model response
+2025-03-25 00:59:21,806 [DEBUG] text2sql.agents.column [column_agent.py:148]: Parsed column selection JSON: {"customers": ["customer_id", "first_name", "last_name"]}
+2025-03-25 00:59:21,808 [INFO] text2sql.agents.column [column_agent.py:110]: Table 'customers': Pruned 8 columns, kept 3/11
+2025-03-25 00:59:21,813 [DEBUG] text2sql.agents.column [column_agent.py:196]: Building pruned schema
+2025-03-25 00:59:21,815 [DEBUG] text2sql.agents.column [column_agent.py:224]: Built pruned schema (160 chars)
+2025-03-25 00:59:21,817 [INFO] text2sql.agents.column [column_agent.py:119]: Column pruning completed in 9.53s
+2025-03-25 00:59:21,818 [INFO] text2sql.azure [azure_client.py:46]: SQL generation started for query: 'Get me all the customers whose name starts with J'
+2025-03-25 00:59:21,823 [DEBUG] text2sql.azure [azure_client.py:79]: Including schema information (160 chars)
+2025-03-25 00:59:21,827 [DEBUG] text2sql.azure [azure_client.py:86]: Including 3 SQL examples
+2025-03-25 00:59:21,831 [DEBUG] text2sql.azure [azure_client.py:100]: SQL generation prompt: ["You are an expert SQL assistant. Convert natural language questions into precise, executable SQL queries.\nYour task is to:\n1. Analyze the provided schema carefully, noting table relationships and column types\n2. Generate a SQL query that accurately answers the user's question\n3. Consider performance by selecting only necessary columns\n4. Use appropriate JOIN conditions based on primary/foreign key relationships\n5. Include a brief explanation of your query\n\nRules:\n- Include table names... (truncated)
+2025-03-25 00:59:21,836 [DEBUG] text2sql.azure [azure_client.py:105]: Sending request to Phi-3.5-mini-instruct with max_tokens=2000, temperature=0.7
+2025-03-25 00:59:33,682 [DEBUG] text2sql.azure [azure_client.py:116]: Model response received in 11.84s
+2025-03-25 00:59:33,687 [DEBUG] text2sql.azure [azure_client.py:122]: Raw model response: ' Here's the SQL query that will retrieve all customers whose first name starts with 'J':
+
+```sql
+SELECT *
+FROM customers
+WHERE first_name LIKE 'J%'
+```
+
+Explanation:
+- `SELECT *`: This selects all columns from the `customers` table.
+- `FROM customers`: Specifies the table from which to retrieve the data.
+- `WHERE first_name LIKE 'J%'`: Filters the results to include only those records where the `first_name` column starts with the letter 'J'. The `%` is a wildcard character that matches any seque...' (truncated)
+2025-03-25 00:59:33,690 [DEBUG] text2sql.azure [azure_client.py:157]: Parsing SQL from model response
+2025-03-25 00:59:33,697 [DEBUG] text2sql.azure [azure_client.py:164]: Found SQL code block in response
+2025-03-25 00:59:33,701 [DEBUG] text2sql.azure [azure_client.py:178]: Extracted SQL query (50 chars) and explanation (728 chars)
+2025-03-25 00:59:33,706 [INFO] text2sql.azure [azure_client.py:131]: Generated SQL: SELECT *
+FROM customers
+WHERE first_name LIKE 'J%'
+2025-03-25 00:59:33,710 [INFO] text2sql.azure [azure_client.py:139]: SQL generation completed in 11.89s
+2025-03-25 00:59:33,716 [INFO] text2sql.database [database.py:45]: Executing SQL query: SELECT *
+FROM customers
+WHERE first_name LIKE 'J%'
+2025-03-25 00:59:33,721 [DEBUG] text2sql.database [database.py:56]: Query execution started
+2025-03-25 00:59:33,726 [DEBUG] text2sql.database [database.py:61]: Query execution completed in 0.00s
+2025-03-25 00:59:33,737 [INFO] text2sql.database [database.py:66]: Query returned 2 rows with 11 columns
+2025-03-25 00:59:33,751 [DEBUG] text2sql.database [database.py:72]: Sample data (first 2 rows):
+   customer_id first_name last_name                   email         phone      address         city state country postal_code registration_date
+0            1       John       Doe    john.doe@example.com  123-456-7890  123 Main St     New York    NY     USA       10001        2023-01-15
+1            2       Jane     Smith  jane.smith@example.com  987-654-3210  456 Oak Ave  Los Angeles    CA     USA       90001        2023-02-20
+2025-03-25 00:59:33,755 [INFO] text2sql.database [database.py:75]: Query processing completed in 0.04s
+2025-03-25 00:59:33,763 [INFO] text2sql.sql_generator [sql_generator.py:245]: SQL generation completed in 23.66s
+2025-03-25 00:59:33,767 [INFO] text2sql.sql_generator [sql_generator.py:95]: Query processing completed in 25.65s
+2025-03-25 00:59:33,773 [ERROR] text2sql [app.py:146]: Query processing error: None
+2025-03-25 00:59:33 - ERROR - [app.py:146] - Query processing error: None
+2025-03-25 00:59:33,778 [DEBUG] text2sql [app.py:150]: Generating chart for query result with 2 rows
+2025-03-25 00:59:35,294 [DEBUG] text2sql [app.py:154]: Generated bar chart
+2025-03-25 00:59:35,300 [INFO] text2sql [app.py:161]: Total query processing time: 27.191s
+2025-03-25 00:59:48,473 [DEBUG] text2sql.sql_generator [sql_generator.py:250]: Closing all agent connections
+2025-03-25 00:59:48,474 [DEBUG] text2sql.agents.intent [intent_agent.py:181]: Closing intent agent's AI client connection
+2025-03-25 00:59:48,475 [DEBUG] text2sql.azure [azure_client.py:193]: Closing Azure AI client connection
+2025-03-25 00:59:48,478 [DEBUG] text2sql.agents.table [table_agent.py:125]: Closing table agent's AI client connection
+2025-03-25 00:59:48,479 [DEBUG] text2sql.azure [azure_client.py:193]: Closing Azure AI client connection
+2025-03-25 00:59:48,482 [DEBUG] text2sql.agents.column [column_agent.py:229]: Closing column agent's AI client connection
+2025-03-25 00:59:48,483 [DEBUG] text2sql.azure [azure_client.py:193]: Closing Azure AI client connection
+2025-03-25 00:59:48,485 [DEBUG] text2sql.azure [azure_client.py:193]: Closing Azure AI client connection
+2025-03-25 00:59:48,489 [INFO] text2sql.database [database.py:238]: Closing database connection
+2025-03-25 00:59:48,493 [DEBUG] text2sql.database [database.py:241]: Database engine disposed
+2025-03-25 00:59:48,653 [DEBUG] text2sql.sql_generator [sql_generator.py:250]: Closing all agent connections
+2025-03-25 00:59:48,654 [DEBUG] text2sql.agents.intent [intent_agent.py:181]: Closing intent agent's AI client connection
+2025-03-25 00:59:48,654 [DEBUG] text2sql.azure [azure_client.py:193]: Closing Azure AI client connection
+2025-03-25 00:59:48,655 [DEBUG] text2sql.agents.table [table_agent.py:125]: Closing table agent's AI client connection
+2025-03-25 00:59:48,655 [DEBUG] text2sql.azure [azure_client.py:193]: Closing Azure AI client connection
+2025-03-25 00:59:48,656 [DEBUG] text2sql.agents.column [column_agent.py:229]: Closing column agent's AI client connection
+2025-03-25 00:59:48,656 [DEBUG] text2sql.azure [azure_client.py:193]: Closing Azure AI client connection
+2025-03-25 00:59:48,657 [DEBUG] text2sql.azure [azure_client.py:193]: Closing Azure AI client connection
+2025-03-25 00:59:48,657 [INFO] text2sql.database [database.py:238]: Closing database connection
+2025-03-25 01:00:33,493 [INFO] text2sql.azure [azure_client.py:20]: Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-25 01:00:33,493 [INFO] text2sql.azure [azure_client.py:21]: Using model: Phi-3.5-mini-instruct
+2025-03-25 01:00:33,565 [INFO] text2sql.azure [azure_client.py:29]: Azure AI Client initialized successfully
+2025-03-25 01:00:33,565 [INFO] text2sql.schema_manager [schema_manager.py:34]: Loading schema from /home/vijay/text2sql/config/data/schema.json
+2025-03-25 01:00:33,566 [INFO] text2sql.schema_manager [schema_manager.py:41]: Loaded 1 workspaces from schema file
+2025-03-25 01:00:33,566 [INFO] text2sql.azure [azure_client.py:20]: Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-25 01:00:33,566 [INFO] text2sql.azure [azure_client.py:21]: Using model: Phi-3.5-mini-instruct
+2025-03-25 01:00:33,567 [INFO] text2sql.azure [azure_client.py:29]: Azure AI Client initialized successfully
+2025-03-25 01:00:33,567 [INFO] text2sql.schema_manager [schema_manager.py:34]: Loading schema from /home/vijay/text2sql/config/data/schema.json
+2025-03-25 01:00:33,567 [INFO] text2sql.schema_manager [schema_manager.py:41]: Loaded 1 workspaces from schema file
+2025-03-25 01:00:33,568 [INFO] text2sql.azure [azure_client.py:20]: Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-25 01:00:33,568 [INFO] text2sql.azure [azure_client.py:21]: Using model: Phi-3.5-mini-instruct
+2025-03-25 01:00:33,568 [INFO] text2sql.azure [azure_client.py:29]: Azure AI Client initialized successfully
+2025-03-25 01:00:33,569 [INFO] text2sql.schema_manager [schema_manager.py:34]: Loading schema from /home/vijay/text2sql/config/data/schema.json
+2025-03-25 01:00:33,569 [INFO] text2sql.schema_manager [schema_manager.py:41]: Loaded 1 workspaces from schema file
+2025-03-25 01:00:33,570 [INFO] text2sql.azure [azure_client.py:20]: Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-25 01:00:33,570 [INFO] text2sql.azure [azure_client.py:21]: Using model: Phi-3.5-mini-instruct
+2025-03-25 01:00:33,571 [INFO] text2sql.azure [azure_client.py:29]: Azure AI Client initialized successfully
+2025-03-25 01:00:33,571 [INFO] text2sql.database [database.py:18]: Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-25 01:00:33,571 [INFO] text2sql.schema_manager [schema_manager.py:34]: Loading schema from /home/vijay/text2sql/config/data/schema.json
+2025-03-25 01:00:33,572 [INFO] text2sql.schema_manager [schema_manager.py:41]: Loaded 1 workspaces from schema file
+2025-03-25 01:00:36,725 [INFO] text2sql.azure [azure_client.py:20]: Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-25 01:00:36,725 [INFO] text2sql.azure [azure_client.py:21]: Using model: Phi-3.5-mini-instruct
+2025-03-25 01:00:36,822 [INFO] text2sql.azure [azure_client.py:29]: Azure AI Client initialized successfully
+2025-03-25 01:00:36,822 [INFO] text2sql.schema_manager [schema_manager.py:34]: Loading schema from /home/vijay/text2sql/config/data/schema.json
+2025-03-25 01:00:36,823 [INFO] text2sql.schema_manager [schema_manager.py:41]: Loaded 1 workspaces from schema file
+2025-03-25 01:00:36,823 [INFO] text2sql.azure [azure_client.py:20]: Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-25 01:00:36,823 [INFO] text2sql.azure [azure_client.py:21]: Using model: Phi-3.5-mini-instruct
+2025-03-25 01:00:36,824 [INFO] text2sql.azure [azure_client.py:29]: Azure AI Client initialized successfully
+2025-03-25 01:00:36,824 [INFO] text2sql.schema_manager [schema_manager.py:34]: Loading schema from /home/vijay/text2sql/config/data/schema.json
+2025-03-25 01:00:36,825 [INFO] text2sql.schema_manager [schema_manager.py:41]: Loaded 1 workspaces from schema file
+2025-03-25 01:00:36,825 [INFO] text2sql.azure [azure_client.py:20]: Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-25 01:00:36,826 [INFO] text2sql.azure [azure_client.py:21]: Using model: Phi-3.5-mini-instruct
+2025-03-25 01:00:36,827 [INFO] text2sql.azure [azure_client.py:29]: Azure AI Client initialized successfully
+2025-03-25 01:00:36,827 [INFO] text2sql.schema_manager [schema_manager.py:34]: Loading schema from /home/vijay/text2sql/config/data/schema.json
+2025-03-25 01:00:36,827 [INFO] text2sql.schema_manager [schema_manager.py:41]: Loaded 1 workspaces from schema file
+2025-03-25 01:00:36,828 [INFO] text2sql.azure [azure_client.py:20]: Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-25 01:00:36,828 [INFO] text2sql.azure [azure_client.py:21]: Using model: Phi-3.5-mini-instruct
+2025-03-25 01:00:36,829 [INFO] text2sql.azure [azure_client.py:29]: Azure AI Client initialized successfully
+2025-03-25 01:00:36,830 [INFO] text2sql.database [database.py:18]: Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-25 01:00:36,831 [INFO] text2sql.schema_manager [schema_manager.py:34]: Loading schema from /home/vijay/text2sql/config/data/schema.json
+2025-03-25 01:00:36,831 [INFO] text2sql.schema_manager [schema_manager.py:41]: Loaded 1 workspaces from schema file
+2025-03-25 01:00:41,055 [INFO] text2sql [app.py:127]: Processing query: 'Get me all the customers whose name starts with J' in workspace 'Default'
+2025-03-25 01:00:41,061 [INFO] text2sql.sql_generator [sql_generator.py:34]: Processing query: 'Get me all the customers whose name starts with J'
+2025-03-25 01:00:41,065 [INFO] text2sql.agents.intent [intent_agent.py:27]: Intent detection started for query: 'Get me all the customers whose name starts with J'
+2025-03-25 01:00:41,067 [DEBUG] text2sql.agents.intent [intent_agent.py:56]: Sending request to AI model for intent detection
+2025-03-25 01:00:41,069 [DEBUG] text2sql.agents.intent [intent_agent.py:57]: Prompt: ["You are an intent classification agent for a Text-to-SQL system. \nYour job is to determine the intent of a user's query. Classify the intent into one of these categories:\n- data_retrieval: User wants to retrieve data from the database (requires SQL generation)\n- schema_exploration: User wants to explore the database schema (tables, columns, etc.)\n- metadata_request: User wants information about the database itself (size, structure, etc.)\n- general_question: General question not related to SQL generation\nReturn ONLY the intent category as your response, with no additional text.\n\nExamples:\n- \"How many customers made purchases last month?\" \u2192 data_retrieval\n- \"Show me the database schema\" \u2192 schema_exploration\n- \"What tables are in the database?\" \u2192 metadata_request\n- \"How does this system work?\" \u2192 general_question", "Classify this query: Get me all the customers whose name starts with J"]
+2025-03-25 01:00:42,709 [DEBUG] text2sql.agents.intent [intent_agent.py:65]: Raw model response for intent: 'data_retrieval'
+2025-03-25 01:00:42,712 [INFO] text2sql.agents.intent [intent_agent.py:72]: Intent detected: 'data_retrieval' with confidence 1.0
+2025-03-25 01:00:42,715 [INFO] text2sql.agents.intent [intent_agent.py:76]: Intent detection completed in 1.65s
+2025-03-25 01:00:42,717 [INFO] text2sql.sql_generator [sql_generator.py:39]: Detected intent: data_retrieval
+2025-03-25 01:00:42,720 [INFO] text2sql.sql_generator [sql_generator.py:109]: Starting SQL generation process
+2025-03-25 01:00:42,727 [INFO] text2sql.database [database.py:24]: Attempting database connection
+2025-03-25 01:00:42,762 [INFO] text2sql.database [database.py:28]: Database connection established in 0.03s
+2025-03-25 01:00:42,768 [INFO] text2sql.agents.table [table_agent.py:28]: Table selection started for query: 'Get me all the customers whose name starts with J'
+2025-03-25 01:00:42,771 [INFO] text2sql.agents.table [table_agent.py:34]: Available tables (5): customers, products, orders, order_items, sales_metrics
+2025-03-25 01:00:42,774 [DEBUG] text2sql.agents.table [table_agent.py:64]: Sending request to AI model for table selection
+2025-03-25 01:00:42,777 [DEBUG] text2sql.agents.table [table_agent.py:65]: Prompt: ["You are a table selection agent for a Text-to-SQL system.\nYour job is to identify which database tables are most relevant to a user query.\nYou will be provided with table names and their descriptions.\nReturn ONLY the names of relevant tables, separated by commas. Be selective and choose\nonly the tables that are directly needed to answer the query. If you're unsure,\ninclude tables that might be related. Return only table names in your response.", "Available tables:\ncustomers: Customer information and profiles\nproducts: Product catalog and inventory\norders: Customer orders and transactions\norder_items: Individual items within each order\nsales_metrics: Aggregated sales data by channel\n\nUser query: Get me all the customers whose name starts with J"]
+2025-03-25 01:00:43,208 [DEBUG] text2sql.sql_generator [sql_generator.py:250]: Closing all agent connections
+2025-03-25 01:00:43,208 [DEBUG] text2sql.agents.intent [intent_agent.py:181]: Closing intent agent's AI client connection
+2025-03-25 01:00:43,209 [DEBUG] text2sql.azure [azure_client.py:193]: Closing Azure AI client connection
+2025-03-25 01:00:43,211 [DEBUG] text2sql.agents.table [table_agent.py:125]: Closing table agent's AI client connection
+2025-03-25 01:00:43,211 [DEBUG] text2sql.azure [azure_client.py:193]: Closing Azure AI client connection
+2025-03-25 01:00:43,212 [DEBUG] text2sql.agents.column [column_agent.py:229]: Closing column agent's AI client connection
+2025-03-25 01:00:43,212 [DEBUG] text2sql.azure [azure_client.py:193]: Closing Azure AI client connection
+2025-03-25 01:00:43,213 [DEBUG] text2sql.azure [azure_client.py:193]: Closing Azure AI client connection
+2025-03-25 01:00:43,213 [INFO] text2sql.database [database.py:238]: Closing database connection
+2025-03-25 01:00:43,214 [DEBUG] text2sql.database [database.py:241]: Database engine disposed
+2025-03-25 01:00:43,429 [DEBUG] text2sql.sql_generator [sql_generator.py:250]: Closing all agent connections
+2025-03-25 01:00:43,430 [DEBUG] text2sql.agents.intent [intent_agent.py:181]: Closing intent agent's AI client connection
+2025-03-25 01:00:43,431 [DEBUG] text2sql.azure [azure_client.py:193]: Closing Azure AI client connection
+2025-03-25 01:00:43,432 [DEBUG] text2sql.agents.table [table_agent.py:125]: Closing table agent's AI client connection
+2025-03-25 01:00:43,432 [DEBUG] text2sql.azure [azure_client.py:193]: Closing Azure AI client connection
+2025-03-25 01:00:43,433 [DEBUG] text2sql.agents.column [column_agent.py:229]: Closing column agent's AI client connection
+2025-03-25 01:00:43,433 [DEBUG] text2sql.azure [azure_client.py:193]: Closing Azure AI client connection
+2025-03-25 01:00:43,434 [DEBUG] text2sql.azure [azure_client.py:193]: Closing Azure AI client connection
+2025-03-25 01:00:43,435 [INFO] text2sql.database [database.py:238]: Closing database connection
+2025-03-25 01:02:34,393 [ERROR] text2sql [app.py:146]: Query processing error: None
+2025-03-25 01:02:34 - ERROR - [app.py:146] - Query processing error: None
+2025-03-25 01:04:28,321 [ERROR] text2sql [app.py:279]: Error retrieving database schema: 'DatabaseManager' object has no attribute 'get_schema'
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/app.py", line 269, in get_schema
+    schema = sql_manager.db_manager.get_schema()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DatabaseManager' object has no attribute 'get_schema'
+2025-03-25 01:04:28 - ERROR - [app.py:279] - Error retrieving database schema: 'DatabaseManager' object has no attribute 'get_schema'
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/app.py", line 269, in get_schema
+    schema = sql_manager.db_manager.get_schema()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DatabaseManager' object has no attribute 'get_schema'
+2025-03-25 01:16:53,321 [ERROR] text2sql [app.py:101]: Query processing error: None
+2025-03-25 01:16:53 - ERROR - [app.py:101] - Query processing error: None
+2025-03-25 01:19:20,923 [ERROR] text2sql [app.py:101]: Query processing error: None
+2025-03-25 01:19:20 - ERROR - [app.py:101] - Query processing error: None
+2025-03-25 01:23:55,714 [ERROR] text2sql [app.py:101]: Query processing error: None
+2025-03-25 01:23:55 - ERROR - [app.py:101] - Query processing error: None
+2025-03-25 01:27:12,429 [ERROR] text2sql [app.py:132]: Error retrieving database schema: 'DatabaseManager' object has no attribute 'get_schema'
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/app.py", line 122, in get_schema
+    schema = sql_manager.db_manager.get_schema()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DatabaseManager' object has no attribute 'get_schema'
+2025-03-25 01:27:12 - ERROR - [app.py:132] - Error retrieving database schema: 'DatabaseManager' object has no attribute 'get_schema'
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/app.py", line 122, in get_schema
+    schema = sql_manager.db_manager.get_schema()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DatabaseManager' object has no attribute 'get_schema'
+2025-03-25 01:28:49,673 [ERROR] text2sql.agents.intent [intent_agent.py:81]: Intent detection error after 0.23s: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/agents/intent_agent.py", line 59, in detect_intent
+    response = self.ai_client.client.complete(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/ai/inference/_patch.py", line 728, in complete
+    pipeline_response: PipelineResponse = self._client._pipeline.run(  # pylint: disable=protected-access
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 240, in run
+    return first_node.send(pipeline_request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 2 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_redirect.py", line 204, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 573, in send
+    raise err
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 551, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 3 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 128, in send
+    self._sender.send(request.http_request, **request.context.options),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/transport/_requests_basic.py", line 409, in send
+    raise error
+azure.core.exceptions.ServiceResponseError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2025-03-25 01:28:49,709 [ERROR] text2sql.agents.table [table_agent.py:99]: Table selection error after 0.03s: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/agents/table_agent.py", line 67, in get_relevant_tables
+    response = self.ai_client.client.complete(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/ai/inference/_patch.py", line 728, in complete
+    pipeline_response: PipelineResponse = self._client._pipeline.run(  # pylint: disable=protected-access
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 240, in run
+    return first_node.send(pipeline_request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 2 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_redirect.py", line 204, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 573, in send
+    raise err
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 551, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 3 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 128, in send
+    self._sender.send(request.http_request, **request.context.options),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/transport/_requests_basic.py", line 409, in send
+    raise error
+azure.core.exceptions.ServiceResponseError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2025-03-25 01:28:49,960 [ERROR] text2sql.agents.column [column_agent.py:124]: Column pruning error after 0.25s: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/agents/column_agent.py", line 92, in prune_columns
+    response = self.ai_client.client.complete(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/ai/inference/_patch.py", line 728, in complete
+    pipeline_response: PipelineResponse = self._client._pipeline.run(  # pylint: disable=protected-access
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 240, in run
+    return first_node.send(pipeline_request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 2 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_redirect.py", line 204, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 573, in send
+    raise err
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 551, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 3 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 128, in send
+    self._sender.send(request.http_request, **request.context.options),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/transport/_requests_basic.py", line 409, in send
+    raise error
+azure.core.exceptions.ServiceResponseError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2025-03-25 01:29:05,779 [ERROR] text2sql [app.py:101]: Query processing error: None
+2025-03-25 01:29:05 - ERROR - [app.py:101] - Query processing error: None
+2025-03-25 01:43:03,907 [ERROR] text2sql [app.py:101]: Query processing error: None
+2025-03-25 01:43:03 - ERROR - [app.py:101] - Query processing error: None
+2025-03-25 01:44:48,247 [ERROR] text2sql [app.py:132]: Error retrieving database schema: 'DatabaseManager' object has no attribute 'get_schema'
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/app.py", line 122, in get_schema
+    schema = sql_manager.db_manager.get_schema()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DatabaseManager' object has no attribute 'get_schema'
+2025-03-25 01:44:48 - ERROR - [app.py:132] - Error retrieving database schema: 'DatabaseManager' object has no attribute 'get_schema'
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/app.py", line 122, in get_schema
+    schema = sql_manager.db_manager.get_schema()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DatabaseManager' object has no attribute 'get_schema'
+2025-03-25 01:51:24,223 [ERROR] text2sql [app.py:101]: Query processing error: None
+2025-03-25 01:51:24 - ERROR - [app.py:101] - Query processing error: None
+2025-03-25 01:55:13,376 [ERROR] text2sql [app.py:101]: Query processing error: None
+2025-03-25 01:55:13 - ERROR - [app.py:101] - Query processing error: None
+2025-03-25 01:57:22,519 [ERROR] text2sql [app.py:101]: Query processing error: None
+2025-03-25 01:57:22 - ERROR - [app.py:101] - Query processing error: None
+2025-03-25 01:58:18,460 [ERROR] text2sql [app.py:101]: Query processing error: None
+2025-03-25 01:58:18 - ERROR - [app.py:101] - Query processing error: None
+2025-03-25 02:06:41,734 [ERROR] text2sql [app.py:101]: Query processing error: None
+2025-03-25 02:06:41 - ERROR - [app.py:101] - Query processing error: None
+2025-03-25 02:07:57,313 [ERROR] text2sql [app.py:132]: Error retrieving database schema: 'DatabaseManager' object has no attribute 'get_schema'
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/app.py", line 122, in get_schema
+    schema = sql_manager.db_manager.get_schema()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DatabaseManager' object has no attribute 'get_schema'
+2025-03-25 02:07:57 - ERROR - [app.py:132] - Error retrieving database schema: 'DatabaseManager' object has no attribute 'get_schema'
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/app.py", line 122, in get_schema
+    schema = sql_manager.db_manager.get_schema()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DatabaseManager' object has no attribute 'get_schema'
+2025-03-25 02:16:55,178 [ERROR] text2sql [app.py:171]: Error retrieving database schema: 'DatabaseManager' object has no attribute 'get_schema'
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/app.py", line 161, in get_schema
+    schema = sql_manager.db_manager.get_schema()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DatabaseManager' object has no attribute 'get_schema'
+2025-03-25 02:16:55 - ERROR - [app.py:171] - Error retrieving database schema: 'DatabaseManager' object has no attribute 'get_schema'
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/app.py", line 161, in get_schema
+    schema = sql_manager.db_manager.get_schema()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DatabaseManager' object has no attribute 'get_schema'
+2025-03-25 02:29:12,768 [ERROR] text2sql.agents.intent [intent_agent.py:81]: Intent detection error after 0.03s: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/agents/intent_agent.py", line 59, in detect_intent
+    response = self.ai_client.client.complete(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/ai/inference/_patch.py", line 728, in complete
+    pipeline_response: PipelineResponse = self._client._pipeline.run(  # pylint: disable=protected-access
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 240, in run
+    return first_node.send(pipeline_request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 2 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_redirect.py", line 204, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 573, in send
+    raise err
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 551, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 3 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 128, in send
+    self._sender.send(request.http_request, **request.context.options),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/transport/_requests_basic.py", line 409, in send
+    raise error
+azure.core.exceptions.ServiceResponseError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2025-03-25 02:29:13,307 [ERROR] text2sql.agents.column [column_agent.py:124]: Column pruning error after 0.03s: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/agents/column_agent.py", line 92, in prune_columns
+    response = self.ai_client.client.complete(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/ai/inference/_patch.py", line 728, in complete
+    pipeline_response: PipelineResponse = self._client._pipeline.run(  # pylint: disable=protected-access
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 240, in run
+    return first_node.send(pipeline_request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 2 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_redirect.py", line 204, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 573, in send
+    raise err
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 551, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 3 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 128, in send
+    self._sender.send(request.http_request, **request.context.options),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/transport/_requests_basic.py", line 409, in send
+    raise error
+azure.core.exceptions.ServiceResponseError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2025-03-25 02:30:27,622 [ERROR] text2sql [app.py:171]: Error retrieving database schema: 'DatabaseManager' object has no attribute 'get_schema'
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/app.py", line 161, in get_schema
+    schema = sql_manager.db_manager.get_schema()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DatabaseManager' object has no attribute 'get_schema'
+2025-03-25 02:30:27 - ERROR - [app.py:171] - Error retrieving database schema: 'DatabaseManager' object has no attribute 'get_schema'
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/app.py", line 161, in get_schema
+    schema = sql_manager.db_manager.get_schema()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DatabaseManager' object has no attribute 'get_schema'
+2025-03-25 03:48:29 - ERROR - [database.py:102] - SQL error after 0.00s: (sqlite3.OperationalError) no such column: c.customer_name
+[SQL: WITH OrderCounts AS (
+    SELECT
+        o.customer_id,
+        COUNT(o.order_id) AS order_count
+    FROM
+        orders o
+    GROUP BY
+        o.customer_id
+),
+MaxOrderCount AS (
+    SELECT
+        MAX(order_count) AS max_order_count
+    FROM
+        OrderCounts
+)
+SELECT
+    c.customer_id,
+    c.customer_id AS alias_customer_id,
+    c.customer_name,
+    oc.order_count
+FROM
+    customers c
+JOIN
+    OrderCounts oc ON c.customer_id = oc.customer_id
+JOIN
+    MaxOrderCount moc ON oc.order_count = moc.max_order_count;]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Traceback (most recent call last):
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.OperationalError: no such column: c.customer_name
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/utils/database.py", line 58, in execute_query
+    result = conn.execute(text(sql_query))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1414, in execute
+    return meth(
+           ^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 486, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1638, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1842, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1983, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2326, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such column: c.customer_name
+[SQL: WITH OrderCounts AS (
+    SELECT
+        o.customer_id,
+        COUNT(o.order_id) AS order_count
+    FROM
+        orders o
+    GROUP BY
+        o.customer_id
+),
+MaxOrderCount AS (
+    SELECT
+        MAX(order_count) AS max_order_count
+    FROM
+        OrderCounts
+)
+SELECT
+    c.customer_id,
+    c.customer_id AS alias_customer_id,
+    c.customer_name,
+    oc.order_count
+FROM
+    customers c
+JOIN
+    OrderCounts oc ON c.customer_id = oc.customer_id
+JOIN
+    MaxOrderCount moc ON oc.order_count = moc.max_order_count;]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-03-25 09:15:23,661 [ERROR] text2sql.agents.intent [intent_agent.py:81]: Intent detection error after 0.04s: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/agents/intent_agent.py", line 59, in detect_intent
+    response = self.ai_client.client.complete(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/ai/inference/_patch.py", line 728, in complete
+    pipeline_response: PipelineResponse = self._client._pipeline.run(  # pylint: disable=protected-access
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 240, in run
+    return first_node.send(pipeline_request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 2 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_redirect.py", line 204, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 573, in send
+    raise err
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 551, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 3 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 128, in send
+    self._sender.send(request.http_request, **request.context.options),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/transport/_requests_basic.py", line 409, in send
+    raise error
+azure.core.exceptions.ServiceResponseError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2025-03-25 09:15:26,082 [ERROR] text2sql.agents.column [column_agent.py:124]: Column pruning error after 0.03s: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/agents/column_agent.py", line 92, in prune_columns
+    response = self.ai_client.client.complete(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/ai/inference/_patch.py", line 728, in complete
+    pipeline_response: PipelineResponse = self._client._pipeline.run(  # pylint: disable=protected-access
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 240, in run
+    return first_node.send(pipeline_request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 2 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_redirect.py", line 204, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 573, in send
+    raise err
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 551, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 3 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 128, in send
+    self._sender.send(request.http_request, **request.context.options),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/transport/_requests_basic.py", line 409, in send
+    raise error
+azure.core.exceptions.ServiceResponseError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2025-03-25 09:15:26 - ERROR - [azure_client.py:145] - SQL generation error after 0.01s: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/utils/azure_client.py", line 108, in generate_sql
+    response = self.client.complete(
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/ai/inference/_patch.py", line 728, in complete
+    pipeline_response: PipelineResponse = self._client._pipeline.run(  # pylint: disable=protected-access
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 240, in run
+    return first_node.send(pipeline_request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 2 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_redirect.py", line 204, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 573, in send
+    raise err
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 551, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 3 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 128, in send
+    self._sender.send(request.http_request, **request.context.options),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/transport/_requests_basic.py", line 409, in send
+    raise error
+azure.core.exceptions.ServiceResponseError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2025-03-25 14:02:09,186 [ERROR] text2sql.agents.intent [intent_agent.py:81]: Intent detection error after 0.03s: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/agents/intent_agent.py", line 59, in detect_intent
+    response = self.ai_client.client.complete(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/ai/inference/_patch.py", line 728, in complete
+    pipeline_response: PipelineResponse = self._client._pipeline.run(  # pylint: disable=protected-access
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 240, in run
+    return first_node.send(pipeline_request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 2 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_redirect.py", line 204, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 573, in send
+    raise err
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 551, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 3 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 128, in send
+    self._sender.send(request.http_request, **request.context.options),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/transport/_requests_basic.py", line 409, in send
+    raise error
+azure.core.exceptions.ServiceResponseError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2025-03-25 14:02:09,238 [ERROR] text2sql.agents.table [table_agent.py:99]: Table selection error after 0.04s: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/agents/table_agent.py", line 67, in get_relevant_tables
+    response = self.ai_client.client.complete(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/ai/inference/_patch.py", line 728, in complete
+    pipeline_response: PipelineResponse = self._client._pipeline.run(  # pylint: disable=protected-access
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 240, in run
+    return first_node.send(pipeline_request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 2 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_redirect.py", line 204, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 573, in send
+    raise err
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 551, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 3 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 128, in send
+    self._sender.send(request.http_request, **request.context.options),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/transport/_requests_basic.py", line 409, in send
+    raise error
+azure.core.exceptions.ServiceResponseError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2025-03-25 14:02:09,254 [ERROR] text2sql.agents.column [column_agent.py:124]: Column pruning error after 0.01s: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/agents/column_agent.py", line 92, in prune_columns
+    response = self.ai_client.client.complete(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/ai/inference/_patch.py", line 728, in complete
+    pipeline_response: PipelineResponse = self._client._pipeline.run(  # pylint: disable=protected-access
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 240, in run
+    return first_node.send(pipeline_request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 2 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_redirect.py", line 204, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 573, in send
+    raise err
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 551, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 3 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 128, in send
+    self._sender.send(request.http_request, **request.context.options),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/transport/_requests_basic.py", line 409, in send
+    raise error
+azure.core.exceptions.ServiceResponseError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2025-03-25 14:02:09 - ERROR - [azure_client.py:145] - SQL generation error after 0.01s: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/utils/azure_client.py", line 108, in generate_sql
+    response = self.client.complete(
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/ai/inference/_patch.py", line 728, in complete
+    pipeline_response: PipelineResponse = self._client._pipeline.run(  # pylint: disable=protected-access
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 240, in run
+    return first_node.send(pipeline_request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 2 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_redirect.py", line 204, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 573, in send
+    raise err
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 551, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 3 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 128, in send
+    self._sender.send(request.http_request, **request.context.options),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/transport/_requests_basic.py", line 409, in send
+    raise error
+azure.core.exceptions.ServiceResponseError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
