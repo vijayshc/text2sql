@@ -10280,3 +10280,1042 @@ Traceback (most recent call last):
 azure.core.exceptions.ServiceResponseError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
 2025-03-25 14:02:09 - INFO - [sql_generator.py:278] - SQL generation completed in 0.08s
 2025-03-25 14:02:09 - INFO - [sql_generator.py:117] - Query processing completed in 0.13s
+2025-03-25 23:00:54 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-25 23:00:54 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-25 23:00:54 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-25 23:00:54 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-25 23:00:54 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-25 23:00:54 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-25 23:00:54 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-25 23:00:54 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-25 23:00:54 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-25 23:00:54 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-25 23:00:54 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-25 23:00:54 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-25 23:00:54 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-25 23:00:55 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-25 23:00:55 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-25 23:00:55 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-25 23:00:55 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-25 23:00:55 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-25 23:00:55 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-25 23:00:55 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-25 23:00:55 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-25 23:00:55 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-25 23:00:55 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-25 23:00:55 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-25 23:00:55 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-25 23:00:55 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-25 23:02:26 - INFO - [app.py:99] - User explicitly specified tables: customers
+2025-03-25 23:02:26 - INFO - [sql_generator.py:36] - Processing query: 'get me list of customers'
+2025-03-25 23:02:26 - INFO - [sql_generator.py:39] - User explicitly selected tables: customers
+2025-03-25 23:02:27 - INFO - [sql_generator.py:44] - Detected intent: data_retrieval
+2025-03-25 23:02:27 - INFO - [sql_generator.py:137] - Starting SQL generation process
+2025-03-25 23:02:27 - INFO - [database.py:24] - Attempting database connection
+2025-03-25 23:02:27 - INFO - [database.py:28] - Database connection established in 0.02s
+2025-03-25 23:02:29 - INFO - [azure_client.py:46] - SQL generation started for query: 'get me list of customers'
+2025-03-25 23:02:33 - INFO - [azure_client.py:131] - Generated SQL: SELECT * FROM customers;
+2025-03-25 23:02:33,594 - QUERY: 'get me list of customers' → SQL: SELECT * FROM customers;
+2025-03-25 23:02:33 - INFO - [azure_client.py:139] - SQL generation completed in 4.36s
+2025-03-25 23:02:33 - INFO - [database.py:45] - Executing SQL query: SELECT * FROM customers;
+2025-03-25 23:02:33 - INFO - [database.py:66] - Query returned 5 rows with 11 columns
+2025-03-25 23:02:33 - INFO - [database.py:75] - Query processing completed in 0.03s
+2025-03-25 23:02:33 - INFO - [sql_generator.py:297] - SQL generation completed in 6.17s
+2025-03-25 23:02:33 - INFO - [sql_generator.py:121] - Query processing completed in 7.45s
+2025-03-25 23:04:41 - INFO - [app.py:99] - User explicitly specified tables: customers, orders
+2025-03-25 23:04:41 - INFO - [sql_generator.py:36] - Processing query: 'get me list of customers'
+2025-03-25 23:04:41 - INFO - [sql_generator.py:39] - User explicitly selected tables: customers, orders
+2025-03-25 23:04:42 - INFO - [sql_generator.py:44] - Detected intent: data_retrieval
+2025-03-25 23:04:42 - INFO - [sql_generator.py:137] - Starting SQL generation process
+2025-03-25 23:04:42 - INFO - [database.py:24] - Attempting database connection
+2025-03-25 23:04:42 - INFO - [database.py:28] - Database connection established in 0.00s
+2025-03-25 23:04:43 - INFO - [azure_client.py:46] - SQL generation started for query: 'get me list of customers'
+2025-03-25 23:04:45 - INFO - [azure_client.py:131] - Generated SQL: SELECT 
+    c.customer_id,
+    c.first_name || ' ' || c.last_name AS full_name
+FROM 
+    customers c;
+2025-03-25 23:04:45,146 - QUERY: 'get me list of customers' → SQL: SELECT 
+    c.customer_id,
+    c.first_name || ' ' || c.last_name AS full_name
+FROM 
+    customers c;
+2025-03-25 23:04:45 - INFO - [azure_client.py:139] - SQL generation completed in 2.05s
+2025-03-25 23:04:45 - INFO - [database.py:45] - Executing SQL query: SELECT 
+    c.customer_id,
+    c.first_name || ' ' || c.last_name AS full_name
+FROM 
+    customers c;
+2025-03-25 23:04:45 - INFO - [database.py:66] - Query returned 5 rows with 2 columns
+2025-03-25 23:04:45 - INFO - [database.py:75] - Query processing completed in 0.02s
+2025-03-25 23:04:45 - INFO - [sql_generator.py:297] - SQL generation completed in 2.75s
+2025-03-25 23:04:45 - INFO - [sql_generator.py:121] - Query processing completed in 3.26s
+2025-03-25 23:08:54 - INFO - [sql_generator.py:36] - Processing query: '@customers'
+2025-03-25 23:08:54 - INFO - [sql_generator.py:44] - Detected intent: schema_exploration
+2025-03-25 23:08:54 - INFO - [sql_generator.py:72] - Processing schema exploration request
+2025-03-25 23:08:54 - INFO - [sql_generator.py:121] - Query processing completed in 0.53s
+2025-03-25 23:17:06 - INFO - [app.py:99] - User explicitly specified tables: order_items
+2025-03-25 23:17:06 - INFO - [sql_generator.py:36] - Processing query: '@order_items count of item'
+2025-03-25 23:17:06 - INFO - [sql_generator.py:39] - User explicitly selected tables: order_items
+2025-03-25 23:17:06 - INFO - [sql_generator.py:44] - Detected intent: data_retrieval
+2025-03-25 23:17:06 - INFO - [sql_generator.py:137] - Starting SQL generation process
+2025-03-25 23:17:06 - INFO - [database.py:24] - Attempting database connection
+2025-03-25 23:17:06 - INFO - [database.py:28] - Database connection established in 0.00s
+2025-03-25 23:17:07 - INFO - [azure_client.py:46] - SQL generation started for query: '@order_items count of item'
+2025-03-25 23:17:07 - ERROR - [azure_client.py:145] - SQL generation error after 0.03s: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/utils/azure_client.py", line 108, in generate_sql
+    response = self.client.complete(
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/ai/inference/_patch.py", line 728, in complete
+    pipeline_response: PipelineResponse = self._client._pipeline.run(  # pylint: disable=protected-access
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 240, in run
+    return first_node.send(pipeline_request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 2 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_redirect.py", line 204, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 573, in send
+    raise err
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 551, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 3 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 128, in send
+    self._sender.send(request.http_request, **request.context.options),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/transport/_requests_basic.py", line 409, in send
+    raise error
+azure.core.exceptions.ServiceResponseError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2025-03-25 23:17:07 - INFO - [sql_generator.py:297] - SQL generation completed in 0.26s
+2025-03-25 23:17:07 - INFO - [sql_generator.py:121] - Query processing completed in 0.30s
+2025-03-25 23:19:49 - INFO - [database.py:238] - Closing database connection
+2025-03-25 23:19:51 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-25 23:19:51 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-25 23:19:51 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-25 23:19:51 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-25 23:19:51 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-25 23:19:51 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-25 23:19:51 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-25 23:19:51 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-25 23:19:51 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-25 23:19:51 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-25 23:19:51 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-25 23:19:51 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-25 23:19:51 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-25 23:19:52 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-25 23:19:52 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-25 23:19:52 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-25 23:19:52 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-25 23:19:52 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-25 23:19:52 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-25 23:19:52 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-25 23:19:52 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-25 23:19:52 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-25 23:19:52 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-25 23:19:52 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-25 23:19:52 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-25 23:19:52 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-25 23:20:11 - INFO - [app.py:99] - User explicitly specified tables: order_items
+2025-03-25 23:20:11 - INFO - [sql_generator.py:36] - Processing query: 'count items from @order_items'
+2025-03-25 23:20:11 - INFO - [sql_generator.py:39] - User explicitly selected tables: order_items
+2025-03-25 23:20:13 - INFO - [sql_generator.py:44] - Detected intent: data_retrieval
+2025-03-25 23:20:13 - INFO - [sql_generator.py:137] - Starting SQL generation process
+2025-03-25 23:20:13 - INFO - [database.py:24] - Attempting database connection
+2025-03-25 23:20:13 - INFO - [database.py:28] - Database connection established in 0.01s
+2025-03-25 23:20:15 - INFO - [azure_client.py:46] - SQL generation started for query: 'count items from @order_items'
+2025-03-25 23:20:19 - INFO - [azure_client.py:131] - Generated SQL: SELECT COUNT(*) AS item_count FROM order_items;
+2025-03-25 23:20:19,343 - QUERY: 'count items from @order_items' → SQL: SELECT COUNT(*) AS item_count FROM order_items;
+2025-03-25 23:20:19 - INFO - [azure_client.py:139] - SQL generation completed in 4.23s
+2025-03-25 23:20:19 - INFO - [database.py:45] - Executing SQL query: SELECT COUNT(*) AS item_count FROM order_items;
+2025-03-25 23:20:19 - INFO - [database.py:66] - Query returned 1 rows with 1 columns
+2025-03-25 23:20:19 - INFO - [database.py:75] - Query processing completed in 0.03s
+2025-03-25 23:20:19 - INFO - [sql_generator.py:297] - SQL generation completed in 6.17s
+2025-03-25 23:20:19 - INFO - [sql_generator.py:121] - Query processing completed in 7.88s
+2025-03-25 23:20:30 - INFO - [app.py:99] - User explicitly specified tables: order_items, customers
+2025-03-25 23:20:30 - INFO - [sql_generator.py:36] - Processing query: 'count items from @order_items and @customers'
+2025-03-25 23:20:30 - INFO - [sql_generator.py:39] - User explicitly selected tables: order_items, customers
+2025-03-25 23:20:30 - INFO - [sql_generator.py:44] - Detected intent: data_retrieval
+2025-03-25 23:20:30 - INFO - [sql_generator.py:137] - Starting SQL generation process
+2025-03-25 23:20:30 - INFO - [database.py:24] - Attempting database connection
+2025-03-25 23:20:30 - INFO - [database.py:28] - Database connection established in 0.00s
+2025-03-25 23:20:31 - INFO - [azure_client.py:46] - SQL generation started for query: 'count items from @order_items and @customers'
+2025-03-25 23:20:35 - INFO - [azure_client.py:131] - Generated SQL: SELECT c.customer_id, SUM(oi.quantity) AS total_items
+FROM customers c
+JOIN order_items oi ON c.customer_id = oi.order_id
+GROUP BY c.customer_id;
+2025-03-25 23:20:35,273 - QUERY: 'count items from @order_items and @customers' → SQL: SELECT c.customer_id, SUM(oi.quantity) AS total_items
+FROM customers c
+JOIN order_items oi ON c.customer_id = oi.order_id
+GROUP BY c.customer_id;
+2025-03-25 23:20:35 - INFO - [azure_client.py:139] - SQL generation completed in 3.78s
+2025-03-25 23:20:35 - INFO - [database.py:45] - Executing SQL query: SELECT c.customer_id, SUM(oi.quantity) AS total_items
+FROM customers c
+JOIN order_items oi ON c.customer_id = oi.order_id
+GROUP BY c.customer_id;
+2025-03-25 23:20:35 - INFO - [database.py:66] - Query returned 5 rows with 2 columns
+2025-03-25 23:20:35 - INFO - [database.py:75] - Query processing completed in 0.01s
+2025-03-25 23:20:35 - INFO - [sql_generator.py:297] - SQL generation completed in 4.55s
+2025-03-25 23:20:35 - INFO - [sql_generator.py:121] - Query processing completed in 4.94s
+2025-03-25 23:21:43 - INFO - [app.py:99] - User explicitly specified tables: customers
+2025-03-25 23:21:43 - INFO - [sql_generator.py:36] - Processing query: 'get me items from @customers'
+2025-03-25 23:21:43 - INFO - [sql_generator.py:39] - User explicitly selected tables: customers
+2025-03-25 23:21:43 - INFO - [app.py:99] - User explicitly specified tables: customers
+2025-03-25 23:21:43 - INFO - [sql_generator.py:36] - Processing query: 'get me items from @customers'
+2025-03-25 23:21:43 - INFO - [sql_generator.py:39] - User explicitly selected tables: customers
+2025-03-25 23:21:44 - INFO - [sql_generator.py:44] - Detected intent: data_retrieval
+2025-03-25 23:21:44 - INFO - [sql_generator.py:137] - Starting SQL generation process
+2025-03-25 23:21:44 - INFO - [database.py:24] - Attempting database connection
+2025-03-25 23:21:44 - INFO - [database.py:28] - Database connection established in 0.00s
+2025-03-25 23:21:44 - INFO - [azure_client.py:46] - SQL generation started for query: 'get me items from @customers'
+2025-03-25 23:21:44 - INFO - [sql_generator.py:44] - Detected intent: data_retrieval
+2025-03-25 23:21:44 - INFO - [sql_generator.py:137] - Starting SQL generation process
+2025-03-25 23:21:44 - INFO - [database.py:24] - Attempting database connection
+2025-03-25 23:21:44 - INFO - [database.py:28] - Database connection established in 0.01s
+2025-03-25 23:21:45 - INFO - [azure_client.py:46] - SQL generation started for query: 'get me items from @customers'
+2025-03-25 23:21:47 - INFO - [azure_client.py:131] - Generated SQL: SELECT i.*
+FROM items i;
+2025-03-25 23:21:47,783 - QUERY: 'get me items from @customers' → SQL: SELECT i.*
+FROM items i;
+2025-03-25 23:21:47 - INFO - [azure_client.py:139] - SQL generation completed in 3.23s
+2025-03-25 23:21:47 - INFO - [database.py:45] - Executing SQL query: SELECT i.*
+FROM items i;
+2025-03-25 23:21:47 - ERROR - [database.py:102] - SQL error after 0.00s: (sqlite3.OperationalError) no such table: items
+[SQL: SELECT i.*
+FROM items i;]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Traceback (most recent call last):
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.OperationalError: no such table: items
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/utils/database.py", line 58, in execute_query
+    result = conn.execute(text(sql_query))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1414, in execute
+    return meth(
+           ^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 486, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1638, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1842, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1983, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2326, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such table: items
+[SQL: SELECT i.*
+FROM items i;]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-03-25 23:21:47 - INFO - [sql_generator.py:297] - SQL generation completed in 3.74s
+2025-03-25 23:21:47 - INFO - [sql_generator.py:121] - Query processing completed in 4.25s
+2025-03-25 23:21:47 - INFO - [azure_client.py:131] - Generated SQL: It seems like there might be a misunderstanding in the request. Based on the schema and information provided, we only have access to the 'customers' table. To proceed accurately, I'll need the schema details for any additional tables, such as a table containing 'items' or 'orders' that are associated with the 'customers' table. Could you please provide the schema for the additional tables or clarify the table structure containing the 'items' data?
+2025-03-25 23:21:47,888 - QUERY: 'get me items from @customers' → SQL: It seems like there might be a misunderstanding in the request. Based on the schema and information provided, we only have access to the 'customers' table. To proceed accurately, I'll need the schema details for any additional tables, such as a table containing 'items' or 'orders' that are associated with the 'customers' table. Could you please provide the schema for the additional tables or clarify the table structure containing the 'items' data?
+2025-03-25 23:21:47 - INFO - [azure_client.py:139] - SQL generation completed in 2.37s
+2025-03-25 23:21:47 - INFO - [database.py:45] - Executing SQL query: It seems like there might be a misunderstanding in the request. Based on the schema and information provided, we only have access to the 'customers' table. To proceed accurately, I'll need the schema details for any additional tables, such as a table containing 'items' or 'orders' that are associated with the 'customers' table. Could you please provide the schema for the additional tables or clarify the table structure containing the 'items' data?
+2025-03-25 23:21:47 - ERROR - [database.py:102] - SQL error after 0.00s: (sqlite3.OperationalError) near "It": syntax error
+[SQL: It seems like there might be a misunderstanding in the request. Based on the schema and information provided, we only have access to the 'customers' table. To proceed accurately, I'll need the schema details for any additional tables, such as a table containing 'items' or 'orders' that are associated with the 'customers' table. Could you please provide the schema for the additional tables or clarify the table structure containing the 'items' data?]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Traceback (most recent call last):
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.OperationalError: near "It": syntax error
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/utils/database.py", line 58, in execute_query
+    result = conn.execute(text(sql_query))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1414, in execute
+    return meth(
+           ^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 486, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1638, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1842, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1983, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2326, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) near "It": syntax error
+[SQL: It seems like there might be a misunderstanding in the request. Based on the schema and information provided, we only have access to the 'customers' table. To proceed accurately, I'll need the schema details for any additional tables, such as a table containing 'items' or 'orders' that are associated with the 'customers' table. Could you please provide the schema for the additional tables or clarify the table structure containing the 'items' data?]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-03-25 23:21:47 - INFO - [sql_generator.py:297] - SQL generation completed in 2.95s
+2025-03-25 23:21:47 - INFO - [sql_generator.py:121] - Query processing completed in 4.06s
+2025-03-25 23:26:14 - INFO - [app.py:196] - Schema requested for workspace: Default
+2025-03-26 00:02:27 - INFO - [database.py:238] - Closing database connection
+2025-03-26 00:02:29 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-26 00:02:29 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-26 00:02:29 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-26 00:02:29 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-26 00:02:29 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-26 00:02:29 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-26 00:02:29 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-26 00:02:29 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-26 00:02:29 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-26 00:02:29 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-26 00:02:29 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-26 00:02:29 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-26 00:02:29 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 00:02:30 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-26 00:02:30 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-26 00:02:30 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-26 00:02:30 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-26 00:02:30 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-26 00:02:30 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-26 00:02:30 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-26 00:02:30 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-26 00:02:30 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-26 00:02:30 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-26 00:02:30 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-26 00:02:30 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-26 00:02:30 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 00:02:57 - INFO - [app.py:99] - User explicitly specified tables: customers
+2025-03-26 00:02:57 - INFO - [sql_generator.py:36] - Processing query: '@customers list of items'
+2025-03-26 00:02:57 - INFO - [sql_generator.py:39] - User explicitly selected tables: customers
+2025-03-26 00:02:58 - INFO - [sql_generator.py:44] - Detected intent: schema_exploration
+2025-03-26 00:02:58 - INFO - [sql_generator.py:72] - Processing schema exploration request
+2025-03-26 00:02:58 - INFO - [sql_generator.py:121] - Query processing completed in 1.26s
+2025-03-26 00:03:52 - INFO - [app.py:99] - User explicitly specified tables: customers
+2025-03-26 00:03:52 - INFO - [sql_generator.py:36] - Processing query: 'get me list of items from @customers'
+2025-03-26 00:03:52 - INFO - [sql_generator.py:39] - User explicitly selected tables: customers
+2025-03-26 00:03:52 - INFO - [app.py:99] - User explicitly specified tables: customers
+2025-03-26 00:03:52 - INFO - [sql_generator.py:36] - Processing query: 'get me list of items from @customers'
+2025-03-26 00:03:52 - INFO - [sql_generator.py:39] - User explicitly selected tables: customers
+2025-03-26 00:03:52 - INFO - [sql_generator.py:44] - Detected intent: data_retrieval
+2025-03-26 00:03:52 - INFO - [sql_generator.py:137] - Starting SQL generation process
+2025-03-26 00:03:52 - INFO - [database.py:24] - Attempting database connection
+2025-03-26 00:03:52 - INFO - [database.py:28] - Database connection established in 0.01s
+2025-03-26 00:03:53 - INFO - [sql_generator.py:44] - Detected intent: data_retrieval
+2025-03-26 00:03:53 - INFO - [sql_generator.py:137] - Starting SQL generation process
+2025-03-26 00:03:53 - INFO - [database.py:24] - Attempting database connection
+2025-03-26 00:03:53 - INFO - [database.py:28] - Database connection established in 0.00s
+2025-03-26 00:03:54 - INFO - [azure_client.py:46] - SQL generation started for query: 'get me list of items from @customers'
+2025-03-26 00:03:55 - INFO - [azure_client.py:46] - SQL generation started for query: 'get me list of items from @customers'
+2025-03-26 00:03:59 - INFO - [azure_client.py:131] - Generated SQL: To provide a SQL query for the request "get me list of items from @customers," I would need more information about what constitutes an "item" in this context and how it relates to the `customers` table. Could you please clarify if there is a separate table that contains the items associated with customers, and if so, could you describe the schema for that table, including the relationship between the items and customers?
+2025-03-26 00:03:59,179 - QUERY: 'get me list of items from @customers' → SQL: To provide a SQL query for the request "get me list of items from @customers," I would need more information about what constitutes an "item" in this context and how it relates to the `customers` table. Could you please clarify if there is a separate table that contains the items associated with customers, and if so, could you describe the schema for that table, including the relationship between the items and customers?
+2025-03-26 00:03:59 - INFO - [azure_client.py:139] - SQL generation completed in 4.58s
+2025-03-26 00:03:59 - INFO - [database.py:45] - Executing SQL query: To provide a SQL query for the request "get me list of items from @customers," I would need more information about what constitutes an "item" in this context and how it relates to the `customers` table. Could you please clarify if there is a separate table that contains the items associated with customers, and if so, could you describe the schema for that table, including the relationship between the items and customers?
+2025-03-26 00:03:59 - ERROR - [database.py:102] - SQL error after 0.00s: (sqlite3.OperationalError) near "To": syntax error
+[SQL: To provide a SQL query for the request "get me list of items from @customers," I would need more information about what constitutes an "item" in this context and how it relates to the `customers` table. Could you please clarify if there is a separate table that contains the items associated with customers, and if so, could you describe the schema for that table, including the relationship between the items and customers?]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Traceback (most recent call last):
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.OperationalError: near "To": syntax error
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/utils/database.py", line 58, in execute_query
+    result = conn.execute(text(sql_query))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1414, in execute
+    return meth(
+           ^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 486, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1638, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1842, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1983, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2326, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) near "To": syntax error
+[SQL: To provide a SQL query for the request "get me list of items from @customers," I would need more information about what constitutes an "item" in this context and how it relates to the `customers` table. Could you please clarify if there is a separate table that contains the items associated with customers, and if so, could you describe the schema for that table, including the relationship between the items and customers?]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-03-26 00:03:59 - INFO - [sql_generator.py:297] - SQL generation completed in 6.29s
+2025-03-26 00:03:59 - INFO - [sql_generator.py:121] - Query processing completed in 6.70s
+2025-03-26 00:04:00 - INFO - [azure_client.py:131] - Generated SQL: SELECT * FROM customers;
+2025-03-26 00:04:00,108 - QUERY: 'get me list of items from @customers' → SQL: SELECT * FROM customers;
+2025-03-26 00:04:00 - INFO - [azure_client.py:139] - SQL generation completed in 4.44s
+2025-03-26 00:04:00 - INFO - [database.py:45] - Executing SQL query: SELECT * FROM customers;
+2025-03-26 00:04:00 - INFO - [database.py:66] - Query returned 5 rows with 11 columns
+2025-03-26 00:04:00 - INFO - [database.py:75] - Query processing completed in 0.01s
+2025-03-26 00:04:00 - INFO - [sql_generator.py:297] - SQL generation completed in 6.19s
+2025-03-26 00:04:00 - INFO - [sql_generator.py:121] - Query processing completed in 7.31s
+2025-03-26 00:06:00 - INFO - [app.py:99] - User explicitly specified tables: customers
+2025-03-26 00:06:00 - INFO - [sql_generator.py:36] - Processing query: 'get me list of items from @customers table'
+2025-03-26 00:06:00 - INFO - [sql_generator.py:39] - User explicitly selected tables: customers
+2025-03-26 00:06:00 - INFO - [sql_generator.py:44] - Detected intent: data_retrieval
+2025-03-26 00:06:00 - INFO - [sql_generator.py:137] - Starting SQL generation process
+2025-03-26 00:06:00 - INFO - [database.py:24] - Attempting database connection
+2025-03-26 00:06:00 - INFO - [database.py:28] - Database connection established in 0.00s
+2025-03-26 00:06:01 - INFO - [azure_client.py:46] - SQL generation started for query: 'get me list of items from @customers table'
+2025-03-26 00:06:02 - INFO - [azure_client.py:131] - Generated SQL: SELECT * FROM customers;
+2025-03-26 00:06:02,074 - QUERY: 'get me list of items from @customers table' → SQL: SELECT * FROM customers;
+2025-03-26 00:06:02 - INFO - [azure_client.py:139] - SQL generation completed in 0.99s
+2025-03-26 00:06:02 - INFO - [database.py:45] - Executing SQL query: SELECT * FROM customers;
+2025-03-26 00:06:02 - INFO - [database.py:66] - Query returned 5 rows with 11 columns
+2025-03-26 00:06:02 - INFO - [database.py:75] - Query processing completed in 0.01s
+2025-03-26 00:06:02 - INFO - [sql_generator.py:297] - SQL generation completed in 1.50s
+2025-03-26 00:06:02 - INFO - [sql_generator.py:121] - Query processing completed in 2.02s
+2025-03-26 00:06:38 - INFO - [app.py:99] - User explicitly specified tables: customers
+2025-03-26 00:06:38 - INFO - [sql_generator.py:36] - Processing query: 'get me list of items from @customers'
+2025-03-26 00:06:38 - INFO - [sql_generator.py:39] - User explicitly selected tables: customers
+2025-03-26 00:06:39 - INFO - [sql_generator.py:44] - Detected intent: data_retrieval
+2025-03-26 00:06:39 - INFO - [sql_generator.py:137] - Starting SQL generation process
+2025-03-26 00:06:39 - INFO - [database.py:24] - Attempting database connection
+2025-03-26 00:06:39 - INFO - [database.py:28] - Database connection established in 0.00s
+2025-03-26 00:06:40 - INFO - [azure_client.py:46] - SQL generation started for query: 'get me list of items from @customers'
+2025-03-26 00:06:44 - INFO - [azure_client.py:131] - Generated SQL: SELECT i.*, c.first_name AS "First Name", c.last_name AS "Last Name", c.email AS "Email"
+FROM items i
+JOIN customers c ON i.customer_id = c.customer_id
+WHERE i.customer_id IN (@customer_ids);
+2025-03-26 00:06:44,304 - QUERY: 'get me list of items from @customers' → SQL: SELECT i.*, c.first_name AS "First Name", c.last_name AS "Last Name", c.email AS "Email"
+FROM items i
+JOIN customers c ON i.customer_id = c.customer_id
+WHERE i.customer_id IN (@customer_ids);
+2025-03-26 00:06:44 - INFO - [azure_client.py:139] - SQL generation completed in 4.31s
+2025-03-26 00:06:44 - INFO - [database.py:45] - Executing SQL query: SELECT i.*, c.first_name AS "First Name", c.last_name AS "Last Name", c.email AS "Email"
+FROM items i
+JOIN customers c ON i.customer_id = c.customer_id
+WHERE i.customer_id IN (@customer_ids);
+2025-03-26 00:06:44 - ERROR - [database.py:102] - SQL error after 0.01s: (sqlite3.OperationalError) no such table: items
+[SQL: SELECT i.*, c.first_name AS "First Name", c.last_name AS "Last Name", c.email AS "Email"
+FROM items i
+JOIN customers c ON i.customer_id = c.customer_id
+WHERE i.customer_id IN (@customer_ids);]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Traceback (most recent call last):
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.OperationalError: no such table: items
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/utils/database.py", line 58, in execute_query
+    result = conn.execute(text(sql_query))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1414, in execute
+    return meth(
+           ^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 486, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1638, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1842, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1983, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2326, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such table: items
+[SQL: SELECT i.*, c.first_name AS "First Name", c.last_name AS "Last Name", c.email AS "Email"
+FROM items i
+JOIN customers c ON i.customer_id = c.customer_id
+WHERE i.customer_id IN (@customer_ids);]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-03-26 00:06:44 - INFO - [sql_generator.py:297] - SQL generation completed in 5.31s
+2025-03-26 00:06:44 - INFO - [sql_generator.py:121] - Query processing completed in 5.70s
+2025-03-26 00:10:04 - INFO - [app.py:196] - Schema requested for workspace: Default
+2025-03-26 00:10:11 - INFO - [app.py:196] - Schema requested for workspace: Default
+2025-03-26 00:10:55 - INFO - [database.py:238] - Closing database connection
+2025-03-26 00:10:55 - INFO - [database.py:238] - Closing database connection
+2025-03-26 00:10:57 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-26 00:10:57 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-26 00:10:57 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-26 00:10:57 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-26 00:10:57 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-26 00:10:57 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-26 00:10:57 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-26 00:10:57 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-26 00:10:57 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-26 00:10:57 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-26 00:10:57 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-26 00:10:57 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-26 00:10:57 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 00:10:57 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-26 00:10:57 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-26 00:10:57 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-26 00:10:57 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-26 00:10:57 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-26 00:10:57 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-26 00:10:57 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-26 00:10:57 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-26 00:10:57 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-26 00:10:57 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-26 00:10:57 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-26 00:10:57 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-26 00:10:57 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 00:11:10 - INFO - [app.py:196] - Schema requested for workspace: Default
+2025-03-26 00:13:52 - INFO - [database.py:238] - Closing database connection
+2025-03-26 00:13:53 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-26 00:13:53 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-26 00:13:53 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-26 00:13:53 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-26 00:13:53 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-26 00:13:53 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-26 00:13:53 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-26 00:13:53 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-26 00:13:53 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-26 00:13:53 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-26 00:13:53 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-26 00:13:53 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-26 00:13:53 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 00:14:06 - INFO - [app.py:99] - User explicitly specified tables: customers
+2025-03-26 00:14:06 - INFO - [sql_generator.py:36] - Processing query: 'table customers items'
+2025-03-26 00:14:06 - INFO - [sql_generator.py:39] - User explicitly selected tables: customers
+2025-03-26 00:14:07 - INFO - [sql_generator.py:44] - Detected intent: schema_exploration
+2025-03-26 00:14:07 - INFO - [sql_generator.py:72] - Processing schema exploration request
+2025-03-26 00:14:07 - INFO - [sql_generator.py:121] - Query processing completed in 1.25s
+2025-03-26 00:14:37 - INFO - [app.py:99] - User explicitly specified tables: customers
+2025-03-26 00:14:37 - INFO - [sql_generator.py:36] - Processing query: 'table customers values'
+2025-03-26 00:14:37 - INFO - [sql_generator.py:39] - User explicitly selected tables: customers
+2025-03-26 00:14:37 - INFO - [sql_generator.py:44] - Detected intent: schema_exploration
+2025-03-26 00:14:37 - INFO - [sql_generator.py:72] - Processing schema exploration request
+2025-03-26 00:14:37 - INFO - [sql_generator.py:121] - Query processing completed in 0.41s
+2025-03-26 00:15:07 - INFO - [app.py:99] - User explicitly specified tables: customers
+2025-03-26 00:15:07 - INFO - [sql_generator.py:36] - Processing query: 'get me items from table customers'
+2025-03-26 00:15:07 - INFO - [sql_generator.py:39] - User explicitly selected tables: customers
+2025-03-26 00:15:07 - INFO - [sql_generator.py:44] - Detected intent: data_retrieval
+2025-03-26 00:15:07 - INFO - [sql_generator.py:137] - Starting SQL generation process
+2025-03-26 00:15:07 - INFO - [database.py:24] - Attempting database connection
+2025-03-26 00:15:07 - INFO - [database.py:28] - Database connection established in 0.02s
+2025-03-26 00:15:08 - INFO - [azure_client.py:46] - SQL generation started for query: 'get me items from table customers'
+2025-03-26 00:15:11 - INFO - [azure_client.py:131] - Generated SQL: SELECT * FROM customers;
+2025-03-26 00:15:11,759 - QUERY: 'get me items from table customers' → SQL: SELECT * FROM customers;
+2025-03-26 00:15:11 - INFO - [azure_client.py:139] - SQL generation completed in 2.82s
+2025-03-26 00:15:11 - INFO - [database.py:45] - Executing SQL query: SELECT * FROM customers;
+2025-03-26 00:15:11 - INFO - [database.py:66] - Query returned 5 rows with 11 columns
+2025-03-26 00:15:11 - INFO - [database.py:75] - Query processing completed in 0.01s
+2025-03-26 00:15:11 - INFO - [sql_generator.py:297] - SQL generation completed in 4.22s
+2025-03-26 00:15:11 - INFO - [sql_generator.py:121] - Query processing completed in 4.62s
+2025-03-26 00:15:23 - INFO - [app.py:99] - User explicitly specified tables: customers, order_items
+2025-03-26 00:15:23 - INFO - [sql_generator.py:36] - Processing query: 'get me items from table customers table order_items'
+2025-03-26 00:15:23 - INFO - [sql_generator.py:39] - User explicitly selected tables: customers, order_items
+2025-03-26 00:15:24 - INFO - [sql_generator.py:44] - Detected intent: data_retrieval
+2025-03-26 00:15:24 - INFO - [sql_generator.py:137] - Starting SQL generation process
+2025-03-26 00:15:24 - INFO - [database.py:24] - Attempting database connection
+2025-03-26 00:15:24 - INFO - [database.py:28] - Database connection established in 0.00s
+2025-03-26 00:15:25 - INFO - [azure_client.py:46] - SQL generation started for query: 'get me items from table customers table order_items'
+2025-03-26 00:15:31 - INFO - [azure_client.py:131] - Generated SQL: SELECT oi.*
+FROM order_items oi
+JOIN orders o ON oi.item_id = o.item_id
+WHERE o.customer_id = ?; -- Replace ? with the desired customer_id
+2025-03-26 00:15:31,784 - QUERY: 'get me items from table customers table order_items' → SQL: SELECT oi.*
+FROM order_items oi
+JOIN orders o ON oi.item_id = o.item_id
+WHERE o.customer_id = ?; -- Replace ? with the desired customer_id
+2025-03-26 00:15:31 - INFO - [azure_client.py:139] - SQL generation completed in 6.77s
+2025-03-26 00:15:31 - INFO - [database.py:45] - Executing SQL query: SELECT oi.*
+FROM order_items oi
+JOIN orders o ON oi.item_id = o.item_id
+WHERE o.customer_id = ?; -- Replace ? with the desired customer_id
+2025-03-26 00:15:31 - ERROR - [database.py:102] - SQL error after 0.00s: (sqlite3.OperationalError) no such column: o.item_id
+[SQL: SELECT oi.*
+FROM order_items oi
+JOIN orders o ON oi.item_id = o.item_id
+WHERE o.customer_id = ?; -- Replace ? with the desired customer_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Traceback (most recent call last):
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.OperationalError: no such column: o.item_id
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/utils/database.py", line 58, in execute_query
+    result = conn.execute(text(sql_query))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1414, in execute
+    return meth(
+           ^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 486, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1638, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1842, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1983, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2326, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such column: o.item_id
+[SQL: SELECT oi.*
+FROM order_items oi
+JOIN orders o ON oi.item_id = o.item_id
+WHERE o.customer_id = ?; -- Replace ? with the desired customer_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-03-26 00:15:31 - INFO - [sql_generator.py:297] - SQL generation completed in 7.47s
+2025-03-26 00:15:31 - INFO - [sql_generator.py:121] - Query processing completed in 7.86s
+2025-03-26 00:16:28 - INFO - [database.py:238] - Closing database connection
+2025-03-26 00:16:28 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-26 00:16:28 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-26 00:16:28 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-26 00:16:28 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-26 00:16:28 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-26 00:16:28 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-26 00:16:28 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-26 00:16:28 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-26 00:16:28 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-26 00:16:28 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-26 00:16:28 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-26 00:16:28 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-26 00:16:28 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 00:16:45 - INFO - [app.py:99] - User explicitly specified tables: customers, order_items, orders
+2025-03-26 00:16:45 - INFO - [sql_generator.py:36] - Processing query: 'how many items are in table orders'
+2025-03-26 00:16:45 - INFO - [sql_generator.py:39] - User explicitly selected tables: customers, order_items, orders
+2025-03-26 00:16:46 - INFO - [sql_generator.py:44] - Detected intent: metadata_request
+2025-03-26 00:16:46 - INFO - [sql_generator.py:87] - Processing metadata request
+2025-03-26 00:16:46 - INFO - [sql_generator.py:121] - Query processing completed in 1.21s
+2025-03-26 00:17:14 - INFO - [app.py:99] - User explicitly specified tables: customers, order_items, orders
+2025-03-26 00:17:14 - INFO - [sql_generator.py:36] - Processing query: 'get me items from in table orders'
+2025-03-26 00:17:14 - INFO - [sql_generator.py:39] - User explicitly selected tables: customers, order_items, orders
+2025-03-26 00:17:14 - INFO - [sql_generator.py:44] - Detected intent: data_retrieval
+2025-03-26 00:17:14 - INFO - [sql_generator.py:137] - Starting SQL generation process
+2025-03-26 00:17:14 - INFO - [database.py:24] - Attempting database connection
+2025-03-26 00:17:14 - INFO - [database.py:28] - Database connection established in 0.01s
+2025-03-26 00:17:16 - INFO - [azure_client.py:46] - SQL generation started for query: 'get me items from in table orders'
+2025-03-26 00:17:18 - INFO - [azure_client.py:131] - Generated SQL: SELECT * FROM order_items;
+2025-03-26 00:17:18,425 - QUERY: 'get me items from in table orders' → SQL: SELECT * FROM order_items;
+2025-03-26 00:17:18 - INFO - [azure_client.py:139] - SQL generation completed in 2.03s
+2025-03-26 00:17:18 - INFO - [database.py:45] - Executing SQL query: SELECT * FROM order_items;
+2025-03-26 00:17:18 - INFO - [database.py:66] - Query returned 11 rows with 5 columns
+2025-03-26 00:17:18 - INFO - [database.py:75] - Query processing completed in 0.02s
+2025-03-26 00:17:18 - INFO - [sql_generator.py:297] - SQL generation completed in 3.53s
+2025-03-26 00:17:18 - INFO - [sql_generator.py:121] - Query processing completed in 3.92s
+2025-03-26 00:18:15 - INFO - [app.py:99] - User explicitly specified tables: customers
+2025-03-26 00:18:15 - INFO - [sql_generator.py:36] - Processing query: 'get me all rows table customers'
+2025-03-26 00:18:15 - INFO - [sql_generator.py:39] - User explicitly selected tables: customers
+2025-03-26 00:18:16 - INFO - [sql_generator.py:44] - Detected intent: data_retrieval
+2025-03-26 00:18:16 - INFO - [sql_generator.py:137] - Starting SQL generation process
+2025-03-26 00:18:16 - INFO - [database.py:24] - Attempting database connection
+2025-03-26 00:18:16 - INFO - [database.py:28] - Database connection established in 0.00s
+2025-03-26 00:18:16 - INFO - [azure_client.py:46] - SQL generation started for query: 'get me all rows table customers'
+2025-03-26 00:18:17 - INFO - [azure_client.py:131] - Generated SQL: SELECT * FROM customers;
+2025-03-26 00:18:17,485 - QUERY: 'get me all rows table customers' → SQL: SELECT * FROM customers;
+2025-03-26 00:18:17 - INFO - [azure_client.py:139] - SQL generation completed in 0.94s
+2025-03-26 00:18:17 - INFO - [database.py:45] - Executing SQL query: SELECT * FROM customers;
+2025-03-26 00:18:17 - INFO - [database.py:66] - Query returned 5 rows with 11 columns
+2025-03-26 00:18:17 - INFO - [database.py:75] - Query processing completed in 0.01s
+2025-03-26 00:18:17 - INFO - [sql_generator.py:297] - SQL generation completed in 1.44s
+2025-03-26 00:18:17 - INFO - [sql_generator.py:121] - Query processing completed in 1.96s
+2025-03-26 00:18:26 - INFO - [app.py:99] - User explicitly specified tables: customers
+2025-03-26 00:18:26 - INFO - [sql_generator.py:36] - Processing query: 'get me all rows'
+2025-03-26 00:18:26 - INFO - [sql_generator.py:39] - User explicitly selected tables: customers
+2025-03-26 00:18:27 - INFO - [sql_generator.py:44] - Detected intent: data_retrieval
+2025-03-26 00:18:27 - INFO - [sql_generator.py:137] - Starting SQL generation process
+2025-03-26 00:18:27 - INFO - [database.py:24] - Attempting database connection
+2025-03-26 00:18:27 - INFO - [database.py:28] - Database connection established in 0.00s
+2025-03-26 00:18:27 - INFO - [azure_client.py:46] - SQL generation started for query: 'get me all rows'
+2025-03-26 00:18:29 - INFO - [azure_client.py:131] - Generated SQL: SELECT *
+FROM customers;
+2025-03-26 00:18:29,362 - QUERY: 'get me all rows' → SQL: SELECT *
+FROM customers;
+2025-03-26 00:18:29 - INFO - [azure_client.py:139] - SQL generation completed in 1.53s
+2025-03-26 00:18:29 - INFO - [database.py:45] - Executing SQL query: SELECT *
+FROM customers;
+2025-03-26 00:18:29 - INFO - [database.py:66] - Query returned 5 rows with 11 columns
+2025-03-26 00:18:29 - INFO - [database.py:75] - Query processing completed in 0.01s
+2025-03-26 00:18:29 - INFO - [sql_generator.py:297] - SQL generation completed in 2.04s
+2025-03-26 00:18:29 - INFO - [sql_generator.py:121] - Query processing completed in 2.45s
+2025-03-26 00:19:14 - INFO - [app.py:99] - User explicitly specified tables: customers, sales_metrics
+2025-03-26 00:19:14 - INFO - [sql_generator.py:36] - Processing query: 'get me all rows table sales_metrics'
+2025-03-26 00:19:14 - INFO - [sql_generator.py:39] - User explicitly selected tables: customers, sales_metrics
+2025-03-26 00:19:14 - INFO - [sql_generator.py:44] - Detected intent: data_retrieval
+2025-03-26 00:19:14 - INFO - [sql_generator.py:137] - Starting SQL generation process
+2025-03-26 00:19:14 - INFO - [database.py:24] - Attempting database connection
+2025-03-26 00:19:14 - INFO - [database.py:28] - Database connection established in 0.00s
+2025-03-26 00:19:15 - INFO - [azure_client.py:46] - SQL generation started for query: 'get me all rows table sales_metrics'
+2025-03-26 00:19:16 - INFO - [azure_client.py:131] - Generated SQL: SELECT * FROM sales_metrics;
+2025-03-26 00:19:16,777 - QUERY: 'get me all rows table sales_metrics' → SQL: SELECT * FROM sales_metrics;
+2025-03-26 00:19:16 - INFO - [azure_client.py:139] - SQL generation completed in 1.36s
+2025-03-26 00:19:16 - INFO - [database.py:45] - Executing SQL query: SELECT * FROM sales_metrics;
+2025-03-26 00:19:16 - INFO - [database.py:66] - Query returned 10 rows with 6 columns
+2025-03-26 00:19:16 - INFO - [database.py:75] - Query processing completed in 0.01s
+2025-03-26 00:19:16 - INFO - [sql_generator.py:297] - SQL generation completed in 2.13s
+2025-03-26 00:19:16 - INFO - [sql_generator.py:121] - Query processing completed in 2.51s
+2025-03-26 00:20:19 - INFO - [app.py:99] - User explicitly specified tables: customers, sales_metrics
+2025-03-26 00:20:19 - INFO - [sql_generator.py:36] - Processing query: 'get me all rows table sales_metrics table customers'
+2025-03-26 00:20:19 - INFO - [sql_generator.py:39] - User explicitly selected tables: customers, sales_metrics
+2025-03-26 00:20:20 - INFO - [sql_generator.py:44] - Detected intent: data_retrieval
+2025-03-26 00:20:20 - INFO - [sql_generator.py:137] - Starting SQL generation process
+2025-03-26 00:20:20 - INFO - [database.py:24] - Attempting database connection
+2025-03-26 00:20:20 - INFO - [database.py:28] - Database connection established in 0.00s
+2025-03-26 00:20:21 - INFO - [azure_client.py:46] - SQL generation started for query: 'get me all rows table sales_metrics table customers'
+2025-03-26 00:20:22 - INFO - [azure_client.py:131] - Generated SQL: SELECT * 
+FROM sales_metrics 
+CROSS JOIN customers;
+2025-03-26 00:20:22,634 - QUERY: 'get me all rows table sales_metrics table customers' → SQL: SELECT * 
+FROM sales_metrics 
+CROSS JOIN customers;
+2025-03-26 00:20:22 - INFO - [azure_client.py:139] - SQL generation completed in 1.64s
+2025-03-26 00:20:22 - INFO - [database.py:45] - Executing SQL query: SELECT * 
+FROM sales_metrics 
+CROSS JOIN customers;
+2025-03-26 00:20:22 - INFO - [database.py:66] - Query returned 50 rows with 17 columns
+2025-03-26 00:20:22 - INFO - [database.py:75] - Query processing completed in 0.01s
+2025-03-26 00:20:22 - INFO - [sql_generator.py:297] - SQL generation completed in 2.55s
+2025-03-26 00:20:22 - INFO - [sql_generator.py:121] - Query processing completed in 3.04s
+2025-03-26 00:21:02 - INFO - [app.py:99] - User explicitly specified tables: orders
+2025-03-26 00:21:02 - INFO - [sql_generator.py:36] - Processing query: 'get me first name table orders'
+2025-03-26 00:21:02 - INFO - [sql_generator.py:39] - User explicitly selected tables: orders
+2025-03-26 00:21:02 - INFO - [app.py:99] - User explicitly specified tables: orders
+2025-03-26 00:21:02 - INFO - [sql_generator.py:36] - Processing query: 'get me first name table orders'
+2025-03-26 00:21:02 - INFO - [sql_generator.py:39] - User explicitly selected tables: orders
+2025-03-26 00:21:02 - INFO - [sql_generator.py:44] - Detected intent: schema_exploration
+2025-03-26 00:21:02 - INFO - [sql_generator.py:72] - Processing schema exploration request
+2025-03-26 00:21:02 - INFO - [sql_generator.py:121] - Query processing completed in 0.40s
+2025-03-26 00:21:03 - INFO - [sql_generator.py:44] - Detected intent: schema_exploration
+2025-03-26 00:21:03 - INFO - [sql_generator.py:72] - Processing schema exploration request
+2025-03-26 00:21:03 - INFO - [sql_generator.py:121] - Query processing completed in 1.11s
+2025-03-26 00:21:21 - INFO - [app.py:196] - Schema requested for workspace: Default
+2025-03-26 00:22:16 - INFO - [sql_generator.py:36] - Processing query: 'get me customer and their order details'
+2025-03-26 00:22:16 - INFO - [sql_generator.py:36] - Processing query: 'get me customer and their order details'
+2025-03-26 00:22:16 - INFO - [sql_generator.py:44] - Detected intent: data_retrieval
+2025-03-26 00:22:16 - INFO - [sql_generator.py:137] - Starting SQL generation process
+2025-03-26 00:22:16 - INFO - [database.py:24] - Attempting database connection
+2025-03-26 00:22:16 - INFO - [database.py:28] - Database connection established in 0.01s
+2025-03-26 00:22:16 - INFO - [sql_generator.py:44] - Detected intent: data_retrieval
+2025-03-26 00:22:16 - INFO - [sql_generator.py:137] - Starting SQL generation process
+2025-03-26 00:22:16 - INFO - [database.py:24] - Attempting database connection
+2025-03-26 00:22:16 - INFO - [database.py:28] - Database connection established in 0.01s
+2025-03-26 00:22:19 - INFO - [sql_generator.py:36] - Processing query: 'get me customer and their order details'
+2025-03-26 00:22:19 - INFO - [azure_client.py:46] - SQL generation started for query: 'get me customer and their order details'
+2025-03-26 00:22:19 - INFO - [sql_generator.py:44] - Detected intent: data_retrieval
+2025-03-26 00:22:19 - INFO - [sql_generator.py:137] - Starting SQL generation process
+2025-03-26 00:22:19 - INFO - [database.py:24] - Attempting database connection
+2025-03-26 00:22:19 - INFO - [database.py:28] - Database connection established in 0.01s
+2025-03-26 00:22:19 - INFO - [azure_client.py:46] - SQL generation started for query: 'get me customer and their order details'
+2025-03-26 00:22:23 - INFO - [azure_client.py:46] - SQL generation started for query: 'get me customer and their order details'
+2025-03-26 00:22:26 - INFO - [azure_client.py:131] - Generated SQL: SELECT
+  c.first_name AS customer_first_name,
+  c.last_name AS customer_last_name,
+  o.order_id AS order_id,
+  o.order_date AS order_date,
+  o.status AS order_status,
+  o.total_amount AS order_total
+FROM
+  customers c
+INNER JOIN
+  orders o ON c.customer_id = o.customer_id;
+2025-03-26 00:22:26,030 - QUERY: 'get me customer and their order details' → SQL: SELECT
+  c.first_name AS customer_first_name,
+  c.last_name AS customer_last_name,
+  o.order_id AS order_id,
+  o.order_date AS order_date,
+  o.status AS order_status,
+  o.total_amount AS order_total
+FROM
+  customers c
+INNER JOIN
+  orders o ON c.customer_id = o.customer_id;
+2025-03-26 00:22:26 - INFO - [azure_client.py:139] - SQL generation completed in 6.06s
+2025-03-26 00:22:26 - INFO - [database.py:45] - Executing SQL query: SELECT
+  c.first_name AS customer_first_name,
+  c.last_name AS customer_last_name,
+  o.order_id AS order_id,
+  o.order_date AS order_date,
+  o.status AS order_status,
+  o.total_amount AS order_total
+FROM
+  customers c
+INNER JOIN
+  orders o ON c.customer_id = o.customer_id;
+2025-03-26 00:22:26 - INFO - [database.py:66] - Query returned 8 rows with 6 columns
+2025-03-26 00:22:26 - INFO - [database.py:75] - Query processing completed in 0.01s
+2025-03-26 00:22:26 - INFO - [sql_generator.py:297] - SQL generation completed in 9.08s
+2025-03-26 00:22:26 - INFO - [sql_generator.py:121] - Query processing completed in 9.51s
+2025-03-26 00:22:26 - INFO - [azure_client.py:131] - Generated SQL: SELECT
+  c.customer_id,
+  CONCAT(c.first_name, ' ', c.last_name) AS full_name,
+  c.email,
+  c.phone,
+  c.address,
+  c.city,
+  c.state,
+  c.country,
+  c.postal_code,
+  o.order_id,
+  o.order_date,
+  o.status AS order_status,
+  o.total_amount
+FROM
+  customers c
+LEFT JOIN
+  orders o ON c.customer_id = o.customer_id
+ORDER BY
+  c.customer_id, o.order_date;
+2025-03-26 00:22:26,214 - QUERY: 'get me customer and their order details' → SQL: SELECT
+  c.customer_id,
+  CONCAT(c.first_name, ' ', c.last_name) AS full_name,
+  c.email,
+  c.phone,
+  c.address,
+  c.city,
+  c.state,
+  c.country,
+  c.postal_code,
+  o.order_id,
+  o.order_date,
+  o.status AS order_status,
+  o.total_amount
+FROM
+  customers c
+LEFT JOIN
+  orders o ON c.customer_id = o.customer_id
+ORDER BY
+  c.customer_id, o.order_date;
+2025-03-26 00:22:26 - INFO - [azure_client.py:139] - SQL generation completed in 6.85s
+2025-03-26 00:22:26 - INFO - [database.py:45] - Executing SQL query: SELECT
+  c.customer_id,
+  CONCAT(c.first_name, ' ', c.last_name) AS full_name,
+  c.email,
+  c.phone,
+  c.address,
+  c.city,
+  c.state,
+  c.country,
+  c.postal_code,
+  o.order_id,
+  o.order_date,
+  o.status AS order_status,
+  o.total_amount
+FROM
+  customers c
+LEFT JOIN
+  orders o ON c.customer_id = o.customer_id
+ORDER BY
+  c.customer_id, o.order_date;
+2025-03-26 00:22:26 - ERROR - [database.py:102] - SQL error after 0.01s: (sqlite3.OperationalError) no such function: CONCAT
+[SQL: SELECT
+  c.customer_id,
+  CONCAT(c.first_name, ' ', c.last_name) AS full_name,
+  c.email,
+  c.phone,
+  c.address,
+  c.city,
+  c.state,
+  c.country,
+  c.postal_code,
+  o.order_id,
+  o.order_date,
+  o.status AS order_status,
+  o.total_amount
+FROM
+  customers c
+LEFT JOIN
+  orders o ON c.customer_id = o.customer_id
+ORDER BY
+  c.customer_id, o.order_date;]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Traceback (most recent call last):
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.OperationalError: no such function: CONCAT
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/utils/database.py", line 58, in execute_query
+    result = conn.execute(text(sql_query))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1414, in execute
+    return meth(
+           ^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 486, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1638, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1842, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1983, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2326, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such function: CONCAT
+[SQL: SELECT
+  c.customer_id,
+  CONCAT(c.first_name, ' ', c.last_name) AS full_name,
+  c.email,
+  c.phone,
+  c.address,
+  c.city,
+  c.state,
+  c.country,
+  c.postal_code,
+  o.order_id,
+  o.order_date,
+  o.status AS order_status,
+  o.total_amount
+FROM
+  customers c
+LEFT JOIN
+  orders o ON c.customer_id = o.customer_id
+ORDER BY
+  c.customer_id, o.order_date;]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-03-26 00:22:26 - INFO - [sql_generator.py:297] - SQL generation completed in 9.41s
+2025-03-26 00:22:26 - INFO - [sql_generator.py:121] - Query processing completed in 9.96s
+2025-03-26 00:22:26 - INFO - [azure_client.py:131] - Generated SQL: SELECT c.first_name, c.last_name, o.order_date, o.status, o.total_amount
+FROM customers c
+JOIN orders o ON c.customer_id = o.customer_id;
+2025-03-26 00:22:26,714 - QUERY: 'get me customer and their order details' → SQL: SELECT c.first_name, c.last_name, o.order_date, o.status, o.total_amount
+FROM customers c
+JOIN orders o ON c.customer_id = o.customer_id;
+2025-03-26 00:22:26 - INFO - [azure_client.py:139] - SQL generation completed in 3.54s
+2025-03-26 00:22:26 - INFO - [database.py:45] - Executing SQL query: SELECT c.first_name, c.last_name, o.order_date, o.status, o.total_amount
+FROM customers c
+JOIN orders o ON c.customer_id = o.customer_id;
+2025-03-26 00:22:26 - INFO - [database.py:66] - Query returned 8 rows with 5 columns
+2025-03-26 00:22:26 - INFO - [database.py:75] - Query processing completed in 0.01s
+2025-03-26 00:22:26 - INFO - [sql_generator.py:297] - SQL generation completed in 7.28s
+2025-03-26 00:22:26 - INFO - [sql_generator.py:121] - Query processing completed in 7.69s
+2025-03-26 00:22:47 - INFO - [app.py:99] - User explicitly specified tables: order_items, customers, orders
+2025-03-26 00:22:47 - INFO - [sql_generator.py:36] - Processing query: 'get me customer and their order details table order_items  table customers  table orders'
+2025-03-26 00:22:47 - INFO - [sql_generator.py:39] - User explicitly selected tables: order_items, customers, orders
+2025-03-26 00:22:47 - INFO - [sql_generator.py:44] - Detected intent: data_retrieval
+2025-03-26 00:22:47 - INFO - [sql_generator.py:137] - Starting SQL generation process
+2025-03-26 00:22:47 - INFO - [database.py:24] - Attempting database connection
+2025-03-26 00:22:47 - INFO - [database.py:28] - Database connection established in 0.01s
+2025-03-26 00:22:49 - INFO - [azure_client.py:46] - SQL generation started for query: 'get me customer and their order details table order_items  table customers  table orders'
+2025-03-26 00:22:52 - INFO - [azure_client.py:131] - Generated SQL: SELECT 
+    c.customer_id, 
+    c.first_name, 
+    c.last_name, 
+    o.order_id, 
+    o.order_date, 
+    oi.item_id, 
+    oi.product_id, 
+    oi.quantity, 
+    oi.price
+FROM 
+    customers AS c
+JOIN 
+    orders AS o ON c.customer_id = o.customer_id
+JOIN 
+    order_items AS oi ON o.order_id = oi.order_id
+ORDER BY 
+    c.customer_id, 
+    o.order_date;
+2025-03-26 00:22:52,667 - QUERY: 'get me customer and their order details table order_items  table customers  table orders' → SQL: SELECT 
+    c.customer_id, 
+    c.first_name, 
+    c.last_name, 
+    o.order_id, 
+    o.order_date, 
+    oi.item_id, 
+    oi.product_id, 
+    oi.quantity, 
+    oi.price
+FROM 
+    customers AS c
+JOIN 
+    orders AS o ON c.customer_id = o.customer_id
+JOIN 
+    order_items AS oi ON o.order_id = oi.order_id
+ORDER BY 
+    c.customer_id, 
+    o.order_date;
+2025-03-26 00:22:52 - INFO - [azure_client.py:139] - SQL generation completed in 3.53s
+2025-03-26 00:22:52 - INFO - [database.py:45] - Executing SQL query: SELECT 
+    c.customer_id, 
+    c.first_name, 
+    c.last_name, 
+    o.order_id, 
+    o.order_date, 
+    oi.item_id, 
+    oi.product_id, 
+    oi.quantity, 
+    oi.price
+FROM 
+    customers AS c
+JOIN 
+    orders AS o ON c.customer_id = o.customer_id
+JOIN 
+    order_items AS oi ON o.order_id = oi.order_id
+ORDER BY 
+    c.customer_id, 
+    o.order_date;
+2025-03-26 00:22:52 - INFO - [database.py:66] - Query returned 11 rows with 9 columns
+2025-03-26 00:22:52 - INFO - [database.py:75] - Query processing completed in 0.01s
+2025-03-26 00:22:52 - INFO - [sql_generator.py:297] - SQL generation completed in 4.91s
+2025-03-26 00:22:52 - INFO - [sql_generator.py:121] - Query processing completed in 5.39s
+2025-03-26 00:28:19 - INFO - [database.py:238] - Closing database connection

@@ -2,25 +2,464 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize variables
     let dataTable = null;
     let progressInterval = null;
+    let selectedTables = []; // Move this declaration here to avoid duplicate initialization
     const workspaceSelect = document.getElementById('workspaceSelect');
     const queryInput = document.getElementById('queryInput');
     const submitButton = document.getElementById('submitQuery');
     const viewSchemaBtn = document.getElementById('viewSchemaBtn');
     const schemaModal = new bootstrap.Modal(document.getElementById('schemaModal'));
-
+    
+    // Table mention variables
+    let tableMentionDropdown = null;
+    let mentionActive = false;
+    let mentionStartPosition = 0;
+    let currentMentionText = '';
+    let tableNames = [];
+    let activeDropdownIndex = -1;
+    let mentionAnchorPosition = { top: 0, left: 0 };
+    
     // Event Listeners
-    workspaceSelect.addEventListener('change', updateWorkspaceDescription);
-    queryInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            submitQuery();
+    workspaceSelect.addEventListener('change', function() {
+        updateWorkspaceDescription();
+        // Reload table names when workspace changes
+        fetchTableNames();
+        // Reset selected tables when workspace changes
+        selectedTables = [];
+        updateSelectedTablesDisplay();
+    });
+    queryInput.addEventListener('keydown', handleQueryKeydown);
+    queryInput.addEventListener('input', handleQueryInput);
+    queryInput.addEventListener('blur', function(e) {
+        // Don't hide dropdown if clicking inside it
+        if (tableMentionDropdown && !tableMentionDropdown.contains(e.relatedTarget)) {
+            hideTableMentionDropdown();
         }
     });
     submitButton.addEventListener('click', submitQuery);
     viewSchemaBtn.addEventListener('click', loadSchema);
+    document.addEventListener('click', function(e) {
+        // Hide dropdown when clicking outside
+        if (tableMentionDropdown && !tableMentionDropdown.contains(e.target) && e.target !== queryInput) {
+            hideTableMentionDropdown();
+        }
+    });
 
-    // Initialize workspace description and empty table state
+    // Initialize workspace description, fetch table names, and empty table state
     updateWorkspaceDescription();
+    fetchTableNames();
     initializeEmptyTable();
+    
+    // Create or get dropdown element
+    function getTableMentionDropdown() {
+        if (!tableMentionDropdown) {
+            tableMentionDropdown = document.createElement('div');
+            tableMentionDropdown.className = 'table-mention-dropdown';
+            tableMentionDropdown.style.display = 'none';
+            document.body.appendChild(tableMentionDropdown);
+        }
+        return tableMentionDropdown;
+    }
+    
+    // Show dropdown with table suggestions
+    function showTableMentionDropdown(suggestions) {
+        const dropdown = getTableMentionDropdown();
+        
+        // Position the dropdown near the @ symbol
+        dropdown.style.top = (mentionAnchorPosition.top + window.scrollY + 24) + 'px'; // Positioned just below the @ symbol
+        dropdown.style.left = mentionAnchorPosition.left + 'px'; // Aligned with @ symbol
+        
+        // Clear and populate dropdown
+        dropdown.innerHTML = '';
+        
+        if (suggestions.length === 0) {
+            dropdown.innerHTML = '<div class="no-results">No matching tables found</div>';
+        } else {
+            suggestions.forEach((table, index) => {
+                const item = document.createElement('div');
+                item.className = 'dropdown-item';
+                if (index === activeDropdownIndex) {
+                    item.classList.add('active');
+                }
+                item.innerHTML = `
+                    <span class="item-name">${table.name}</span>
+                    <span class="item-description">${table.description || ''}</span>
+                `;
+                item.addEventListener('click', () => selectTableFromDropdown(table.name, table.description));
+                dropdown.appendChild(item);
+            });
+        }
+        
+        dropdown.style.display = 'block';
+    }
+    
+    // Hide suggestion dropdown
+    function hideTableMentionDropdown() {
+        if (tableMentionDropdown) {
+            tableMentionDropdown.style.display = 'none';
+            mentionActive = false;
+            currentMentionText = '';
+            activeDropdownIndex = -1;
+        }
+    }
+    
+    // Handle key inputs in query input
+    function handleQueryKeydown(e) {
+        if (mentionActive && tableMentionDropdown && tableMentionDropdown.style.display !== 'none') {
+            const items = tableMentionDropdown.querySelectorAll('.dropdown-item');
+            
+            // Navigate through dropdown with keyboard
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                activeDropdownIndex = Math.min(activeDropdownIndex + 1, items.length - 1);
+                updateActiveItem(items);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                activeDropdownIndex = Math.max(activeDropdownIndex - 1, 0);
+                updateActiveItem(items);
+            } else if (e.key === 'Enter' && activeDropdownIndex >= 0) {
+                e.preventDefault();
+                const activeSuggestion = items[activeDropdownIndex].querySelector('.item-name').textContent;
+                selectTableFromDropdown(activeSuggestion);
+            } else if (e.key === 'Escape') {
+                e.preventDefault();
+                hideTableMentionDropdown();
+            } else if (e.key === 'Tab') {
+                e.preventDefault();
+                if (activeDropdownIndex >= 0) {
+                    const activeSuggestion = items[activeDropdownIndex].querySelector('.item-name').textContent;
+                    selectTableFromDropdown(activeSuggestion);
+                }
+            }
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            submitQuery();
+        }
+    }
+    
+    // Update the highlighted item in the dropdown
+    function updateActiveItem(items) {
+        items.forEach((item, index) => {
+            if (index === activeDropdownIndex) {
+                item.classList.add('active');
+                // Scroll item into view if needed
+                const containerRect = tableMentionDropdown.getBoundingClientRect();
+                const itemRect = item.getBoundingClientRect();
+                
+                if (itemRect.bottom > containerRect.bottom) {
+                    tableMentionDropdown.scrollTop += (itemRect.bottom - containerRect.bottom);
+                }
+                if (itemRect.top < containerRect.top) {
+                    tableMentionDropdown.scrollTop -= (containerRect.top - itemRect.top);
+                }
+            } else {
+                item.classList.remove('active');
+            }
+        });
+    }
+    
+    // Handle input changes for mention detection and suggestion
+    function handleQueryInput(e) {
+        const cursorPos = queryInput.selectionStart;
+        const text = queryInput.value;
+        
+        // Detect @ symbol immediately before cursor
+        if (text.charAt(cursorPos - 1) === '@') {
+            mentionActive = true;
+            mentionStartPosition = cursorPos - 1;
+            currentMentionText = '';
+            
+            // Get the exact position of the @ symbol for dropdown placement
+            const inputRect = queryInput.getBoundingClientRect();
+            const inputStyle = window.getComputedStyle(queryInput);
+            const inputPaddingLeft = parseFloat(inputStyle.paddingLeft);
+            const inputPaddingTop = parseFloat(inputStyle.paddingTop);
+            
+            // Create a temporary span to measure text width up to @
+            const tempSpan = document.createElement('span');
+            tempSpan.style.font = inputStyle.font;
+            tempSpan.style.position = 'absolute';
+            tempSpan.style.left = '-9999px';
+            tempSpan.style.whiteSpace = 'pre';
+            tempSpan.textContent = text.substring(0, mentionStartPosition);
+            document.body.appendChild(tempSpan);
+            
+            // Calculate position
+            const atSymbolPosition = tempSpan.getBoundingClientRect().width;
+            document.body.removeChild(tempSpan);
+            
+            // Store dropdown position
+            mentionAnchorPosition = {
+                top: inputRect.top + inputPaddingTop,
+                left: inputRect.left + inputPaddingLeft + atSymbolPosition
+            };
+            
+            // Show suggestions with empty query
+            fetchTableSuggestions('');
+        } else if (mentionActive) {
+            // If we're already in mention mode, update the current mention text
+            const mentionEndPos = cursorPos;
+            currentMentionText = text.substring(mentionStartPosition + 1, mentionEndPos);
+            
+            if (currentMentionText === '' || /\s/.test(currentMentionText)) {
+                // If mention text is empty or contains whitespace, exit mention mode
+                hideTableMentionDropdown();
+            } else {
+                // Otherwise fetch updated suggestions
+                fetchTableSuggestions(currentMentionText);
+            }
+        }
+    }
+    
+    // Fetch table suggestions based on query
+    function fetchTableSuggestions(query) {
+        const workspace = workspaceSelect.value;
+        
+        fetch(`/api/tables/suggestions?workspace=${encodeURIComponent(workspace)}&query=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.suggestions && data.suggestions.length > 0) {
+                    activeDropdownIndex = 0;
+                    showTableMentionDropdown(data.suggestions);
+                } else {
+                    showTableMentionDropdown([]);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching table suggestions:', error);
+                hideTableMentionDropdown();
+            });
+    }
+    
+    // Add a function to style the @table mentions in the input 
+    function styleMentionsInInput() {
+        // We need to style any @tableName patterns in the input
+        const text = queryInput.value;
+        
+        // Find all instances of @tableName in the text
+        selectedTables.forEach(tableName => {
+            const tablePattern = new RegExp(`@${tableName}\\b`, 'g');
+            
+            // Create a temporary div to work with the input's content
+            const tempDiv = document.createElement('div');
+            tempDiv.textContent = text;
+            
+            // Replace the pattern with a styled span
+            const styledText = tempDiv.textContent.replace(tablePattern, match => 
+                `<span class="mention-highlight">${match}</span>`
+            );
+            
+            // Apply the highlighted text to an overlay
+            let highlightOverlay = document.querySelector('.query-highlight-overlay');
+            if (!highlightOverlay) {
+                highlightOverlay = document.createElement('div');
+                highlightOverlay.className = 'query-highlight-overlay';
+                highlightOverlay.style.position = 'absolute';
+                highlightOverlay.style.top = '0';
+                highlightOverlay.style.left = '0';
+                highlightOverlay.style.right = '0';
+                highlightOverlay.style.bottom = '0';
+                highlightOverlay.style.pointerEvents = 'none';
+                highlightOverlay.style.zIndex = '1';
+                queryInput.parentNode.style.position = 'relative';
+                queryInput.parentNode.insertBefore(highlightOverlay, queryInput.nextSibling);
+            }
+            
+            highlightOverlay.innerHTML = styledText;
+        });
+    }
+    
+    // Select a table from the dropdown
+    function selectTableFromDropdown(tableName, tableDescription) {
+        if (!selectedTables) selectedTables = [];
+        
+        console.log('Before selection - Selected tables:', selectedTables); // Debug log
+        
+        if (selectedTables.includes(tableName)) {
+            // Table already selected, don't add duplicate
+            hideTableMentionDropdown();
+            return;
+        }
+        
+        // Add to selected tables
+        selectedTables.push(tableName);
+        console.log('After adding - Selected tables:', selectedTables); // Debug log
+        
+        // Replace the @mention text with a clean table reference
+        const cursorPos = queryInput.selectionStart;
+        let textBefore = queryInput.value.substring(0, mentionStartPosition);
+        let textAfter = queryInput.value.substring(mentionStartPosition + currentMentionText.length + 1);
+        
+        // Insert the table name directly (without markers)
+        const displayText = `@${tableName} `;
+        queryInput.value = textBefore + displayText + textAfter;
+        
+        // Set cursor position after replacement
+        queryInput.selectionStart = mentionStartPosition + displayText.length;
+        queryInput.selectionEnd = mentionStartPosition + displayText.length;
+        
+        // Update the selected tables display
+        updateSelectedTablesDisplay();
+        
+        // Hide dropdown and refocus input
+        hideTableMentionDropdown();
+        queryInput.focus();
+    }
+    
+    // Update removeSelectedTable to handle styling
+    function removeSelectedTable(tableName) {
+        // Find and remove the table reference from the input
+        const tableRef = `@${tableName}`;
+        queryInput.value = queryInput.value.replace(tableRef, '');
+        
+        // Remove the table from our selected tables array
+        selectedTables = selectedTables.filter(t => t !== tableName);
+        
+        // Update the selected tables display
+        updateSelectedTablesDisplay();
+        
+        // Update styling if needed
+        if (selectedTables.length === 0) {
+            queryInput.style.color = ''; // Reset to default color
+            queryInput.removeAttribute('data-has-mentions');
+        }
+    }
+    
+    // Show selected tables visually below the input field
+    function updateSelectedTablesDisplay() {
+        // Find the container using the direct class name
+        const container = document.querySelector('.selected-tables-container');
+        if (!container) {
+            console.error('Selected tables container not found');
+            return;
+        }
+        
+        // Clear existing badges
+        container.innerHTML = '';
+        
+        // Add new badges for selected tables
+        if (selectedTables && selectedTables.length > 0) {
+            selectedTables.forEach(table => {
+                const badge = document.createElement('div');
+                badge.className = 'table-badge';
+                badge.innerHTML = `${table}<span class="remove-table" data-table="${table}">&times;</span>`;
+                container.appendChild(badge);
+                
+                // Add click handler to view table info
+                badge.addEventListener('click', function(e) {
+                    if (!e.target.classList.contains('remove-table')) {
+                        showTableInfo(table);
+                    }
+                });
+            });
+            
+            // Add click handlers for remove buttons
+            container.querySelectorAll('.remove-table').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tableToRemove = this.getAttribute('data-table');
+                    removeSelectedTable(tableToRemove);
+                });
+            });
+        }
+    }
+    
+    // Prepare input for submission - replace any @table mentions with proper format if needed
+    function prepareInputForSubmission() {
+        // You can use this function to format the query before sending to backend
+        // For now we just return the current input text as is
+        return queryInput.value;
+    }
+
+    // Replace the real input with a visual representation that shows tables as colored tags
+    function highlightTablesInInput() {
+        const inputField = queryInput;
+        const inputContainer = inputField.parentElement;
+        
+        // Ensure we're working with the actual input field
+        if (!inputField || inputField.tagName !== 'TEXTAREA') return;
+        
+        // Get the existing display element or create a new one
+        let highlightedDisplay = inputContainer.querySelector('.highlighted-input');
+        if (!highlightedDisplay) {
+            // Create container for highlighted input that will overlay the real input
+            highlightedDisplay = document.createElement('div');
+            highlightedDisplay.className = 'highlighted-input';
+            highlightedDisplay.style.position = 'absolute';
+            highlightedDisplay.style.top = '0';
+            highlightedDisplay.style.left = '0';
+            highlightedDisplay.style.width = '100%';
+            highlightedDisplay.style.height = '100%';
+            highlightedDisplay.style.padding = window.getComputedStyle(inputField).padding;
+            highlightedDisplay.style.backgroundColor = 'transparent';
+            highlightedDisplay.style.pointerEvents = 'none';
+            
+            // Add the display element
+            inputContainer.style.position = 'relative';
+            inputContainer.appendChild(highlightedDisplay);
+        }
+        
+        // Format the content with highlighted tables
+        let html = inputField.value;
+        
+        // Replace table references with colored spans
+        selectedTables.forEach(table => {
+            const tableRef = `@${table}`;
+            const tableTag = `<span class="highlighted-table">${tableRef}</span>`;
+            html = html.split(tableRef).join(tableTag);
+        });
+        
+        // Set the formatted content
+        highlightedDisplay.innerHTML = html;
+    }
+    
+    // Show detailed information about a specific table
+    async function showTableInfo(tableName) {
+        try {
+            showLoading();
+            
+            // First load the schema
+            const response = await fetch(`/api/schema?workspace=${workspaceSelect.value}`);
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(result.error || 'Failed to load schema');
+            }
+
+            // Format schema data into HTML
+            const schemaHtml = formatSchemaData(result.schema);
+            document.getElementById('schemaContent').innerHTML = schemaHtml;
+
+            // Initialize filtering and set selected table
+            initializeSchemaFiltering(result.schema);
+            
+            // Set the table filter dropdown to this specific table
+            const tableFilter = document.getElementById('tableFilter');
+            if (tableFilter) {
+                tableFilter.value = tableName;
+                // Trigger change event to update display
+                const event = new Event('change');
+                tableFilter.dispatchEvent(event);
+            }
+            
+            // Show the schema modal
+            schemaModal.show();
+        } catch (error) {
+            showError(error.message);
+        } finally {
+            hideLoading();
+        }
+    }
+    
+    // Fetch available table names for the current workspace
+    function fetchTableNames() {
+        const workspace = workspaceSelect.value;
+        fetch(`/api/tables/suggestions?workspace=${encodeURIComponent(workspace)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.suggestions) {
+                    tableNames = data.suggestions.map(s => s.name);
+                }
+            })
+            .catch(error => console.error('Error fetching table names:', error));
+    }
 
     function initializeEmptyTable() {
         if (dataTable) {
@@ -214,7 +653,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: JSON.stringify({
                     query: query,
-                    workspace: workspaceSelect.value
+                    workspace: workspaceSelect.value,
+                    tables: selectedTables  // Include selected tables
                 })
             });
             

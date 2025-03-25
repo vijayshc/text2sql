@@ -90,8 +90,13 @@ def process_query():
         logger.warning("API request received with no query")
         return jsonify({"error": "No query provided"}), 400
         
-    query = data.get('query')
+    query = data.get('query').replace("@","table ")
     workspace_name = data.get('workspace', 'Default')
+    explicit_tables = data.get('tables', [])  # Get user-specified tables if provided
+    
+    # Log if explicit tables are provided
+    if explicit_tables:
+        logger.info(f"User explicitly specified tables: {', '.join(explicit_tables)}")
     
     # Generate unique ID for this query
     query_id = str(uuid.uuid4())
@@ -108,7 +113,7 @@ def process_query():
     # Start processing in background
     def process_in_background():
         try:
-            result = sql_manager.process_query(query, selected_workspaces, 
+            result = sql_manager.process_query(query, selected_workspaces, explicit_tables,
                                             progress_callback=lambda step: update_progress(query_id, step))
             query_progress[query_id]['result'] = result
             query_progress[query_id]['status'] = 'completed'
@@ -123,6 +128,41 @@ def process_query():
         "query_id": query_id,
         "status": "processing"
     })
+
+@app.route('/api/tables/suggestions', methods=['GET'])
+def get_table_suggestions():
+    """Get table suggestions for autocomplete feature"""
+    workspace_name = request.args.get('workspace', 'Default')
+    query = request.args.get('query', '').lower()  # Optional search query for filtering
+    
+    logger.debug(f"Table suggestions requested for workspace: {workspace_name}, query: '{query}'")
+    
+    try:
+        # Get all tables from schema manager
+        tables = sql_manager.schema_manager.get_tables(workspace_name)
+        
+        # Format results with name and description
+        table_info = []
+        for table in tables:
+            table_data = {
+                "name": table["name"],
+                "description": table.get("description", "")
+            }
+            
+            # If a query is provided, filter tables that match
+            if query:
+                if query in table_data["name"].lower() or query in table_data["description"].lower():
+                    table_info.append(table_data)
+            else:
+                table_info.append(table_data)
+        
+        # Sort alphabetically by name
+        table_info.sort(key=lambda x: x["name"])
+        
+        return jsonify({"suggestions": table_info})
+    except Exception as e:
+        logger.exception(f"Error retrieving table suggestions: {str(e)}")
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/api/query/progress/<query_id>', methods=['GET'])
 def get_query_progress(query_id):

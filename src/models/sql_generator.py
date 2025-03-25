@@ -20,12 +20,13 @@ class SQLGenerationManager:
         self.schema_manager = SchemaManager()
         self.logger = logging.getLogger('text2sql.sql_generator')
         
-    def process_query(self, query, workspaces=None, progress_callback=None):
+    def process_query(self, query, workspaces=None, explicit_tables=None, progress_callback=None):
         """Process a natural language query through the full pipeline
         
         Args:
             query (str): The natural language query from the user
             workspaces (list, optional): List of workspace dictionaries
+            explicit_tables (list, optional): List of tables explicitly selected by the user
             progress_callback (callable, optional): Callback function for progress updates
             
         Returns:
@@ -34,6 +35,9 @@ class SQLGenerationManager:
         start_time = time.time()
         self.logger.info(f"Processing query: '{query}'")
         
+        if explicit_tables:
+            self.logger.info(f"User explicitly selected tables: {', '.join(explicit_tables)}")
+            
         # Step 1: Detect user intent
         intent_result = self.intent_agent.detect_intent(query)
         intent = intent_result["intent"]
@@ -60,7 +64,7 @@ class SQLGenerationManager:
         # Step 2: Process based on intent
         if intent == "data_retrieval":
             # For data retrieval, go through full SQL generation pipeline
-            sql_result = self._generate_sql(query, workspaces, progress_callback)
+            sql_result = self._generate_sql(query, workspaces, explicit_tables, progress_callback)
             response.update(sql_result)
             
         elif intent == "schema_exploration":
@@ -117,12 +121,13 @@ class SQLGenerationManager:
         self.logger.info(f"Query processing completed in {processing_time:.2f}s")
         return response
         
-    def _generate_sql(self, query, workspaces=None, progress_callback=None):
+    def _generate_sql(self, query, workspaces=None, explicit_tables=None, progress_callback=None):
         """Generate SQL for a data retrieval query
         
         Args:
             query (str): The natural language query
             workspaces (list, optional): List of workspace dictionaries
+            explicit_tables (list, optional): List of tables explicitly selected by the user
             progress_callback (callable, optional): Callback function for progress updates
             
         Returns:
@@ -162,17 +167,31 @@ class SQLGenerationManager:
             else:
                 workspace_name = workspaces[0]["name"]
         
-        # Step 3: Select relevant tables using Table Agent
-        relevant_tables = self.table_agent.get_relevant_tables(query, workspace_name)
-        
-        step_info = {
-            "step": "table_selection",
-            "description": "Selecting relevant tables",
-            "result": ", ".join(relevant_tables)
-        }
-        result["steps"].append(step_info)
-        if progress_callback:
-            progress_callback(step_info)
+        # Step 3: Select relevant tables - either from user selection or using Table Agent
+        if explicit_tables and len(explicit_tables) > 0:
+            # If user explicitly selected tables, use those
+            relevant_tables = explicit_tables
+            
+            step_info = {
+                "step": "table_selection",
+                "description": "Using explicitly selected tables",
+                "result": ", ".join(relevant_tables)
+            }
+            result["steps"].append(step_info)
+            if progress_callback:
+                progress_callback(step_info)
+        else:
+            # Otherwise use the TableAgent to determine relevant tables
+            relevant_tables = self.table_agent.get_relevant_tables(query, workspace_name)
+            
+            step_info = {
+                "step": "table_selection",
+                "description": "Automatically selecting relevant tables",
+                "result": ", ".join(relevant_tables)
+            }
+            result["steps"].append(step_info)
+            if progress_callback:
+                progress_callback(step_info)
         
         if not relevant_tables:
             result["error"] = "Could not identify relevant tables for the query"

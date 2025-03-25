@@ -1206,3 +1206,755 @@ Traceback (most recent call last):
   File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/transport/_requests_basic.py", line 409, in send
     raise error
 azure.core.exceptions.ServiceResponseError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2025-03-25 23:17:06,871 [ERROR] text2sql.agents.intent [intent_agent.py:81]: Intent detection error after 0.03s: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/agents/intent_agent.py", line 59, in detect_intent
+    response = self.ai_client.client.complete(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/ai/inference/_patch.py", line 728, in complete
+    pipeline_response: PipelineResponse = self._client._pipeline.run(  # pylint: disable=protected-access
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 240, in run
+    return first_node.send(pipeline_request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 2 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_redirect.py", line 204, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 573, in send
+    raise err
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 551, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 3 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 128, in send
+    self._sender.send(request.http_request, **request.context.options),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/transport/_requests_basic.py", line 409, in send
+    raise error
+azure.core.exceptions.ServiceResponseError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2025-03-25 23:17:07,105 [ERROR] text2sql.agents.column [column_agent.py:124]: Column pruning error after 0.22s: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/agents/column_agent.py", line 92, in prune_columns
+    response = self.ai_client.client.complete(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/ai/inference/_patch.py", line 728, in complete
+    pipeline_response: PipelineResponse = self._client._pipeline.run(  # pylint: disable=protected-access
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 240, in run
+    return first_node.send(pipeline_request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 2 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_redirect.py", line 204, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 573, in send
+    raise err
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 551, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 3 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 128, in send
+    self._sender.send(request.http_request, **request.context.options),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/transport/_requests_basic.py", line 409, in send
+    raise error
+azure.core.exceptions.ServiceResponseError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2025-03-25 23:17:07,135 [ERROR] text2sql.azure [azure_client.py:145]: SQL generation error after 0.03s: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/utils/azure_client.py", line 108, in generate_sql
+    response = self.client.complete(
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/ai/inference/_patch.py", line 728, in complete
+    pipeline_response: PipelineResponse = self._client._pipeline.run(  # pylint: disable=protected-access
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 240, in run
+    return first_node.send(pipeline_request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 2 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_redirect.py", line 204, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 573, in send
+    raise err
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 551, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 3 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 128, in send
+    self._sender.send(request.http_request, **request.context.options),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/transport/_requests_basic.py", line 409, in send
+    raise error
+azure.core.exceptions.ServiceResponseError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2025-03-25 23:17:07 - ERROR - [azure_client.py:145] - SQL generation error after 0.03s: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/utils/azure_client.py", line 108, in generate_sql
+    response = self.client.complete(
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/ai/inference/_patch.py", line 728, in complete
+    pipeline_response: PipelineResponse = self._client._pipeline.run(  # pylint: disable=protected-access
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 240, in run
+    return first_node.send(pipeline_request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 2 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_redirect.py", line 204, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 573, in send
+    raise err
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 551, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 3 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 128, in send
+    self._sender.send(request.http_request, **request.context.options),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/transport/_requests_basic.py", line 409, in send
+    raise error
+azure.core.exceptions.ServiceResponseError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2025-03-25 23:21:47,788 [ERROR] text2sql.database [database.py:102]: SQL error after 0.00s: (sqlite3.OperationalError) no such table: items
+[SQL: SELECT i.*
+FROM items i;]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Traceback (most recent call last):
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.OperationalError: no such table: items
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/utils/database.py", line 58, in execute_query
+    result = conn.execute(text(sql_query))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1414, in execute
+    return meth(
+           ^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 486, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1638, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1842, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1983, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2326, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such table: items
+[SQL: SELECT i.*
+FROM items i;]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-03-25 23:21:47 - ERROR - [database.py:102] - SQL error after 0.00s: (sqlite3.OperationalError) no such table: items
+[SQL: SELECT i.*
+FROM items i;]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Traceback (most recent call last):
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.OperationalError: no such table: items
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/utils/database.py", line 58, in execute_query
+    result = conn.execute(text(sql_query))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1414, in execute
+    return meth(
+           ^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 486, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1638, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1842, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1983, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2326, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such table: items
+[SQL: SELECT i.*
+FROM items i;]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-03-25 23:21:47,896 [ERROR] text2sql.database [database.py:102]: SQL error after 0.00s: (sqlite3.OperationalError) near "It": syntax error
+[SQL: It seems like there might be a misunderstanding in the request. Based on the schema and information provided, we only have access to the 'customers' table. To proceed accurately, I'll need the schema details for any additional tables, such as a table containing 'items' or 'orders' that are associated with the 'customers' table. Could you please provide the schema for the additional tables or clarify the table structure containing the 'items' data?]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Traceback (most recent call last):
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.OperationalError: near "It": syntax error
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/utils/database.py", line 58, in execute_query
+    result = conn.execute(text(sql_query))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1414, in execute
+    return meth(
+           ^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 486, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1638, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1842, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1983, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2326, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) near "It": syntax error
+[SQL: It seems like there might be a misunderstanding in the request. Based on the schema and information provided, we only have access to the 'customers' table. To proceed accurately, I'll need the schema details for any additional tables, such as a table containing 'items' or 'orders' that are associated with the 'customers' table. Could you please provide the schema for the additional tables or clarify the table structure containing the 'items' data?]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-03-25 23:21:47 - ERROR - [database.py:102] - SQL error after 0.00s: (sqlite3.OperationalError) near "It": syntax error
+[SQL: It seems like there might be a misunderstanding in the request. Based on the schema and information provided, we only have access to the 'customers' table. To proceed accurately, I'll need the schema details for any additional tables, such as a table containing 'items' or 'orders' that are associated with the 'customers' table. Could you please provide the schema for the additional tables or clarify the table structure containing the 'items' data?]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Traceback (most recent call last):
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.OperationalError: near "It": syntax error
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/utils/database.py", line 58, in execute_query
+    result = conn.execute(text(sql_query))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1414, in execute
+    return meth(
+           ^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 486, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1638, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1842, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1983, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2326, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) near "It": syntax error
+[SQL: It seems like there might be a misunderstanding in the request. Based on the schema and information provided, we only have access to the 'customers' table. To proceed accurately, I'll need the schema details for any additional tables, such as a table containing 'items' or 'orders' that are associated with the 'customers' table. Could you please provide the schema for the additional tables or clarify the table structure containing the 'items' data?]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-03-26 00:03:59,185 [ERROR] text2sql.database [database.py:102]: SQL error after 0.00s: (sqlite3.OperationalError) near "To": syntax error
+[SQL: To provide a SQL query for the request "get me list of items from @customers," I would need more information about what constitutes an "item" in this context and how it relates to the `customers` table. Could you please clarify if there is a separate table that contains the items associated with customers, and if so, could you describe the schema for that table, including the relationship between the items and customers?]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Traceback (most recent call last):
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.OperationalError: near "To": syntax error
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/utils/database.py", line 58, in execute_query
+    result = conn.execute(text(sql_query))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1414, in execute
+    return meth(
+           ^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 486, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1638, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1842, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1983, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2326, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) near "To": syntax error
+[SQL: To provide a SQL query for the request "get me list of items from @customers," I would need more information about what constitutes an "item" in this context and how it relates to the `customers` table. Could you please clarify if there is a separate table that contains the items associated with customers, and if so, could you describe the schema for that table, including the relationship between the items and customers?]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-03-26 00:03:59 - ERROR - [database.py:102] - SQL error after 0.00s: (sqlite3.OperationalError) near "To": syntax error
+[SQL: To provide a SQL query for the request "get me list of items from @customers," I would need more information about what constitutes an "item" in this context and how it relates to the `customers` table. Could you please clarify if there is a separate table that contains the items associated with customers, and if so, could you describe the schema for that table, including the relationship between the items and customers?]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Traceback (most recent call last):
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.OperationalError: near "To": syntax error
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/utils/database.py", line 58, in execute_query
+    result = conn.execute(text(sql_query))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1414, in execute
+    return meth(
+           ^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 486, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1638, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1842, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1983, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2326, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) near "To": syntax error
+[SQL: To provide a SQL query for the request "get me list of items from @customers," I would need more information about what constitutes an "item" in this context and how it relates to the `customers` table. Could you please clarify if there is a separate table that contains the items associated with customers, and if so, could you describe the schema for that table, including the relationship between the items and customers?]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-03-26 00:06:44,315 [ERROR] text2sql.database [database.py:102]: SQL error after 0.01s: (sqlite3.OperationalError) no such table: items
+[SQL: SELECT i.*, c.first_name AS "First Name", c.last_name AS "Last Name", c.email AS "Email"
+FROM items i
+JOIN customers c ON i.customer_id = c.customer_id
+WHERE i.customer_id IN (@customer_ids);]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Traceback (most recent call last):
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.OperationalError: no such table: items
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/utils/database.py", line 58, in execute_query
+    result = conn.execute(text(sql_query))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1414, in execute
+    return meth(
+           ^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 486, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1638, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1842, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1983, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2326, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such table: items
+[SQL: SELECT i.*, c.first_name AS "First Name", c.last_name AS "Last Name", c.email AS "Email"
+FROM items i
+JOIN customers c ON i.customer_id = c.customer_id
+WHERE i.customer_id IN (@customer_ids);]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-03-26 00:06:44 - ERROR - [database.py:102] - SQL error after 0.01s: (sqlite3.OperationalError) no such table: items
+[SQL: SELECT i.*, c.first_name AS "First Name", c.last_name AS "Last Name", c.email AS "Email"
+FROM items i
+JOIN customers c ON i.customer_id = c.customer_id
+WHERE i.customer_id IN (@customer_ids);]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Traceback (most recent call last):
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.OperationalError: no such table: items
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/utils/database.py", line 58, in execute_query
+    result = conn.execute(text(sql_query))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1414, in execute
+    return meth(
+           ^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 486, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1638, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1842, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1983, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2326, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such table: items
+[SQL: SELECT i.*, c.first_name AS "First Name", c.last_name AS "Last Name", c.email AS "Email"
+FROM items i
+JOIN customers c ON i.customer_id = c.customer_id
+WHERE i.customer_id IN (@customer_ids);]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-03-26 00:15:31,788 [ERROR] text2sql.database [database.py:102]: SQL error after 0.00s: (sqlite3.OperationalError) no such column: o.item_id
+[SQL: SELECT oi.*
+FROM order_items oi
+JOIN orders o ON oi.item_id = o.item_id
+WHERE o.customer_id = ?; -- Replace ? with the desired customer_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Traceback (most recent call last):
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.OperationalError: no such column: o.item_id
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/utils/database.py", line 58, in execute_query
+    result = conn.execute(text(sql_query))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1414, in execute
+    return meth(
+           ^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 486, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1638, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1842, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1983, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2326, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such column: o.item_id
+[SQL: SELECT oi.*
+FROM order_items oi
+JOIN orders o ON oi.item_id = o.item_id
+WHERE o.customer_id = ?; -- Replace ? with the desired customer_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-03-26 00:15:31 - ERROR - [database.py:102] - SQL error after 0.00s: (sqlite3.OperationalError) no such column: o.item_id
+[SQL: SELECT oi.*
+FROM order_items oi
+JOIN orders o ON oi.item_id = o.item_id
+WHERE o.customer_id = ?; -- Replace ? with the desired customer_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Traceback (most recent call last):
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.OperationalError: no such column: o.item_id
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/utils/database.py", line 58, in execute_query
+    result = conn.execute(text(sql_query))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1414, in execute
+    return meth(
+           ^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 486, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1638, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1842, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1983, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2326, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such column: o.item_id
+[SQL: SELECT oi.*
+FROM order_items oi
+JOIN orders o ON oi.item_id = o.item_id
+WHERE o.customer_id = ?; -- Replace ? with the desired customer_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-03-26 00:22:26,233 [ERROR] text2sql.database [database.py:102]: SQL error after 0.01s: (sqlite3.OperationalError) no such function: CONCAT
+[SQL: SELECT
+  c.customer_id,
+  CONCAT(c.first_name, ' ', c.last_name) AS full_name,
+  c.email,
+  c.phone,
+  c.address,
+  c.city,
+  c.state,
+  c.country,
+  c.postal_code,
+  o.order_id,
+  o.order_date,
+  o.status AS order_status,
+  o.total_amount
+FROM
+  customers c
+LEFT JOIN
+  orders o ON c.customer_id = o.customer_id
+ORDER BY
+  c.customer_id, o.order_date;]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Traceback (most recent call last):
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.OperationalError: no such function: CONCAT
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/utils/database.py", line 58, in execute_query
+    result = conn.execute(text(sql_query))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1414, in execute
+    return meth(
+           ^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 486, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1638, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1842, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1983, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2326, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such function: CONCAT
+[SQL: SELECT
+  c.customer_id,
+  CONCAT(c.first_name, ' ', c.last_name) AS full_name,
+  c.email,
+  c.phone,
+  c.address,
+  c.city,
+  c.state,
+  c.country,
+  c.postal_code,
+  o.order_id,
+  o.order_date,
+  o.status AS order_status,
+  o.total_amount
+FROM
+  customers c
+LEFT JOIN
+  orders o ON c.customer_id = o.customer_id
+ORDER BY
+  c.customer_id, o.order_date;]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-03-26 00:22:26 - ERROR - [database.py:102] - SQL error after 0.01s: (sqlite3.OperationalError) no such function: CONCAT
+[SQL: SELECT
+  c.customer_id,
+  CONCAT(c.first_name, ' ', c.last_name) AS full_name,
+  c.email,
+  c.phone,
+  c.address,
+  c.city,
+  c.state,
+  c.country,
+  c.postal_code,
+  o.order_id,
+  o.order_date,
+  o.status AS order_status,
+  o.total_amount
+FROM
+  customers c
+LEFT JOIN
+  orders o ON c.customer_id = o.customer_id
+ORDER BY
+  c.customer_id, o.order_date;]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Traceback (most recent call last):
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.OperationalError: no such function: CONCAT
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/utils/database.py", line 58, in execute_query
+    result = conn.execute(text(sql_query))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1414, in execute
+    return meth(
+           ^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 486, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1638, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1842, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1983, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2326, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such function: CONCAT
+[SQL: SELECT
+  c.customer_id,
+  CONCAT(c.first_name, ' ', c.last_name) AS full_name,
+  c.email,
+  c.phone,
+  c.address,
+  c.city,
+  c.state,
+  c.country,
+  c.postal_code,
+  o.order_id,
+  o.order_date,
+  o.status AS order_status,
+  o.total_amount
+FROM
+  customers c
+LEFT JOIN
+  orders o ON c.customer_id = o.customer_id
+ORDER BY
+  c.customer_id, o.order_date;]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
