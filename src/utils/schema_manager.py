@@ -1,28 +1,42 @@
 import json
 import os
 import logging
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Tuple
 
 class SchemaManager:
     """Manager class for handling database schema from a JSON file"""
     
-    def __init__(self, schema_file_path=None):
-        """Initialize the schema manager with a path to the schema JSON file
+    def __init__(self, schema_file_path=None, condition_file_path=None):
+        """Initialize the schema manager with paths to the schema JSON and condition JSON files
         
         Args:
             schema_file_path (str, optional): Path to schema.json file, defaults to config/data/schema.json
+            condition_file_path (str, optional): Path to condition.json file, defaults to config/data/condition.json
         """
         self.logger = logging.getLogger('text2sql.schema_manager')
         
+        # Initialize base directory path
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        
         if schema_file_path is None:
             # Default path is relative to the project root
-            base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
             schema_file_path = os.path.join(base_dir, 'config', 'data', 'schema.json')
         
+        if condition_file_path is None:
+            # Default path for condition.json is also in config/data
+            condition_file_path = os.path.join(base_dir, 'config', 'data', 'condition.json')
+        
         self.schema_file_path = schema_file_path
+        self.condition_file_path = condition_file_path
+        
         self.schema_data = None
+        self.condition_data = None
         self.workspaces = []
+        self.joins = []
+        
+        # Load both files
         self.load_schema()
+        self.load_join_conditions()
     
     def load_schema(self) -> bool:
         """Load schema data from the JSON file
@@ -248,4 +262,120 @@ class SchemaManager:
             
         except Exception as e:
             self.logger.error(f"Error saving schema file: {str(e)}", exc_info=True)
+            return False
+    
+    def load_join_conditions(self) -> bool:
+        """Load join conditions from the JSON file
+        
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        try:
+            self.logger.info(f"Loading join conditions from {self.condition_file_path}")
+            with open(self.condition_file_path, 'r') as f:
+                self.condition_data = json.load(f)
+                
+            # Extract joins for easier access
+            if self.condition_data and 'joins' in self.condition_data:
+                self.joins = self.condition_data['joins']
+                self.logger.info(f"Loaded {len(self.joins)} join conditions from condition file")
+                return True
+            else:
+                self.logger.error("Condition file does not contain 'joins' key")
+                return False
+                
+        except Exception as e:
+            self.logger.error(f"Error loading condition file: {str(e)}", exc_info=True)
+            return False
+            
+    def get_join_conditions(self, tables: List[str], workspace_name: Optional[str] = None) -> List[Dict[str, Any]]:
+        """Get join conditions for a set of tables
+        
+        Args:
+            tables (List[str]): List of table names to find join conditions for
+            workspace_name (str, optional): Name of workspace to filter by
+            
+        Returns:
+            List[Dict]: List of join conditions relevant to the provided tables
+        """
+        if not tables or len(tables) < 2:
+            return []
+            
+        relevant_joins = []
+        
+        for join in self.joins:
+            left_table = join.get("left_table", "")
+            right_table = join.get("right_table", "")
+            
+            # Check if both tables in the join are in our list of tables
+            if left_table in tables and right_table in tables:
+                relevant_joins.append(join)
+                
+        return relevant_joins
+        
+    def has_join_condition(self, table1: str, table2: str) -> bool:
+        """Check if a join condition exists between two specific tables
+        
+        Args:
+            table1 (str): First table name
+            table2 (str): Second table name
+            
+        Returns:
+            bool: True if a join condition exists, False otherwise
+        """
+        for join in self.joins:
+            left_table = join.get("left_table", "")
+            right_table = join.get("right_table", "")
+            
+            # Check both directions
+            if (left_table == table1 and right_table == table2) or (left_table == table2 and right_table == table1):
+                return True
+                
+        return False
+        
+    def get_specific_join(self, table1: str, table2: str) -> Optional[Dict[str, Any]]:
+        """Get the specific join condition between two tables
+        
+        Args:
+            table1 (str): First table name
+            table2 (str): Second table name
+            
+        Returns:
+            Dict or None: Join condition if found, None otherwise
+        """
+        for join in self.joins:
+            left_table = join.get("left_table", "")
+            right_table = join.get("right_table", "")
+            
+            # Match in either direction
+            if (left_table == table1 and right_table == table2) or (left_table == table2 and right_table == table1):
+                return join
+                
+        return None
+        
+    def save_join_conditions(self, condition_data=None) -> bool:
+        """Save join condition data back to the JSON file
+        
+        Args:
+            condition_data (dict, optional): New condition data to save, uses current data if None
+            
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        try:
+            data_to_save = condition_data or self.condition_data
+            
+            if not data_to_save:
+                self.logger.error("No join condition data to save")
+                return False
+                
+            self.logger.info(f"Saving join conditions to {self.condition_file_path}")
+            
+            with open(self.condition_file_path, 'w') as f:
+                json.dump(data_to_save, f, indent=2)
+                
+            return True
+            
+        except Exception as e:
+            self.logger.error(f"Error saving join condition file: {str(e)}", exc_info=True)
             return False

@@ -6,7 +6,6 @@ from src.utils.database import DatabaseManager
 from src.utils.schema_manager import SchemaManager
 import logging
 import time
-
 class SQLGenerationManager:
     """Manager class for coordinating the Text-to-SQL pipeline"""
     
@@ -208,8 +207,33 @@ class SQLGenerationManager:
         result["steps"].append(step_info)
         if progress_callback:
             progress_callback(step_info)
+
+        # Step 5: Get join conditions if multiple tables involved
+        join_conditions = []
+        if len(relevant_tables) > 1:
+            join_conditions = self.schema_manager.get_join_conditions(relevant_tables, workspace_name)
+            
+            if join_conditions:
+                join_info = "\n".join([
+                    f"- Join between {join['left_table']} and {join['right_table']}: "
+                    f"{join['join_type']} JOIN on {join['condition']}"
+                    for join in join_conditions
+                ])
+                
+                step_info = {
+                    "step": "join_conditions",
+                    "description": "Identifying table join conditions",
+                    "result": join_info
+                }
+                result["steps"].append(step_info)
+                if progress_callback:
+                    progress_callback(step_info)
+                    
+                self.logger.info(f"Found {len(join_conditions)} join conditions for the relevant tables")
+            else:
+                self.logger.info("No pre-defined join conditions found for the selected tables")
         
-        # Step 5: Get example queries
+        # Step 6: Get example queries
         first_table = relevant_tables[0] if relevant_tables else None
         examples = []
         if first_table:
@@ -235,9 +259,15 @@ class SQLGenerationManager:
                         "question": f"Get record from {first_table} by {pk}",
                         "sql": f"SELECT * FROM {first_table} WHERE {pk} = 1"
                     })
+                    
+                # Add join example if we have join conditions
+                if join_conditions and len(relevant_tables) > 1:
+                    join_example = self.generate_join_example(join_conditions[0], workspace_name)
+                    if join_example:
+                        examples.append(join_example)
         
-        # Step 6: Generate SQL using Azure AI
-        sql_result = self.ai_client.generate_sql(query, pruned_schema, examples)
+        # Step 7: Generate SQL using Azure AI with join conditions included
+        sql_result = self.ai_client.generate_sql(query, pruned_schema, examples, join_conditions)
         
         result["sql"] = sql_result.get("sql", "")
         result["explanation"] = sql_result.get("explanation", "")
@@ -251,7 +281,7 @@ class SQLGenerationManager:
         if progress_callback:
             progress_callback(step_info)
         
-        # Step 7: Execute SQL if present and generate chart data
+        # Step 8: Execute SQL if present and generate chart data
         if result["sql"]:
             try:
                 query_result = self.db_manager.execute_query(result["sql"])
@@ -296,6 +326,47 @@ class SQLGenerationManager:
         processing_time = time.time() - start_time
         self.logger.info(f"SQL generation completed in {processing_time:.2f}s")
         return result
+    
+    def generate_join_example(self, join_condition, workspace_name=None):
+        """Generate an example query using the join condition
+        
+        Args:
+            join_condition (dict): Join condition dictionary
+            workspace_name (str, optional): Workspace name for context
+            
+        Returns:
+            dict: Example query with question and SQL
+        """
+        try:
+            left_table = join_condition.get("left_table", "")
+            right_table = join_condition.get("right_table", "")
+            join_type = join_condition.get("join_type", "INNER")
+            condition = join_condition.get("condition", "")
+            
+            # Get primary key columns for representative selection
+            left_cols = self.schema_manager.get_columns(left_table, workspace_name)
+            right_cols = self.schema_manager.get_columns(right_table, workspace_name)
+            
+            # Select a few columns for a representative query
+            left_col = next((col["name"] for col in left_cols if not col.get("is_primary_key")), None)
+            left_col = left_col or (left_cols[0]["name"] if left_cols else "id")
+            
+            right_col = next((col["name"] for col in right_cols if not col.get("is_primary_key")), None)
+            right_col = right_col or (right_cols[0]["name"] if right_cols else "id")
+            
+            # Create a simple example query using the join
+            sql = f"""SELECT {left_table}.{left_col}, {right_table}.{right_col}
+FROM {left_table}
+{join_type} JOIN {right_table} ON {condition}
+LIMIT 5"""
+            
+            return {
+                "question": f"Show some data from {left_table} and {right_table}",
+                "sql": sql
+            }
+        except Exception as e:
+            self.logger.warning(f"Could not generate join example: {str(e)}")
+            return None
     
     def close(self):
         """Close all connections"""

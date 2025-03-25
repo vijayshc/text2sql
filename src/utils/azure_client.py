@@ -31,13 +31,14 @@ class AzureAIClient:
             self.logger.error(f"Failed to initialize Azure AI Client: {str(e)}", exc_info=True)
             raise
     
-    def generate_sql(self, query, schema=None, examples=None):
+    def generate_sql(self, query, schema=None, examples=None, join_conditions=None):
         """Generate SQL from a natural language query
         
         Args:
             query (str): The natural language query
             schema (str, optional): The database schema information
             examples (list, optional): Example queries and corresponding SQL
+            join_conditions (list, optional): Pre-defined join conditions between tables
             
         Returns:
             dict: A dictionary containing the generated SQL and explanation
@@ -51,7 +52,7 @@ Your task is to:
 1. Analyze the provided schema carefully, noting table relationships and column types
 2. Generate a SQL query that accurately answers the user's question
 3. Consider performance by selecting only necessary columns
-4. Use appropriate JOIN conditions based on primary/foreign key relationships
+4. Use appropriate JOIN conditions based on primary/foreign key relationships or provided join conditions
 5. Include a brief explanation of your query
 
 Rules:
@@ -81,6 +82,21 @@ WHERE ...
         else:
             self.logger.debug("No schema information provided")
         
+        # Add join conditions if provided
+        if join_conditions and len(join_conditions) > 0:
+            self.logger.debug(f"Including {len(join_conditions)} join conditions")
+            join_text = "Use the following pre-defined join conditions when joining these tables:\n"
+            
+            for join in join_conditions:
+                left_table = join.get("left_table", "")
+                right_table = join.get("right_table", "")
+                join_type = join.get("join_type", "INNER")
+                condition = join.get("condition", "")
+                
+                join_text += f"- When joining {left_table} with {right_table}, use: {join_type} JOIN {right_table} ON {condition}\n"
+                
+            messages.append(UserMessage(join_text))
+        
         # Add examples if provided
         if examples and len(examples) > 0:
             self.logger.debug(f"Including {len(examples)} SQL examples")
@@ -104,7 +120,7 @@ WHERE ...
         try:
             self.logger.debug(f"Sending request to {self.model_name} with max_tokens={MAX_TOKENS}, temperature={TEMPERATURE}")
             call_start = time.time()
-            
+            self.logger.info(f"Prompt: {messages}")
             response = self.client.complete(
                 model=self.model_name,
                 messages=messages,

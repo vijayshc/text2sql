@@ -11319,3 +11319,166 @@ ORDER BY
 2025-03-26 00:22:52 - INFO - [sql_generator.py:297] - SQL generation completed in 4.91s
 2025-03-26 00:22:52 - INFO - [sql_generator.py:121] - Query processing completed in 5.39s
 2025-03-26 00:28:19 - INFO - [database.py:238] - Closing database connection
+2025-03-26 00:46:48 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-26 00:46:48 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-26 00:46:48 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-26 00:46:48 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-26 00:46:48 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-26 00:46:48 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-26 00:46:48 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-26 00:46:48 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-26 00:46:48 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-26 00:46:48 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-26 00:46:48 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-26 00:46:48 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-26 00:46:48 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 00:46:49 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-26 00:46:49 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-26 00:46:49 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-26 00:46:49 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-26 00:46:49 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-26 00:46:49 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-26 00:46:49 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-26 00:46:49 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-26 00:46:49 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-26 00:46:49 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-26 00:46:49 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-26 00:46:49 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-26 00:46:49 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 00:47:16 - INFO - [app.py:99] - User explicitly specified tables: order_items, orders, customers
+2025-03-26 00:47:16 - INFO - [sql_generator.py:35] - Processing query: 'get me customer and their order details table order_items table orders  table customers'
+2025-03-26 00:47:16 - INFO - [sql_generator.py:38] - User explicitly selected tables: order_items, orders, customers
+2025-03-26 00:47:18 - INFO - [sql_generator.py:43] - Detected intent: data_retrieval
+2025-03-26 00:47:18 - INFO - [sql_generator.py:136] - Starting SQL generation process
+2025-03-26 00:47:18 - INFO - [database.py:24] - Attempting database connection
+2025-03-26 00:47:18 - INFO - [database.py:28] - Database connection established in 0.02s
+2025-03-26 00:47:20 - INFO - [sql_generator.py:232] - Found 2 join conditions for the relevant tables
+2025-03-26 00:47:20 - INFO - [azure_client.py:47] - SQL generation started for query: 'get me customer and their order details table order_items table orders  table customers'
+2025-03-26 00:47:23 - INFO - [azure_client.py:147] - Generated SQL: SELECT 
+    customers.first_name,
+    customers.last_name,
+    orders.order_id,
+    orders.order_date,
+    orders.status,
+    order_items.product_id,
+    order_items.quantity,
+    order_items.price
+FROM 
+    customers
+INNER JOIN orders ON customers.customer_id = orders.customer_id
+INNER JOIN order_items ON orders.order_id = order_items.order_id
+2025-03-26 00:47:23,199 - QUERY: 'get me customer and their order details table order_items table orders  table customers' → SQL: SELECT 
+    customers.first_name,
+    customers.last_name,
+    orders.order_id,
+    orders.order_date,
+    orders.status,
+    order_items.product_id,
+    order_items.quantity,
+    order_items.price
+FROM 
+    customers
+INNER JOIN orders ON customers.customer_id = orders.customer_id
+INNER JOIN order_items ON orders.order_id = order_items.order_id
+2025-03-26 00:47:23 - INFO - [azure_client.py:155] - SQL generation completed in 3.01s
+2025-03-26 00:47:23 - INFO - [database.py:45] - Executing SQL query: SELECT 
+    customers.first_name,
+    customers.last_name,
+    orders.order_id,
+    orders.order_date,
+    orders.status,
+    order_items.product_id,
+    order_items.quantity,
+    order_items.price
+FROM 
+    customers
+INNER JOIN orders ON customers.customer_id = orders.customer_id
+INNER JOIN order_items ON orders.order_id = order_items.order_id
+2025-03-26 00:47:23 - INFO - [database.py:66] - Query returned 11 rows with 8 columns
+2025-03-26 00:47:23 - INFO - [database.py:75] - Query processing completed in 0.03s
+2025-03-26 00:47:23 - INFO - [sql_generator.py:327] - SQL generation completed in 5.11s
+2025-03-26 00:47:23 - INFO - [sql_generator.py:120] - Query processing completed in 6.38s
+2025-03-26 00:49:33 - INFO - [database.py:238] - Closing database connection
+2025-03-26 00:49:34 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-26 00:49:34 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-26 00:49:34 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-26 00:49:34 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-26 00:49:34 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-26 00:49:34 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-26 00:49:34 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-26 00:49:34 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-26 00:49:34 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-26 00:49:34 - INFO - [azure_client.py:20] - Initializing Azure AI Client with endpoint: https://models.inference.ai.azure.com
+2025-03-26 00:49:34 - INFO - [azure_client.py:21] - Using model: Phi-3-small-8k-instruct
+2025-03-26 00:49:34 - INFO - [azure_client.py:29] - Azure AI Client initialized successfully
+2025-03-26 00:49:34 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 00:49:40 - INFO - [app.py:99] - User explicitly specified tables: order_items, orders, customers
+2025-03-26 00:49:40 - INFO - [sql_generator.py:35] - Processing query: 'get me customer and their order details table order_items table orders  table customers'
+2025-03-26 00:49:40 - INFO - [sql_generator.py:38] - User explicitly selected tables: order_items, orders, customers
+2025-03-26 00:49:45 - INFO - [sql_generator.py:43] - Detected intent: data_retrieval
+2025-03-26 00:49:45 - INFO - [sql_generator.py:136] - Starting SQL generation process
+2025-03-26 00:49:45 - INFO - [database.py:24] - Attempting database connection
+2025-03-26 00:49:45 - INFO - [database.py:28] - Database connection established in 0.01s
+2025-03-26 00:49:47 - INFO - [sql_generator.py:232] - Found 2 join conditions for the relevant tables
+2025-03-26 00:49:47 - INFO - [azure_client.py:47] - SQL generation started for query: 'get me customer and their order details table order_items table orders  table customers'
+2025-03-26 00:49:47 - INFO - [azure_client.py:123] - Prompt: [{'role': 'system', 'content': "You are an expert SQL assistant. Convert natural language questions into precise, executable SQL queries.\nYour task is to:\n1. Analyze the provided schema carefully, noting table relationships and column types\n2. Generate a SQL query that accurately answers the user's question\n3. Consider performance by selecting only necessary columns\n4. Use appropriate JOIN conditions based on primary/foreign key relationships or provided join conditions\n5. Include a brief explanation of your query\n\nRules:\n- Include table names and column references exactly as provided in the schema\n- Use appropriate SQL functions based on column data types\n- Consider NULL values in your conditions\n- Use table aliases for better readability when joining multiple tables\n- Add column aliases for computed values\n- Format the SQL query with proper indentation\n- Return the SQL inside a code block tagged with ```sql\n\nExample output format:\nHere's a query that will [explanation]...\n\n```sql\nSELECT ...\nFROM ...\nWHERE ...\n```"}, {'role': 'user', 'content': "Here's the database schema:\nTable: order_items\nDescription: Individual items within each order\nColumns: item_id (INTEGER), order_id (INTEGER), product_id (INTEGER), quantity (INTEGER), price (REAL)\nPrimary Key(s): item_id\n\nTable: orders\nDescription: Customer orders and transactions\nColumns: order_id (INTEGER), customer_id (INTEGER), order_date (TEXT), status (TEXT), total_amount (REAL)\nPrimary Key(s): order_id\n\nTable: customers\nDescription: Customer information and profiles\nColumns: customer_id (INTEGER), first_name (TEXT), last_name (TEXT), email (TEXT)\nPrimary Key(s): customer_id\n"}, {'role': 'user', 'content': 'Use the following pre-defined join conditions when joining these tables:\n- When joining customers with orders, use: INNER JOIN orders ON customers.customer_id = orders.customer_id\n- When joining orders with order_items, use: INNER JOIN order_items ON orders.order_id = order_items.order_id\n'}, {'role': 'user', 'content': 'Here are some example queries and their SQL:\nQuestion: How many records are in the order_items table?\nSQL: SELECT COUNT(*) AS record_count FROM order_items\n\nQuestion: Get all columns from order_items\nSQL: SELECT * FROM order_items LIMIT 5\n\nQuestion: Get record from order_items by item_id\nSQL: SELECT * FROM order_items WHERE item_id = 1\n\nQuestion: Show some data from customers and orders\nSQL: SELECT customers.first_name, orders.customer_id\nFROM customers\nINNER JOIN orders ON customers.customer_id = orders.customer_id\nLIMIT 5\n\n'}, {'role': 'user', 'content': 'Convert this question to SQL: get me customer and their order details table order_items table orders  table customers'}]
+2025-03-26 00:49:51 - INFO - [azure_client.py:147] - Generated SQL: SELECT 
+    customers.first_name, 
+    customers.last_name, 
+    customers.email,
+    orders.order_id, 
+    orders.order_date, 
+    orders.status, 
+    orders.total_amount, 
+    order_items.item_id, 
+    order_items.product_id, 
+    order_items.quantity, 
+    order_items.price
+FROM 
+    customers
+INNER JOIN 
+    orders ON customers.customer_id = orders.customer_id
+INNER JOIN 
+    order_items ON orders.order_id = order_items.order_id;
+2025-03-26 00:49:51,060 - QUERY: 'get me customer and their order details table order_items table orders  table customers' → SQL: SELECT 
+    customers.first_name, 
+    customers.last_name, 
+    customers.email,
+    orders.order_id, 
+    orders.order_date, 
+    orders.status, 
+    orders.total_amount, 
+    order_items.item_id, 
+    order_items.product_id, 
+    order_items.quantity, 
+    order_items.price
+FROM 
+    customers
+INNER JOIN 
+    orders ON customers.customer_id = orders.customer_id
+INNER JOIN 
+    order_items ON orders.order_id = order_items.order_id;
+2025-03-26 00:49:51 - INFO - [azure_client.py:155] - SQL generation completed in 3.85s
+2025-03-26 00:49:51 - INFO - [database.py:45] - Executing SQL query: SELECT 
+    customers.first_name, 
+    customers.last_name, 
+    customers.email,
+    orders.order_id, 
+    orders.order_date, 
+    orders.status, 
+    orders.total_amount, 
+    order_items.item_id, 
+    order_items.product_id, 
+    order_items.quantity, 
+    order_items.price
+FROM 
+    customers
+INNER JOIN 
+    orders ON customers.customer_id = orders.customer_id
+INNER JOIN 
+    order_items ON orders.order_id = order_items.order_id;
+2025-03-26 00:49:51 - INFO - [database.py:66] - Query returned 11 rows with 11 columns
+2025-03-26 00:49:51 - INFO - [database.py:75] - Query processing completed in 0.01s
+2025-03-26 00:49:51 - INFO - [sql_generator.py:327] - SQL generation completed in 6.01s
+2025-03-26 00:49:51 - INFO - [sql_generator.py:120] - Query processing completed in 11.07s
+2025-03-26 00:51:33 - INFO - [database.py:238] - Closing database connection
