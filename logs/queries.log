@@ -11636,3 +11636,1865 @@ azure.core.exceptions.ServiceResponseError: ('Connection aborted.', RemoteDiscon
 2025-03-26 09:27:11 - INFO - [llm_engine.py:55] - [TABLE] Completion generation started
 2025-03-26 09:29:11 - WARNING - [app.py:190] - Query f1eb0fce-3b08-4cb7-9956-12bc062441e1 timed out after 2 minutes
 2025-03-26 09:32:20 - INFO - [database.py:238] - Closing database connection
+2025-03-26 23:25:58 - CRITICAL - [llm_engine.py:23] - GITHUB_TOKEN environment variable not set
+2025-03-26 23:28:33 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:28:33 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:28:33 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:28:33 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:28:33 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:28:33 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:28:33 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:28:33 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:28:33 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:28:33 - INFO - [azure_client.py:11] - Initializing Azure AI Client using LLM Engine
+2025-03-26 23:28:33 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:28:33 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:28:33 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:28:33 - INFO - [azure_client.py:17] - Azure AI Client initialized successfully
+2025-03-26 23:28:33 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 23:28:34 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:28:34 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:28:34 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:28:34 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:28:34 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:28:34 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:28:34 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:28:34 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:28:34 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:28:34 - INFO - [azure_client.py:11] - Initializing Azure AI Client using LLM Engine
+2025-03-26 23:28:34 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:28:34 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:28:34 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:28:34 - INFO - [azure_client.py:17] - Azure AI Client initialized successfully
+2025-03-26 23:28:34 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 23:29:21 - INFO - [database.py:238] - Closing database connection
+2025-03-26 23:29:23 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:29:23 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:29:23 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:29:23 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:29:23 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:29:23 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:29:23 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:29:23 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:29:23 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:29:23 - INFO - [azure_client.py:11] - Initializing Azure AI Client using LLM Engine
+2025-03-26 23:29:23 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:29:23 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:29:23 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:29:23 - INFO - [azure_client.py:17] - Azure AI Client initialized successfully
+2025-03-26 23:29:23 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 23:29:48 - INFO - [database.py:238] - Closing database connection
+2025-03-26 23:29:50 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:29:50 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:29:50 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:29:50 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:29:50 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:29:50 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:29:50 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:29:50 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:29:50 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:29:50 - INFO - [azure_client.py:11] - Initializing Azure AI Client using LLM Engine
+2025-03-26 23:29:50 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:29:50 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:29:50 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:29:50 - INFO - [azure_client.py:17] - Azure AI Client initialized successfully
+2025-03-26 23:29:50 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 23:29:50 - INFO - [feedback_manager.py:29] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 23:31:00 - INFO - [database.py:238] - Closing database connection
+2025-03-26 23:31:03 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:31:03 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:31:03 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:31:03 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:31:03 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:31:03 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:31:03 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:31:03 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:31:03 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:31:03 - INFO - [azure_client.py:11] - Initializing Azure AI Client using LLM Engine
+2025-03-26 23:31:03 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:31:03 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:31:03 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:31:03 - INFO - [azure_client.py:17] - Azure AI Client initialized successfully
+2025-03-26 23:31:03 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 23:31:03 - INFO - [feedback_manager.py:29] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 23:31:25 - INFO - [database.py:238] - Closing database connection
+2025-03-26 23:31:28 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:31:28 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:31:28 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:31:28 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:31:28 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:31:28 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:31:28 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:31:28 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:31:28 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:31:28 - INFO - [azure_client.py:11] - Initializing Azure AI Client using LLM Engine
+2025-03-26 23:31:28 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:31:28 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:31:28 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:31:28 - INFO - [azure_client.py:17] - Azure AI Client initialized successfully
+2025-03-26 23:31:28 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 23:31:28 - INFO - [feedback_manager.py:29] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 23:35:08 - INFO - [database.py:238] - Closing database connection
+2025-03-26 23:35:08 - INFO - [feedback_manager.py:209] - Closing database connection
+2025-03-26 23:35:09 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:35:09 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:35:09 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:35:09 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:35:09 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:35:09 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:35:09 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:35:09 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:35:09 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:35:09 - INFO - [azure_client.py:11] - Initializing Azure AI Client using LLM Engine
+2025-03-26 23:35:09 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:35:09 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:35:09 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:35:09 - INFO - [azure_client.py:17] - Azure AI Client initialized successfully
+2025-03-26 23:35:09 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 23:35:09 - INFO - [feedback_manager.py:29] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 23:37:59 - INFO - [database.py:238] - Closing database connection
+2025-03-26 23:37:59 - INFO - [feedback_manager.py:209] - Closing database connection
+2025-03-26 23:38:00 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:38:00 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:38:00 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:38:00 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:38:00 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:38:00 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:38:00 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:38:00 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:38:00 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:38:00 - INFO - [azure_client.py:11] - Initializing Azure AI Client using LLM Engine
+2025-03-26 23:38:00 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:38:00 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:38:00 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:38:00 - INFO - [azure_client.py:17] - Azure AI Client initialized successfully
+2025-03-26 23:38:00 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 23:38:00 - INFO - [feedback_manager.py:29] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 23:46:48 - INFO - [database.py:238] - Closing database connection
+2025-03-26 23:46:48 - INFO - [feedback_manager.py:209] - Closing database connection
+2025-03-26 23:46:50 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:46:50 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:46:50 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:46:50 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:46:50 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:46:50 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:46:50 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:46:50 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:46:50 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:46:50 - INFO - [azure_client.py:11] - Initializing Azure AI Client using LLM Engine
+2025-03-26 23:46:50 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:46:50 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:46:50 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:46:50 - INFO - [azure_client.py:17] - Azure AI Client initialized successfully
+2025-03-26 23:46:50 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 23:46:50 - INFO - [feedback_manager.py:29] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 23:46:52 - INFO - [database.py:238] - Closing database connection
+2025-03-26 23:46:55 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:46:55 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:46:55 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:46:55 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:46:55 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:46:55 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:46:55 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:46:55 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:46:55 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:46:55 - INFO - [azure_client.py:11] - Initializing Azure AI Client using LLM Engine
+2025-03-26 23:46:55 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:46:55 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:46:55 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:46:55 - INFO - [azure_client.py:17] - Azure AI Client initialized successfully
+2025-03-26 23:46:55 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 23:46:55 - INFO - [feedback_manager.py:29] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 23:46:56 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:46:56 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:46:56 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:46:56 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:46:56 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:46:56 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:46:56 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:46:56 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:46:56 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:46:56 - INFO - [azure_client.py:11] - Initializing Azure AI Client using LLM Engine
+2025-03-26 23:46:56 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:46:56 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:46:56 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:46:56 - INFO - [azure_client.py:17] - Azure AI Client initialized successfully
+2025-03-26 23:46:56 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 23:46:56 - INFO - [feedback_manager.py:29] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 23:47:36 - INFO - [sql_generator.py:37] - Processing query: 'get me all customers'
+2025-03-26 23:47:36 - INFO - [llm_engine.py:55] - [INTENT] Completion generation started
+2025-03-26 23:47:37 - INFO - [llm_engine.py:92] - [INTENT] Completion generation completed in 1.31s
+2025-03-26 23:47:37 - INFO - [sql_generator.py:45] - Detected intent: data_retrieval
+2025-03-26 23:47:37 - INFO - [sql_generator.py:138] - Starting SQL generation process
+2025-03-26 23:47:37 - INFO - [database.py:24] - Attempting database connection
+2025-03-26 23:47:37 - INFO - [database.py:28] - Database connection established in 0.02s
+2025-03-26 23:47:37 - INFO - [llm_engine.py:55] - [TABLE] Completion generation started
+2025-03-26 23:47:38 - INFO - [llm_engine.py:92] - [TABLE] Completion generation completed in 1.18s
+2025-03-26 23:47:38 - INFO - [llm_engine.py:55] - [COLUMN] Completion generation started
+2025-03-26 23:47:40 - INFO - [llm_engine.py:92] - [COLUMN] Completion generation completed in 1.87s
+2025-03-26 23:47:40 - INFO - [feedback_manager.py:39] - Attempting database connection
+2025-03-26 23:47:40 - INFO - [feedback_manager.py:43] - Database connection established in 0.00s
+2025-03-26 23:47:40 - INFO - [feedback_manager.py:166] - Found 0 similar queries for 'get me all customers...'
+2025-03-26 23:47:40 - INFO - [azure_client.py:35] - SQL generation started for query: 'get me all customers'
+2025-03-26 23:47:40 - INFO - [llm_engine.py:55] - [SQL_GEN] Completion generation started
+2025-03-26 23:47:42 - INFO - [llm_engine.py:92] - [SQL_GEN] Completion generation completed in 1.84s
+2025-03-26 23:47:42 - INFO - [azure_client.py:110] - Generated SQL: SELECT * FROM customers;
+2025-03-26 23:47:42,433 - QUERY: 'get me all customers' → SQL: SELECT * FROM customers;
+2025-03-26 23:47:42 - INFO - [azure_client.py:118] - SQL generation completed in 1.85s
+2025-03-26 23:47:42 - INFO - [database.py:45] - Executing SQL query: SELECT * FROM customers;
+2025-03-26 23:47:42 - INFO - [database.py:66] - Query returned 5 rows with 11 columns
+2025-03-26 23:47:42 - INFO - [database.py:75] - Query processing completed in 0.04s
+2025-03-26 23:47:42 - INFO - [sql_generator.py:353] - SQL generation completed in 5.01s
+2025-03-26 23:47:42 - INFO - [sql_generator.py:122] - Query processing completed in 6.34s
+2025-03-26 23:50:39 - INFO - [database.py:238] - Closing database connection
+2025-03-26 23:50:39 - INFO - [feedback_manager.py:209] - Closing database connection
+2025-03-26 23:50:42 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:50:42 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:50:42 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:50:42 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:50:42 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:50:42 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:50:42 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:50:42 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:50:42 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:50:42 - INFO - [azure_client.py:11] - Initializing Azure AI Client using LLM Engine
+2025-03-26 23:50:42 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:50:42 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:50:42 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:50:42 - INFO - [azure_client.py:17] - Azure AI Client initialized successfully
+2025-03-26 23:50:42 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 23:50:42 - INFO - [feedback_manager.py:29] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 23:50:43 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:50:43 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:50:43 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:50:43 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:50:43 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:50:43 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:50:43 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:50:43 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:50:43 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:50:43 - INFO - [azure_client.py:11] - Initializing Azure AI Client using LLM Engine
+2025-03-26 23:50:43 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 23:50:43 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 23:50:43 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 23:50:43 - INFO - [azure_client.py:17] - Azure AI Client initialized successfully
+2025-03-26 23:50:43 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 23:50:43 - INFO - [feedback_manager.py:29] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 23:50:52 - INFO - [sql_generator.py:37] - Processing query: 'get me all the customers'
+2025-03-26 23:50:52 - INFO - [llm_engine.py:55] - [INTENT] Completion generation started
+2025-03-26 23:50:54 - INFO - [llm_engine.py:92] - [INTENT] Completion generation completed in 1.25s
+2025-03-26 23:50:54 - INFO - [sql_generator.py:45] - Detected intent: data_retrieval
+2025-03-26 23:50:54 - INFO - [sql_generator.py:138] - Starting SQL generation process
+2025-03-26 23:50:54 - INFO - [database.py:24] - Attempting database connection
+2025-03-26 23:50:54 - INFO - [database.py:28] - Database connection established in 0.02s
+2025-03-26 23:50:54 - INFO - [llm_engine.py:55] - [TABLE] Completion generation started
+2025-03-26 23:50:55 - INFO - [llm_engine.py:92] - [TABLE] Completion generation completed in 1.12s
+2025-03-26 23:50:55 - INFO - [llm_engine.py:55] - [COLUMN] Completion generation started
+2025-03-26 23:50:56 - INFO - [llm_engine.py:92] - [COLUMN] Completion generation completed in 1.77s
+2025-03-26 23:50:56 - INFO - [feedback_manager.py:39] - Attempting database connection
+2025-03-26 23:50:56 - INFO - [feedback_manager.py:43] - Database connection established in 0.00s
+2025-03-26 23:50:57 - INFO - [feedback_manager.py:166] - Found 0 similar queries for 'get me all the customers...'
+2025-03-26 23:50:57 - INFO - [azure_client.py:35] - SQL generation started for query: 'get me all the customers'
+2025-03-26 23:50:57 - INFO - [llm_engine.py:55] - [SQL_GEN] Completion generation started
+2025-03-26 23:50:58 - INFO - [llm_engine.py:92] - [SQL_GEN] Completion generation completed in 1.80s
+2025-03-26 23:50:58 - INFO - [azure_client.py:110] - Generated SQL: SELECT * FROM customers;
+2025-03-26 23:50:58,808 - QUERY: 'get me all the customers' → SQL: SELECT * FROM customers;
+2025-03-26 23:50:58 - INFO - [azure_client.py:118] - SQL generation completed in 1.80s
+2025-03-26 23:50:58 - INFO - [database.py:45] - Executing SQL query: SELECT * FROM customers;
+2025-03-26 23:50:58 - INFO - [database.py:66] - Query returned 5 rows with 11 columns
+2025-03-26 23:50:58 - INFO - [database.py:75] - Query processing completed in 0.02s
+2025-03-26 23:50:58 - INFO - [sql_generator.py:353] - SQL generation completed in 4.77s
+2025-03-26 23:50:58 - INFO - [sql_generator.py:122] - Query processing completed in 6.04s
+2025-03-26 23:50:59 - INFO - [feedback_manager.py:29] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 23:50:59 - INFO - [feedback_manager.py:39] - Attempting database connection
+2025-03-26 23:50:59 - INFO - [feedback_manager.py:43] - Database connection established in 0.00s
+2025-03-26 23:50:59 - INFO - [feedback_manager.py:200] - Feedback stats: 0 total, 0 positive, 0 negative
+2025-03-26 23:51:10 - INFO - [app.py:268] - Feedback received for query: 'get me all the customers...' - Rating: 1
+2025-03-26 23:51:10 - INFO - [feedback_manager.py:29] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 23:51:10 - INFO - [feedback_manager.py:39] - Attempting database connection
+2025-03-26 23:51:10 - INFO - [feedback_manager.py:43] - Database connection established in 0.00s
+2025-03-26 23:51:10 - INFO - [feedback_manager.py:94] - Saved feedback for query: 'get me all the customers...' with rating 1
+2025-03-26 23:51:10 - INFO - [feedback_manager.py:29] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 23:51:10 - INFO - [feedback_manager.py:39] - Attempting database connection
+2025-03-26 23:51:10 - INFO - [feedback_manager.py:43] - Database connection established in 0.00s
+2025-03-26 23:51:10 - INFO - [feedback_manager.py:200] - Feedback stats: 1 total, 1 positive, 0 negative
+2025-03-26 23:51:51 - INFO - [app.py:268] - Feedback received for query: 'get me all the customers...' - Rating: 0
+2025-03-26 23:51:51 - INFO - [feedback_manager.py:29] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 23:51:51 - INFO - [feedback_manager.py:29] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 23:51:51 - INFO - [feedback_manager.py:39] - Attempting database connection
+2025-03-26 23:51:51 - INFO - [feedback_manager.py:39] - Attempting database connection
+2025-03-26 23:51:51 - INFO - [feedback_manager.py:43] - Database connection established in 0.00s
+2025-03-26 23:51:51 - INFO - [feedback_manager.py:43] - Database connection established in 0.01s
+2025-03-26 23:51:51 - INFO - [feedback_manager.py:94] - Saved feedback for query: 'get me all the customers...' with rating 0
+2025-03-26 23:51:51 - INFO - [feedback_manager.py:200] - Feedback stats: 2 total, 1 positive, 1 negative
+2025-03-26 23:51:52 - INFO - [app.py:268] - Feedback received for query: 'get me all the customers...' - Rating: 1
+2025-03-26 23:51:52 - INFO - [feedback_manager.py:29] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 23:51:52 - INFO - [feedback_manager.py:39] - Attempting database connection
+2025-03-26 23:51:52 - INFO - [feedback_manager.py:43] - Database connection established in 0.00s
+2025-03-26 23:51:52 - INFO - [feedback_manager.py:94] - Saved feedback for query: 'get me all the customers...' with rating 1
+2025-03-26 23:51:53 - INFO - [feedback_manager.py:29] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 23:51:53 - INFO - [feedback_manager.py:39] - Attempting database connection
+2025-03-26 23:51:53 - INFO - [feedback_manager.py:43] - Database connection established in 0.00s
+2025-03-26 23:51:53 - INFO - [feedback_manager.py:200] - Feedback stats: 3 total, 2 positive, 1 negative
+2025-03-26 23:51:54 - INFO - [app.py:268] - Feedback received for query: 'get me all the customers...' - Rating: 1
+2025-03-26 23:51:54 - INFO - [feedback_manager.py:29] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 23:51:54 - INFO - [feedback_manager.py:29] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 23:51:54 - INFO - [feedback_manager.py:39] - Attempting database connection
+2025-03-26 23:51:54 - INFO - [feedback_manager.py:39] - Attempting database connection
+2025-03-26 23:51:54 - INFO - [feedback_manager.py:43] - Database connection established in 0.00s
+2025-03-26 23:51:54 - INFO - [feedback_manager.py:43] - Database connection established in 0.01s
+2025-03-26 23:51:54 - INFO - [feedback_manager.py:200] - Feedback stats: 3 total, 2 positive, 1 negative
+2025-03-26 23:51:54 - INFO - [feedback_manager.py:94] - Saved feedback for query: 'get me all the customers...' with rating 1
+2025-03-26 23:54:24 - INFO - [sql_generator.py:37] - Processing query: 'get me all customers'
+2025-03-26 23:54:24 - INFO - [llm_engine.py:55] - [INTENT] Completion generation started
+2025-03-26 23:54:24 - INFO - [llm_engine.py:92] - [INTENT] Completion generation completed in 0.55s
+2025-03-26 23:54:24 - INFO - [sql_generator.py:45] - Detected intent: data_retrieval
+2025-03-26 23:54:24 - INFO - [sql_generator.py:138] - Starting SQL generation process
+2025-03-26 23:54:24 - INFO - [database.py:24] - Attempting database connection
+2025-03-26 23:54:24 - INFO - [database.py:28] - Database connection established in 0.00s
+2025-03-26 23:54:24 - INFO - [llm_engine.py:55] - [TABLE] Completion generation started
+2025-03-26 23:54:25 - INFO - [llm_engine.py:92] - [TABLE] Completion generation completed in 0.36s
+2025-03-26 23:54:25 - INFO - [llm_engine.py:55] - [COLUMN] Completion generation started
+2025-03-26 23:54:26 - INFO - [llm_engine.py:92] - [COLUMN] Completion generation completed in 1.11s
+2025-03-26 23:54:26 - INFO - [feedback_manager.py:166] - Found 3 similar queries for 'get me all customers...'
+2025-03-26 23:54:26 - INFO - [sql_generator.py:276] - Found 3 similar queries with positive feedback
+2025-03-26 23:54:26 - INFO - [azure_client.py:35] - SQL generation started for query: 'get me all customers'
+2025-03-26 23:54:26 - INFO - [llm_engine.py:55] - [SQL_GEN] Completion generation started
+2025-03-26 23:54:27 - INFO - [llm_engine.py:92] - [SQL_GEN] Completion generation completed in 1.24s
+2025-03-26 23:54:27 - INFO - [azure_client.py:110] - Generated SQL: SELECT * FROM customers;
+2025-03-26 23:54:27,521 - QUERY: 'get me all customers' → SQL: SELECT * FROM customers;
+2025-03-26 23:54:27 - INFO - [azure_client.py:118] - SQL generation completed in 1.25s
+2025-03-26 23:54:27 - INFO - [database.py:45] - Executing SQL query: SELECT * FROM customers;
+2025-03-26 23:54:27 - INFO - [database.py:66] - Query returned 5 rows with 11 columns
+2025-03-26 23:54:27 - INFO - [database.py:75] - Query processing completed in 0.02s
+2025-03-26 23:54:27 - INFO - [sql_generator.py:353] - SQL generation completed in 2.77s
+2025-03-26 23:54:27 - INFO - [sql_generator.py:122] - Query processing completed in 3.33s
+2025-03-26 23:54:32 - INFO - [app.py:268] - Feedback received for query: 'get me all customers...' - Rating: 1
+2025-03-26 23:54:32 - INFO - [feedback_manager.py:29] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 23:54:32 - INFO - [feedback_manager.py:39] - Attempting database connection
+2025-03-26 23:54:32 - INFO - [feedback_manager.py:43] - Database connection established in 0.00s
+2025-03-26 23:54:32 - INFO - [feedback_manager.py:94] - Saved feedback for query: 'get me all customers...' with rating 1
+2025-03-26 23:55:06 - INFO - [sql_generator.py:37] - Processing query: 'get me all the customers'
+2025-03-26 23:55:06 - INFO - [llm_engine.py:55] - [INTENT] Completion generation started
+2025-03-26 23:55:07 - INFO - [llm_engine.py:92] - [INTENT] Completion generation completed in 0.40s
+2025-03-26 23:55:07 - INFO - [sql_generator.py:45] - Detected intent: data_retrieval
+2025-03-26 23:55:07 - INFO - [sql_generator.py:138] - Starting SQL generation process
+2025-03-26 23:55:07 - INFO - [database.py:24] - Attempting database connection
+2025-03-26 23:55:07 - INFO - [database.py:28] - Database connection established in 0.00s
+2025-03-26 23:55:07 - INFO - [llm_engine.py:55] - [TABLE] Completion generation started
+2025-03-26 23:55:07 - INFO - [llm_engine.py:92] - [TABLE] Completion generation completed in 0.34s
+2025-03-26 23:55:07 - INFO - [llm_engine.py:55] - [COLUMN] Completion generation started
+2025-03-26 23:55:08 - INFO - [llm_engine.py:92] - [COLUMN] Completion generation completed in 1.05s
+2025-03-26 23:55:08 - INFO - [feedback_manager.py:166] - Found 3 similar queries for 'get me all the customers...'
+2025-03-26 23:55:08 - INFO - [sql_generator.py:276] - Found 3 similar queries with positive feedback
+2025-03-26 23:55:08 - INFO - [azure_client.py:35] - SQL generation started for query: 'get me all the customers'
+2025-03-26 23:55:08 - INFO - [llm_engine.py:55] - [SQL_GEN] Completion generation started
+2025-03-26 23:55:09 - INFO - [llm_engine.py:92] - [SQL_GEN] Completion generation completed in 1.10s
+2025-03-26 23:55:09 - INFO - [azure_client.py:110] - Generated SQL: SELECT * FROM customers;
+2025-03-26 23:55:09,804 - QUERY: 'get me all the customers' → SQL: SELECT * FROM customers;
+2025-03-26 23:55:09 - INFO - [azure_client.py:118] - SQL generation completed in 1.11s
+2025-03-26 23:55:09 - INFO - [database.py:45] - Executing SQL query: SELECT * FROM customers;
+2025-03-26 23:55:09 - INFO - [database.py:66] - Query returned 5 rows with 11 columns
+2025-03-26 23:55:09 - INFO - [database.py:75] - Query processing completed in 0.01s
+2025-03-26 23:55:09 - INFO - [sql_generator.py:353] - SQL generation completed in 2.55s
+2025-03-26 23:55:09 - INFO - [sql_generator.py:122] - Query processing completed in 2.97s
+2025-03-26 23:55:10 - INFO - [feedback_manager.py:29] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 23:55:10 - INFO - [feedback_manager.py:39] - Attempting database connection
+2025-03-26 23:55:10 - INFO - [feedback_manager.py:43] - Database connection established in 0.00s
+2025-03-26 23:55:10 - INFO - [feedback_manager.py:200] - Feedback stats: 5 total, 4 positive, 1 negative
+2025-03-26 23:55:15 - INFO - [app.py:268] - Feedback received for query: 'get me all the customers...' - Rating: 0
+2025-03-26 23:55:15 - INFO - [feedback_manager.py:29] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 23:55:15 - INFO - [feedback_manager.py:39] - Attempting database connection
+2025-03-26 23:55:15 - INFO - [feedback_manager.py:43] - Database connection established in 0.00s
+2025-03-26 23:55:15 - INFO - [feedback_manager.py:94] - Saved feedback for query: 'get me all the customers...' with rating 0
+2025-03-26 23:55:15 - INFO - [feedback_manager.py:29] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 23:55:15 - INFO - [feedback_manager.py:39] - Attempting database connection
+2025-03-26 23:55:15 - INFO - [feedback_manager.py:43] - Database connection established in 0.00s
+2025-03-26 23:55:15 - INFO - [feedback_manager.py:200] - Feedback stats: 6 total, 4 positive, 2 negative
+2025-03-27 00:00:35 - INFO - [database.py:238] - Closing database connection
+2025-03-27 00:00:35 - INFO - [feedback_manager.py:209] - Closing database connection
+2025-03-27 00:00:47 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:00:47 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:00:47 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:00:47 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:00:47 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:00:47 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:00:47 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:00:47 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:00:47 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:00:47 - INFO - [azure_client.py:11] - Initializing Azure AI Client using LLM Engine
+2025-03-27 00:00:47 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:00:47 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:00:47 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:00:47 - INFO - [azure_client.py:17] - Azure AI Client initialized successfully
+2025-03-27 00:00:47 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:00:47 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:00:55 - INFO - [database.py:238] - Closing database connection
+2025-03-27 00:00:55 - INFO - [feedback_manager.py:327] - Closing database connection
+2025-03-27 00:01:03 - INFO - [database.py:238] - Closing database connection
+2025-03-27 00:01:03 - INFO - [feedback_manager.py:209] - Closing database connection
+2025-03-27 00:01:10 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:01:10 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:01:10 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:01:10 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:01:10 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:01:10 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:01:10 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:01:10 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:01:10 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:01:10 - INFO - [azure_client.py:11] - Initializing Azure AI Client using LLM Engine
+2025-03-27 00:01:10 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:01:10 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:01:10 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:01:10 - INFO - [azure_client.py:17] - Azure AI Client initialized successfully
+2025-03-27 00:01:10 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:01:10 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:01:16 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:01:16 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:01:16 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:01:16 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:01:16 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:01:16 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:01:16 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:01:16 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:01:16 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:01:16 - INFO - [azure_client.py:11] - Initializing Azure AI Client using LLM Engine
+2025-03-27 00:01:16 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:01:16 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:01:16 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:01:16 - INFO - [azure_client.py:17] - Azure AI Client initialized successfully
+2025-03-27 00:01:16 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:01:16 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:01:51 - INFO - [sql_generator.py:37] - Processing query: 'get me all the customers'
+2025-03-27 00:01:51 - INFO - [llm_engine.py:55] - [INTENT] Completion generation started
+2025-03-27 00:01:53 - INFO - [llm_engine.py:92] - [INTENT] Completion generation completed in 1.31s
+2025-03-27 00:01:53 - INFO - [sql_generator.py:45] - Detected intent: data_retrieval
+2025-03-27 00:01:53 - INFO - [sql_generator.py:138] - Starting SQL generation process
+2025-03-27 00:01:53 - INFO - [database.py:24] - Attempting database connection
+2025-03-27 00:01:53 - INFO - [database.py:28] - Database connection established in 0.02s
+2025-03-27 00:01:53 - INFO - [llm_engine.py:55] - [TABLE] Completion generation started
+2025-03-27 00:01:54 - INFO - [llm_engine.py:92] - [TABLE] Completion generation completed in 1.13s
+2025-03-27 00:01:54 - INFO - [llm_engine.py:55] - [COLUMN] Completion generation started
+2025-03-27 00:01:56 - INFO - [llm_engine.py:92] - [COLUMN] Completion generation completed in 1.79s
+2025-03-27 00:01:56 - INFO - [feedback_manager.py:43] - Attempting database connection
+2025-03-27 00:01:56 - INFO - [feedback_manager.py:47] - Database connection established in 0.00s
+2025-03-27 00:01:56 - INFO - [feedback_manager.py:62] - Loading embedding model 'sentence-transformers/all-MiniLM-L12-v2'
+2025-03-27 00:02:15 - INFO - [feedback_manager.py:65] - Embedding model loaded in 19.55s
+2025-03-27 00:02:15 - INFO - [feedback_manager.py:219] - Found 0 similar queries using vector similarity for 'get me all the customers...'
+2025-03-27 00:02:15 - INFO - [azure_client.py:35] - SQL generation started for query: 'get me all the customers'
+2025-03-27 00:02:15 - INFO - [llm_engine.py:55] - [SQL_GEN] Completion generation started
+2025-03-27 00:02:17 - INFO - [llm_engine.py:92] - [SQL_GEN] Completion generation completed in 1.83s
+2025-03-27 00:02:17 - INFO - [azure_client.py:110] - Generated SQL: SELECT * FROM customers;
+2025-03-27 00:02:17,582 - QUERY: 'get me all the customers' → SQL: SELECT * FROM customers;
+2025-03-27 00:02:17 - INFO - [azure_client.py:118] - SQL generation completed in 1.84s
+2025-03-27 00:02:17 - INFO - [database.py:45] - Executing SQL query: SELECT * FROM customers;
+2025-03-27 00:02:17 - INFO - [database.py:66] - Query returned 5 rows with 11 columns
+2025-03-27 00:02:17 - INFO - [database.py:75] - Query processing completed in 0.01s
+2025-03-27 00:02:17 - INFO - [sql_generator.py:353] - SQL generation completed in 24.49s
+2025-03-27 00:02:17 - INFO - [sql_generator.py:122] - Query processing completed in 25.81s
+2025-03-27 00:02:18 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:02:18 - INFO - [feedback_manager.py:43] - Attempting database connection
+2025-03-27 00:02:18 - INFO - [feedback_manager.py:47] - Database connection established in 0.00s
+2025-03-27 00:02:18 - INFO - [feedback_manager.py:318] - Feedback stats: 6 total, 4 positive, 2 negative
+2025-03-27 00:02:40 - INFO - [sql_generator.py:37] - Processing query: 'get me all the customers'
+2025-03-27 00:02:40 - INFO - [llm_engine.py:55] - [INTENT] Completion generation started
+2025-03-27 00:02:40 - INFO - [llm_engine.py:92] - [INTENT] Completion generation completed in 0.40s
+2025-03-27 00:02:40 - INFO - [sql_generator.py:45] - Detected intent: data_retrieval
+2025-03-27 00:02:40 - INFO - [sql_generator.py:138] - Starting SQL generation process
+2025-03-27 00:02:40 - INFO - [database.py:24] - Attempting database connection
+2025-03-27 00:02:40 - INFO - [database.py:28] - Database connection established in 0.00s
+2025-03-27 00:02:40 - INFO - [llm_engine.py:55] - [TABLE] Completion generation started
+2025-03-27 00:02:41 - INFO - [llm_engine.py:92] - [TABLE] Completion generation completed in 0.35s
+2025-03-27 00:02:41 - INFO - [llm_engine.py:55] - [COLUMN] Completion generation started
+2025-03-27 00:02:42 - INFO - [llm_engine.py:92] - [COLUMN] Completion generation completed in 1.09s
+2025-03-27 00:02:42 - INFO - [feedback_manager.py:219] - Found 0 similar queries using vector similarity for 'get me all the customers...'
+2025-03-27 00:02:42 - INFO - [azure_client.py:35] - SQL generation started for query: 'get me all the customers'
+2025-03-27 00:02:42 - INFO - [llm_engine.py:55] - [SQL_GEN] Completion generation started
+2025-03-27 00:02:43 - INFO - [llm_engine.py:92] - [SQL_GEN] Completion generation completed in 1.23s
+2025-03-27 00:02:43 - INFO - [azure_client.py:110] - Generated SQL: SELECT * FROM customers;
+2025-03-27 00:02:43,617 - QUERY: 'get me all the customers' → SQL: SELECT * FROM customers;
+2025-03-27 00:02:43 - INFO - [azure_client.py:118] - SQL generation completed in 1.23s
+2025-03-27 00:02:43 - INFO - [database.py:45] - Executing SQL query: SELECT * FROM customers;
+2025-03-27 00:02:43 - INFO - [database.py:66] - Query returned 5 rows with 11 columns
+2025-03-27 00:02:43 - INFO - [database.py:75] - Query processing completed in 0.01s
+2025-03-27 00:02:43 - INFO - [sql_generator.py:353] - SQL generation completed in 2.74s
+2025-03-27 00:02:43 - INFO - [sql_generator.py:122] - Query processing completed in 3.16s
+2025-03-27 00:02:44 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:02:44 - INFO - [feedback_manager.py:43] - Attempting database connection
+2025-03-27 00:02:44 - INFO - [feedback_manager.py:47] - Database connection established in 0.00s
+2025-03-27 00:02:44 - INFO - [feedback_manager.py:318] - Feedback stats: 6 total, 4 positive, 2 negative
+2025-03-27 00:03:24 - INFO - [app.py:268] - Feedback received for query: 'get me all the customers...' - Rating: 1
+2025-03-27 00:03:24 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:03:24 - INFO - [feedback_manager.py:43] - Attempting database connection
+2025-03-27 00:03:24 - INFO - [feedback_manager.py:47] - Database connection established in 0.00s
+2025-03-27 00:03:24 - INFO - [feedback_manager.py:62] - Loading embedding model 'sentence-transformers/all-MiniLM-L12-v2'
+2025-03-27 00:03:24 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:03:24 - INFO - [feedback_manager.py:43] - Attempting database connection
+2025-03-27 00:03:24 - INFO - [feedback_manager.py:47] - Database connection established in 0.00s
+2025-03-27 00:03:24 - INFO - [feedback_manager.py:318] - Feedback stats: 6 total, 4 positive, 2 negative
+2025-03-27 00:03:26 - INFO - [app.py:268] - Feedback received for query: 'get me all the customers...' - Rating: 1
+2025-03-27 00:03:26 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:03:26 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:03:26 - INFO - [feedback_manager.py:43] - Attempting database connection
+2025-03-27 00:03:26 - INFO - [feedback_manager.py:43] - Attempting database connection
+2025-03-27 00:03:26 - INFO - [feedback_manager.py:47] - Database connection established in 0.00s
+2025-03-27 00:03:26 - INFO - [feedback_manager.py:47] - Database connection established in 0.01s
+2025-03-27 00:03:26 - INFO - [feedback_manager.py:62] - Loading embedding model 'sentence-transformers/all-MiniLM-L12-v2'
+2025-03-27 00:03:26 - INFO - [feedback_manager.py:318] - Feedback stats: 6 total, 4 positive, 2 negative
+2025-03-27 00:03:26 - INFO - [feedback_manager.py:65] - Embedding model loaded in 2.55s
+2025-03-27 00:03:27 - INFO - [feedback_manager.py:146] - Saved feedback for query: 'get me all the customers...' with rating 1
+2025-03-27 00:03:29 - INFO - [feedback_manager.py:65] - Embedding model loaded in 2.48s
+2025-03-27 00:03:29 - INFO - [app.py:268] - Feedback received for query: 'get me all the customers...' - Rating: 1
+2025-03-27 00:03:29 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:03:29 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:03:29 - INFO - [feedback_manager.py:43] - Attempting database connection
+2025-03-27 00:03:29 - INFO - [feedback_manager.py:146] - Saved feedback for query: 'get me all the customers...' with rating 1
+2025-03-27 00:03:29 - INFO - [feedback_manager.py:43] - Attempting database connection
+2025-03-27 00:03:29 - INFO - [feedback_manager.py:47] - Database connection established in 0.01s
+2025-03-27 00:03:29 - INFO - [feedback_manager.py:47] - Database connection established in 0.01s
+2025-03-27 00:03:29 - INFO - [feedback_manager.py:62] - Loading embedding model 'sentence-transformers/all-MiniLM-L12-v2'
+2025-03-27 00:03:29 - INFO - [feedback_manager.py:318] - Feedback stats: 8 total, 6 positive, 2 negative
+2025-03-27 00:03:31 - INFO - [feedback_manager.py:65] - Embedding model loaded in 2.49s
+2025-03-27 00:03:31 - INFO - [feedback_manager.py:146] - Saved feedback for query: 'get me all the customers...' with rating 1
+2025-03-27 00:03:42 - INFO - [sql_generator.py:37] - Processing query: 'get me all the customers'
+2025-03-27 00:03:42 - INFO - [llm_engine.py:55] - [INTENT] Completion generation started
+2025-03-27 00:03:43 - INFO - [llm_engine.py:92] - [INTENT] Completion generation completed in 0.54s
+2025-03-27 00:03:43 - INFO - [sql_generator.py:45] - Detected intent: data_retrieval
+2025-03-27 00:03:43 - INFO - [sql_generator.py:138] - Starting SQL generation process
+2025-03-27 00:03:43 - INFO - [database.py:24] - Attempting database connection
+2025-03-27 00:03:43 - INFO - [database.py:28] - Database connection established in 0.00s
+2025-03-27 00:03:43 - INFO - [llm_engine.py:55] - [TABLE] Completion generation started
+2025-03-27 00:03:43 - INFO - [llm_engine.py:92] - [TABLE] Completion generation completed in 0.38s
+2025-03-27 00:03:43 - INFO - [llm_engine.py:55] - [COLUMN] Completion generation started
+2025-03-27 00:03:45 - INFO - [llm_engine.py:92] - [COLUMN] Completion generation completed in 1.93s
+2025-03-27 00:03:45 - INFO - [feedback_manager.py:219] - Found 3 similar queries using vector similarity for 'get me all the customers...'
+2025-03-27 00:03:45 - INFO - [sql_generator.py:276] - Found 3 similar queries with positive feedback
+2025-03-27 00:03:45 - INFO - [azure_client.py:35] - SQL generation started for query: 'get me all the customers'
+2025-03-27 00:03:45 - INFO - [llm_engine.py:55] - [SQL_GEN] Completion generation started
+2025-03-27 00:03:46 - INFO - [llm_engine.py:92] - [SQL_GEN] Completion generation completed in 1.06s
+2025-03-27 00:03:46 - INFO - [azure_client.py:110] - Generated SQL: SELECT * FROM customers;
+2025-03-27 00:03:46,634 - QUERY: 'get me all the customers' → SQL: SELECT * FROM customers;
+2025-03-27 00:03:46 - INFO - [azure_client.py:118] - SQL generation completed in 1.06s
+2025-03-27 00:03:46 - INFO - [database.py:45] - Executing SQL query: SELECT * FROM customers;
+2025-03-27 00:03:46 - INFO - [database.py:66] - Query returned 5 rows with 11 columns
+2025-03-27 00:03:46 - INFO - [database.py:75] - Query processing completed in 0.01s
+2025-03-27 00:03:46 - INFO - [sql_generator.py:353] - SQL generation completed in 3.45s
+2025-03-27 00:03:46 - INFO - [sql_generator.py:122] - Query processing completed in 4.01s
+2025-03-27 00:03:47 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:03:47 - INFO - [feedback_manager.py:43] - Attempting database connection
+2025-03-27 00:03:47 - INFO - [feedback_manager.py:47] - Database connection established in 0.00s
+2025-03-27 00:03:47 - INFO - [feedback_manager.py:318] - Feedback stats: 9 total, 7 positive, 2 negative
+2025-03-27 00:06:15 - INFO - [database.py:238] - Closing database connection
+2025-03-27 00:06:15 - INFO - [feedback_manager.py:327] - Closing database connection
+2025-03-27 00:06:23 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:06:23 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:06:23 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:06:23 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:06:23 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:06:23 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:06:23 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:06:23 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:06:23 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:06:23 - INFO - [azure_client.py:11] - Initializing Azure AI Client using LLM Engine
+2025-03-27 00:06:23 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:06:23 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:06:23 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:06:23 - INFO - [azure_client.py:17] - Azure AI Client initialized successfully
+2025-03-27 00:06:23 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:06:23 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:11:17 - INFO - [database.py:238] - Closing database connection
+2025-03-27 00:11:17 - INFO - [feedback_manager.py:327] - Closing database connection
+2025-03-27 00:11:17 - INFO - [database.py:238] - Closing database connection
+2025-03-27 00:11:17 - INFO - [feedback_manager.py:327] - Closing database connection
+2025-03-27 00:11:27 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:11:27 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:11:27 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:11:27 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:11:27 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:11:27 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:11:27 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:11:27 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:11:27 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:11:27 - INFO - [azure_client.py:11] - Initializing Azure AI Client using LLM Engine
+2025-03-27 00:11:27 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:11:27 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:11:27 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:11:27 - INFO - [azure_client.py:17] - Azure AI Client initialized successfully
+2025-03-27 00:11:27 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:11:27 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:11:37 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:11:37 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:11:37 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:11:37 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:11:37 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:11:37 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:11:37 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:11:37 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:11:37 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:11:37 - INFO - [azure_client.py:11] - Initializing Azure AI Client using LLM Engine
+2025-03-27 00:11:37 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:11:37 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:11:37 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:11:37 - INFO - [azure_client.py:17] - Azure AI Client initialized successfully
+2025-03-27 00:11:37 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:11:37 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:11:44 - INFO - [llm_engine.py:55] - [INTENT] Completion generation started
+2025-03-27 00:11:45 - INFO - [llm_engine.py:92] - [INTENT] Completion generation completed in 1.31s
+2025-03-27 00:11:45 - INFO - [database.py:24] - Attempting database connection
+2025-03-27 00:11:45 - INFO - [database.py:28] - Database connection established in 0.02s
+2025-03-27 00:11:45 - INFO - [llm_engine.py:55] - [TABLE] Completion generation started
+2025-03-27 00:11:47 - INFO - [llm_engine.py:92] - [TABLE] Completion generation completed in 1.14s
+2025-03-27 00:11:47 - INFO - [llm_engine.py:55] - [COLUMN] Completion generation started
+2025-03-27 00:11:49 - INFO - [llm_engine.py:92] - [COLUMN] Completion generation completed in 1.96s
+2025-03-27 00:11:49 - INFO - [feedback_manager.py:43] - Attempting database connection
+2025-03-27 00:11:49 - INFO - [feedback_manager.py:47] - Database connection established in 0.00s
+2025-03-27 00:11:49 - INFO - [feedback_manager.py:62] - Loading embedding model 'sentence-transformers/all-MiniLM-L12-v2'
+2025-03-27 00:11:52 - INFO - [feedback_manager.py:65] - Embedding model loaded in 3.57s
+2025-03-27 00:11:53 - INFO - [feedback_manager.py:219] - Found 3 similar queries using vector similarity for 'get me all the customers...'
+2025-03-27 00:11:53 - INFO - [azure_client.py:35] - SQL generation started for query: 'get me all the customers'
+2025-03-27 00:11:53 - INFO - [llm_engine.py:55] - [SQL_GEN] Completion generation started
+2025-03-27 00:11:55 - INFO - [llm_engine.py:92] - [SQL_GEN] Completion generation completed in 2.35s
+2025-03-27 00:11:55 - INFO - [azure_client.py:110] - Generated SQL: SELECT * FROM customers;
+2025-03-27 00:11:55,433 - QUERY: 'get me all the customers' → SQL: SELECT * FROM customers;
+2025-03-27 00:11:55 - INFO - [azure_client.py:118] - SQL generation completed in 2.36s
+2025-03-27 00:11:55 - INFO - [database.py:45] - Executing SQL query: SELECT * FROM customers;
+2025-03-27 00:11:55 - INFO - [database.py:66] - Query returned 5 rows with 11 columns
+2025-03-27 00:11:55 - INFO - [database.py:75] - Query processing completed in 0.05s
+2025-03-27 00:11:56 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:11:56 - INFO - [feedback_manager.py:43] - Attempting database connection
+2025-03-27 00:11:56 - INFO - [feedback_manager.py:47] - Database connection established in 0.00s
+2025-03-27 00:11:56 - INFO - [feedback_manager.py:318] - Feedback stats: 9 total, 7 positive, 2 negative
+2025-03-27 00:12:02 - INFO - [llm_engine.py:55] - [INTENT] Completion generation started
+2025-03-27 00:12:02 - INFO - [llm_engine.py:92] - [INTENT] Completion generation completed in 0.41s
+2025-03-27 00:12:02 - INFO - [database.py:24] - Attempting database connection
+2025-03-27 00:12:02 - INFO - [database.py:28] - Database connection established in 0.01s
+2025-03-27 00:12:02 - INFO - [llm_engine.py:55] - [TABLE] Completion generation started
+2025-03-27 00:12:03 - INFO - [llm_engine.py:92] - [TABLE] Completion generation completed in 0.40s
+2025-03-27 00:12:03 - INFO - [llm_engine.py:55] - [COLUMN] Completion generation started
+2025-03-27 00:12:04 - INFO - [llm_engine.py:92] - [COLUMN] Completion generation completed in 1.07s
+2025-03-27 00:12:04 - INFO - [feedback_manager.py:219] - Found 3 similar queries using vector similarity for 'get me all the customers...'
+2025-03-27 00:12:04 - INFO - [azure_client.py:35] - SQL generation started for query: 'get me all the customers'
+2025-03-27 00:12:04 - INFO - [llm_engine.py:55] - [SQL_GEN] Completion generation started
+2025-03-27 00:12:05 - INFO - [llm_engine.py:92] - [SQL_GEN] Completion generation completed in 1.46s
+2025-03-27 00:12:05 - INFO - [azure_client.py:110] - Generated SQL: SELECT * FROM customers;
+2025-03-27 00:12:05,937 - QUERY: 'get me all the customers' → SQL: SELECT * FROM customers;
+2025-03-27 00:12:05 - INFO - [azure_client.py:118] - SQL generation completed in 1.47s
+2025-03-27 00:12:05 - INFO - [database.py:45] - Executing SQL query: SELECT * FROM customers;
+2025-03-27 00:12:05 - INFO - [database.py:66] - Query returned 5 rows with 11 columns
+2025-03-27 00:12:05 - INFO - [database.py:75] - Query processing completed in 0.04s
+2025-03-27 00:12:06 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:12:06 - INFO - [feedback_manager.py:43] - Attempting database connection
+2025-03-27 00:12:06 - INFO - [feedback_manager.py:47] - Database connection established in 0.00s
+2025-03-27 00:12:06 - INFO - [feedback_manager.py:318] - Feedback stats: 9 total, 7 positive, 2 negative
+2025-03-27 00:12:10 - INFO - [app.py:268] - Feedback received for query: 'get me all the customers...' - Rating: 1
+2025-03-27 00:12:10 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:12:10 - INFO - [feedback_manager.py:43] - Attempting database connection
+2025-03-27 00:12:10 - INFO - [feedback_manager.py:47] - Database connection established in 0.00s
+2025-03-27 00:12:10 - INFO - [feedback_manager.py:62] - Loading embedding model 'sentence-transformers/all-MiniLM-L12-v2'
+2025-03-27 00:12:10 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:12:10 - INFO - [feedback_manager.py:43] - Attempting database connection
+2025-03-27 00:12:10 - INFO - [feedback_manager.py:47] - Database connection established in 0.00s
+2025-03-27 00:12:10 - INFO - [feedback_manager.py:318] - Feedback stats: 9 total, 7 positive, 2 negative
+2025-03-27 00:12:10 - INFO - [app.py:268] - Feedback received for query: 'get me all the customers...' - Rating: 1
+2025-03-27 00:12:10 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:12:10 - INFO - [feedback_manager.py:43] - Attempting database connection
+2025-03-27 00:12:10 - INFO - [feedback_manager.py:47] - Database connection established in 0.00s
+2025-03-27 00:12:10 - INFO - [feedback_manager.py:62] - Loading embedding model 'sentence-transformers/all-MiniLM-L12-v2'
+2025-03-27 00:12:11 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:12:11 - INFO - [feedback_manager.py:43] - Attempting database connection
+2025-03-27 00:12:11 - INFO - [feedback_manager.py:47] - Database connection established in 0.00s
+2025-03-27 00:12:11 - INFO - [feedback_manager.py:318] - Feedback stats: 9 total, 7 positive, 2 negative
+2025-03-27 00:12:12 - INFO - [feedback_manager.py:65] - Embedding model loaded in 2.37s
+2025-03-27 00:12:12 - INFO - [feedback_manager.py:146] - Saved feedback for query: 'get me all the customers...' with rating 1
+2025-03-27 00:12:13 - INFO - [app.py:268] - Feedback received for query: 'get me all the customers...' - Rating: 1
+2025-03-27 00:12:13 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:12:13 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:12:13 - INFO - [feedback_manager.py:43] - Attempting database connection
+2025-03-27 00:12:13 - INFO - [feedback_manager.py:43] - Attempting database connection
+2025-03-27 00:12:13 - INFO - [feedback_manager.py:47] - Database connection established in 0.01s
+2025-03-27 00:12:13 - INFO - [feedback_manager.py:47] - Database connection established in 0.01s
+2025-03-27 00:12:13 - INFO - [feedback_manager.py:62] - Loading embedding model 'sentence-transformers/all-MiniLM-L12-v2'
+2025-03-27 00:12:13 - INFO - [feedback_manager.py:318] - Feedback stats: 10 total, 8 positive, 2 negative
+2025-03-27 00:12:13 - INFO - [feedback_manager.py:65] - Embedding model loaded in 2.47s
+2025-03-27 00:12:13 - INFO - [feedback_manager.py:146] - Saved feedback for query: 'get me all the customers...' with rating 1
+2025-03-27 00:12:15 - INFO - [app.py:268] - Feedback received for query: 'get me all the customers...' - Rating: 0
+2025-03-27 00:12:15 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:12:15 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:12:15 - INFO - [feedback_manager.py:43] - Attempting database connection
+2025-03-27 00:12:15 - INFO - [feedback_manager.py:43] - Attempting database connection
+2025-03-27 00:12:15 - INFO - [feedback_manager.py:47] - Database connection established in 0.00s
+2025-03-27 00:12:15 - INFO - [feedback_manager.py:47] - Database connection established in 0.01s
+2025-03-27 00:12:15 - INFO - [feedback_manager.py:318] - Feedback stats: 11 total, 9 positive, 2 negative
+2025-03-27 00:12:15 - INFO - [feedback_manager.py:62] - Loading embedding model 'sentence-transformers/all-MiniLM-L12-v2'
+2025-03-27 00:12:15 - INFO - [feedback_manager.py:65] - Embedding model loaded in 2.51s
+2025-03-27 00:12:15 - INFO - [feedback_manager.py:146] - Saved feedback for query: 'get me all the customers...' with rating 1
+2025-03-27 00:12:16 - INFO - [app.py:268] - Feedback received for query: 'get me all the customers...' - Rating: 0
+2025-03-27 00:12:16 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:12:16 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:12:16 - INFO - [feedback_manager.py:43] - Attempting database connection
+2025-03-27 00:12:16 - INFO - [feedback_manager.py:43] - Attempting database connection
+2025-03-27 00:12:16 - INFO - [feedback_manager.py:47] - Database connection established in 0.01s
+2025-03-27 00:12:16 - INFO - [app.py:268] - Feedback received for query: 'get me all the customers...' - Rating: 0
+2025-03-27 00:12:16 - INFO - [feedback_manager.py:47] - Database connection established in 0.01s
+2025-03-27 00:12:16 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:12:16 - INFO - [feedback_manager.py:318] - Feedback stats: 12 total, 10 positive, 2 negative
+2025-03-27 00:12:16 - INFO - [feedback_manager.py:62] - Loading embedding model 'sentence-transformers/all-MiniLM-L12-v2'
+2025-03-27 00:12:16 - INFO - [feedback_manager.py:43] - Attempting database connection
+2025-03-27 00:12:16 - INFO - [feedback_manager.py:47] - Database connection established in 0.01s
+2025-03-27 00:12:16 - INFO - [feedback_manager.py:62] - Loading embedding model 'sentence-transformers/all-MiniLM-L12-v2'
+2025-03-27 00:12:16 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:12:16 - INFO - [feedback_manager.py:43] - Attempting database connection
+2025-03-27 00:12:16 - INFO - [feedback_manager.py:47] - Database connection established in 0.00s
+2025-03-27 00:12:16 - INFO - [feedback_manager.py:318] - Feedback stats: 12 total, 10 positive, 2 negative
+2025-03-27 00:12:17 - INFO - [feedback_manager.py:65] - Embedding model loaded in 2.52s
+2025-03-27 00:12:17 - INFO - [feedback_manager.py:146] - Saved feedback for query: 'get me all the customers...' with rating 0
+2025-03-27 00:12:18 - INFO - [app.py:268] - Feedback received for query: 'get me all the customers...' - Rating: 0
+2025-03-27 00:12:18 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:12:18 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:12:18 - INFO - [feedback_manager.py:43] - Attempting database connection
+2025-03-27 00:12:18 - INFO - [feedback_manager.py:43] - Attempting database connection
+2025-03-27 00:12:18 - INFO - [feedback_manager.py:47] - Database connection established in 0.01s
+2025-03-27 00:12:18 - INFO - [feedback_manager.py:47] - Database connection established in 0.01s
+2025-03-27 00:12:18 - INFO - [feedback_manager.py:62] - Loading embedding model 'sentence-transformers/all-MiniLM-L12-v2'
+2025-03-27 00:12:18 - INFO - [feedback_manager.py:318] - Feedback stats: 13 total, 10 positive, 3 negative
+2025-03-27 00:12:19 - INFO - [feedback_manager.py:65] - Embedding model loaded in 2.42s
+2025-03-27 00:12:19 - INFO - [feedback_manager.py:146] - Saved feedback for query: 'get me all the customers...' with rating 0
+2025-03-27 00:12:19 - INFO - [feedback_manager.py:65] - Embedding model loaded in 2.90s
+2025-03-27 00:12:19 - INFO - [feedback_manager.py:146] - Saved feedback for query: 'get me all the customers...' with rating 0
+2025-03-27 00:12:21 - INFO - [feedback_manager.py:65] - Embedding model loaded in 2.96s
+2025-03-27 00:12:21 - INFO - [feedback_manager.py:146] - Saved feedback for query: 'get me all the customers...' with rating 0
+2025-03-27 00:12:30 - INFO - [database.py:238] - Closing database connection
+2025-03-27 00:12:30 - INFO - [feedback_manager.py:327] - Closing database connection
+2025-03-27 00:15:22 - INFO - [app.py:55] - Debug logging enabled for SQL generator and agents
+2025-03-27 00:15:22 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:15:22 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:15:22 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:15:22 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:15:22 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:15:22 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:15:22 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:15:22 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:15:22 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:15:22 - INFO - [azure_client.py:11] - Initializing Azure AI Client using LLM Engine
+2025-03-27 00:15:22 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:15:22 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:15:22 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:15:22 - INFO - [azure_client.py:17] - Azure AI Client initialized successfully
+2025-03-27 00:15:22 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:15:22 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:15:34 - INFO - [app.py:55] - Debug logging enabled for SQL generator and agents
+2025-03-27 00:15:34 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:15:34 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:15:34 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:15:34 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:15:34 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:15:34 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:15:34 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:15:34 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:15:34 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:15:34 - INFO - [azure_client.py:11] - Initializing Azure AI Client using LLM Engine
+2025-03-27 00:15:34 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:15:34 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:15:34 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:15:34 - INFO - [azure_client.py:17] - Azure AI Client initialized successfully
+2025-03-27 00:15:34 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:15:34 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:15:51 - INFO - [llm_engine.py:55] - [INTENT] Completion generation started
+2025-03-27 00:15:54 - INFO - [llm_engine.py:92] - [INTENT] Completion generation completed in 2.34s
+2025-03-27 00:15:54 - INFO - [database.py:24] - Attempting database connection
+2025-03-27 00:15:54 - INFO - [database.py:28] - Database connection established in 0.03s
+2025-03-27 00:15:54 - INFO - [llm_engine.py:55] - [TABLE] Completion generation started
+2025-03-27 00:15:55 - INFO - [llm_engine.py:92] - [TABLE] Completion generation completed in 1.26s
+2025-03-27 00:15:55 - INFO - [llm_engine.py:55] - [COLUMN] Completion generation started
+2025-03-27 00:15:56 - INFO - [llm_engine.py:92] - [COLUMN] Completion generation completed in 1.48s
+2025-03-27 00:15:56 - INFO - [feedback_manager.py:43] - Attempting database connection
+2025-03-27 00:15:56 - INFO - [feedback_manager.py:47] - Database connection established in 0.00s
+2025-03-27 00:15:56 - INFO - [feedback_manager.py:62] - Loading embedding model 'sentence-transformers/all-MiniLM-L12-v2'
+2025-03-27 00:16:00 - INFO - [feedback_manager.py:65] - Embedding model loaded in 3.12s
+2025-03-27 00:16:00 - INFO - [feedback_manager.py:219] - Found 3 similar queries using vector similarity for 'get me all the customers who live in state CA...'
+2025-03-27 00:16:00 - INFO - [azure_client.py:35] - SQL generation started for query: 'get me all the customers who live in state CA'
+2025-03-27 00:16:00 - INFO - [llm_engine.py:55] - [SQL_GEN] Completion generation started
+2025-03-27 00:16:02 - INFO - [llm_engine.py:92] - [SQL_GEN] Completion generation completed in 2.23s
+2025-03-27 00:16:02 - INFO - [azure_client.py:110] - Generated SQL: SELECT *
+FROM customers
+WHERE state = 'CA';
+2025-03-27 00:16:02,457 - QUERY: 'get me all the customers who live in state CA' → SQL: SELECT *
+FROM customers
+WHERE state = 'CA';
+2025-03-27 00:16:02 - INFO - [azure_client.py:118] - SQL generation completed in 2.25s
+2025-03-27 00:16:02 - INFO - [database.py:45] - Executing SQL query: SELECT *
+FROM customers
+WHERE state = 'CA';
+2025-03-27 00:16:02 - INFO - [database.py:66] - Query returned 1 rows with 11 columns
+2025-03-27 00:16:02 - INFO - [database.py:75] - Query processing completed in 0.03s
+2025-03-27 00:16:03 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:16:03 - INFO - [feedback_manager.py:43] - Attempting database connection
+2025-03-27 00:16:03 - INFO - [feedback_manager.py:47] - Database connection established in 0.00s
+2025-03-27 00:16:03 - INFO - [feedback_manager.py:318] - Feedback stats: 16 total, 10 positive, 6 negative
+2025-03-27 00:16:57 - INFO - [llm_engine.py:55] - [INTENT] Completion generation started
+2025-03-27 00:16:57 - INFO - [llm_engine.py:92] - [INTENT] Completion generation completed in 0.55s
+2025-03-27 00:16:57 - INFO - [database.py:24] - Attempting database connection
+2025-03-27 00:16:57 - INFO - [database.py:28] - Database connection established in 0.00s
+2025-03-27 00:16:57 - INFO - [llm_engine.py:55] - [TABLE] Completion generation started
+2025-03-27 00:16:58 - INFO - [llm_engine.py:92] - [TABLE] Completion generation completed in 0.36s
+2025-03-27 00:16:58 - INFO - [llm_engine.py:55] - [COLUMN] Completion generation started
+2025-03-27 00:16:59 - INFO - [llm_engine.py:92] - [COLUMN] Completion generation completed in 1.42s
+2025-03-27 00:16:59 - INFO - [feedback_manager.py:219] - Found 3 similar queries using vector similarity for 'find me all the customers who live in state CA...'
+2025-03-27 00:16:59 - INFO - [azure_client.py:35] - SQL generation started for query: 'find me all the customers who live in state CA'
+2025-03-27 00:16:59 - INFO - [llm_engine.py:55] - [SQL_GEN] Completion generation started
+2025-03-27 00:17:01 - INFO - [llm_engine.py:92] - [SQL_GEN] Completion generation completed in 1.37s
+2025-03-27 00:17:01 - INFO - [azure_client.py:110] - Generated SQL: SELECT * FROM customers WHERE state = 'CA';
+2025-03-27 00:17:01,143 - QUERY: 'find me all the customers who live in state CA' → SQL: SELECT * FROM customers WHERE state = 'CA';
+2025-03-27 00:17:01 - INFO - [azure_client.py:118] - SQL generation completed in 1.39s
+2025-03-27 00:17:01 - INFO - [database.py:45] - Executing SQL query: SELECT * FROM customers WHERE state = 'CA';
+2025-03-27 00:17:01 - INFO - [database.py:66] - Query returned 1 rows with 11 columns
+2025-03-27 00:17:01 - INFO - [database.py:75] - Query processing completed in 0.03s
+2025-03-27 00:17:01 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:17:01 - INFO - [feedback_manager.py:43] - Attempting database connection
+2025-03-27 00:17:01 - INFO - [feedback_manager.py:47] - Database connection established in 0.00s
+2025-03-27 00:17:01 - INFO - [feedback_manager.py:318] - Feedback stats: 16 total, 10 positive, 6 negative
+2025-03-27 00:18:40 - INFO - [database.py:238] - Closing database connection
+2025-03-27 00:18:40 - INFO - [feedback_manager.py:327] - Closing database connection
+2025-03-27 00:18:49 - INFO - [app.py:55] - Debug logging enabled for SQL generator and agents
+2025-03-27 00:18:49 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:18:49 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:18:49 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:18:49 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:18:49 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:18:49 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:18:49 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:18:49 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:18:49 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:18:49 - INFO - [azure_client.py:11] - Initializing Azure AI Client using LLM Engine
+2025-03-27 00:18:49 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:18:49 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:18:49 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:18:49 - INFO - [azure_client.py:17] - Azure AI Client initialized successfully
+2025-03-27 00:18:49 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:18:49 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:18:56 - INFO - [llm_engine.py:55] - [INTENT] Completion generation started
+2025-03-27 00:18:56 - INFO - [llm_engine.py:55] - [INTENT] Completion generation started
+2025-03-27 00:18:58 - INFO - [llm_engine.py:92] - [INTENT] Completion generation completed in 1.52s
+2025-03-27 00:18:58 - INFO - [database.py:24] - Attempting database connection
+2025-03-27 00:18:58 - INFO - [llm_engine.py:92] - [INTENT] Completion generation completed in 1.51s
+2025-03-27 00:18:58 - INFO - [database.py:28] - Database connection established in 0.03s
+2025-03-27 00:18:58 - INFO - [database.py:24] - Attempting database connection
+2025-03-27 00:18:58 - INFO - [database.py:28] - Database connection established in 0.01s
+2025-03-27 00:18:58 - INFO - [llm_engine.py:55] - [TABLE] Completion generation started
+2025-03-27 00:18:58 - INFO - [llm_engine.py:55] - [TABLE] Completion generation started
+2025-03-27 00:18:59 - INFO - [llm_engine.py:92] - [TABLE] Completion generation completed in 1.16s
+2025-03-27 00:18:59 - INFO - [llm_engine.py:55] - [COLUMN] Completion generation started
+2025-03-27 00:18:59 - INFO - [llm_engine.py:92] - [TABLE] Completion generation completed in 1.18s
+2025-03-27 00:18:59 - INFO - [llm_engine.py:55] - [COLUMN] Completion generation started
+2025-03-27 00:19:00 - INFO - [llm_engine.py:92] - [COLUMN] Completion generation completed in 1.32s
+2025-03-27 00:19:00 - INFO - [feedback_manager.py:43] - Attempting database connection
+2025-03-27 00:19:00 - INFO - [feedback_manager.py:47] - Database connection established in 0.00s
+2025-03-27 00:19:00 - INFO - [feedback_manager.py:62] - Loading embedding model 'sentence-transformers/all-MiniLM-L12-v2'
+2025-03-27 00:19:00 - INFO - [llm_engine.py:92] - [COLUMN] Completion generation completed in 1.36s
+2025-03-27 00:19:00 - INFO - [feedback_manager.py:62] - Loading embedding model 'sentence-transformers/all-MiniLM-L12-v2'
+2025-03-27 00:19:03 - INFO - [feedback_manager.py:65] - Embedding model loaded in 2.63s
+2025-03-27 00:19:03 - INFO - [feedback_manager.py:219] - Found 3 similar queries using vector similarity for 'find me all the customers who live in state CA...'
+2025-03-27 00:19:03 - INFO - [azure_client.py:35] - SQL generation started for query: 'find me all the customers who live in state CA'
+2025-03-27 00:19:03 - INFO - [llm_engine.py:55] - [SQL_GEN] Completion generation started
+2025-03-27 00:19:03 - INFO - [feedback_manager.py:65] - Embedding model loaded in 3.03s
+2025-03-27 00:19:03 - INFO - [feedback_manager.py:219] - Found 3 similar queries using vector similarity for 'find me all the customers who live in state CA...'
+2025-03-27 00:19:03 - INFO - [azure_client.py:35] - SQL generation started for query: 'find me all the customers who live in state CA'
+2025-03-27 00:19:03 - INFO - [llm_engine.py:55] - [SQL_GEN] Completion generation started
+2025-03-27 00:19:05 - INFO - [llm_engine.py:92] - [SQL_GEN] Completion generation completed in 2.39s
+2025-03-27 00:19:05 - INFO - [azure_client.py:110] - Generated SQL: SELECT *
+FROM customers
+WHERE state = 'CA';
+2025-03-27 00:19:05,840 - QUERY: 'find me all the customers who live in state CA' → SQL: SELECT *
+FROM customers
+WHERE state = 'CA';
+2025-03-27 00:19:05 - INFO - [azure_client.py:118] - SQL generation completed in 2.40s
+2025-03-27 00:19:05 - INFO - [database.py:45] - Executing SQL query: SELECT *
+FROM customers
+WHERE state = 'CA';
+2025-03-27 00:19:05 - INFO - [database.py:66] - Query returned 1 rows with 11 columns
+2025-03-27 00:19:05 - INFO - [database.py:75] - Query processing completed in 0.02s
+2025-03-27 00:19:06 - INFO - [llm_engine.py:92] - [SQL_GEN] Completion generation completed in 2.26s
+2025-03-27 00:19:06 - INFO - [azure_client.py:110] - Generated SQL: SELECT * FROM customers WHERE state = 'CA';
+2025-03-27 00:19:06,087 - QUERY: 'find me all the customers who live in state CA' → SQL: SELECT * FROM customers WHERE state = 'CA';
+2025-03-27 00:19:06 - INFO - [azure_client.py:118] - SQL generation completed in 2.27s
+2025-03-27 00:19:06 - INFO - [database.py:45] - Executing SQL query: SELECT * FROM customers WHERE state = 'CA';
+2025-03-27 00:19:06 - INFO - [database.py:66] - Query returned 1 rows with 11 columns
+2025-03-27 00:19:06 - INFO - [database.py:75] - Query processing completed in 0.02s
+2025-03-27 00:19:07 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:19:07 - INFO - [feedback_manager.py:43] - Attempting database connection
+2025-03-27 00:19:07 - INFO - [feedback_manager.py:47] - Database connection established in 0.00s
+2025-03-27 00:19:07 - INFO - [feedback_manager.py:318] - Feedback stats: 16 total, 10 positive, 6 negative
+2025-03-27 00:20:18 - INFO - [database.py:238] - Closing database connection
+2025-03-27 00:20:18 - INFO - [feedback_manager.py:327] - Closing database connection
+2025-03-27 00:20:27 - INFO - [app.py:55] - Debug logging enabled for SQL generator and agents
+2025-03-27 00:20:27 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:20:27 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:20:27 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:20:27 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:20:27 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:20:27 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:20:27 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:20:27 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:20:27 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:20:27 - INFO - [azure_client.py:11] - Initializing Azure AI Client using LLM Engine
+2025-03-27 00:20:27 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:20:27 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:20:27 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:20:27 - INFO - [azure_client.py:17] - Azure AI Client initialized successfully
+2025-03-27 00:20:27 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:20:27 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:20:41 - INFO - [azure_client.py:172] - Closing Azure AI client connection
+2025-03-27 00:20:41 - INFO - [database.py:238] - Closing database connection
+2025-03-27 00:20:41 - INFO - [feedback_manager.py:327] - Closing database connection
+2025-03-27 00:20:52 - INFO - [app.py:55] - Debug logging enabled for SQL generator and agents
+2025-03-27 00:20:52 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:20:52 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:20:52 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:20:52 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:20:52 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:20:52 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:20:52 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:20:52 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:20:52 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:20:52 - INFO - [azure_client.py:11] - Initializing Azure AI Client using LLM Engine
+2025-03-27 00:20:52 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:20:52 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:20:52 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:20:52 - INFO - [azure_client.py:17] - Azure AI Client initialized successfully
+2025-03-27 00:20:52 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:20:52 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:21:05 - INFO - [azure_client.py:172] - Closing Azure AI client connection
+2025-03-27 00:21:05 - INFO - [database.py:238] - Closing database connection
+2025-03-27 00:21:05 - INFO - [feedback_manager.py:327] - Closing database connection
+2025-03-27 00:21:15 - INFO - [app.py:55] - Debug logging enabled for SQL generator and agents
+2025-03-27 00:21:15 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:21:15 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:21:15 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:21:15 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:21:15 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:21:15 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:21:15 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:21:15 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:21:15 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:21:15 - INFO - [azure_client.py:11] - Initializing Azure AI Client using LLM Engine
+2025-03-27 00:21:15 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:21:15 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:21:15 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:21:15 - INFO - [azure_client.py:17] - Azure AI Client initialized successfully
+2025-03-27 00:21:15 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:21:15 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:23:24 - INFO - [azure_client.py:172] - Closing Azure AI client connection
+2025-03-27 00:23:24 - INFO - [database.py:238] - Closing database connection
+2025-03-27 00:23:24 - INFO - [feedback_manager.py:327] - Closing database connection
+2025-03-27 00:23:34 - INFO - [app.py:55] - Debug logging enabled for SQL generator and agents
+2025-03-27 00:23:34 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:23:34 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:23:34 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:23:34 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:23:34 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:23:34 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:23:34 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:23:34 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:23:34 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:23:34 - INFO - [azure_client.py:11] - Initializing Azure AI Client using LLM Engine
+2025-03-27 00:23:34 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:23:34 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:23:34 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:23:34 - INFO - [azure_client.py:17] - Azure AI Client initialized successfully
+2025-03-27 00:23:34 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:23:34 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:23:51 - INFO - [azure_client.py:172] - Closing Azure AI client connection
+2025-03-27 00:23:51 - INFO - [database.py:238] - Closing database connection
+2025-03-27 00:23:51 - INFO - [feedback_manager.py:327] - Closing database connection
+2025-03-27 00:24:01 - INFO - [app.py:55] - Debug logging enabled for SQL generator and agents
+2025-03-27 00:24:01 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:24:01 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:24:01 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:24:01 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:24:01 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:24:01 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:24:01 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:24:01 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:24:01 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:24:01 - INFO - [azure_client.py:11] - Initializing Azure AI Client using LLM Engine
+2025-03-27 00:24:01 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:24:01 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:24:01 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:24:01 - INFO - [azure_client.py:17] - Azure AI Client initialized successfully
+2025-03-27 00:24:01 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:24:01 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:24:05 - INFO - [azure_client.py:172] - Closing Azure AI client connection
+2025-03-27 00:24:05 - INFO - [database.py:238] - Closing database connection
+2025-03-27 00:24:05 - INFO - [feedback_manager.py:327] - Closing database connection
+2025-03-27 00:24:21 - INFO - [app.py:55] - Debug logging enabled for SQL generator and agents
+2025-03-27 00:24:21 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:24:21 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:24:21 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:24:21 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:24:21 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:24:21 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:24:21 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:24:21 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:24:21 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:24:21 - INFO - [azure_client.py:11] - Initializing Azure AI Client using LLM Engine
+2025-03-27 00:24:21 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:24:21 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:24:21 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:24:21 - INFO - [azure_client.py:17] - Azure AI Client initialized successfully
+2025-03-27 00:24:21 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:24:21 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:24:34 - INFO - [azure_client.py:172] - Closing Azure AI client connection
+2025-03-27 00:24:34 - INFO - [database.py:238] - Closing database connection
+2025-03-27 00:24:34 - INFO - [feedback_manager.py:327] - Closing database connection
+2025-03-27 00:24:41 - INFO - [database.py:238] - Closing database connection
+2025-03-27 00:24:41 - INFO - [feedback_manager.py:327] - Closing database connection
+2025-03-27 00:25:10 - INFO - [app.py:55] - Debug logging enabled for SQL generator and agents
+2025-03-27 00:25:10 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:25:10 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:25:10 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:25:10 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:25:10 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:25:10 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:25:10 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:25:10 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:25:10 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:25:10 - INFO - [azure_client.py:11] - Initializing Azure AI Client using LLM Engine
+2025-03-27 00:25:10 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:25:10 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:25:10 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:25:10 - INFO - [azure_client.py:17] - Azure AI Client initialized successfully
+2025-03-27 00:25:10 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:25:10 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:25:20 - INFO - [app.py:55] - Debug logging enabled for SQL generator and agents
+2025-03-27 00:25:20 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:25:20 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:25:20 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:25:20 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:25:20 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:25:20 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:25:20 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:25:20 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:25:20 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:25:20 - INFO - [azure_client.py:11] - Initializing Azure AI Client using LLM Engine
+2025-03-27 00:25:20 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:25:20 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:25:20 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:25:20 - INFO - [azure_client.py:17] - Azure AI Client initialized successfully
+2025-03-27 00:25:20 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:25:20 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:27:24 - INFO - [llm_engine.py:55] - [INTENT] Completion generation started
+2025-03-27 00:27:25 - INFO - [llm_engine.py:92] - [INTENT] Completion generation completed in 1.27s
+2025-03-27 00:27:25 - INFO - [database.py:24] - Attempting database connection
+2025-03-27 00:27:25 - INFO - [database.py:28] - Database connection established in 0.03s
+2025-03-27 00:27:25 - INFO - [llm_engine.py:55] - [TABLE] Completion generation started
+2025-03-27 00:27:26 - INFO - [llm_engine.py:92] - [TABLE] Completion generation completed in 1.17s
+2025-03-27 00:27:26 - INFO - [llm_engine.py:55] - [COLUMN] Completion generation started
+2025-03-27 00:27:29 - INFO - [llm_engine.py:92] - [COLUMN] Completion generation completed in 2.21s
+2025-03-27 00:27:29 - INFO - [feedback_manager.py:43] - Attempting database connection
+2025-03-27 00:27:29 - INFO - [feedback_manager.py:47] - Database connection established in 0.00s
+2025-03-27 00:27:29 - INFO - [feedback_manager.py:62] - Loading embedding model 'sentence-transformers/all-MiniLM-L12-v2'
+2025-03-27 00:27:32 - INFO - [feedback_manager.py:65] - Embedding model loaded in 3.06s
+2025-03-27 00:27:32 - INFO - [feedback_manager.py:219] - Found 1 similar queries using vector similarity for 'Please find me all the customers who live in state...'
+2025-03-27 00:27:32 - INFO - [azure_client.py:35] - SQL generation started for query: 'Please find me all the customers who live in state CA'
+2025-03-27 00:27:32 - INFO - [azure_client.py:68] - Including schema information (137 chars)
+2025-03-27 00:27:32 - INFO - [azure_client.py:90] - Including 4 SQL examples
+2025-03-27 00:27:32 - INFO - [llm_engine.py:55] - [SQL_GEN] Completion generation started
+2025-03-27 00:27:34 - INFO - [llm_engine.py:92] - [SQL_GEN] Completion generation completed in 2.26s
+2025-03-27 00:27:34 - INFO - [azure_client.py:136] - Parsing SQL from model response
+2025-03-27 00:27:34 - INFO - [azure_client.py:143] - Found SQL code block in response
+2025-03-27 00:27:34 - INFO - [azure_client.py:157] - Extracted SQL query (43 chars) and explanation (275 chars)
+2025-03-27 00:27:34 - INFO - [azure_client.py:110] - Generated SQL: SELECT * FROM customers WHERE state = 'CA';
+2025-03-27 00:27:34,574 - QUERY: 'Please find me all the customers who live in state CA' → SQL: SELECT * FROM customers WHERE state = 'CA';
+2025-03-27 00:27:34 - INFO - [azure_client.py:118] - SQL generation completed in 2.29s
+2025-03-27 00:27:34 - INFO - [database.py:45] - Executing SQL query: SELECT * FROM customers WHERE state = 'CA';
+2025-03-27 00:27:34 - INFO - [database.py:66] - Query returned 1 rows with 11 columns
+2025-03-27 00:27:34 - INFO - [database.py:75] - Query processing completed in 0.03s
+2025-03-27 00:28:03 - INFO - [azure_client.py:172] - Closing Azure AI client connection
+2025-03-27 00:28:03 - INFO - [database.py:238] - Closing database connection
+2025-03-27 00:28:03 - INFO - [feedback_manager.py:327] - Closing database connection
+2025-03-27 00:28:03 - INFO - [azure_client.py:172] - Closing Azure AI client connection
+2025-03-27 00:28:03 - INFO - [database.py:238] - Closing database connection
+2025-03-27 00:28:03 - INFO - [feedback_manager.py:327] - Closing database connection
+2025-03-27 00:37:29 - INFO - [app.py:55] - Debug logging enabled for SQL generator and agents
+2025-03-27 00:37:29 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:37:29 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:37:29 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:37:29 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:37:29 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:37:29 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:37:29 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:37:29 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:37:29 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:37:29 - INFO - [azure_client.py:11] - Initializing Azure AI Client using LLM Engine
+2025-03-27 00:37:29 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:37:29 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:37:29 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:37:29 - INFO - [azure_client.py:17] - Azure AI Client initialized successfully
+2025-03-27 00:37:29 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:37:29 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:37:35 - INFO - [app.py:55] - Debug logging enabled for SQL generator and agents
+2025-03-27 00:37:35 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:37:35 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:37:35 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:37:35 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:37:35 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:37:35 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:37:35 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:37:35 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:37:35 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:37:35 - INFO - [azure_client.py:11] - Initializing Azure AI Client using LLM Engine
+2025-03-27 00:37:35 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:37:35 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:37:35 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:37:35 - INFO - [azure_client.py:17] - Azure AI Client initialized successfully
+2025-03-27 00:37:35 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:37:35 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:40:07 - INFO - [llm_engine.py:55] - [INTENT] Completion generation started
+2025-03-27 00:40:09 - INFO - [llm_engine.py:92] - [INTENT] Completion generation completed in 2.14s
+2025-03-27 00:40:09 - INFO - [database.py:24] - Attempting database connection
+2025-03-27 00:40:09 - INFO - [database.py:28] - Database connection established in 0.02s
+2025-03-27 00:40:09 - INFO - [llm_engine.py:55] - [TABLE] Completion generation started
+2025-03-27 00:40:10 - INFO - [llm_engine.py:92] - [TABLE] Completion generation completed in 1.14s
+2025-03-27 00:40:10 - INFO - [llm_engine.py:55] - [COLUMN] Completion generation started
+2025-03-27 00:40:12 - INFO - [llm_engine.py:92] - [COLUMN] Completion generation completed in 1.43s
+2025-03-27 00:40:12 - INFO - [feedback_manager.py:43] - Attempting database connection
+2025-03-27 00:40:12 - INFO - [feedback_manager.py:47] - Database connection established in 0.00s
+2025-03-27 00:40:12 - INFO - [feedback_manager.py:62] - Loading embedding model 'sentence-transformers/all-MiniLM-L12-v2'
+2025-03-27 00:40:15 - INFO - [feedback_manager.py:65] - Embedding model loaded in 2.75s
+2025-03-27 00:40:15 - INFO - [feedback_manager.py:219] - Found 1 similar queries using vector similarity for 'get me all the customers who lives in state CA...'
+2025-03-27 00:40:15 - INFO - [azure_client.py:35] - SQL generation started for query: 'get me all the customers who lives in state CA'
+2025-03-27 00:40:15 - INFO - [azure_client.py:68] - Including schema information (174 chars)
+2025-03-27 00:40:15 - INFO - [azure_client.py:90] - Including 4 SQL examples
+2025-03-27 00:40:15 - INFO - [llm_engine.py:55] - [SQL_GEN] Completion generation started
+2025-03-27 00:40:17 - INFO - [llm_engine.py:92] - [SQL_GEN] Completion generation completed in 2.10s
+2025-03-27 00:40:17 - INFO - [azure_client.py:136] - Parsing SQL from model response
+2025-03-27 00:40:17 - INFO - [azure_client.py:143] - Found SQL code block in response
+2025-03-27 00:40:17 - INFO - [azure_client.py:157] - Extracted SQL query (43 chars) and explanation (223 chars)
+2025-03-27 00:40:17 - INFO - [azure_client.py:110] - Generated SQL: SELECT * FROM customers WHERE state = 'CA';
+2025-03-27 00:40:17,335 - QUERY: 'get me all the customers who lives in state CA' → SQL: SELECT * FROM customers WHERE state = 'CA';
+2025-03-27 00:40:17 - INFO - [azure_client.py:118] - SQL generation completed in 2.12s
+2025-03-27 00:40:17 - INFO - [database.py:45] - Executing SQL query: SELECT * FROM customers WHERE state = 'CA';
+2025-03-27 00:40:17 - INFO - [database.py:66] - Query returned 1 rows with 11 columns
+2025-03-27 00:40:17 - INFO - [database.py:75] - Query processing completed in 0.01s
+2025-03-27 00:42:42 - INFO - [llm_engine.py:55] - [INTENT] Completion generation started
+2025-03-27 00:42:43 - INFO - [llm_engine.py:92] - [INTENT] Completion generation completed in 0.52s
+2025-03-27 00:42:43 - INFO - [database.py:24] - Attempting database connection
+2025-03-27 00:42:43 - INFO - [database.py:28] - Database connection established in 0.00s
+2025-03-27 00:42:43 - INFO - [llm_engine.py:55] - [TABLE] Completion generation started
+2025-03-27 00:42:43 - INFO - [llm_engine.py:92] - [TABLE] Completion generation completed in 0.37s
+2025-03-27 00:42:43 - INFO - [llm_engine.py:55] - [COLUMN] Completion generation started
+2025-03-27 00:42:44 - INFO - [llm_engine.py:92] - [COLUMN] Completion generation completed in 0.75s
+2025-03-27 00:42:44 - INFO - [feedback_manager.py:219] - Found 1 similar queries using vector similarity for 'get me all the customers who lives in state CA...'
+2025-03-27 00:42:44 - INFO - [azure_client.py:35] - SQL generation started for query: 'get me all the customers who lives in state CA'
+2025-03-27 00:42:44 - INFO - [azure_client.py:68] - Including schema information (174 chars)
+2025-03-27 00:42:44 - INFO - [azure_client.py:90] - Including 4 SQL examples
+2025-03-27 00:42:44 - INFO - [llm_engine.py:55] - [SQL_GEN] Completion generation started
+2025-03-27 00:42:46 - INFO - [llm_engine.py:92] - [SQL_GEN] Completion generation completed in 1.31s
+2025-03-27 00:42:46 - INFO - [azure_client.py:136] - Parsing SQL from model response
+2025-03-27 00:42:46 - INFO - [azure_client.py:143] - Found SQL code block in response
+2025-03-27 00:42:46 - INFO - [azure_client.py:157] - Extracted SQL query (43 chars) and explanation (226 chars)
+2025-03-27 00:42:46 - INFO - [azure_client.py:110] - Generated SQL: SELECT * FROM customers WHERE state = 'CA';
+2025-03-27 00:42:46,021 - QUERY: 'get me all the customers who lives in state CA' → SQL: SELECT * FROM customers WHERE state = 'CA';
+2025-03-27 00:42:46 - INFO - [azure_client.py:118] - SQL generation completed in 1.33s
+2025-03-27 00:42:46 - INFO - [database.py:45] - Executing SQL query: SELECT * FROM customers WHERE state = 'CA';
+2025-03-27 00:42:46 - INFO - [database.py:66] - Query returned 1 rows with 11 columns
+2025-03-27 00:42:46 - INFO - [database.py:75] - Query processing completed in 0.02s
+2025-03-27 00:43:27 - INFO - [app.py:277] - Feedback received for query: 'get me all the customers who lives in state CA...' - Rating: 1
+2025-03-27 00:43:27 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:43:27 - INFO - [feedback_manager.py:43] - Attempting database connection
+2025-03-27 00:43:27 - INFO - [feedback_manager.py:47] - Database connection established in 0.00s
+2025-03-27 00:43:27 - INFO - [feedback_manager.py:62] - Loading embedding model 'sentence-transformers/all-MiniLM-L12-v2'
+2025-03-27 00:43:30 - INFO - [feedback_manager.py:65] - Embedding model loaded in 2.63s
+2025-03-27 00:43:30 - INFO - [feedback_manager.py:146] - Saved feedback for query: 'get me all the customers who lives in state CA...' with rating 1
+2025-03-27 00:43:32 - INFO - [app.py:277] - Feedback received for query: 'get me all the customers who lives in state CA...' - Rating: 0
+2025-03-27 00:43:32 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:43:32 - INFO - [feedback_manager.py:43] - Attempting database connection
+2025-03-27 00:43:32 - INFO - [feedback_manager.py:47] - Database connection established in 0.00s
+2025-03-27 00:43:32 - INFO - [feedback_manager.py:62] - Loading embedding model 'sentence-transformers/all-MiniLM-L12-v2'
+2025-03-27 00:43:35 - INFO - [feedback_manager.py:65] - Embedding model loaded in 2.34s
+2025-03-27 00:43:35 - INFO - [feedback_manager.py:146] - Saved feedback for query: 'get me all the customers who lives in state CA...' with rating 0
+2025-03-27 00:43:51 - INFO - [app.py:113] - User explicitly specified tables: order_items
+2025-03-27 00:43:51 - INFO - [llm_engine.py:55] - [INTENT] Completion generation started
+2025-03-27 00:43:52 - INFO - [llm_engine.py:92] - [INTENT] Completion generation completed in 0.51s
+2025-03-27 00:43:52 - INFO - [database.py:24] - Attempting database connection
+2025-03-27 00:43:52 - INFO - [database.py:28] - Database connection established in 0.00s
+2025-03-27 00:43:52 - INFO - [llm_engine.py:55] - [COLUMN] Completion generation started
+2025-03-27 00:43:54 - INFO - [llm_engine.py:92] - [COLUMN] Completion generation completed in 1.92s
+2025-03-27 00:43:54 - INFO - [feedback_manager.py:219] - Found 1 similar queries using vector similarity for 'get me all the customers who lives in state CA
+
+ta...'
+2025-03-27 00:43:54 - INFO - [azure_client.py:35] - SQL generation started for query: 'get me all the customers who lives in state CA
+
+table order_items'
+2025-03-27 00:43:54 - INFO - [azure_client.py:68] - Including schema information (194 chars)
+2025-03-27 00:43:54 - INFO - [azure_client.py:90] - Including 4 SQL examples
+2025-03-27 00:43:54 - INFO - [llm_engine.py:55] - [SQL_GEN] Completion generation started
+2025-03-27 00:43:57 - INFO - [llm_engine.py:92] - [SQL_GEN] Completion generation completed in 2.96s
+2025-03-27 00:43:57 - INFO - [azure_client.py:136] - Parsing SQL from model response
+2025-03-27 00:43:57 - INFO - [azure_client.py:143] - Found SQL code block in response
+2025-03-27 00:43:57 - INFO - [azure_client.py:157] - Extracted SQL query (240 chars) and explanation (495 chars)
+2025-03-27 00:43:57 - INFO - [azure_client.py:110] - Generated SQL: SELECT c.customer_id, c.first_name, c.last_name, oi.item_id, oi.product_id, oi.quantity, oi.price
+FROM customers AS c
+JOIN orders AS o ON c.customer_id = o.customer_id
+JOIN order_items AS oi ON o.order_id = oi.order_id
+WHERE c.state = 'CA';
+2025-03-27 00:43:57,238 - QUERY: 'get me all the customers who lives in state CA
+
+table order_items' → SQL: SELECT c.customer_id, c.first_name, c.last_name, oi.item_id, oi.product_id, oi.quantity, oi.price
+FROM customers AS c
+JOIN orders AS o ON c.customer_id = o.customer_id
+JOIN order_items AS oi ON o.order_id = oi.order_id
+WHERE c.state = 'CA';
+2025-03-27 00:43:57 - INFO - [azure_client.py:118] - SQL generation completed in 2.98s
+2025-03-27 00:43:57 - INFO - [database.py:45] - Executing SQL query: SELECT c.customer_id, c.first_name, c.last_name, oi.item_id, oi.product_id, oi.quantity, oi.price
+FROM customers AS c
+JOIN orders AS o ON c.customer_id = o.customer_id
+JOIN order_items AS oi ON o.order_id = oi.order_id
+WHERE c.state = 'CA';
+2025-03-27 00:43:57 - INFO - [database.py:66] - Query returned 3 rows with 7 columns
+2025-03-27 00:43:57 - INFO - [database.py:75] - Query processing completed in 0.01s
+2025-03-27 00:48:41 - INFO - [llm_engine.py:55] - [INTENT] Completion generation started
+2025-03-27 00:48:41 - ERROR - [llm_engine.py:98] - [INTENT] Completion generation error after 0.23s: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/utils/llm_engine.py", line 72, in generate_completion
+    response = self.client.complete(
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/ai/inference/_patch.py", line 728, in complete
+    pipeline_response: PipelineResponse = self._client._pipeline.run(  # pylint: disable=protected-access
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 240, in run
+    return first_node.send(pipeline_request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 2 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_redirect.py", line 204, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 573, in send
+    raise err
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 551, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 3 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 128, in send
+    self._sender.send(request.http_request, **request.context.options),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/transport/_requests_basic.py", line 409, in send
+    raise error
+azure.core.exceptions.ServiceResponseError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2025-03-27 00:48:41 - INFO - [database.py:24] - Attempting database connection
+2025-03-27 00:48:41 - INFO - [database.py:28] - Database connection established in 0.00s
+2025-03-27 00:48:41 - INFO - [llm_engine.py:55] - [TABLE] Completion generation started
+2025-03-27 00:48:41 - ERROR - [llm_engine.py:98] - [TABLE] Completion generation error after 0.04s: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/utils/llm_engine.py", line 72, in generate_completion
+    response = self.client.complete(
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/ai/inference/_patch.py", line 728, in complete
+    pipeline_response: PipelineResponse = self._client._pipeline.run(  # pylint: disable=protected-access
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 240, in run
+    return first_node.send(pipeline_request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 2 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_redirect.py", line 204, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 573, in send
+    raise err
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 551, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 3 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 128, in send
+    self._sender.send(request.http_request, **request.context.options),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/transport/_requests_basic.py", line 409, in send
+    raise error
+azure.core.exceptions.ServiceResponseError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2025-03-27 00:48:41 - INFO - [llm_engine.py:55] - [COLUMN] Completion generation started
+2025-03-27 00:48:41 - ERROR - [llm_engine.py:98] - [COLUMN] Completion generation error after 0.23s: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/utils/llm_engine.py", line 72, in generate_completion
+    response = self.client.complete(
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/ai/inference/_patch.py", line 728, in complete
+    pipeline_response: PipelineResponse = self._client._pipeline.run(  # pylint: disable=protected-access
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 240, in run
+    return first_node.send(pipeline_request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 2 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_redirect.py", line 204, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 573, in send
+    raise err
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 551, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 3 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 128, in send
+    self._sender.send(request.http_request, **request.context.options),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/transport/_requests_basic.py", line 409, in send
+    raise error
+azure.core.exceptions.ServiceResponseError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2025-03-27 00:48:41 - INFO - [feedback_manager.py:219] - Found 1 similar queries using vector similarity for 'get me all the customers who lives in state CA
+
+ta...'
+2025-03-27 00:48:41 - INFO - [azure_client.py:35] - SQL generation started for query: 'get me all the customers who lives in state CA
+
+table order_items'
+2025-03-27 00:48:41 - INFO - [azure_client.py:68] - Including schema information (1327 chars)
+2025-03-27 00:48:41 - INFO - [azure_client.py:75] - Including 1 join conditions
+2025-03-27 00:48:41 - INFO - [azure_client.py:90] - Including 5 SQL examples
+2025-03-27 00:48:41 - INFO - [llm_engine.py:55] - [SQL_GEN] Completion generation started
+2025-03-27 00:48:44 - INFO - [llm_engine.py:92] - [SQL_GEN] Completion generation completed in 2.61s
+2025-03-27 00:48:44 - INFO - [azure_client.py:136] - Parsing SQL from model response
+2025-03-27 00:48:44 - INFO - [azure_client.py:143] - Found SQL code block in response
+2025-03-27 00:48:44 - INFO - [azure_client.py:157] - Extracted SQL query (43 chars) and explanation (304 chars)
+2025-03-27 00:48:44 - INFO - [azure_client.py:110] - Generated SQL: SELECT *
+FROM customers
+WHERE state = 'CA';
+2025-03-27 00:48:44,469 - QUERY: 'get me all the customers who lives in state CA
+
+table order_items' → SQL: SELECT *
+FROM customers
+WHERE state = 'CA';
+2025-03-27 00:48:44 - INFO - [azure_client.py:118] - SQL generation completed in 2.63s
+2025-03-27 00:48:44 - INFO - [database.py:45] - Executing SQL query: SELECT *
+FROM customers
+WHERE state = 'CA';
+2025-03-27 00:48:44 - INFO - [database.py:66] - Query returned 1 rows with 11 columns
+2025-03-27 00:48:44 - INFO - [database.py:75] - Query processing completed in 0.01s
+2025-03-27 00:49:16 - INFO - [azure_client.py:172] - Closing Azure AI client connection
+2025-03-27 00:49:16 - INFO - [database.py:238] - Closing database connection
+2025-03-27 00:49:16 - INFO - [feedback_manager.py:327] - Closing database connection
+2025-03-27 00:49:24 - INFO - [app.py:55] - Debug logging enabled for SQL generator and agents
+2025-03-27 00:49:24 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:49:24 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:49:24 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:49:24 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:49:24 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:49:24 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:49:24 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:49:24 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:49:24 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:49:24 - INFO - [azure_client.py:11] - Initializing Azure AI Client using LLM Engine
+2025-03-27 00:49:24 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:49:24 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:49:24 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:49:24 - INFO - [azure_client.py:17] - Azure AI Client initialized successfully
+2025-03-27 00:49:24 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:49:24 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:49:31 - INFO - [app.py:55] - Debug logging enabled for SQL generator and agents
+2025-03-27 00:49:31 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:49:31 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:49:31 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:49:31 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:49:31 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:49:31 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:49:31 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:49:31 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:49:31 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:49:31 - INFO - [azure_client.py:11] - Initializing Azure AI Client using LLM Engine
+2025-03-27 00:49:31 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:49:31 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:49:31 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:49:31 - INFO - [azure_client.py:17] - Azure AI Client initialized successfully
+2025-03-27 00:49:31 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:49:31 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:49:32 - INFO - [llm_engine.py:55] - [INTENT] Completion generation started
+2025-03-27 00:49:34 - INFO - [llm_engine.py:92] - [INTENT] Completion generation completed in 1.20s
+2025-03-27 00:49:34 - INFO - [database.py:24] - Attempting database connection
+2025-03-27 00:49:34 - INFO - [database.py:28] - Database connection established in 0.01s
+2025-03-27 00:49:34 - INFO - [llm_engine.py:55] - [TABLE] Completion generation started
+2025-03-27 00:49:35 - INFO - [llm_engine.py:92] - [TABLE] Completion generation completed in 1.11s
+2025-03-27 00:49:35 - INFO - [llm_engine.py:55] - [COLUMN] Completion generation started
+2025-03-27 00:49:36 - INFO - [llm_engine.py:92] - [COLUMN] Completion generation completed in 1.30s
+2025-03-27 00:49:36 - INFO - [feedback_manager.py:43] - Attempting database connection
+2025-03-27 00:49:36 - INFO - [feedback_manager.py:47] - Database connection established in 0.00s
+2025-03-27 00:49:36 - INFO - [feedback_manager.py:62] - Loading embedding model 'sentence-transformers/all-MiniLM-L12-v2'
+2025-03-27 00:49:38 - INFO - [feedback_manager.py:65] - Embedding model loaded in 2.44s
+2025-03-27 00:49:38 - INFO - [feedback_manager.py:219] - Found 1 similar queries using vector similarity for 'get me all the customers who lives in state CA
+
+ta...'
+2025-03-27 00:49:38 - INFO - [azure_client.py:35] - SQL generation started for query: 'get me all the customers who lives in state CA
+
+table order_items'
+2025-03-27 00:49:38 - INFO - [azure_client.py:68] - Including schema information (137 chars)
+2025-03-27 00:49:38 - INFO - [azure_client.py:90] - Including 4 SQL examples
+2025-03-27 00:49:38 - INFO - [llm_engine.py:55] - [SQL_GEN] Completion generation started
+2025-03-27 00:49:42 - INFO - [llm_engine.py:92] - [SQL_GEN] Completion generation completed in 3.74s
+2025-03-27 00:49:42 - INFO - [azure_client.py:136] - Parsing SQL from model response
+2025-03-27 00:49:42 - INFO - [azure_client.py:143] - Found SQL code block in response
+2025-03-27 00:49:42 - INFO - [azure_client.py:157] - Extracted SQL query (186 chars) and explanation (478 chars)
+2025-03-27 00:49:42 - INFO - [azure_client.py:110] - Generated SQL: SELECT
+  c.customer_id,
+  c.state,
+  oi.order_id,
+  oi.item_name,
+  oi.quantity
+FROM
+  customers AS c
+JOIN
+  order_items AS oi
+ON
+  c.customer_id = oi.customer_id
+WHERE
+  c.state = 'CA';
+2025-03-27 00:49:42,753 - QUERY: 'get me all the customers who lives in state CA
+
+table order_items' → SQL: SELECT
+  c.customer_id,
+  c.state,
+  oi.order_id,
+  oi.item_name,
+  oi.quantity
+FROM
+  customers AS c
+JOIN
+  order_items AS oi
+ON
+  c.customer_id = oi.customer_id
+WHERE
+  c.state = 'CA';
+2025-03-27 00:49:42 - INFO - [azure_client.py:118] - SQL generation completed in 3.77s
+2025-03-27 00:49:42 - INFO - [database.py:45] - Executing SQL query: SELECT
+  c.customer_id,
+  c.state,
+  oi.order_id,
+  oi.item_name,
+  oi.quantity
+FROM
+  customers AS c
+JOIN
+  order_items AS oi
+ON
+  c.customer_id = oi.customer_id
+WHERE
+  c.state = 'CA';
+2025-03-27 00:49:42 - ERROR - [database.py:102] - SQL error after 0.00s: (sqlite3.OperationalError) no such column: oi.item_name
+[SQL: SELECT
+  c.customer_id,
+  c.state,
+  oi.order_id,
+  oi.item_name,
+  oi.quantity
+FROM
+  customers AS c
+JOIN
+  order_items AS oi
+ON
+  c.customer_id = oi.customer_id
+WHERE
+  c.state = 'CA';]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Traceback (most recent call last):
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.OperationalError: no such column: oi.item_name
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/utils/database.py", line 58, in execute_query
+    result = conn.execute(text(sql_query))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1414, in execute
+    return meth(
+           ^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 486, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1638, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1842, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1983, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2326, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such column: oi.item_name
+[SQL: SELECT
+  c.customer_id,
+  c.state,
+  oi.order_id,
+  oi.item_name,
+  oi.quantity
+FROM
+  customers AS c
+JOIN
+  order_items AS oi
+ON
+  c.customer_id = oi.customer_id
+WHERE
+  c.state = 'CA';]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-03-27 00:49:58 - INFO - [llm_engine.py:55] - [INTENT] Completion generation started
+2025-03-27 00:49:58 - INFO - [llm_engine.py:92] - [INTENT] Completion generation completed in 0.52s
+2025-03-27 00:49:58 - INFO - [database.py:24] - Attempting database connection
+2025-03-27 00:49:58 - INFO - [database.py:28] - Database connection established in 0.00s
+2025-03-27 00:49:58 - INFO - [llm_engine.py:55] - [TABLE] Completion generation started
+2025-03-27 00:49:59 - INFO - [llm_engine.py:92] - [TABLE] Completion generation completed in 0.35s
+2025-03-27 00:49:59 - INFO - [llm_engine.py:55] - [COLUMN] Completion generation started
+2025-03-27 00:50:00 - INFO - [llm_engine.py:92] - [COLUMN] Completion generation completed in 0.75s
+2025-03-27 00:50:00 - INFO - [feedback_manager.py:219] - Found 1 similar queries using vector similarity for 'get me all the customers who lives in state CA
+
+ta...'
+2025-03-27 00:50:00 - INFO - [azure_client.py:35] - SQL generation started for query: 'get me all the customers who lives in state CA
+
+table order_items'
+2025-03-27 00:50:00 - INFO - [azure_client.py:68] - Including schema information (137 chars)
+2025-03-27 00:50:00 - INFO - [azure_client.py:90] - Including 4 SQL examples
+2025-03-27 00:50:00 - INFO - [llm_engine.py:55] - [SQL_GEN] Completion generation started
+2025-03-27 00:50:04 - INFO - [llm_engine.py:92] - [SQL_GEN] Completion generation completed in 4.66s
+2025-03-27 00:50:04 - INFO - [azure_client.py:136] - Parsing SQL from model response
+2025-03-27 00:50:04 - INFO - [azure_client.py:143] - Found SQL code block in response
+2025-03-27 00:50:04 - INFO - [azure_client.py:157] - Extracted SQL query (293 chars) and explanation (661 chars)
+2025-03-27 00:50:04 - INFO - [azure_client.py:110] - Generated SQL: SELECT 
+    c.customer_id, 
+    c.state, 
+    COUNT(oi.order_id) AS order_count, 
+    SUM(oi.amount) AS total_spent
+FROM 
+    customers AS c
+LEFT JOIN 
+    order_items AS oi ON c.customer_id = oi.customer_id
+WHERE 
+    c.state = 'CA'
+GROUP BY 
+    c.customer_id
+ORDER BY 
+    total_spent DESC;
+2025-03-27 00:50:04,795 - QUERY: 'get me all the customers who lives in state CA
+
+table order_items' → SQL: SELECT 
+    c.customer_id, 
+    c.state, 
+    COUNT(oi.order_id) AS order_count, 
+    SUM(oi.amount) AS total_spent
+FROM 
+    customers AS c
+LEFT JOIN 
+    order_items AS oi ON c.customer_id = oi.customer_id
+WHERE 
+    c.state = 'CA'
+GROUP BY 
+    c.customer_id
+ORDER BY 
+    total_spent DESC;
+2025-03-27 00:50:04 - INFO - [azure_client.py:118] - SQL generation completed in 4.67s
+2025-03-27 00:50:04 - INFO - [database.py:45] - Executing SQL query: SELECT 
+    c.customer_id, 
+    c.state, 
+    COUNT(oi.order_id) AS order_count, 
+    SUM(oi.amount) AS total_spent
+FROM 
+    customers AS c
+LEFT JOIN 
+    order_items AS oi ON c.customer_id = oi.customer_id
+WHERE 
+    c.state = 'CA'
+GROUP BY 
+    c.customer_id
+ORDER BY 
+    total_spent DESC;
+2025-03-27 00:50:04 - ERROR - [database.py:102] - SQL error after 0.00s: (sqlite3.OperationalError) no such column: oi.amount
+[SQL: SELECT 
+    c.customer_id, 
+    c.state, 
+    COUNT(oi.order_id) AS order_count, 
+    SUM(oi.amount) AS total_spent
+FROM 
+    customers AS c
+LEFT JOIN 
+    order_items AS oi ON c.customer_id = oi.customer_id
+WHERE 
+    c.state = 'CA'
+GROUP BY 
+    c.customer_id
+ORDER BY 
+    total_spent DESC;]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Traceback (most recent call last):
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.OperationalError: no such column: oi.amount
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/utils/database.py", line 58, in execute_query
+    result = conn.execute(text(sql_query))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1414, in execute
+    return meth(
+           ^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 486, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1638, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1842, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1983, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2326, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 748, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such column: oi.amount
+[SQL: SELECT 
+    c.customer_id, 
+    c.state, 
+    COUNT(oi.order_id) AS order_count, 
+    SUM(oi.amount) AS total_spent
+FROM 
+    customers AS c
+LEFT JOIN 
+    order_items AS oi ON c.customer_id = oi.customer_id
+WHERE 
+    c.state = 'CA'
+GROUP BY 
+    c.customer_id
+ORDER BY 
+    total_spent DESC;]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-03-27 00:50:13 - INFO - [llm_engine.py:55] - [INTENT] Completion generation started
+2025-03-27 00:50:14 - INFO - [llm_engine.py:92] - [INTENT] Completion generation completed in 0.43s
+2025-03-27 00:50:14 - INFO - [database.py:24] - Attempting database connection
+2025-03-27 00:50:14 - INFO - [database.py:28] - Database connection established in 0.00s
+2025-03-27 00:50:14 - INFO - [llm_engine.py:55] - [TABLE] Completion generation started
+2025-03-27 00:50:14 - INFO - [llm_engine.py:92] - [TABLE] Completion generation completed in 0.35s
+2025-03-27 00:50:14 - INFO - [llm_engine.py:55] - [COLUMN] Completion generation started
+2025-03-27 00:50:15 - INFO - [llm_engine.py:92] - [COLUMN] Completion generation completed in 0.68s
+2025-03-27 00:50:15 - INFO - [feedback_manager.py:219] - Found 1 similar queries using vector similarity for 'get me all the customers who lives in state CA...'
+2025-03-27 00:50:15 - INFO - [azure_client.py:35] - SQL generation started for query: 'get me all the customers who lives in state CA'
+2025-03-27 00:50:15 - INFO - [azure_client.py:68] - Including schema information (174 chars)
+2025-03-27 00:50:15 - INFO - [azure_client.py:90] - Including 4 SQL examples
+2025-03-27 00:50:15 - INFO - [llm_engine.py:55] - [SQL_GEN] Completion generation started
+2025-03-27 00:50:16 - INFO - [llm_engine.py:92] - [SQL_GEN] Completion generation completed in 1.46s
+2025-03-27 00:50:16 - INFO - [azure_client.py:136] - Parsing SQL from model response
+2025-03-27 00:50:16 - INFO - [azure_client.py:143] - Found SQL code block in response
+2025-03-27 00:50:16 - INFO - [azure_client.py:157] - Extracted SQL query (43 chars) and explanation (277 chars)
+2025-03-27 00:50:16 - INFO - [azure_client.py:110] - Generated SQL: SELECT *
+FROM customers
+WHERE state = 'CA';
+2025-03-27 00:50:16,970 - QUERY: 'get me all the customers who lives in state CA' → SQL: SELECT *
+FROM customers
+WHERE state = 'CA';
+2025-03-27 00:50:16 - INFO - [azure_client.py:118] - SQL generation completed in 1.48s
+2025-03-27 00:50:16 - INFO - [database.py:45] - Executing SQL query: SELECT *
+FROM customers
+WHERE state = 'CA';
+2025-03-27 00:50:16 - INFO - [database.py:66] - Query returned 1 rows with 11 columns
+2025-03-27 00:50:16 - INFO - [database.py:75] - Query processing completed in 0.02s
+2025-03-27 00:54:40 - INFO - [llm_engine.py:55] - [INTENT] Completion generation started
+2025-03-27 00:54:40 - ERROR - [llm_engine.py:98] - [INTENT] Completion generation error after 0.04s: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/utils/llm_engine.py", line 72, in generate_completion
+    response = self.client.complete(
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/ai/inference/_patch.py", line 728, in complete
+    pipeline_response: PipelineResponse = self._client._pipeline.run(  # pylint: disable=protected-access
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 240, in run
+    return first_node.send(pipeline_request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 2 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_redirect.py", line 204, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 573, in send
+    raise err
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 551, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 3 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 128, in send
+    self._sender.send(request.http_request, **request.context.options),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/transport/_requests_basic.py", line 409, in send
+    raise error
+azure.core.exceptions.ServiceResponseError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2025-03-27 00:54:40 - INFO - [database.py:24] - Attempting database connection
+2025-03-27 00:54:40 - INFO - [database.py:28] - Database connection established in 0.00s
+2025-03-27 00:54:40 - INFO - [llm_engine.py:55] - [TABLE] Completion generation started
+2025-03-27 00:54:40 - INFO - [llm_engine.py:92] - [TABLE] Completion generation completed in 0.45s
+2025-03-27 00:54:40 - INFO - [llm_engine.py:55] - [COLUMN] Completion generation started
+2025-03-27 00:54:41 - INFO - [llm_engine.py:92] - [COLUMN] Completion generation completed in 0.69s
+2025-03-27 00:54:41 - INFO - [feedback_manager.py:219] - Found 1 similar queries using vector similarity for 'get me all the customers who lives in state CA...'
+2025-03-27 00:54:41 - INFO - [azure_client.py:35] - SQL generation started for query: 'get me all the customers who lives in state CA'
+2025-03-27 00:54:41 - INFO - [azure_client.py:68] - Including schema information (174 chars)
+2025-03-27 00:54:41 - INFO - [azure_client.py:90] - Including 4 SQL examples
+2025-03-27 00:54:41 - INFO - [llm_engine.py:55] - [SQL_GEN] Completion generation started
+2025-03-27 00:54:42 - INFO - [llm_engine.py:92] - [SQL_GEN] Completion generation completed in 1.38s
+2025-03-27 00:54:42 - INFO - [azure_client.py:136] - Parsing SQL from model response
+2025-03-27 00:54:42 - INFO - [azure_client.py:143] - Found SQL code block in response
+2025-03-27 00:54:42 - INFO - [azure_client.py:157] - Extracted SQL query (43 chars) and explanation (235 chars)
+2025-03-27 00:54:42 - INFO - [azure_client.py:110] - Generated SQL: SELECT * FROM customers WHERE state = 'CA';
+2025-03-27 00:54:42,681 - QUERY: 'get me all the customers who lives in state CA' → SQL: SELECT * FROM customers WHERE state = 'CA';
+2025-03-27 00:54:42 - INFO - [azure_client.py:118] - SQL generation completed in 1.40s
+2025-03-27 00:54:42 - INFO - [database.py:45] - Executing SQL query: SELECT * FROM customers WHERE state = 'CA';
+2025-03-27 00:54:42 - INFO - [database.py:66] - Query returned 1 rows with 11 columns
+2025-03-27 00:54:42 - INFO - [database.py:75] - Query processing completed in 0.01s
+2025-03-27 00:55:18 - INFO - [azure_client.py:172] - Closing Azure AI client connection
+2025-03-27 00:55:18 - INFO - [database.py:238] - Closing database connection
+2025-03-27 00:55:18 - INFO - [feedback_manager.py:327] - Closing database connection
+2025-03-27 00:55:44 - INFO - [app.py:55] - Debug logging enabled for SQL generator and agents
+2025-03-27 00:55:44 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:55:44 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:55:44 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:55:44 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:55:44 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:55:44 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:55:44 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:55:44 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:55:44 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:55:44 - INFO - [azure_client.py:11] - Initializing Azure AI Client using LLM Engine
+2025-03-27 00:55:44 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:55:44 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:55:44 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:55:44 - INFO - [azure_client.py:17] - Azure AI Client initialized successfully
+2025-03-27 00:55:44 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:55:44 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:55:51 - INFO - [app.py:55] - Debug logging enabled for SQL generator and agents
+2025-03-27 00:55:51 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:55:51 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:55:51 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:55:51 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:55:51 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:55:51 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:55:51 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:55:51 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:55:51 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:55:51 - INFO - [azure_client.py:11] - Initializing Azure AI Client using LLM Engine
+2025-03-27 00:55:51 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-27 00:55:51 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-27 00:55:51 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-27 00:55:51 - INFO - [azure_client.py:17] - Azure AI Client initialized successfully
+2025-03-27 00:55:51 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:55:51 - INFO - [feedback_manager.py:32] - Feedback manager initialized with connection: sqlite:///text2sql.db
+2025-03-27 00:55:55 - INFO - [llm_engine.py:55] - [INTENT] Completion generation started
+2025-03-27 00:55:56 - INFO - [llm_engine.py:92] - [INTENT] Completion generation completed in 1.39s
+2025-03-27 00:55:56 - INFO - [database.py:24] - Attempting database connection
+2025-03-27 00:55:56 - INFO - [database.py:28] - Database connection established in 0.01s
+2025-03-27 00:55:56 - INFO - [llm_engine.py:55] - [TABLE] Completion generation started
+2025-03-27 00:55:57 - INFO - [llm_engine.py:92] - [TABLE] Completion generation completed in 1.09s
+2025-03-27 00:55:57 - INFO - [llm_engine.py:55] - [COLUMN] Completion generation started
+2025-03-27 00:55:59 - INFO - [llm_engine.py:92] - [COLUMN] Completion generation completed in 1.45s
+2025-03-27 00:55:59 - INFO - [feedback_manager.py:43] - Attempting database connection
+2025-03-27 00:55:59 - INFO - [feedback_manager.py:47] - Database connection established in 0.00s
+2025-03-27 00:55:59 - INFO - [feedback_manager.py:62] - Loading embedding model 'sentence-transformers/all-MiniLM-L12-v2'
+2025-03-27 00:56:01 - INFO - [feedback_manager.py:65] - Embedding model loaded in 2.90s
+2025-03-27 00:56:02 - INFO - [feedback_manager.py:219] - Found 1 similar queries using vector similarity for 'get me all the customers who lives in state CA...'
+2025-03-27 00:56:02 - INFO - [azure_client.py:35] - SQL generation started for query: 'get me all the customers who lives in state CA'
+2025-03-27 00:56:02 - INFO - [azure_client.py:68] - Including schema information (174 chars)
+2025-03-27 00:56:02 - INFO - [azure_client.py:90] - Including 4 SQL examples
+2025-03-27 00:56:02 - INFO - [llm_engine.py:55] - [SQL_GEN] Completion generation started
+2025-03-27 00:56:04 - INFO - [llm_engine.py:92] - [SQL_GEN] Completion generation completed in 2.21s
+2025-03-27 00:56:04 - INFO - [azure_client.py:136] - Parsing SQL from model response
+2025-03-27 00:56:04 - INFO - [azure_client.py:143] - Found SQL code block in response
+2025-03-27 00:56:04 - INFO - [azure_client.py:157] - Extracted SQL query (43 chars) and explanation (220 chars)
+2025-03-27 00:56:04 - INFO - [azure_client.py:110] - Generated SQL: SELECT *
+FROM customers
+WHERE state = 'CA';
+2025-03-27 00:56:04,291 - QUERY: 'get me all the customers who lives in state CA' → SQL: SELECT *
+FROM customers
+WHERE state = 'CA';
+2025-03-27 00:56:04 - INFO - [azure_client.py:118] - SQL generation completed in 2.23s
+2025-03-27 00:56:04 - INFO - [database.py:45] - Executing SQL query: SELECT *
+FROM customers
+WHERE state = 'CA';
+2025-03-27 00:56:04 - INFO - [database.py:66] - Query returned 1 rows with 11 columns
+2025-03-27 00:56:04 - INFO - [database.py:75] - Query processing completed in 0.01s
+2025-03-27 00:56:15 - INFO - [azure_client.py:172] - Closing Azure AI client connection
+2025-03-27 00:56:15 - INFO - [database.py:238] - Closing database connection
+2025-03-27 00:56:15 - INFO - [feedback_manager.py:327] - Closing database connection

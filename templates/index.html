@@ -129,7 +129,20 @@
                             </div>
                             <!-- SQL Tab -->
                             <div class="tab-pane fade" id="sql" role="tabpanel">
-                                <pre class="bg-light p-3 rounded"><code id="sqlCode"></code></pre>
+                                <div class="sql-section">
+                                    <pre class="bg-light p-3 rounded mb-0"><code id="sqlCode"></code></pre>
+                                    <div id="feedbackControls" class="feedback-controls mt-3 mb-2" style="display: none;">
+                                        <div class="d-flex align-items-center">
+                                            <span class="me-3">Was this SQL useful?</span>
+                                            <button id="thumbsUpBtn" class="btn btn-outline-success me-2">
+                                                <i class="fas fa-thumbs-up"></i>
+                                            </button>
+                                            <button id="thumbsDownBtn" class="btn btn-outline-danger">
+                                                <i class="fas fa-thumbs-down"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <!-- Explanation Tab -->
                             <div class="tab-pane fade" id="explanation" role="tabpanel">
@@ -174,6 +187,14 @@
     <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+    <!-- Custom JS Files -->
+    <script src="{{ url_for('static', filename='js/ui-utils.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/core.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/table-mentions.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/schema-manager.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/results-display.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/feedback.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/query-handler.js') }}"></script>
 </body>
 </html>

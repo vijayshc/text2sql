@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify, session
 from src.models.sql_generator import SQLGenerationManager
+from src.utils.feedback_manager import FeedbackManager
 from config.config import SECRET_KEY, DEBUG
 import logging
 import os
@@ -43,6 +44,15 @@ def setup_logging(log_level=logging.DEBUG):
         handler.setLevel(level)
         handler.setFormatter(formatter)
         app_logger.addHandler(handler)
+    
+    # Enable debug logging specifically for SQL generator and agents
+    logging.getLogger('text2sql.sql_generator').setLevel(logging.DEBUG)
+    logging.getLogger('text2sql.agents.intent').setLevel(logging.DEBUG)
+    logging.getLogger('text2sql.agents.table').setLevel(logging.DEBUG)
+    logging.getLogger('text2sql.agents.column').setLevel(logging.DEBUG)
+    
+    # Log that debug mode is enabled for these components
+    app_logger.info("Debug logging enabled for SQL generator and agents")
     
     return app_logger
 
@@ -240,6 +250,70 @@ def get_schema():
     except Exception as e:
         logger.exception(f"Error retrieving database schema: {str(e)}")
         return jsonify({"error": str(e)}), 500
+
+@app.route('/api/feedback', methods=['POST'])
+def submit_feedback():
+    """Save user feedback on a generated SQL query"""
+    data = request.get_json()
+    
+    if not data:
+        logger.warning("Feedback API request received with no data")
+        return jsonify({"error": "No feedback data provided"}), 400
+        
+    required_fields = ['query_text', 'sql_query', 'feedback_rating']
+    missing_fields = [field for field in required_fields if field not in data]
+    if missing_fields:
+        logger.warning(f"Feedback API missing required fields: {', '.join(missing_fields)}")
+        return jsonify({"error": f"Missing required fields: {', '.join(missing_fields)}"}), 400
+    
+    # Extract data
+    query_text = data.get('query_text')
+    sql_query = data.get('sql_query')
+    feedback_rating = int(data.get('feedback_rating'))  # 1 for thumbs up, 0 for thumbs down
+    results_summary = data.get('results_summary', '')
+    workspace = data.get('workspace', 'Default')
+    tables_used = data.get('tables_used', [])
+    
+    logger.info(f"Feedback received for query: '{query_text[:50]}...' - Rating: {feedback_rating}")
+    
+    try:
+        # Initialize feedback manager
+        feedback_mgr = FeedbackManager()
+        
+        # Save the feedback
+        success = feedback_mgr.save_feedback(
+            query_text=query_text,
+            sql_query=sql_query,
+            results_summary=results_summary,
+            workspace=workspace,
+            feedback_rating=feedback_rating,
+            tables_used=tables_used
+        )
+        
+        if success:
+            return jsonify({"success": True, "message": "Feedback saved successfully"})
+        else:
+            logger.error("Failed to save feedback")
+            return jsonify({"error": "Failed to save feedback"}), 500
+            
+    except Exception as e:
+        logger.exception(f"Error saving feedback: {str(e)}")
+        return jsonify({"error": f"Error saving feedback: {str(e)}"}), 500
+
+@app.route('/api/feedback/stats', methods=['GET'])
+def get_feedback_stats():
+    """Get statistics about stored feedback"""
+    try:
+        # Initialize feedback manager
+        feedback_mgr = FeedbackManager()
+        
+        # Get feedback statistics
+        stats = feedback_mgr.get_feedback_stats()
+        
+        return jsonify({"success": True, "stats": stats})
+    except Exception as e:
+        logger.exception(f"Error retrieving feedback stats: {str(e)}")
+        return jsonify({"error": f"Error retrieving feedback stats: {str(e)}"}), 500
 
 @app.errorhandler(404)
 def page_not_found(e):

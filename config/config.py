@@ -93,6 +93,11 @@ LOGGING_CONFIG = {
             'level': 'DEBUG',
             'handlers': ['console', 'file', 'error_file'],
             'propagate': False
+        },
+        'text2sql.sql_generator': {
+            'level': 'DEBUG',
+            'handlers': ['console', 'file', 'error_file'],
+            'propagate': False
         }
     },
     'root': {

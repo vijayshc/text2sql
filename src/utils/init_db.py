@@ -98,6 +98,21 @@ def init_sample_db(db_path='text2sql.db'):
         )
         ''')
         
+        # Create query_feedback table for storing user feedback on generated SQL
+        cursor.execute('''
+        CREATE TABLE query_feedback (
+            feedback_id INTEGER PRIMARY KEY,
+            query_text TEXT NOT NULL,
+            sql_query TEXT NOT NULL,
+            results_summary TEXT,
+            workspace TEXT,
+            feedback_rating INTEGER NOT NULL,    -- 1 for thumbs up, 0 for thumbs down
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            embedding BLOB,                      -- For storing vector embeddings for similarity search
+            tables_used TEXT                     -- Comma-separated list of tables used
+        )
+        ''')
+        
         print("Tables created successfully")
         
         # Insert sample data for customers

@@ -720,3 +720,35 @@ input[type="text"] {
     -webkit-text-fill-color: #333;
     transition: background-color 5000s ease-in-out 0s;
 }
+
+/* Feedback controls styling */
+.feedback-controls {
+    border-top: 1px solid #dee2e6;
+    padding-top: 1rem;
+}
+
+.feedback-controls button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.feedback-controls button:hover {
+    transform: scale(1.1);
+}
+
+.feedback-controls button.active {
+    color: white;
+}
+
+.feedback-controls button.active.btn-outline-success {
+    background-color: #198754;
+}
+
+.feedback-controls button.active.btn-outline-danger {
+    background-color: #dc3545;
+}

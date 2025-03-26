@@ -65,14 +65,14 @@ WHERE ...
         # Add schema information if provided
         if schema:
             schema_length = len(schema)
-            self.logger.debug(f"Including schema information ({schema_length} chars)")
+            self.logger.info(f"Including schema information ({schema_length} chars)")
             messages.append(UserMessage(f"Here's the database schema:\n{schema}"))
         else:
-            self.logger.debug("No schema information provided")
+            self.logger.info("No schema information provided")
         
         # Add join conditions if provided
         if join_conditions and len(join_conditions) > 0:
-            self.logger.debug(f"Including {len(join_conditions)} join conditions")
+            self.logger.info(f"Including {len(join_conditions)} join conditions")
             join_text = "Use the following pre-defined join conditions when joining these tables:\n"
             
             for join in join_conditions:
@@ -87,13 +87,13 @@ WHERE ...
         
         # Add examples if provided
         if examples and len(examples) > 0:
-            self.logger.debug(f"Including {len(examples)} SQL examples")
+            self.logger.info(f"Including {len(examples)} SQL examples")
             example_text = "Here are some example queries and their SQL:\n"
             for example in examples:
                 example_text += f"Question: {example['question']}\nSQL: {example['sql']}\n\n"
             messages.append(UserMessage(example_text))
         else:
-            self.logger.debug("No SQL examples provided")
+            self.logger.info("No SQL examples provided")
         
         # Add the user query
         messages.append(UserMessage(f"Convert this question to SQL: {query}"))
@@ -133,14 +133,14 @@ WHERE ...
         Returns:
             dict: Dictionary with extracted SQL and explanation
         """
-        self.logger.debug("Parsing SQL from model response")
+        self.logger.info("Parsing SQL from model response")
         # Simple extraction for SQL code blocks
         sql = ""
         explanation = ""
         
         # Check if content contains a SQL code block
         if "```sql" in content:
-            self.logger.debug("Found SQL code block in response")
+            self.logger.info("Found SQL code block in response")
             parts = content.split("```sql")
             if len(parts) > 1:
                 sql_block = parts[1].split("```")[0].strip()
@@ -154,10 +154,10 @@ WHERE ...
                 explanation = pre_explanation + " " + post_explanation
                 explanation = explanation.strip()
                 
-                self.logger.debug(f"Extracted SQL query ({len(sql)} chars) and explanation ({len(explanation)} chars)")
+                self.logger.info(f"Extracted SQL query ({len(sql)} chars) and explanation ({len(explanation)} chars)")
         else:
             # Fallback if no code block formatting
-            self.logger.debug("No SQL code block found, using entire response as SQL")
+            self.logger.info("No SQL code block found, using entire response as SQL")
             sql = content
             explanation = "No specific explanation provided by the model."
         
@@ -169,7 +169,7 @@ WHERE ...
     
     def close(self):
         """Close the Azure AI client connection"""
-        self.logger.debug("Closing Azure AI client connection")
+        self.logger.info("Closing Azure AI client connection")
         try:
             # Close the LLM Engine instead of directly closing the client
             if hasattr(self, 'llm_engine'):

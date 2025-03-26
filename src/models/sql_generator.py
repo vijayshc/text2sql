@@ -4,6 +4,7 @@ from src.agents.column_agent import ColumnAgent
 from src.utils.azure_client import AzureAIClient
 from src.utils.database import DatabaseManager
 from src.utils.schema_manager import SchemaManager
+from src.utils.feedback_manager import FeedbackManager
 import logging
 import time
 class SQLGenerationManager:
@@ -17,6 +18,7 @@ class SQLGenerationManager:
         self.ai_client = AzureAIClient()
         self.db_manager = DatabaseManager()
         self.schema_manager = SchemaManager()
+        self.feedback_manager = FeedbackManager()
         self.logger = logging.getLogger('text2sql.sql_generator')
         
     def process_query(self, query, workspaces=None, explicit_tables=None, progress_callback=None):
@@ -265,7 +267,31 @@ class SQLGenerationManager:
                     join_example = self.generate_join_example(join_conditions[0], workspace_name)
                     if join_example:
                         examples.append(join_example)
+                        
+        # Step 6b: Find similar successful queries from feedback database
+        similar_queries = self.feedback_manager.find_similar_queries(query, limit=1)
         
+        if similar_queries:
+            # Add these as high-quality examples for the AI model
+            self.logger.info(f"Found {len(similar_queries)} similar query with positive feedback")
+            
+            step_info = {
+                "step": "feedback_search",
+                "description": "Finding similar successful query",
+                "result": f"Found {len(similar_queries)} similar query with positive feedback"
+            }
+            result["steps"].append(step_info)
+            if progress_callback:
+                progress_callback(step_info)
+                
+            # Add successful queries as examples
+            for idx, similar_query in enumerate(similar_queries):
+                examples.append({
+                    "question": similar_query["query_text"],
+                    "sql": similar_query["sql_query"]
+                })
+                self.logger.info(f"Added similar query example #{idx+1}: {similar_query['query_text'][:50]}...")
+                
         # Step 7: Generate SQL using Azure AI with join conditions included
         sql_result = self.ai_client.generate_sql(query, pruned_schema, examples, join_conditions)
         
@@ -370,9 +396,10 @@ LIMIT 5"""
     
     def close(self):
         """Close all connections"""
-        self.logger.debug("Closing all agent connections")
+        self.logger.info("Closing all agent connections")
         self.intent_agent.close()
         self.table_agent.close()
         self.column_agent.close()
         self.ai_client.close()
         self.db_manager.close()
+        self.feedback_manager.close()
