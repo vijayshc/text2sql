@@ -1,5 +1,5 @@
-from src.utils.azure_client import AzureAIClient
 from src.utils.schema_manager import SchemaManager
+from src.utils.llm_engine import LLMEngine
 from azure.ai.inference.models import SystemMessage, UserMessage
 import logging
 import time
@@ -10,7 +10,7 @@ class IntentAgent:
     
     def __init__(self):
         """Initialize the intent agent"""
-        self.ai_client = AzureAIClient()
+        self.llm_engine = LLMEngine()
         self.schema_manager = SchemaManager()
         self.logger = logging.getLogger('text2sql.agents.intent')
         
@@ -54,14 +54,10 @@ Examples:
         
         try:
             self.logger.info("Sending request to AI model for intent detection")
-            self.logger.info(f"Prompt: {json.dumps([m.content for m in messages])}")
             
-            response = self.ai_client.client.complete(
-                model=self.ai_client.model_name,
-                messages=messages
-            )
-            
-            intent = response.choices[0].message.content.strip().lower()
+            # Use LLMEngine for centralized LLM interaction
+            intent = self.llm_engine.generate_completion(messages, log_prefix="INTENT")
+            intent = intent.strip().lower()
             self.logger.info(f"Raw model response for intent: '{intent}'")
             
             # Ensure the intent is one of our predefined categories
@@ -136,14 +132,10 @@ Do not include any other text in your response."""),
         
         try:
             self.logger.info("Sending request to AI model for workspace selection")
-            self.logger.info(f"Prompt: {json.dumps([m.content for m in messages])}")
             
-            response = self.ai_client.client.complete(
-                model=self.ai_client.model_name,
-                messages=messages
-            )
-            
-            raw_response = response.choices[0].message.content.strip()
+            # Use LLMEngine for centralized LLM interaction
+            raw_response = self.llm_engine.generate_completion(messages, log_prefix="WORKSPACE")
+            raw_response = raw_response.strip()
             self.logger.info(f"Raw model response: '{raw_response}'")
             
             workspace_names = raw_response.split(",")
@@ -178,5 +170,5 @@ Do not include any other text in your response."""),
             
     def close(self):
         """Close the AI client connection"""
-        self.logger.info("Closing intent agent's AI client connection")
-        self.ai_client.close()
+        self.logger.info("Closing intent agent's LLM engine connection")
+        self.llm_engine.close()

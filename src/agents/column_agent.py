@@ -1,5 +1,5 @@
-from src.utils.azure_client import AzureAIClient
 from src.utils.schema_manager import SchemaManager
+from src.utils.llm_engine import LLMEngine
 from azure.ai.inference.models import SystemMessage, UserMessage
 import logging
 import time
@@ -10,7 +10,7 @@ class ColumnAgent:
     
     def __init__(self):
         """Initialize the column agent"""
-        self.ai_client = AzureAIClient()
+        self.llm_engine = LLMEngine()
         self.schema_manager = SchemaManager()
         self.logger = logging.getLogger('text2sql.agents.column')
         
@@ -87,14 +87,10 @@ Consider columns that might be needed for:
         
         try:
             self.logger.info("Sending request to AI model for column selection")
-            self.logger.info(f"Prompt: {json.dumps([m.content for m in messages])}")
             
-            response = self.ai_client.client.complete(
-                model=self.ai_client.model_name,
-                messages=messages
-            )
-            
-            raw_response = response.choices[0].message.content.strip()
+            # Use LLMEngine for centralized LLM interaction
+            raw_response = self.llm_engine.generate_completion(messages, log_prefix="COLUMN")
+            raw_response = raw_response.strip()
             self.logger.info(f"Raw model response: '{raw_response}'")
             
             # Extract JSON from response
@@ -225,6 +221,6 @@ Consider columns that might be needed for:
         return result
     
     def close(self):
-        """Close the AI client connection"""
-        self.logger.info("Closing column agent's AI client connection")
-        self.ai_client.close()
+        """Close the LLM engine connection"""
+        self.logger.info("Closing column agent's LLM engine connection")
+        self.llm_engine.close()

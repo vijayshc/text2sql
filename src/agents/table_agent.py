@@ -1,5 +1,5 @@
-from src.utils.azure_client import AzureAIClient
 from src.utils.schema_manager import SchemaManager
+from src.utils.llm_engine import LLMEngine
 from azure.ai.inference.models import SystemMessage, UserMessage
 import logging
 import time
@@ -10,7 +10,7 @@ class TableAgent:
     
     def __init__(self):
         """Initialize the table agent"""
-        self.ai_client = AzureAIClient()
+        self.llm_engine = LLMEngine()
         self.schema_manager = SchemaManager()
         self.logger = logging.getLogger('text2sql.agents.table')
         
@@ -62,14 +62,10 @@ include tables that might be related. Return only table names in your response."
         
         try:
             self.logger.info("Sending request to AI model for table selection")
-            self.logger.info(f"Prompt: {json.dumps([m.content for m in messages])}")
             
-            response = self.ai_client.client.complete(
-                model=self.ai_client.model_name,
-                messages=messages
-            )
-            
-            raw_response = response.choices[0].message.content.strip()
+            # Use LLMEngine for centralized LLM interaction
+            raw_response = self.llm_engine.generate_completion(messages, log_prefix="TABLE")
+            raw_response = raw_response.strip()
             self.logger.info(f"Raw model response: '{raw_response}'")
             
             table_names = raw_response.split(",")
@@ -121,6 +117,6 @@ include tables that might be related. Return only table names in your response."
         return self.schema_manager.format_schema_for_display(workspace_name, tables)
             
     def close(self):
-        """Close the AI client connection"""
-        self.logger.info("Closing table agent's AI client connection")
-        self.ai_client.close()
+        """Close the LLM engine connection"""
+        self.logger.info("Closing table agent's LLM engine connection")
+        self.llm_engine.close()

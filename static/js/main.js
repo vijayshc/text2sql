@@ -131,8 +131,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         } else if (e.key === 'Enter') {
-            e.preventDefault();
-            submitQuery();
+            // Check if Ctrl key is pressed with Enter
+            if (e.ctrlKey) {
+                e.preventDefault();
+                submitQuery();
+            }
+            // If Enter is pressed without Ctrl, let the default behavior add a newline
         }
     }
     
@@ -568,11 +572,35 @@ document.addEventListener('DOMContentLoaded', function() {
     async function pollQueryProgress(queryId) {
         try {
             const response = await fetch(`/api/query/progress/${queryId}`);
+            
+            // Check if we got a 408 status code (timeout)
+            if (response.status === 408) {
+                clearInterval(progressInterval);
+                const result = await response.json();
+                showTimeoutWarning(result.error || "Query processing timed out after 2 minutes");
+                document.querySelector('#queryProgress').classList.add('d-none');
+                return;
+            }
+            
+            if (!response.ok) {
+                clearInterval(progressInterval);
+                const result = await response.json();
+                showError(result.error || "An error occurred while processing your query");
+                document.querySelector('#queryProgress').classList.add('d-none');
+                return;
+            }
+            
             const progress = await response.json();
             
             if (progress.error) {
                 clearInterval(progressInterval);
-                showError(progress.error);
+                // Check if it's a timeout error based on message content
+                if (progress.error.includes('timed out')) {
+                    showTimeoutWarning(progress.error);
+                } else {
+                    showError(progress.error);
+                }
+                document.querySelector('#queryProgress').classList.add('d-none');
                 return;
             }
             
@@ -589,7 +617,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.querySelector('#queryProgress').classList.add('d-none');
             } else if (progress.status === 'error') {
                 clearInterval(progressInterval);
-                showError(progress.error || 'An error occurred while processing your query');
+                // Check if it's a timeout error based on message content
+                if (progress.error && progress.error.includes('timed out')) {
+                    showTimeoutWarning(progress.error || 'The query processing timed out');
+                } else {
+                    showError(progress.error || 'An error occurred while processing your query');
+                }
                 document.querySelector('#queryProgress').classList.add('d-none');
             }
         } catch (error) {
@@ -1066,5 +1099,59 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Copy SQL button
+
+    function showTimeoutWarning(message) {
+        // Create toast notification for timeout warnings - using a different style than regular errors
+        const toast = document.createElement('div');
+        toast.className = 'toast align-items-center text-white bg-warning border-0 position-fixed top-0 end-0 m-3';
+        toast.setAttribute('role', 'alert');
+        toast.setAttribute('data-bs-autohide', 'false'); // Don't auto-hide timeout warnings
+        
+        // Add an icon and more detailed message for timeouts
+        toast.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="fas fa-clock me-2"></i><strong>Query Timeout:</strong> ${message}
+                    <div class="mt-2 small">Try simplifying your query or filtering to fewer tables.</div>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        `;
+        
+        document.body.appendChild(toast);
+        const bsToast = new bootstrap.Toast(toast, {
+            autohide: false // Ensure timeout warnings stay visible until dismissed
+        });
+        bsToast.show();
+        
+        // Also display a message in the results area
+        const resultsTab = document.getElementById('results');
+        if (resultsTab) {
+            const timeoutMessage = document.createElement('div');
+            timeoutMessage.className = 'alert alert-warning mt-3';
+            timeoutMessage.innerHTML = `
+                <h5><i class="fas fa-exclamation-triangle me-2"></i>Query Processing Timeout</h5>
+                <p>${message}</p>
+                <hr>
+                <p class="mb-0">Suggestions:</p>
+                <ul>
+                    <li>Try a simpler query with fewer conditions</li>
+                    <li>Specify tables using the @ mention feature to focus the query</li>
+                    <li>Break down your question into smaller parts</li>
+                </ul>
+            `;
+            resultsTab.innerHTML = '';
+            resultsTab.appendChild(timeoutMessage);
+            
+            // Show the results tab
+            const resultsTabLink = document.querySelector('[href="#results"]');
+            if (resultsTabLink) {
+                const tab = new bootstrap.Tab(resultsTabLink);
+                tab.show();
+            }
+        }
+        
+        toast.addEventListener('hidden.bs.toast', () => toast.remove());
+    }
 
 });

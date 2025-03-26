@@ -11482,3 +11482,157 @@ INNER JOIN
 2025-03-26 00:49:51 - INFO - [sql_generator.py:327] - SQL generation completed in 6.01s
 2025-03-26 00:49:51 - INFO - [sql_generator.py:120] - Query processing completed in 11.07s
 2025-03-26 00:51:33 - INFO - [database.py:238] - Closing database connection
+2025-03-26 09:14:03 - CRITICAL - [llm_engine.py:23] - GITHUB_TOKEN environment variable not set
+2025-03-26 09:14:35 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 09:14:35 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 09:14:35 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 09:14:35 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 09:14:35 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 09:14:35 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 09:14:35 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 09:14:35 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 09:14:35 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 09:14:35 - INFO - [azure_client.py:11] - Initializing Azure AI Client using LLM Engine
+2025-03-26 09:14:35 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 09:14:35 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 09:14:35 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 09:14:35 - INFO - [azure_client.py:17] - Azure AI Client initialized successfully
+2025-03-26 09:14:35 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 09:14:36 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 09:14:36 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 09:14:36 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 09:14:36 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 09:14:36 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 09:14:36 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 09:14:36 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 09:14:36 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 09:14:36 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 09:14:36 - INFO - [azure_client.py:11] - Initializing Azure AI Client using LLM Engine
+2025-03-26 09:14:36 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 09:14:36 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 09:14:36 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 09:14:36 - INFO - [azure_client.py:17] - Azure AI Client initialized successfully
+2025-03-26 09:14:36 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 09:14:48 - INFO - [sql_generator.py:35] - Processing query: 'test'
+2025-03-26 09:14:48 - INFO - [llm_engine.py:55] - [INTENT] Completion generation started
+2025-03-26 09:15:54 - INFO - [database.py:238] - Closing database connection
+2025-03-26 09:15:57 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 09:15:57 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 09:15:57 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 09:15:57 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 09:15:57 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 09:15:57 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 09:15:57 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 09:15:57 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 09:15:57 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 09:15:57 - INFO - [azure_client.py:11] - Initializing Azure AI Client using LLM Engine
+2025-03-26 09:15:57 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 09:15:57 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 09:15:57 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 09:15:57 - INFO - [azure_client.py:17] - Azure AI Client initialized successfully
+2025-03-26 09:15:57 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 09:15:57 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 09:15:57 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 09:15:57 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 09:15:57 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 09:15:57 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 09:15:57 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 09:15:57 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 09:15:57 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 09:15:57 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 09:15:57 - INFO - [azure_client.py:11] - Initializing Azure AI Client using LLM Engine
+2025-03-26 09:15:57 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 09:15:57 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 09:15:57 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 09:15:57 - INFO - [azure_client.py:17] - Azure AI Client initialized successfully
+2025-03-26 09:15:57 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 09:16:13 - INFO - [sql_generator.py:35] - Processing query: 'get me all customers details'
+2025-03-26 09:16:13 - INFO - [llm_engine.py:55] - [INTENT] Completion generation started
+2025-03-26 09:16:36 - INFO - [database.py:238] - Closing database connection
+2025-03-26 09:17:41 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 09:17:41 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 09:17:41 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 09:17:41 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 09:17:41 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 09:17:41 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 09:17:41 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 09:17:41 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 09:17:41 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 09:17:41 - INFO - [azure_client.py:11] - Initializing Azure AI Client using LLM Engine
+2025-03-26 09:17:41 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 09:17:41 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 09:17:41 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 09:17:41 - INFO - [azure_client.py:17] - Azure AI Client initialized successfully
+2025-03-26 09:17:41 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 09:17:42 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 09:17:42 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 09:17:42 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 09:17:42 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 09:17:42 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 09:17:42 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 09:17:42 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 09:17:42 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 09:17:42 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 09:17:42 - INFO - [azure_client.py:11] - Initializing Azure AI Client using LLM Engine
+2025-03-26 09:17:42 - INFO - [llm_engine.py:27] - Initializing LLM Engine with endpoint: https://models.inference.ai.azure.com
+2025-03-26 09:17:42 - INFO - [llm_engine.py:28] - Using model: Phi-3-small-8k-instruct
+2025-03-26 09:17:42 - INFO - [llm_engine.py:36] - LLM Engine initialized successfully
+2025-03-26 09:17:42 - INFO - [azure_client.py:17] - Azure AI Client initialized successfully
+2025-03-26 09:17:42 - INFO - [database.py:18] - Database manager initialized with connection: sqlite:///text2sql.db
+2025-03-26 09:17:53 - INFO - [sql_generator.py:35] - Processing query: 'get me all customers'
+2025-03-26 09:17:53 - INFO - [llm_engine.py:55] - [INTENT] Completion generation started
+2025-03-26 09:19:53 - WARNING - [app.py:190] - Query 2bfd5b49-1b83-49a9-9d3c-8fcd41361fe4 timed out after 2 minutes
+2025-03-26 09:27:11 - INFO - [sql_generator.py:35] - Processing query: 'test'
+2025-03-26 09:27:11 - INFO - [llm_engine.py:55] - [INTENT] Completion generation started
+2025-03-26 09:27:11 - ERROR - [llm_engine.py:98] - [INTENT] Completion generation error after 0.23s: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+Traceback (most recent call last):
+  File "/home/vijay/text2sql/src/utils/llm_engine.py", line 72, in generate_completion
+    response = self.client.complete(
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/ai/inference/_patch.py", line 728, in complete
+    pipeline_response: PipelineResponse = self._client._pipeline.run(  # pylint: disable=protected-access
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 240, in run
+    return first_node.send(pipeline_request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 2 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_redirect.py", line 204, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 573, in send
+    raise err
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/policies/_retry.py", line 551, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 96, in send
+    response = self.next.send(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 3 more times]
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/_base.py", line 128, in send
+    self._sender.send(request.http_request, **request.context.options),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/azure/core/pipeline/transport/_requests_basic.py", line 409, in send
+    raise error
+azure.core.exceptions.ServiceResponseError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2025-03-26 09:27:11 - INFO - [sql_generator.py:43] - Detected intent: data_retrieval
+2025-03-26 09:27:11 - INFO - [sql_generator.py:136] - Starting SQL generation process
+2025-03-26 09:27:11 - INFO - [database.py:24] - Attempting database connection
+2025-03-26 09:27:11 - INFO - [database.py:28] - Database connection established in 0.01s
+2025-03-26 09:27:11 - INFO - [llm_engine.py:55] - [TABLE] Completion generation started
+2025-03-26 09:29:11 - WARNING - [app.py:190] - Query f1eb0fce-3b08-4cb7-9956-12bc062441e1 timed out after 2 minutes
+2025-03-26 09:32:20 - INFO - [database.py:238] - Closing database connection

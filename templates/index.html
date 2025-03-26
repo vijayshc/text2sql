@@ -3,10 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Text2SQL Assistant</title>
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome for icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <!-- DataTables CSS -->
     <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
@@ -31,7 +37,6 @@
             </div>
         </div>
     </nav>
-
     <div class="container-fluid mt-4">
         <div class="row">
             <!-- Workspace Selection -->
@@ -50,7 +55,6 @@
                     </div>
                 </div>
             </div>
-
             <!-- Main Content -->
             <div class="col-md-9">
                 <!-- Query Input -->
@@ -66,7 +70,8 @@
                                 <button class="btn btn-primary" id="submitQuery">Submit</button>
                             </div>
                             <small class="form-text text-muted mb-2">
-                                Type <span class="at-symbol">@</span> to mention tables and select from dropdown
+                                Type <span class="at-symbol">@</span> to mention tables and select from dropdown. 
+                                Press <kbd>Ctrl</kbd>+<kbd>Enter</kbd> to submit, or <kbd>Enter</kbd> for a new line.
                             </small>
                             <div class="selected-tables-container"></div>
                         </div>
@@ -83,7 +88,6 @@
                         </div>
                     </div>
                 </div>
-
                 <!-- Results Section -->
                 <div class="card">
                     <div class="card-header">
@@ -119,17 +123,14 @@
                                     </table>
                                 </div>
                             </div>
-
                             <!-- Steps Tab -->
                             <div class="tab-pane fade" id="steps" role="tabpanel">
                                 <div id="steps-container"></div>
                             </div>
-
                             <!-- SQL Tab -->
                             <div class="tab-pane fade" id="sql" role="tabpanel">
                                 <pre class="bg-light p-3 rounded"><code id="sqlCode"></code></pre>
                             </div>
-
                             <!-- Explanation Tab -->
                             <div class="tab-pane fade" id="explanation" role="tabpanel">
                                 <div id="explanationText" class="p-3"></div>
@@ -140,7 +141,6 @@
             </div>
         </div>
     </div>
-
     <!-- Schema Modal -->
     <div class="modal fade" id="schemaModal" tabindex="-1">
         <div class="modal-dialog modal-lg modal-dialog-scrollable">
@@ -161,14 +161,12 @@
             </div>
         </div>
     </div>
-
     <!-- Loading Spinner -->
     <div id="loadingSpinner" class="position-fixed top-50 start-50 translate-middle d-none">
         <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">Loading...</span>
         </div>
     </div>
-
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>

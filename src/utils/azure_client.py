@@ -1,31 +1,19 @@
-from azure.ai.inference import ChatCompletionsClient
 from azure.ai.inference.models import SystemMessage, UserMessage
-from azure.core.credentials import AzureKeyCredential
-import json
-import sys
 import logging
 import time
-from config.config import AZURE_ENDPOINT, AZURE_MODEL_NAME, GITHUB_TOKEN, MAX_TOKENS, TEMPERATURE
+import json
+from src.utils.llm_engine import LLMEngine
 
 class AzureAIClient:
     def __init__(self):
-        """Initialize the Azure AI Client with the GitHub token for authentication"""
+        """Initialize the Azure AI Client using the LLM Engine"""
         self.logger = logging.getLogger('text2sql.azure')
-        
-        if not GITHUB_TOKEN:
-            self.logger.critical("GITHUB_TOKEN environment variable not set")
-            print("Error: GITHUB_TOKEN environment variable not set")
-            sys.exit(1)
-            
-        self.logger.info(f"Initializing Azure AI Client with endpoint: {AZURE_ENDPOINT}")
-        self.logger.info(f"Using model: {AZURE_MODEL_NAME}")
+        self.logger.info("Initializing Azure AI Client using LLM Engine")
         
         try:
-            self.client = ChatCompletionsClient(
-                endpoint=AZURE_ENDPOINT,
-                credential=AzureKeyCredential(GITHUB_TOKEN),
-            )
-            self.model_name = AZURE_MODEL_NAME
+            # Create LLM Engine instance for centralized LLM interaction
+            self.llm_engine = LLMEngine()
+            self.model_name = self.llm_engine.model_name
             self.logger.info("Azure AI Client initialized successfully")
         except Exception as e:
             self.logger.error(f"Failed to initialize Azure AI Client: {str(e)}", exc_info=True)
@@ -110,35 +98,10 @@ WHERE ...
         # Add the user query
         messages.append(UserMessage(f"Convert this question to SQL: {query}"))
         
-        # Log the prompt message but truncate if too large
-        prompt_str = str([m.content for m in messages])
-        if len(prompt_str) > 500:
-            self.logger.debug(f"SQL generation prompt: {prompt_str[:500]}... (truncated)")
-        else:
-            self.logger.debug(f"SQL generation prompt: {prompt_str}")
-        
         try:
-            self.logger.debug(f"Sending request to {self.model_name} with max_tokens={MAX_TOKENS}, temperature={TEMPERATURE}")
-            call_start = time.time()
-            self.logger.info(f"Prompt: {messages}")
-            response = self.client.complete(
-                model=self.model_name,
-                messages=messages,
-                max_tokens=MAX_TOKENS,
-                temperature=TEMPERATURE
-            )
+            # Use the LLM Engine instead of directly calling the API
+            raw_response = self.llm_engine.generate_completion(messages, log_prefix="SQL_GEN")
             
-            call_duration = time.time() - call_start
-            self.logger.debug(f"Model response received in {call_duration:.2f}s")
-            
-            # Extract SQL from the response
-            raw_response = response.choices[0].message.content
-            # Log truncated response if large
-            if len(raw_response) > 500:
-                self.logger.debug(f"Raw model response: '{raw_response[:500]}...' (truncated)")
-            else:
-                self.logger.debug(f"Raw model response: '{raw_response}'")
-                
             result = self._parse_sql_from_response(raw_response)
             
             # Log the extracted SQL
@@ -208,6 +171,13 @@ WHERE ...
         """Close the Azure AI client connection"""
         self.logger.debug("Closing Azure AI client connection")
         try:
-            self.client.close()
+            # Close the LLM Engine instead of directly closing the client
+            if hasattr(self, 'llm_engine'):
+                self.llm_engine.close()
         except Exception as e:
             self.logger.warning(f"Error closing Azure AI client: {str(e)}")
+
+    # For backward compatibility, expose the client
+    @property
+    def client(self):
+        return self.llm_engine.client

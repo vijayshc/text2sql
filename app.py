@@ -8,6 +8,7 @@ import time
 import uuid
 from datetime import datetime
 from threading import Thread
+import signal
 
 # Configure logging
 def setup_logging(log_level=logging.DEBUG):
@@ -51,7 +52,10 @@ logger = setup_logging(logging.DEBUG if DEBUG else logging.INFO)
 # Initialize Flask app
 app = Flask(__name__)
 app.config['SECRET_KEY'] = SECRET_KEY
-app.config['DEBUG'] = DEBUG
+app.config['DEBUG'] = True  # Force debug mode on
+app.config['TEMPLATES_AUTO_RELOAD'] = True
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0  # Disable caching for static files
+app.jinja_env.auto_reload = True  # Force Jinja template reloading
 
 # Initialize the SQL generation manager
 sql_manager = SQLGenerationManager()
@@ -105,7 +109,8 @@ def process_query():
         'current_step': 0,
         'steps': [],
         'result': None,
-        'error': None
+        'error': None,
+        'start_time': time.time()  # Add timestamp when query is initiated
     }
     
     selected_workspaces = [w for w in workspaces if w['name'] == workspace_name]
@@ -178,6 +183,15 @@ def get_query_progress(query_id):
         if progress['status'] == 'completed':
             del query_progress[query_id]  # Clean up completed queries
         return jsonify(result)
+    
+    # Check for timeout (2 minutes = 120 seconds)
+    current_time = time.time()
+    if 'start_time' in progress and (current_time - progress['start_time']) > 120:
+        logger.warning(f"Query {query_id} timed out after 2 minutes")
+        progress['status'] = 'error'
+        progress['error'] = "Query processing timed out after 2 minutes"
+        result = progress.copy()
+        return jsonify(result), 408  # Return 408 Request Timeout status
         
     return jsonify(progress)
 
@@ -237,6 +251,14 @@ def server_error(e):
     """Handle 500 errors"""
     return render_template('500.html'), 500
 
+# Add a special route to trigger reload manually if needed
+@app.route('/reload')
+def reload_app():
+    """Force the application to reload itself"""
+    logger.info("Manual reload requested")
+    os.kill(os.getpid(), signal.SIGUSR1)
+    return "Reloading..."
+
 if __name__ == '__main__':
     try:
         if 'GITHUB_TOKEN' not in os.environ:
@@ -245,6 +267,15 @@ if __name__ == '__main__':
             print("export GITHUB_TOKEN=your_token_here")
             sys.exit(1)
             
-        app.run(host='0.0.0.0', port=5000, debug=DEBUG, use_reloader=True)
+        # Print debug information to confirm settings
+        print("Starting Flask app with auto-reload enabled:")
+        print(f"DEBUG mode: {app.debug}")
+        print(f"TEMPLATES_AUTO_RELOAD: {app.config['TEMPLATES_AUTO_RELOAD']}")
+        print(f"JINJA auto_reload: {app.jinja_env.auto_reload}")
+        print(f"Working directory: {os.getcwd()}")
+        
+        # Run the app with explicit settings to ensure reloader works
+        app.run(host='0.0.0.0', port=5000, debug=True, use_reloader=True, threaded=True)
+        
     finally:
         sql_manager.close()
