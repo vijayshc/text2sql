@@ -109,7 +109,8 @@ def init_sample_db(db_path='text2sql.db'):
             feedback_rating INTEGER NOT NULL,    -- 1 for thumbs up, 0 for thumbs down
             created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
             embedding BLOB,                      -- For storing vector embeddings for similarity search
-            tables_used TEXT                     -- Comma-separated list of tables used
+            tables_used TEXT,                    -- Comma-separated list of tables used
+            is_manual_sample BOOLEAN DEFAULT 0   -- Flag to indicate if this is a manual sample entry
         )
         ''')
         

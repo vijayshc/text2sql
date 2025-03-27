@@ -50,6 +50,7 @@ Rules:
 - Use table aliases for better readability when joining multiple tables
 - Add column aliases for computed values
 - Format the SQL query with proper indentation
+- If similar queries are provided, strictly use that as format or syntax
 - Return the SQL inside a code block tagged with ```sql
 
 Example output format:
@@ -87,17 +88,30 @@ WHERE ...
         
         # Add examples if provided
         if examples and len(examples) > 0:
-            self.logger.info(f"Including {len(examples)} SQL examples")
-            example_text = "Here are some example queries and their SQL:\n"
-            for example in examples:
-                example_text += f"Question: {example['question']}\nSQL: {example['sql']}\n\n"
-            messages.append(UserMessage(example_text))
+            # Check if any examples are from similarity search (tagged with source)
+            similarity_examples = [ex for ex in examples if ex.get('source') in ['feedback', 'manual']]
+            
+            # If we have similarity search examples, only use those
+            if similarity_examples:
+                source_type = similarity_examples[0].get('source', 'similarity')
+                self.logger.info(f"Including {len(similarity_examples)} SQL examples from {source_type} similarity search")
+                example_text = f"Here are some similar queries that were previously successful:\n"
+                for example in similarity_examples:
+                    example_text += f"Question: {example['question']}\nSQL: {example['sql']}\n\n"
+                messages.append(UserMessage(example_text))
+            # Only if no similarity examples were found, fall back to provided examples
+            else:
+                self.logger.info(f"Including {len(examples)} SQL examples (no similarity examples found)")
+                example_text = "Here are some example queries and their SQL:\n"
+                for example in examples:
+                    example_text += f"Question: {example['question']}\nSQL: {example['sql']}\n\n"
+                messages.append(UserMessage(example_text))
         else:
             self.logger.info("No SQL examples provided")
         
         # Add the user query
         messages.append(UserMessage(f"Convert this question to SQL: {query}"))
-        
+        self.logger.info(f"PROMPT: {messages}")
         try:
             # Use the LLM Engine instead of directly calling the API
             raw_response = self.llm_engine.generate_completion(messages, log_prefix="SQL_GEN")

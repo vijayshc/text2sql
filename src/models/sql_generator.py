@@ -268,29 +268,35 @@ class SQLGenerationManager:
                     if join_example:
                         examples.append(join_example)
                         
-        # Step 6b: Find similar successful queries from feedback database
-        similar_queries = self.feedback_manager.find_similar_queries(query, limit=1)
+        # Step 6b: Find similar successful queries from feedback database using reranking
+        # First get top 10 candidates with vector search, then rerank them to get top 2
+        similar_queries = self.feedback_manager.find_similar_queries_with_reranking(query, limit=2)
         
         if similar_queries:
             # Add these as high-quality examples for the AI model
-            self.logger.info(f"Found {len(similar_queries)} similar query with positive feedback")
+            self.logger.info(f"Found {len(similar_queries)} similar queries with reranking")
             
             step_info = {
                 "step": "feedback_search",
-                "description": "Finding similar successful query",
-                "result": f"Found {len(similar_queries)} similar query with positive feedback"
+                "description": "Finding similar successful queries with reranking",
+                "result": f"Found {len(similar_queries)} similar queries after two-stage search"
             }
             result["steps"].append(step_info)
             if progress_callback:
                 progress_callback(step_info)
                 
-            # Add successful queries as examples
+            # Add successful queries as examples with a source tag
             for idx, similar_query in enumerate(similar_queries):
+                source_type = "manual" if similar_query.get("is_manual_sample") else "feedback"
+                rerank_score = similar_query.get('rerank_score', similar_query.get('similarity', 0))
+                
                 examples.append({
                     "question": similar_query["query_text"],
-                    "sql": similar_query["sql_query"]
+                    "sql": similar_query["sql_query"],
+                    "source": source_type,  # Tag with appropriate source type
+                    "score": f"{rerank_score:.4f}"  # Add the reranker score for logging
                 })
-                self.logger.info(f"Added similar query example #{idx+1}: {similar_query['query_text'][:50]}...")
+                self.logger.info(f"Added similar query #{idx+1} from {source_type} (score: {rerank_score:.4f}): {similar_query['query_text'][:50]}...")
                 
         # Step 7: Generate SQL using Azure AI with join conditions included
         sql_result = self.ai_client.generate_sql(query, pruned_schema, examples, join_conditions)

@@ -300,6 +300,135 @@ def submit_feedback():
         logger.exception(f"Error saving feedback: {str(e)}")
         return jsonify({"error": f"Error saving feedback: {str(e)}"}), 500
 
+@app.route('/api/samples', methods=['GET', 'POST'])
+def manage_samples():
+    """Get or create sample entries"""
+    if request.method == 'POST':
+        # Create a new sample
+        data = request.get_json()
+        
+        if not data:
+            logger.warning("Samples API request received with no data")
+            return jsonify({"error": "No sample data provided"}), 400
+            
+        required_fields = ['query_text', 'sql_query']
+        missing_fields = [field for field in required_fields if field not in data]
+        if missing_fields:
+            logger.warning(f"Samples API missing required fields: {', '.join(missing_fields)}")
+            return jsonify({"error": f"Missing required fields: {', '.join(missing_fields)}"}), 400
+        
+        # Extract data
+        query_text = data.get('query_text')
+        sql_query = data.get('sql_query')
+        results_summary = data.get('results_summary', 'Manual sample entry')
+        workspace = data.get('workspace', 'Default')
+        tables_used = data.get('tables_used', [])
+        
+        try:
+            # Initialize feedback manager
+            feedback_mgr = FeedbackManager()
+            
+            # Save the sample
+            success = feedback_mgr.save_feedback(
+                query_text=query_text,
+                sql_query=sql_query,
+                results_summary=results_summary,
+                workspace=workspace,
+                feedback_rating=1,  # Always positive for manual samples
+                tables_used=tables_used,
+                is_manual_sample=True
+            )
+            
+            if success:
+                return jsonify({"success": True, "message": "Sample saved successfully"})
+            else:
+                logger.error("Failed to save sample")
+                return jsonify({"error": "Failed to save sample"}), 500
+                
+        except Exception as e:
+            logger.exception(f"Error saving sample: {str(e)}")
+            return jsonify({"error": f"Error saving sample: {str(e)}"}), 500
+    else:
+        # GET method - retrieve samples
+        try:
+            page = request.args.get('page', 1, type=int)
+            limit = request.args.get('limit', 10, type=int)
+            search_query = request.args.get('query', None)
+            
+            # Initialize feedback manager
+            feedback_mgr = FeedbackManager()
+            
+            # Get samples
+            samples, total = feedback_mgr.get_samples(page, limit, search_query)
+            
+            return jsonify({
+                "success": True,
+                "samples": samples,
+                "total": total,
+                "page": page,
+                "limit": limit
+            })
+                
+        except Exception as e:
+            logger.exception(f"Error retrieving samples: {str(e)}")
+            return jsonify({"error": f"Error retrieving samples: {str(e)}"}), 500
+
+@app.route('/api/samples/<int:sample_id>', methods=['GET', 'PUT', 'DELETE'])
+def manage_sample(sample_id):
+    """Get, update or delete a specific sample entry"""
+    feedback_mgr = FeedbackManager()
+    
+    if request.method == 'GET':
+        try:
+            sample = feedback_mgr.get_sample_by_id(sample_id)
+            
+            if sample:
+                return jsonify(sample)
+            else:
+                return jsonify({"error": "Sample not found"}), 404
+                
+        except Exception as e:
+            logger.exception(f"Error retrieving sample {sample_id}: {str(e)}")
+            return jsonify({"error": f"Error retrieving sample: {str(e)}"}), 500
+            
+    elif request.method == 'PUT':
+        # Update an existing sample
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({"error": "No update data provided"}), 400
+            
+        required_fields = ['query_text', 'sql_query']
+        missing_fields = [field for field in required_fields if field not in data]
+        if missing_fields:
+            return jsonify({"error": f"Missing required fields: {', '.join(missing_fields)}"}), 400
+        
+        try:
+            success = feedback_mgr.update_sample(sample_id, data)
+            
+            if success:
+                return jsonify({"success": True, "message": "Sample updated successfully"})
+            else:
+                return jsonify({"error": "Failed to update sample"}), 500
+                
+        except Exception as e:
+            logger.exception(f"Error updating sample {sample_id}: {str(e)}")
+            return jsonify({"error": f"Error updating sample: {str(e)}"}), 500
+            
+    elif request.method == 'DELETE':
+        # Delete a sample
+        try:
+            success = feedback_mgr.delete_sample(sample_id)
+            
+            if success:
+                return jsonify({"success": True, "message": "Sample deleted successfully"})
+            else:
+                return jsonify({"error": "Failed to delete sample"}), 500
+                
+        except Exception as e:
+            logger.exception(f"Error deleting sample {sample_id}: {str(e)}")
+            return jsonify({"error": f"Error deleting sample: {str(e)}"}), 500
+
 @app.route('/api/feedback/stats', methods=['GET'])
 def get_feedback_stats():
     """Get statistics about stored feedback"""
@@ -314,6 +443,32 @@ def get_feedback_stats():
     except Exception as e:
         logger.exception(f"Error retrieving feedback stats: {str(e)}")
         return jsonify({"error": f"Error retrieving feedback stats: {str(e)}"}), 500
+
+@app.route('/samples')
+def samples_page():
+    """Render the samples management page"""
+    logger.debug("Samples management page requested")
+    return render_template('samples.html', workspaces=workspaces)
+
+@app.route('/api/workspaces', methods=['GET'])
+def get_workspaces():
+    """Get the list of available workspaces"""
+    logger.debug("Workspaces list requested")
+    return jsonify({"workspaces": workspaces})
+
+@app.route('/api/tables', methods=['GET'])
+def get_tables_for_workspace():
+    """Get the list of tables for a workspace"""
+    workspace_name = request.args.get('workspace', 'Default')
+    logger.debug(f"Tables list requested for workspace: {workspace_name}")
+    
+    try:
+        # Get tables from schema manager
+        tables = sql_manager.schema_manager.get_table_names(workspace_name)
+        return jsonify({"tables": tables})
+    except Exception as e:
+        logger.exception(f"Error retrieving tables: {str(e)}")
+        return jsonify({"error": str(e)}), 500
 
 @app.errorhandler(404)
 def page_not_found(e):

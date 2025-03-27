@@ -22,45 +22,91 @@ document.addEventListener('DOMContentLoaded', function() {
     text2sql.queryInput = document.getElementById('queryInput');
     text2sql.submitButton = document.getElementById('submitQuery');
     text2sql.viewSchemaBtn = document.getElementById('viewSchemaBtn');
-    text2sql.schemaModal = new bootstrap.Modal(document.getElementById('schemaModal'));
+    
+    const schemaModalElement = document.getElementById('schemaModal');
+    if (schemaModalElement) {
+        text2sql.schemaModal = new bootstrap.Modal(schemaModalElement);
+    }
+    
     text2sql.loadingSpinner = document.getElementById('loadingSpinner');
     
-    // Initialize the workspace description
-    updateWorkspaceDescription();
-
-    // Set up primary event listeners
-    text2sql.workspaceSelect.addEventListener('change', function() {
+    // Initialize the workspace description if element exists
+    if (text2sql.workspaceSelect) {
         updateWorkspaceDescription();
-        // Reload table names when workspace changes
-        tableMentions.fetchTableNames();
-        // Reset selected tables when workspace changes
-        text2sql.selectedTables = [];
-        tableMentions.updateSelectedTablesDisplay();
-    });
-
-    text2sql.submitButton.addEventListener('click', queryHandler.submitQuery);
-    text2sql.viewSchemaBtn.addEventListener('click', schemaManager.loadSchema);
+    }
+    
+    // Set up primary event listeners, with null checks
+    if (text2sql.workspaceSelect) {
+        text2sql.workspaceSelect.addEventListener('change', function() {
+            updateWorkspaceDescription();
+            // Reload table names when workspace changes
+            if (typeof tableMentions !== 'undefined') {
+                tableMentions.fetchTableNames();
+                // Reset selected tables when workspace changes
+                text2sql.selectedTables = [];
+                tableMentions.updateSelectedTablesDisplay();
+            }
+        });
+    }
+    
+    if (text2sql.submitButton) {
+        text2sql.submitButton.addEventListener('click', queryHandler.submitQuery);
+    }
+    
+    if (text2sql.viewSchemaBtn) {
+        text2sql.viewSchemaBtn.addEventListener('click', function() {
+            if (typeof schemaManager !== 'undefined' && schemaManager.loadSchema) {
+                schemaManager.loadSchema.call(schemaManager);
+            }
+        });
+    }
     
     // Setup input field event listeners
-    text2sql.queryInput.addEventListener('keydown', tableMentions.handleQueryKeydown);
-    text2sql.queryInput.addEventListener('input', tableMentions.handleQueryInput);
-    text2sql.queryInput.addEventListener('blur', function(e) {
-        // Don't hide dropdown if clicking inside it
-        if (tableMentions.tableMentionDropdown && !tableMentions.tableMentionDropdown.contains(e.relatedTarget)) {
-            tableMentions.hideTableMentionDropdown();
-        }
-    });
-
-    // Initialize empty table and fetch table names for autocomplete
-    resultsDisplay.initializeEmptyTable();
-    tableMentions.fetchTableNames();
+    if (text2sql.queryInput) {
+        text2sql.queryInput.addEventListener('keydown', tableMentions.handleQueryKeydown);
+        text2sql.queryInput.addEventListener('input', tableMentions.handleQueryInput);
+        text2sql.queryInput.addEventListener('blur', function(e) {
+            // Don't hide dropdown if clicking inside it
+            if (tableMentions.tableMentionDropdown && !tableMentions.tableMentionDropdown.contains(e.relatedTarget)) {
+                tableMentions.hideTableMentionDropdown();
+            }
+        });
+    }
+    
+    // Initialize empty table and fetch table names for autocomplete if these functions exist
+    if (typeof resultsDisplay !== 'undefined' && resultsDisplay.initializeEmptyTable) {
+        resultsDisplay.initializeEmptyTable();
+    }
+    
+    if (typeof tableMentions !== 'undefined' && tableMentions.fetchTableNames) {
+        tableMentions.fetchTableNames();
+    }
 });
 
 // Update the workspace description in the UI
 function updateWorkspaceDescription() {
-    const selectedOption = text2sql.workspaceSelect.selectedOptions[0];
-    const description = selectedOption.getAttribute('data-description') || '';
-    document.querySelector('.workspace-description').textContent = description;
+    const workspaceSelect = document.getElementById('workspaceSelect');
+    const descriptionElement = document.querySelector('.workspace-description');
+    
+    if (workspaceSelect && descriptionElement) {
+        const selectedWorkspace = workspaceSelect.value;
+        
+        // Find the workspace description from the server
+        fetch(`/api/workspaces`)
+            .then(response => response.json())
+            .then(data => {
+                const workspace = data.workspaces.find(w => w.name === selectedWorkspace);
+                if (workspace) {
+                    descriptionElement.textContent = workspace.description;
+                } else {
+                    descriptionElement.textContent = '';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching workspace description:', error);
+                descriptionElement.textContent = '';
+            });
+    }
 }
 
 // Global event listener to close dropdowns when clicking elsewhere

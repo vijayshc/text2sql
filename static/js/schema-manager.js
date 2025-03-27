@@ -7,22 +7,41 @@ const schemaManager = {
     loadSchema: async function() {
         uiUtils.showLoading();
         try {
-            const response = await fetch(`/api/schema?workspace=${text2sql.workspaceSelect.value}`);
+            const workspaceValue = text2sql.workspaceSelect ? text2sql.workspaceSelect.value : 'Default';
+            const response = await fetch(`/api/schema?workspace=${workspaceValue}`);
             const result = await response.json();
             if (!response.ok) {
                 throw new Error(result.error || 'Failed to load schema');
             }
 
             // Format schema data into HTML
+            const schemaContent = document.getElementById('schemaContent');
+            if (!schemaContent) {
+                throw new Error('Schema content element not found');
+            }
+            
             const schemaHtml = this.formatSchemaData(result.schema);
-            document.getElementById('schemaContent').innerHTML = schemaHtml;
+            schemaContent.innerHTML = schemaHtml;
 
             // Update table filter dropdown and set up filtering
             this.initializeSchemaFiltering(result.schema);
 
-            text2sql.schemaModal.show();
+            // Display the modal
+            if (text2sql.schemaModal) {
+                text2sql.schemaModal.show();
+            } else {
+                // Fallback if Bootstrap modal object isn't available
+                const modalElement = document.getElementById('schemaModal');
+                if (modalElement) {
+                    const modal = new bootstrap.Modal(modalElement);
+                    modal.show();
+                } else {
+                    throw new Error('Schema modal element not found');
+                }
+            }
         } catch (error) {
             uiUtils.showError(error.message);
+            console.error('Schema loading error:', error);
         } finally {
             uiUtils.hideLoading();
         }
@@ -123,8 +142,10 @@ const schemaManager = {
             });
 
         // Remove any existing event listener and add a new one
-        tableFilter.removeEventListener('change', this.filterSchemaTables);
-        tableFilter.addEventListener('change', this.filterSchemaTables);
+        // Use an arrow function to maintain the correct 'this' context
+        tableFilter.removeEventListener('change', this._handleFilterChange);
+        this._handleFilterChange = (event) => this.filterSchemaTables(event);
+        tableFilter.addEventListener('change', this._handleFilterChange);
     },
     
     // Filter tables in the schema view based on selection
