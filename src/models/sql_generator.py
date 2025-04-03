@@ -44,13 +44,6 @@ class SQLGenerationManager:
         intent = intent_result["intent"]
         self.logger.info(f"Detected intent: {intent}")
         
-        if progress_callback:
-            progress_callback({
-                "step": "intent_detection",
-                "description": "Analyzing query intent",
-                "result": f"Detected intent: {intent}"
-            })
-        
         # Initialize response structure
         response = {
             "intent": intent,
@@ -61,6 +54,16 @@ class SQLGenerationManager:
             "steps": [],
             "chart_data": None
         }
+        
+        # Add intent identification step to the steps list
+        if progress_callback:
+            step_info = {
+                "step": "intent_identification",
+                "description": "Identifying query intent",
+                "result": f"Detected intent: {intent}"
+            }
+            response["steps"].append(step_info)
+            progress_callback(step_info)
         
         # Step 2: Process based on intent
         if intent == "data_retrieval":
@@ -328,25 +331,29 @@ class SQLGenerationManager:
                             "row_count": query_result["row_count"]
                         }
                         
+                        # Create execution step info
                         step_info = {
                             "step": "query_execution",
                             "description": "Executing SQL query",
                             "result": f"Query returned {query_result['row_count']} rows"
                         }
                     else:
+                        # Create execution step info for no rows
                         step_info = {
                             "step": "query_execution",
                             "description": "Executing SQL query",
                             "result": "Query executed successfully with no rows returned"
                         }
                 else:
+                    # Create execution step info for error
                     result["error"] = query_result["error"]
                     step_info = {
                         "step": "query_execution",
                         "description": "Executing SQL query",
                         "result": f"Error: {query_result['error']}"
                     }
-                    
+                
+                # Add the step info only once
                 result["steps"].append(step_info)
                 if progress_callback:
                     progress_callback(step_info)
@@ -354,6 +361,16 @@ class SQLGenerationManager:
             except Exception as e:
                 result["error"] = f"Error executing query: {str(e)}"
                 self.logger.error(f"Query execution error: {str(e)}", exc_info=True)
+                
+                # Add error step for exception
+                error_step_info = {
+                    "step": "query_execution",
+                    "description": "Executing SQL query",
+                    "result": f"Error: {str(e)}"
+                }
+                result["steps"].append(error_step_info)
+                if progress_callback:
+                    progress_callback(error_step_info)
         
         processing_time = time.time() - start_time
         self.logger.info(f"SQL generation completed in {processing_time:.2f}s")

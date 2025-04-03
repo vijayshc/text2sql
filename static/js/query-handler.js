@@ -114,8 +114,8 @@ const queryHandler = {
                     return;
                 }
                 
-                // Update progress bar and steps
-                if (progress.steps && progress.steps.length > 0) {
+                // Update progress bar and steps during in-progress state only
+                if (progress.status !== 'completed' && progress.steps && progress.steps.length > 0) {
                     queryHandler.updateProgress(progress.current_step - 1);
                     resultsDisplay.displaySteps(progress.steps, progress.current_step - 1);
                 }

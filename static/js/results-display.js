@@ -55,6 +55,11 @@ const resultsDisplay = {
                 title: col,
                 render: function(data, type, row) {
                     if (type === 'display') {
+                        // Handle null/undefined values
+                        if (data === null || data === undefined) {
+                            return '<span class="text-muted">NULL</span>';
+                        }
+                        
                         // Handle long text content
                         if (data && data.length > 50) {
                             return `<span title="${data}">${data.substr(0, 50)}...</span>`;
@@ -78,6 +83,20 @@ const resultsDisplay = {
                 search: "Filter results:",
                 lengthMenu: "Show _MENU_ entries per page",
                 emptyTable: "No results available"
+            },
+            drawCallback: function() {
+                // Add animation to rows when drawing/redrawing
+                $(this).find('tbody tr').each(function(index) {
+                    $(this).css('opacity', '0');
+                    $(this).css('transform', 'translateY(10px)');
+                    
+                    // Animate each row with a delay based on index
+                    setTimeout(() => {
+                        $(this).css('transition', 'all 0.3s ease');
+                        $(this).css('opacity', '1');
+                        $(this).css('transform', 'translateY(0)');
+                    }, 50 * index);
+                });
             }
         });
     },
@@ -131,17 +150,40 @@ const resultsDisplay = {
         sqlCode.textContent = result.sql || '';
         
         // Format SQL keywords
-        const formattedSQL = result.sql.replace(
-            /\b(SELECT|FROM|WHERE|JOIN|ON|GROUP BY|ORDER BY|HAVING|INSERT|UPDATE|DELETE|AND|OR|AS|DISTINCT|INNER|LEFT|RIGHT|OUTER|UNION|ALL|LIMIT|OFFSET|DESC|ASC)\b/gi,
-            match => `<span class="sql-keyword">${match}</span>`
-        );
-        sqlCode.innerHTML = formattedSQL;
+        if (result.sql) {
+            // Add more sophisticated SQL syntax highlighting
+            const formattedSQL = result.sql
+                .replace(/\b(SELECT|FROM|WHERE|JOIN|ON|GROUP BY|ORDER BY|HAVING|INSERT|UPDATE|DELETE|AND|OR|AS|DISTINCT|INNER|LEFT|RIGHT|OUTER|UNION|ALL|LIMIT|OFFSET|DESC|ASC)\b/gi, 
+                    match => `<span class="sql-keyword">${match}</span>`)
+                .replace(/'([^']*)'/g, match => `<span class="sql-string">${match}</span>`)
+                .replace(/\b(\d+(\.\d+)?)\b/g, match => `<span class="sql-number">${match}</span>`)
+                .replace(/\b(SUM|COUNT|AVG|MIN|MAX|COALESCE|CONCAT|SUBSTR|CAST|ROUND|DATE|EXTRACT)\(/gi,
+                    match => `<span class="sql-function">${match}</span>`);
+                    
+            sqlCode.innerHTML = formattedSQL;
+            
+            // Add a subtle fade-in animation
+            sqlCode.style.opacity = '0';
+            sqlCode.style.transform = 'translateY(10px)';
+            
+            setTimeout(() => {
+                sqlCode.style.transition = 'all 0.5s ease';
+                sqlCode.style.opacity = '1';
+                sqlCode.style.transform = 'translateY(0)';
+            }, 100);
+        }
         
         // Show the feedback controls if we have SQL
         const feedbackControls = document.getElementById('feedbackControls');
         if (result.sql) {
-            // Show feedback controls
+            // Show feedback controls with fade-in
             feedbackControls.style.display = 'block';
+            feedbackControls.style.opacity = '0';
+            
+            setTimeout(() => {
+                feedbackControls.style.transition = 'opacity 0.5s ease';
+                feedbackControls.style.opacity = '1';
+            }, 500);
             
             // Reset the active state of feedback buttons
             document.getElementById('thumbsUpBtn').classList.remove('active');
@@ -154,8 +196,20 @@ const resultsDisplay = {
             feedbackControls.style.display = 'none';
         }
         
-        // Display explanation
-        document.getElementById('explanationText').innerHTML = result.explanation || '';
+        // Display explanation with animation
+        const explanationText = document.getElementById('explanationText');
+        explanationText.innerHTML = result.explanation || '';
+        
+        if (result.explanation) {
+            explanationText.style.opacity = '0';
+            explanationText.style.transform = 'translateY(10px)';
+            
+            setTimeout(() => {
+                explanationText.style.transition = 'all 0.5s ease';
+                explanationText.style.opacity = '1';
+                explanationText.style.transform = 'translateY(0)';
+            }, 200);
+        }
         
         // Handle data table results
         if (result.chart_data && result.chart_data.data) {
@@ -175,75 +229,164 @@ const resultsDisplay = {
         const stepsContainer = document.getElementById('steps');
         if (!stepsContainer) return;
         
-        // Clear the steps container before adding new steps
-        stepsContainer.innerHTML = '';
-        
-        // Create steps container
-        const stepsTimeline = document.createElement('div');
-        stepsTimeline.className = 'steps-timeline';
-        stepsContainer.appendChild(stepsTimeline);
-        
-        // Log the received steps for debugging
-        console.log("Steps received:", steps);
-        
-        // If no steps provided, show a message
-        if (!steps || steps.length === 0) {
-            const emptyMessage = document.createElement('p');
-            emptyMessage.className = 'text-muted';
-            emptyMessage.textContent = 'No processing steps available';
-            stepsTimeline.appendChild(emptyMessage);
-            return;
+        // Create steps container if it doesn't exist
+        let stepsTimeline = document.getElementById('steps-timeline');
+        if (!stepsTimeline) {
+            stepsTimeline = document.createElement('div');
+            stepsTimeline.className = 'steps-timeline';
+            stepsTimeline.id = 'steps-timeline';
+            stepsContainer.appendChild(stepsTimeline);
         }
         
-        // Ensure intent step is displayed (it should be provided by the API)
-        // Create each step
-        steps.forEach((step, index) => {
+        if (!steps || steps.length === 0) {
+            stepsTimeline.innerHTML = '<div class="text-center p-4">No processing steps available</div>';
+            return;
+        }
+
+        // Check if we're displaying the final result (all steps completed)
+        // This is likely the case when either:
+        // 1. currentStep is -1 and there's SQL in the result, OR
+        // 2. currentStep is equal to or greater than the last step index (steps.length - 1)
+        const sqlCode = document.getElementById('sqlCode');
+        const sqlCompleted = sqlCode && sqlCode.textContent && sqlCode.textContent.trim() !== '';
+        const isQueryCompleted = (currentStep === -1 && sqlCompleted) || 
+                                 (currentStep >= steps.length - 1) ||
+                                 (document.getElementById('resultsTable').querySelector('tbody tr td') && 
+                                  document.getElementById('resultsTable').querySelector('tbody tr td').textContent !== 'Run a query to see results');
+        
+        // Get current number of step elements already rendered
+        const existingStepCount = stepsTimeline.querySelectorAll('.step-item').length;
+        
+        // Add only new steps that don't exist yet
+        for (let index = existingStepCount; index < steps.length; index++) {
+            const step = steps[index];
             const stepElement = document.createElement('div');
-            stepElement.className = 'step-item mb-4';
-            stepElement.setAttribute('data-step', index);
+            stepElement.className = 'step-item';
+            stepElement.id = `step-item-${index}`;
+            stepElement.style.setProperty('--step-index', index);
             
-            const isCurrentStep = index === currentStep;
-            const isPastStep = index < currentStep;
-            
-            // Make sure we have either step or name to display
-            const stepName = step.step || step.name || `Step ${index + 1}`;
-            
-            stepElement.innerHTML = `
-                <div class="d-flex align-items-start">
-                    <div class="step-number ${isPastStep ? 'bg-success' : isCurrentStep ? 'bg-primary' : 'bg-secondary'} text-white rounded-circle p-2 me-3">
-                        ${isPastStep ? '<i class="fas fa-check"></i>' : (index + 1)}
-                    </div>
-                    <div class="step-content">
-                        <h6 class="mb-1">${stepName}</h6>
-                        <p class="text-muted mb-2">${step.description || ''}</p>
-                        ${step.result ? `
-                            <div class="step-result bg-light p-3 rounded">
-                                <pre class="mb-0"><code>${typeof step.result === 'object' ? 
-                                    JSON.stringify(step.result, null, 2) : step.result}</code></pre>
-                            </div>
-                        ` : ''}
-                    </div>
-                </div>
-                ${isCurrentStep ? '<div class="current-step-indicator pulsing"></div>' : ''}
-            `;
-            
-            // Add visual state classes
-            if (isPastStep) {
+            // Initialize with appropriate class based on query state
+            if (isQueryCompleted) {
                 stepElement.classList.add('completed');
-            } else if (isCurrentStep) {
-                stepElement.classList.add('current');
             } else {
                 stepElement.classList.add('pending');
             }
             
+            // Create step content with placeholders
+            stepElement.innerHTML = `
+                <div class="step-number">${index + 1}</div>
+                <div class="step-content">
+                    <h6>${step.title || `Step ${index + 1}`}</h6>
+                    <div class="step-description">${step.description || ''}</div>
+                    <div class="step-result-container"></div>
+                </div>
+            `;
+            
+            // Add with fade-in animation
+            stepElement.style.opacity = '0';
             stepsTimeline.appendChild(stepElement);
-        });
+            
+            // Trigger animation after adding to DOM
+            setTimeout(() => {
+                stepElement.style.transition = 'opacity 0.3s ease';
+                stepElement.style.opacity = '1';
+            }, 10);
+        }
+        
+        // Update all step states
+        if (stepsTimeline && steps && steps.length > 0) {
+            steps.forEach((step, index) => {
+                const stepElement = document.getElementById(`step-item-${index}`);
+                
+                if (stepElement) {
+                    // Update class based on current step
+                    stepElement.classList.remove('completed', 'current', 'pending');
+                    
+                    if (isQueryCompleted) {
+                        // If query is completed, mark ALL steps as completed (green)
+                        stepElement.classList.add('completed');
+                    } else {
+                        const isPastStep = currentStep > index;
+                        const isCurrentStep = currentStep === index;
+                        
+                        if (isPastStep) stepElement.classList.add('completed');
+                        if (isCurrentStep) stepElement.classList.add('current');
+                        if (!isPastStep && !isCurrentStep) stepElement.classList.add('pending');
+                    }
+                    
+                    // Update content if needed
+                    const titleElement = stepElement.querySelector('h6');
+                    if (titleElement && titleElement.textContent !== (step.title || `Step ${index + 1}`)) {
+                        titleElement.textContent = step.title || `Step ${index + 1}`;
+                    }
+                    
+                    const descElement = stepElement.querySelector('.step-description');
+                    if (descElement && descElement.textContent !== (step.description || '')) {
+                        descElement.textContent = step.description || '';
+                    }
+                    
+                    // Update result if available
+                    const resultContainer = stepElement.querySelector('.step-result-container');
+                    if (resultContainer) {
+                        // Only update result if it has changed
+                        const currentResult = resultContainer.innerHTML;
+                        const newResult = step.result ? `<div class="step-result"><pre>${step.result}</pre></div>` : '';
+                        
+                        if (currentResult !== newResult && newResult) {
+                            if (resultContainer.childElementCount === 0) {
+                                // Fade in if this is a new result
+                                resultContainer.innerHTML = newResult;
+                                const resultElement = resultContainer.querySelector('.step-result');
+                                if (resultElement) {
+                                    resultElement.style.opacity = '0';
+                                    setTimeout(() => {
+                                        resultElement.style.transition = 'opacity 0.3s ease';
+                                        resultElement.style.opacity = '1';
+                                    }, 10);
+                                }
+                            } else {
+                                resultContainer.innerHTML = newResult;
+                            }
+                        }
+                    }
+                    
+                    // Add current step indicator if it's the current step and query is not completed
+                    const currentIndicator = stepElement.querySelector('.current-step-indicator');
+                    if (!isQueryCompleted && currentStep === index && !currentIndicator) {
+                        const indicatorDiv = document.createElement('div');
+                        indicatorDiv.className = 'current-step-indicator';
+                        stepElement.appendChild(indicatorDiv);
+                    } else if ((isQueryCompleted || currentStep !== index) && currentIndicator) {
+                        stepElement.removeChild(currentIndicator);
+                    }
+                }
+            });
+        }
         
         // Show the steps tab if it was hidden
         const stepsTab = document.querySelector('[href="#steps"]');
         if (stepsTab) {
-            const tab = new bootstrap.Tab(stepsTab);
-            tab.show();
+            // First, remove any existing notification badges from the tab
+            const existingBadges = stepsTab.querySelectorAll('.badge');
+            existingBadges.forEach(badge => {
+                stepsTab.removeChild(badge);
+            });
+            
+            // Add a subtle notification to the tab if not active
+            const activeTab = document.querySelector('.nav-link.active');
+            if (activeTab && !activeTab.isEqualNode(stepsTab)) {
+                const indicator = document.createElement('span');
+                indicator.className = 'badge bg-primary ms-1';
+                indicator.textContent = 'New';
+                stepsTab.appendChild(indicator);
+                
+                // Remove indicator when tab is clicked
+                stepsTab.addEventListener('click', function() {
+                    if (indicator.parentNode === stepsTab) {
+                        stepsTab.removeChild(indicator);
+                    }
+                }, { once: true });
+            }
         }
     },
 
