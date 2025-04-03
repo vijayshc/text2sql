@@ -34,51 +34,13 @@ class IntentAgent:
             "general_question"    # General question not related to SQL generation
         ]
         
-        # Create a system prompt for intent detection
-        messages = [
-            SystemMessage("""You are an intent classification agent for a Text-to-SQL system. 
-Your job is to determine the intent of a user's query. Classify the intent into one of these categories:
-- data_retrieval: User wants to retrieve data from the database (requires SQL generation)
-- schema_exploration: User wants to explore the database schema (tables, columns, etc.)
-- metadata_request: User wants information about the database itself (size, structure, etc.)
-- general_question: General question not related to SQL generation
-Return ONLY the intent category as your response, with no additional text.
-
-Examples:
-- "How many customers made purchases last month?" → data_retrieval
-- "Show me the database schema" → schema_exploration
-- "What tables are in the database?" → metadata_request
-- "How does this system work?" → general_question"""),
-            UserMessage(f"Classify this query: {query}")
-        ]
+        # Default to data_retrieval intent without calling LLM
+        self.logger.info("Using default intent 'data_retrieval' without calling LLM")
+        result = {"intent": "data_retrieval", "confidence": 1.0}
+        processing_time = time.time() - start_time
+        self.logger.info(f"Intent detection completed in {processing_time:.2f}s")
+        return result
         
-        try:
-            self.logger.info("Sending request to AI model for intent detection")
-            
-            # Use LLMEngine for centralized LLM interaction
-            intent = self.llm_engine.generate_completion(messages, log_prefix="INTENT")
-            intent = intent.strip().lower()
-            self.logger.info(f"Raw model response for intent: '{intent}'")
-            
-            # Ensure the intent is one of our predefined categories
-            if intent not in intent_types:
-                self.logger.warning(f"Model returned unknown intent '{intent}', defaulting to data_retrieval")
-                result = {"intent": "data_retrieval", "confidence": 0.5}
-            else:
-                self.logger.info(f"Intent detected: '{intent}' with confidence 1.0")
-                result = {"intent": intent, "confidence": 1.0}
-                
-            processing_time = time.time() - start_time
-            self.logger.info(f"Intent detection completed in {processing_time:.2f}s")
-            return result
-            
-        except Exception as e:
-            processing_time = time.time() - start_time
-            self.logger.error(f"Intent detection error after {processing_time:.2f}s: {str(e)}", exc_info=True)
-            # Default to data retrieval on error
-            self.logger.warning("Defaulting to data_retrieval intent due to error")
-            return {"intent": "data_retrieval", "confidence": 0.5}
-    
     def determine_relevant_workspaces(self, query, workspaces):
         """Determine which workspace(s) are relevant for the user's query
         

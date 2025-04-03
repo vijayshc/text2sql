@@ -90,7 +90,7 @@ class LLMEngine:
                 
             processing_time = time.time() - start_time
             self.logger.info(f"[{log_prefix}] Completion generation completed in {processing_time:.2f}s")
-            
+            self.logger.info(f"**************************")
             return completion_text
             
         except Exception as e:

@@ -12,7 +12,7 @@ const resultsDisplay = {
         $('#resultsTable').html('<thead><tr><th>No Results</th></tr></thead><tbody><tr><td>Run a query to see results</td></tr></tbody>');
         
         text2sql.dataTable = $('#resultsTable').DataTable({
-            responsive: true,
+            
             dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
                  '<"row"<"col-sm-12"tr>>' +
                  '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
@@ -68,7 +68,7 @@ const resultsDisplay = {
                     return data;
                 }
             })),
-            responsive: true,
+            
             autoWidth: false,
             dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
                  '<"row"<"col-sm-12"tr>>' +

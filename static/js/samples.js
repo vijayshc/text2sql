@@ -73,7 +73,7 @@ const samples = {
         });
         
         // Update selected tables when workspace changes
-        document.getElementById('workspaceSelect').addEventListener('change', function() {
+        document.getElementById('sampleWorkspaceSelect').addEventListener('change', function() {
             samples.loadTables();
         });
         
@@ -87,7 +87,7 @@ const samples = {
         fetch('/api/workspaces')
             .then(response => response.json())
             .then(data => {
-                const workspaceSelect = document.getElementById('workspaceSelect');
+                const workspaceSelect = document.getElementById('sampleWorkspaceSelect');
                 const editWorkspaceSelect = document.getElementById('editWorkspace');
                 
                 // Clear existing options
@@ -121,7 +121,7 @@ const samples = {
     
     // Load tables based on selected workspace
     loadTables: function() {
-        const workspace = document.getElementById('workspaceSelect').value;
+        const workspace = document.getElementById('sampleWorkspaceSelect').value;
         
         fetch(`/api/tables?workspace=${encodeURIComponent(workspace)}`)
             .then(response => response.json())
@@ -282,7 +282,7 @@ const samples = {
         const queryText = document.getElementById('queryText').value.trim();
         const sqlQuery = document.getElementById('sqlQuery').value.trim();
         const resultsSummary = document.getElementById('resultsSummary').value.trim();
-        const workspace = document.getElementById('workspaceSelect').value;
+        const workspace = document.getElementById('sampleWorkspaceSelect').value;
         
         if (!queryText || !sqlQuery) {
             uiUtils.showError('Please provide both a question and SQL query');

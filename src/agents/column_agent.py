@@ -32,6 +32,11 @@ class ColumnAgent:
         if not tables:
             self.logger.warning("No tables provided for column pruning")
             return ""
+            
+        # Skip LLM call if only one table is involved - return all columns
+        if len(tables) == 1:
+            self.logger.info(f"Only one table involved ({tables[0]}). Skipping LLM call and including all columns.")
+            return self.schema_manager.format_schema_for_display(workspace_name, tables)
         
         # Get table and column information from schema manager
         table_info = []
@@ -205,7 +210,8 @@ Consider columns that might be needed for:
                 
                 for col in table["columns"]:
                     if col["name"] in selected_columns[table_name]:
-                        column_info.append(f"{col['name']} ({col['datatype']})")
+                        # Include column description along with name and datatype
+                        column_info.append(f"{col['name']} ({col['datatype']}): {col.get('description', '')}")
                         if col.get("is_primary_key"):
                             primary_keys.append(col["name"])
                 
