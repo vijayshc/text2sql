@@ -1,6 +1,17 @@
-from flask import Flask, render_template, request, jsonify, session
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for, flash
 from src.models.sql_generator import SQLGenerationManager
 from src.utils.feedback_manager import FeedbackManager
+from src.utils.schema_manager import SchemaManager
+from src.utils.user_manager import UserManager
+from src.utils.template_filters import register_filters
+from src.utils.background_tasks import BackgroundTaskManager
+from src.routes.schema_routes import schema_bp
+from src.routes.auth_routes import auth_bp, admin_required, permission_required
+from src.routes.admin_routes import admin_bp
+from src.routes.admin_api_routes import admin_api_bp
+from src.routes.security_routes import security_bp, generate_csrf_token
+from src.routes.vector_db_routes import vector_db_bp
+from src.models.user import Permissions
 from config.config import SECRET_KEY, DEBUG
 import logging
 import os
@@ -11,91 +22,73 @@ from datetime import datetime
 from threading import Thread
 import signal
 
-# Configure logging
-def setup_logging(log_level=logging.DEBUG):
-    """Configure application logging"""
-    log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
-    if not os.path.exists(log_dir):
-        os.makedirs(log_dir)
-    
-    # Set up main application logger
-    app_logger = logging.getLogger('text2sql')
-    app_logger.setLevel(log_level)
-    
-    formatter = logging.Formatter(
-        '%(asctime)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
-    
-    # Console handler
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setFormatter(formatter)
-    app_logger.addHandler(console_handler)
-    
-    # File handlers
-    handlers = {
-        'text2sql.log': logging.DEBUG,
-        'error.log': logging.ERROR,
-        'queries.log': logging.INFO
-    }
-    
-    for filename, level in handlers.items():
-        handler = logging.FileHandler(os.path.join(log_dir, filename))
-        handler.setLevel(level)
-        handler.setFormatter(formatter)
-        app_logger.addHandler(handler)
-    
-    # Enable debug logging specifically for SQL generator and agents
-    logging.getLogger('text2sql.sql_generator').setLevel(logging.DEBUG)
-    logging.getLogger('text2sql.agents.intent').setLevel(logging.DEBUG)
-    logging.getLogger('text2sql.agents.table').setLevel(logging.DEBUG)
-    logging.getLogger('text2sql.agents.column').setLevel(logging.DEBUG)
-    
-    # Log that debug mode is enabled for these components
-    app_logger.info("Debug logging enabled for SQL generator and agents")
-    
-    return app_logger
-
-# Initialize logger
-logger = setup_logging(logging.DEBUG if DEBUG else logging.INFO)
+# Get the logger configured in config.py
+logger = logging.getLogger('text2sql')
 
 # Initialize Flask app
 app = Flask(__name__)
 app.config['SECRET_KEY'] = SECRET_KEY
-app.config['DEBUG'] = True  # Force debug mode on
-app.config['TEMPLATES_AUTO_RELOAD'] = True
-app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0  # Disable caching for static files
-app.jinja_env.auto_reload = True  # Force Jinja template reloading
+app.config['DEBUG'] = DEBUG  # Use the value from config instead of hardcoding
+app.config['TEMPLATES_AUTO_RELOAD'] = DEBUG  # Only auto-reload templates in debug mode
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0 if DEBUG else 31536000  # 1 year in production
+app.jinja_env.auto_reload = DEBUG  # Only auto-reload Jinja in debug mode
+
+# Set secure cookie settings
+app.config['SESSION_COOKIE_SECURE'] = not DEBUG  # Secure in production
+app.config['SESSION_COOKIE_HTTPONLY'] = True  # HttpOnly flag
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # SameSite attribute
+app.config['PERMANENT_SESSION_LIFETIME'] = 86400  # 24 hours in seconds
+
+# Register template filters
+register_filters(app)
 
 # Initialize the SQL generation manager
 sql_manager = SQLGenerationManager()
 
-# Define workspaces
-workspaces = [
-    {
-        "name": "Default",
-        "description": "Default workspace with access to all tables"
-    },
-    {
-        "name": "Sales",
-        "description": "Sales-related data including customers, orders, and products"
-    },
-    {
-        "name": "Analytics",
-        "description": "Analytical data for business intelligence and reporting"
-    }
-]
+# Initialize user manager
+user_manager = UserManager()
+
+# Initialize the background task manager
+background_task_mgr = BackgroundTaskManager(sql_manager, user_manager)
+
+# Register blueprints
+app.register_blueprint(schema_bp)
+app.register_blueprint(auth_bp)
+app.register_blueprint(admin_bp)
+app.register_blueprint(admin_api_bp)
+app.register_blueprint(security_bp)
+app.register_blueprint(vector_db_bp)
+
+# Make CSRF token available in templates
+@app.context_processor
+def inject_csrf_token():
+    return dict(csrf_token=generate_csrf_token)
 
 # Store query progress
 query_progress = {}
 
+# Authentication check for routes that require login
+def login_required(f):
+    def decorated_function(*args, **kwargs):
+        if not session.get('user_id'):
+            return redirect(url_for('auth.login', next=request.url))
+        return f(*args, **kwargs)
+    decorated_function.__name__ = f.__name__
+    return decorated_function
+
 @app.route('/')
+@login_required
+@permission_required(Permissions.VIEW_INDEX)
 def index():
     """Render the main application page"""
     logger.debug("Main page requested")
+    # Get workspaces from schema manager instead of hardcoded values
+    workspaces = sql_manager.schema_manager.get_workspaces()
     return render_template('index.html', workspaces=workspaces)
 
 @app.route('/api/query', methods=['POST'])
+@login_required
+@permission_required(Permissions.RUN_QUERIES)
 def process_query():
     """Process a natural language query and return results"""
     data = request.get_json()
@@ -123,21 +116,26 @@ def process_query():
         'start_time': time.time()  # Add timestamp when query is initiated
     }
     
-    selected_workspaces = [w for w in workspaces if w['name'] == workspace_name]
+    selected_workspaces = [w for w in sql_manager.schema_manager.get_workspaces() if w['name'] == workspace_name]
     
-    # Start processing in background
-    def process_in_background():
-        try:
-            result = sql_manager.process_query(query, selected_workspaces, explicit_tables,
-                                            progress_callback=lambda step: update_progress(query_id, step))
-            query_progress[query_id]['result'] = result
-            query_progress[query_id]['status'] = 'completed'
-        except Exception as e:
-            logger.exception(f"Exception while processing query: {str(e)}")
-            query_progress[query_id]['error'] = str(e)
-            query_progress[query_id]['status'] = 'error'
+    # Capture the user_id from the session before starting the background thread
+    user_id = session.get('user_id')
     
-    Thread(target=process_in_background).start()
+    # Capture client IP address
+    ip_address = request.remote_addr
+    
+    # Start processing in background using the BackgroundTaskManager
+    background_task_mgr.process_query_task(
+        query_id=query_id,
+        query=query,
+        workspace_name=workspace_name,
+        selected_workspaces=selected_workspaces,
+        explicit_tables=explicit_tables,
+        user_id=user_id,
+        query_progress=query_progress,
+        update_progress_func=update_progress,
+        ip_address=ip_address  # Pass the IP address to the background task
+    )
     
     return jsonify({
         "query_id": query_id,
@@ -145,6 +143,7 @@ def process_query():
     })
 
 @app.route('/api/tables/suggestions', methods=['GET'])
+@login_required
 def get_table_suggestions():
     """Get table suggestions for autocomplete feature"""
     workspace_name = request.args.get('workspace', 'Default')
@@ -180,6 +179,7 @@ def get_table_suggestions():
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/query/progress/<query_id>', methods=['GET'])
+@login_required
 def get_query_progress(query_id):
     """Get the progress of a query"""
     if query_id not in query_progress:
@@ -212,6 +212,8 @@ def update_progress(query_id, step_info):
         query_progress[query_id]['steps'].append(step_info)
 
 @app.route('/api/schema', methods=['GET'])
+@login_required
+@permission_required(Permissions.VIEW_SCHEMA)
 def get_schema():
     """Get the database schema"""
     start_time = time.time()
@@ -252,6 +254,7 @@ def get_schema():
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/feedback', methods=['POST'])
+@login_required
 def submit_feedback():
     """Save user feedback on a generated SQL query"""
     data = request.get_json()
@@ -290,6 +293,17 @@ def submit_feedback():
             tables_used=tables_used
         )
         
+        # Log audit for feedback
+        if session.get('user_id'):
+            user_manager.log_audit_event(
+                user_id=session.get('user_id'),
+                action='submit_feedback',
+                details=f"Feedback rating: {feedback_rating}",
+                query_text=query_text,
+                sql_query=sql_query,
+                response=None
+            )
+        
         if success:
             return jsonify({"success": True, "message": "Feedback saved successfully"})
         else:
@@ -301,10 +315,14 @@ def submit_feedback():
         return jsonify({"error": f"Error saving feedback: {str(e)}"}), 500
 
 @app.route('/api/samples', methods=['GET', 'POST'])
+@login_required
 def manage_samples():
     """Get or create sample entries"""
     if request.method == 'POST':
-        # Create a new sample
+        # Create a new sample - requires MANAGE_SAMPLES permission
+        if not user_manager.has_permission(session.get('user_id'), Permissions.MANAGE_SAMPLES):
+            return jsonify({"error": "Permission denied"}), 403
+            
         data = request.get_json()
         
         if not data:
@@ -339,6 +357,17 @@ def manage_samples():
                 is_manual_sample=True
             )
             
+            # Log audit for sample creation
+            if session.get('user_id'):
+                user_manager.log_audit_event(
+                    user_id=session.get('user_id'),
+                    action='create_sample',
+                    details=f"Created sample in workspace: {workspace}",
+                    query_text=query_text,
+                    sql_query=sql_query,
+                    response=None
+                )
+            
             if success:
                 return jsonify({"success": True, "message": "Sample saved successfully"})
             else:
@@ -349,7 +378,10 @@ def manage_samples():
             logger.exception(f"Error saving sample: {str(e)}")
             return jsonify({"error": f"Error saving sample: {str(e)}"}), 500
     else:
-        # GET method - retrieve samples
+        # GET method - retrieve samples - requires VIEW_SAMPLES permission
+        if not user_manager.has_permission(session.get('user_id'), Permissions.VIEW_SAMPLES):
+            return jsonify({"error": "Permission denied"}), 403
+            
         try:
             page = request.args.get('page', 1, type=int)
             limit = request.args.get('limit', 10, type=int)
@@ -374,11 +406,16 @@ def manage_samples():
             return jsonify({"error": f"Error retrieving samples: {str(e)}"}), 500
 
 @app.route('/api/samples/<int:sample_id>', methods=['GET', 'PUT', 'DELETE'])
+@login_required
 def manage_sample(sample_id):
     """Get, update or delete a specific sample entry"""
     feedback_mgr = FeedbackManager()
     
     if request.method == 'GET':
+        # View a specific sample - requires VIEW_SAMPLES permission
+        if not user_manager.has_permission(session.get('user_id'), Permissions.VIEW_SAMPLES):
+            return jsonify({"error": "Permission denied"}), 403
+            
         try:
             sample = feedback_mgr.get_sample_by_id(sample_id)
             
@@ -392,7 +429,10 @@ def manage_sample(sample_id):
             return jsonify({"error": f"Error retrieving sample: {str(e)}"}), 500
             
     elif request.method == 'PUT':
-        # Update an existing sample
+        # Update an existing sample - requires MANAGE_SAMPLES permission
+        if not user_manager.has_permission(session.get('user_id'), Permissions.MANAGE_SAMPLES):
+            return jsonify({"error": "Permission denied"}), 403
+            
         data = request.get_json()
         
         if not data:
@@ -406,6 +446,17 @@ def manage_sample(sample_id):
         try:
             success = feedback_mgr.update_sample(sample_id, data)
             
+            # Log audit for sample update
+            if session.get('user_id'):
+                user_manager.log_audit_event(
+                    user_id=session.get('user_id'),
+                    action='update_sample',
+                    details=f"Updated sample ID: {sample_id}",
+                    query_text=data.get('query_text'),
+                    sql_query=data.get('sql_query'),
+                    response=None
+                )
+            
             if success:
                 return jsonify({"success": True, "message": "Sample updated successfully"})
             else:
@@ -416,9 +467,25 @@ def manage_sample(sample_id):
             return jsonify({"error": f"Error updating sample: {str(e)}"}), 500
             
     elif request.method == 'DELETE':
-        # Delete a sample
+        # Delete a sample - requires MANAGE_SAMPLES permission
+        if not user_manager.has_permission(session.get('user_id'), Permissions.MANAGE_SAMPLES):
+            return jsonify({"error": "Permission denied"}), 403
+            
         try:
+            # Get sample before deletion for audit
+            sample = feedback_mgr.get_sample_by_id(sample_id)
             success = feedback_mgr.delete_sample(sample_id)
+            
+            # Log audit for sample deletion
+            if session.get('user_id') and sample:
+                user_manager.log_audit_event(
+                    user_id=session.get('user_id'),
+                    action='delete_sample',
+                    details=f"Deleted sample ID: {sample_id}",
+                    query_text=sample.get('query_text'),
+                    sql_query=sample.get('sql_query'),
+                    response=None
+                )
             
             if success:
                 return jsonify({"success": True, "message": "Sample deleted successfully"})
@@ -430,6 +497,7 @@ def manage_sample(sample_id):
             return jsonify({"error": f"Error deleting sample: {str(e)}"}), 500
 
 @app.route('/api/feedback/stats', methods=['GET'])
+@login_required
 def get_feedback_stats():
     """Get statistics about stored feedback"""
     try:
@@ -445,18 +513,24 @@ def get_feedback_stats():
         return jsonify({"error": f"Error retrieving feedback stats: {str(e)}"}), 500
 
 @app.route('/samples')
+@login_required
+@permission_required(Permissions.VIEW_SAMPLES)
 def samples_page():
     """Render the samples management page"""
     logger.debug("Samples management page requested")
+    workspaces = sql_manager.schema_manager.get_workspaces()
     return render_template('samples.html', workspaces=workspaces)
 
 @app.route('/api/workspaces', methods=['GET'])
+@login_required
 def get_workspaces():
     """Get the list of available workspaces"""
     logger.debug("Workspaces list requested")
+    workspaces = sql_manager.schema_manager.get_workspaces()
     return jsonify({"workspaces": workspaces})
 
 @app.route('/api/tables', methods=['GET'])
+@login_required
 def get_tables_for_workspace():
     """Get the list of tables for a workspace"""
     workspace_name = request.args.get('workspace', 'Default')
@@ -470,6 +544,25 @@ def get_tables_for_workspace():
         logger.exception(f"Error retrieving tables: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
+# Context processor to add user information to templates
+@app.context_processor
+def inject_user():
+    """Add user information to all templates"""
+    user = None
+    is_admin = False
+    
+    if session.get('user_id'):
+        user_id = session.get('user_id')
+        user = user_manager.get_user_by_id(user_id)
+        is_admin = user_manager.has_role(user_id, 'admin')
+    
+    return dict(
+        current_user=user,
+        is_admin=is_admin,
+        user_manager=user_manager,
+        has_permission=lambda permission: user_manager.has_permission(session.get('user_id'), permission) if session.get('user_id') else False
+    )
+
 @app.errorhandler(404)
 def page_not_found(e):
     """Handle 404 errors"""
@@ -482,6 +575,8 @@ def server_error(e):
 
 # Add a special route to trigger reload manually if needed
 @app.route('/reload')
+@login_required
+@admin_required
 def reload_app():
     """Force the application to reload itself"""
     logger.info("Manual reload requested")

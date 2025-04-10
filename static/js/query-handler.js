@@ -52,7 +52,7 @@ const queryHandler = {
     },
     
     // Update progress bar and status message
-    updateProgress: function(step, totalSteps = 6) {
+    updateProgress: function(step, totalSteps = 7) {
         const progressBar = document.querySelector('#queryProgress');
         const progressStatus = progressBar.querySelector('.progress-status');
         const progressPercentage = progressBar.querySelector('.progress-percentage');

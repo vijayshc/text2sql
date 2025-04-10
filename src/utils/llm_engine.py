@@ -1,11 +1,12 @@
-from azure.ai.inference import ChatCompletionsClient
-from azure.ai.inference.models import SystemMessage, UserMessage
-from azure.core.credentials import AzureKeyCredential
+from openai import OpenAI
 import json
 import sys
 import logging
 import time
-from config.config import AZURE_ENDPOINT, AZURE_MODEL_NAME, GITHUB_TOKEN, MAX_TOKENS, TEMPERATURE
+from config.config import (
+    OPENROUTER_API_KEY, OPENROUTER_BASE_URL, OPENROUTER_MODEL,
+    MAX_TOKENS, TEMPERATURE
+)
 
 
 class LLMEngine:
@@ -16,23 +17,23 @@ class LLMEngine:
     """
     
     def __init__(self):
-        """Initialize the LLM Engine with the GitHub token for authentication"""
+        """Initialize the LLM Engine with OpenRouter API key"""
         self.logger = logging.getLogger('text2sql.llm_engine')
         
-        if not GITHUB_TOKEN:
-            self.logger.critical("GITHUB_TOKEN environment variable not set")
-            print("Error: GITHUB_TOKEN environment variable not set")
+        if not OPENROUTER_API_KEY:
+            self.logger.critical("OPENROUTER_API_KEY environment variable not set")
+            print("Error: OPENROUTER_API_KEY environment variable not set")
             sys.exit(1)
             
-        self.logger.info(f"Initializing LLM Engine with endpoint: {AZURE_ENDPOINT}")
-        self.logger.info(f"Using model: {AZURE_MODEL_NAME}")
+        self.logger.info(f"Initializing LLM Engine with endpoint: {OPENROUTER_BASE_URL}")
+        self.logger.info(f"Using model: {OPENROUTER_MODEL}")
         
         try:
-            self.client = ChatCompletionsClient(
-                endpoint=AZURE_ENDPOINT,
-                credential=AzureKeyCredential(GITHUB_TOKEN),
+            self.client = OpenAI(
+                base_url=OPENROUTER_BASE_URL,
+                api_key=OPENROUTER_API_KEY,
             )
-            self.model_name = AZURE_MODEL_NAME
+            self.model_name = OPENROUTER_MODEL
             self.logger.info("LLM Engine initialized successfully")
         except Exception as e:
             self.logger.error(f"Failed to initialize LLM Engine: {str(e)}", exc_info=True)
@@ -54,8 +55,34 @@ class LLMEngine:
         start_time = time.time()
         self.logger.info(f"[{log_prefix}] Completion generation started")
         
+        # Convert Azure AI message format to OpenAI format
+        openai_messages = []
+        for msg in messages:
+            if hasattr(msg, 'role') and hasattr(msg, 'content'):
+                # If message already has role and content attributes
+                role = msg.role
+                content = msg.content
+            elif isinstance(msg, dict) and 'role' in msg and 'content' in msg:
+                # If message is already in OpenAI format
+                role = msg['role']
+                content = msg['content']
+            else:
+                # Convert Azure format to OpenAI format
+                if msg.__class__.__name__ == 'SystemMessage':
+                    role = 'system'
+                elif msg.__class__.__name__ == 'UserMessage':
+                    role = 'user'
+                else:
+                    role = 'user'  # Default to user if unknown
+                content = msg.content
+                
+            openai_messages.append({
+                "role": role,
+                "content": content
+            })
+        
         # Log the prompt message but truncate if too large
-        prompt_str = str([m.content for m in messages])
+        prompt_str = str(openai_messages)
         if len(prompt_str) > 500:
             self.logger.debug(f"[{log_prefix}] Prompt: {prompt_str[:500]}... (truncated)")
         else:
@@ -69,9 +96,9 @@ class LLMEngine:
             self.logger.debug(f"[{log_prefix}] Sending request to {self.model_name} with max_tokens={max_tokens}, temperature={temperature}")
             call_start = time.time()
             
-            response = self.client.complete(
+            response = self.client.chat.completions.create(
                 model=self.model_name,
-                messages=messages,
+                messages=openai_messages,
                 max_tokens=max_tokens,
                 temperature=temperature
             )
@@ -101,7 +128,4 @@ class LLMEngine:
     def close(self):
         """Close the LLM Engine client connection"""
         self.logger.debug("Closing LLM Engine client connection")
-        try:
-            self.client.close()
-        except Exception as e:
-            self.logger.warning(f"Error closing LLM Engine client: {str(e)}")
+        # No explicit close method needed for OpenAI client

@@ -7,7 +7,12 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
-# Azure OpenAI configuration
+# OpenRouter configuration
+OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY', '')
+OPENROUTER_BASE_URL = os.getenv('OPENROUTER_BASE_URL', 'https://openrouter.ai/api/v1')
+OPENROUTER_MODEL = os.getenv('OPENROUTER_MODEL', 'openrouter/quasar-alpha')
+
+# Azure OpenAI configuration (kept for backward compatibility)
 AZURE_ENDPOINT = os.getenv('AZURE_ENDPOINT', 'https://models.inference.ai.azure.com')
 AZURE_MODEL_NAME = os.getenv('AZURE_MODEL_NAME', 'Phi-3-small-8k-instruct')
 GITHUB_TOKEN = os.getenv('GITHUB_TOKEN', '')
@@ -35,7 +40,7 @@ LOGGING_CONFIG = {
             'format': '%(asctime)s [%(levelname)s] %(name)s: %(message)s'
         },
         'detailed': {
-            'format': '%(asctime)s [%(levelname)s] %(name)s [%(filename)s:%(lineno)d]: %(message)s'
+            'format': '%(asctime)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s'
         },
         'query': {
             'format': '%(asctime)s - %(message)s'
@@ -45,7 +50,7 @@ LOGGING_CONFIG = {
         'console': {
             'class': 'logging.StreamHandler',
             'level': 'INFO',
-            'formatter': 'standard',
+            'formatter': 'detailed',
             'stream': 'ext://sys.stdout'
         },
         'file': {

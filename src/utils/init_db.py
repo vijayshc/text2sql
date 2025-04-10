@@ -7,6 +7,8 @@ import sqlite3
 import os
 import pandas as pd
 from sqlalchemy import create_engine, text
+from src.models.user import Base, User, Role
+from src.utils.user_manager import UserManager
 
 def init_sample_db(db_path='text2sql.db'):
     """Initialize a sample database with example tables and data
@@ -203,6 +205,63 @@ def init_sample_db(db_path='text2sql.db'):
         conn.close()
         
         print("Sample data inserted successfully")
+        
+        # Initialize user authentication tables and data using SQLAlchemy
+        print("Setting up authentication tables...")
+        db_uri = f"sqlite:///{full_path}"
+        engine = create_engine(db_uri)
+        
+        # Create auth tables
+        Base.metadata.create_all(engine)
+        
+        # Initialize user manager
+        user_manager = UserManager()
+        
+        # Delete existing admin user if exists
+        try:
+            existing_admin = user_manager.session.query(User).filter(User.username == "admin").first()
+            
+            if existing_admin:
+                # Remove all role assignments first
+                existing_admin.roles = []
+                user_manager.session.commit()
+                
+                # Then delete the user
+                user_manager.session.delete(existing_admin)
+                user_manager.session.commit()
+                print("Deleted existing admin user")
+                
+                # Clear the session to avoid stale data
+                user_manager.session.expire_all()
+        except Exception as e:
+            print(f"Error deleting existing admin user: {e}")
+            user_manager.session.rollback()
+
+        # Initialize roles and permissions
+        if user_manager.initialize_roles_permissions():
+            try:
+                # Create admin user with credentials
+                admin_id = user_manager.create_user(
+                    username="admin",
+                    email="admin@example.com", 
+                    password="admin123"
+                )
+                
+                if admin_id:
+                    # Get admin role and assign to user
+                    admin_role = user_manager.session.query(Role).filter(Role.name == "admin").first()
+                    if admin_role and user_manager.add_user_to_role(admin_id, admin_role.id):
+                        print("Admin user recreated successfully (admin/admin123)")
+                    else:
+                        print("Failed to assign admin role to admin user")
+                else:
+                    print("Failed to create admin user")
+            except Exception as e:
+                print(f"Error creating admin user: {e}")
+                user_manager.session.rollback()
+        else:
+            print("Failed to initialize authentication system")
+        
         return True
         
     except Exception as e:

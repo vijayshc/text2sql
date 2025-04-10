@@ -44,7 +44,7 @@ const tableMentions = {
                 }
                 item.innerHTML = `
                     <span class="item-name">${table.name}</span>
-                    <span class="item-description">${table.description || ''}</span>
+                    <span class="item-description">(${table.description || ''})</span>
                 `;
                 item.addEventListener('click', () => this.selectTableFromDropdown(table.name, table.description));
                 dropdown.appendChild(item);

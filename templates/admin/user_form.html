@@ -1,0 +1,103 @@
+{% extends "base.html" if 'base.html' in available_templates else "index.html" %}
+
+{% block title %}
+{% if user %}Edit User{% else %}Create User{% endif %} - Text2SQL Assistant
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">{% if user %}Edit User{% else %}Create User{% endif %}</h1>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">
+            {% if user %}Edit User: {{ user.username }}{% else %}Create New User{% endif %}
+        </h6>
+    </div>
+    <div class="card-body">
+        <form method="post" action="{{ url_for('admin.edit_user', user_id=user.id) if user else url_for('admin.create_user') }}">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username *</label>
+                        <input type="text" class="form-control" id="username" name="username" required
+                              value="{{ user.username if user else '' }}">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email *</label>
+                        <input type="email" class="form-control" id="email" name="email" required
+                              value="{{ user.email if user else '' }}">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="password" class="form-label">
+                            {% if user %}New Password (leave blank to keep current){% else %}Password *{% endif %}
+                        </label>
+                        <input type="password" class="form-control" id="password" name="password"
+                              {% if not user %}required{% endif %}>
+                        {% if not user %}
+                        <small class="form-text text-muted">Password must be at least 6 characters long</small>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="roles" class="form-label">Roles</label>
+                        <div class="role-checkboxes">
+                            {% for role in roles %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="roles" value="{{ role.id }}" id="role{{ role.id }}"
+                                      {% if user and role.id in user_role_ids|default([]) %}checked{% endif %}>
+                                <label class="form-check-label" for="role{{ role.id }}">
+                                    {{ role.name }} - {{ role.description }}
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a href="{{ url_for('admin.list_users') }}" class="btn btn-secondary me-md-2">Cancel</a>
+                <button type="submit" class="btn btn-primary">
+                    {% if user %}Save Changes{% else %}Create User{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Set active menu item
+    document.addEventListener('DOMContentLoaded', function() {
+        const adminMenuItems = document.querySelectorAll('.sidebar-nav .nav-link');
+        adminMenuItems.forEach(item => {
+            item.classList.remove('active');
+            if (item.getAttribute('href').includes('admin.list_users')) {
+                item.classList.add('active');
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,215 @@
+{% extends "base.html" if 'base.html' in available_templates else "index.html" %}
+
+{% block title %}Roles & Permissions - Text2SQL Assistant{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Roles & Permissions</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <button id="btnAddRole" class="btn btn-sm btn-primary ms-2">
+            <i class="fas fa-plus"></i> New Role
+        </button>
+    </div>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<div class="row">
+    <!-- Roles Card -->
+    <div class="col-xl-6 col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Roles</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="rolesTable" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Users</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for role in roles %}
+                            <tr>
+                                <td>{{ role.id }}</td>
+                                <td>{{ role.name }}</td>
+                                <td>{{ role.description }}</td>
+                                <td>{{ role.users|length }}</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <button class="btn btn-sm btn-outline-primary btn-edit-role" 
+                                                data-role-id="{{ role.id }}" 
+                                                data-role-name="{{ role.name }}" 
+                                                data-role-description="{{ role.description }}">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-info btn-manage-permissions" 
+                                                data-role-id="{{ role.id }}" 
+                                                data-role-name="{{ role.name }}">
+                                            <i class="fas fa-key"></i>
+                                        </button>
+                                        {% if role.name != 'admin' %}
+                                        <button class="btn btn-sm btn-outline-danger btn-delete-role" 
+                                                data-role-id="{{ role.id }}" 
+                                                data-role-name="{{ role.name }}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Permissions Card -->
+    <div class="col-xl-6 col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Available Permissions</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="permissionsTable" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for permission in permissions %}
+                            <tr>
+                                <td>{{ permission.id }}</td>
+                                <td>{{ permission.name }}</td>
+                                <td>{{ permission.description }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit Role Modal -->
+<div class="modal fade" id="roleModal" tabindex="-1" aria-labelledby="roleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="roleModalLabel">Add New Role</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="roleForm">
+                    <input type="hidden" id="roleId">
+                    <div class="mb-3">
+                        <label for="roleName" class="form-label">Role Name</label>
+                        <input type="text" class="form-control" id="roleName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="roleDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="roleDescription" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="btnSaveRole">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Manage Permissions Modal -->
+<div class="modal fade" id="permissionsModal" tabindex="-1" aria-labelledby="permissionsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="permissionsModalLabel">Manage Permissions for Role</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="permissionsForm">
+                    <input type="hidden" id="permissionsRoleId">
+                    <div class="mb-3">
+                        <div class="row">
+                            {% for permission in permissions %}
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input permission-checkbox" type="checkbox" 
+                                           value="{{ permission.name }}" id="perm{{ permission.name }}"
+                                           data-permission-name="{{ permission.name }}">
+                                    <label class="form-check-label" for="perm{{ permission.name }}">
+                                        {{ permission.name }} - {{ permission.description }}
+                                    </label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="btnSavePermissions">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Role Modal -->
+<div class="modal fade" id="deleteRoleModal" tabindex="-1" aria-labelledby="deleteRoleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteRoleModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete role <strong id="deleteRoleName"></strong>? This will remove the role from all associated users.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="btnConfirmDeleteRole">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Set active menu item
+    document.addEventListener('DOMContentLoaded', function() {
+        const adminMenuItems = document.querySelectorAll('.sidebar-nav .nav-link');
+        adminMenuItems.forEach(item => {
+            item.classList.remove('active');
+            if (item.getAttribute('href').includes('admin.list_roles')) {
+                item.classList.add('active');
+            }
+        });
+    });
+</script>
+<script src="{{ url_for('static', filename='js/admin/roles.js') }}"></script>
+{% endblock %}

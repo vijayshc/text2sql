@@ -1,0 +1,124 @@
+{% extends "base.html" if 'base.html' in available_templates else "index.html" %}
+
+{% block title %}Admin Dashboard - Text2SQL Assistant{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Admin Dashboard</h1>
+</div>
+
+<div class="row">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Users</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="userCount">Loading...</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-users fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Roles</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="roleCount">Loading...</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-user-tag fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Queries Today</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="queryCount">Loading...</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-database fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Recent Activities</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="activityCount">Loading...</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-list-alt fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Recent Activities</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="recentActivitiesTable" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>User</th>
+                                <th>Action</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentActivitiesList">
+                            <tr>
+                                <td colspan="4" class="text-center">Loading recent activities...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Set active menu item
+    document.addEventListener('DOMContentLoaded', function() {
+        const adminMenuItems = document.querySelectorAll('.sidebar-nav .nav-link');
+        adminMenuItems.forEach(item => {
+            item.classList.remove('active');
+            if (item.getAttribute('href').includes('admin.admin_index')) {
+                item.classList.add('active');
+            }
+        });
+    });
+</script>
+<script src="{{ url_for('static', filename='js/admin/dashboard.js') }}"></script>
+{% endblock %}

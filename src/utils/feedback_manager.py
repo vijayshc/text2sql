@@ -18,20 +18,29 @@ from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import pickle
 
+from src.utils.vector_store import VectorStore
+
 class FeedbackManager:
     """Manager class for handling user feedback on SQL queries"""
     
-    def __init__(self, connection_string=None):
+    def __init__(self, connection_string=None, vector_uri=None):
         """Initialize the feedback manager
         
         Args:
             connection_string (str, optional): SQLAlchemy connection string, defaults to config
+            vector_uri (str, optional): URI for the vector database, defaults to local file storage
         """
         self.logger = logging.getLogger('text2sql.feedback')
         self.connection_string = connection_string or DATABASE_URI
         self.logger.info(f"Feedback manager initialized with connection: {self.connection_string}")
         self.engine = None
         self.embedding_model = None
+        
+        # Initialize vector store
+        self.vector_store = VectorStore(uri=vector_uri)
+        
+        # Default collection name for storing query embeddings
+        self.collection_name = "query_embeddings"
         
     def connect(self):
         """Establish database connection
@@ -45,6 +54,12 @@ class FeedbackManager:
         try:
             self.engine = create_engine(self.connection_string)
             self.logger.info(f"Database connection established in {time.time() - start_time:.2f}s")
+            
+            # Also connect to vector store
+            vector_conn_success = self.vector_store.connect()
+            if not vector_conn_success:
+                self.logger.warning("Failed to connect to vector store, vector similarity search will be unavailable")
+            
             return True
         except Exception as e:
             self.logger.error(f"Database connection error: {str(e)}", exc_info=True)
@@ -69,14 +84,14 @@ class FeedbackManager:
                 return None
         return self.embedding_model
     
-    def _generate_embedding(self, text: str) -> Optional[bytes]:
+    def _generate_embedding(self, text: str) -> Optional[np.ndarray]:
         """Generate embedding for the given text
         
         Args:
             text (str): Text to generate embedding for
             
         Returns:
-            Optional[bytes]: Serialized embedding vector or None if failed
+            Optional[np.ndarray]: Embedding vector or None if failed
         """
         model = self._get_embedding_model()
         if not model or not text:
@@ -87,12 +102,9 @@ class FeedbackManager:
             # Generate embedding vector
             embedding = model.encode(text)
             
-            # Serialize the numpy array to bytes for storage
-            serialized_embedding = pickle.dumps(embedding)
-            
             self.logger.debug(f"Generated embedding in {time.time() - start_time:.2f}s " +
                              f"with shape {embedding.shape}")
-            return serialized_embedding
+            return embedding
             
         except Exception as e:
             self.logger.error(f"Error generating embedding: {str(e)}", exc_info=True)
@@ -142,27 +154,48 @@ class FeedbackManager:
             tables_str = ','.join(tables_used) if tables_used else None
             
             # Generate embedding for the query text
-            embedding = self._generate_embedding(query_text)
+            embedding_vector = self._generate_embedding(query_text)
             
-            # Insert feedback into database
+            # Insert feedback into database (store a null for embedding, we'll use vector store)
             with self.engine.connect() as conn:
                 query = text("""
                 INSERT INTO query_feedback 
                 (query_text, sql_query, results_summary, workspace, feedback_rating, tables_used, embedding, is_manual_sample)
-                VALUES (:query_text, :sql_query, :results_summary, :workspace, :feedback_rating, :tables_used, :embedding, :is_manual_sample)
+                VALUES (:query_text, :sql_query, :results_summary, :workspace, :feedback_rating, :tables_used, NULL, :is_manual_sample)
+                RETURNING feedback_id
                 """)
                 
-                conn.execute(query, {
+                result = conn.execute(query, {
                     'query_text': query_text,
                     'sql_query': sql_query,
                     'results_summary': results_summary,
                     'workspace': workspace,
                     'feedback_rating': feedback_rating,
                     'tables_used': tables_str,
-                    'embedding': embedding,
                     'is_manual_sample': is_manual_sample
                 })
+                feedback_id = result.scalar()
                 conn.commit()
+            
+            # Store embedding in vector database if available
+            if embedding_vector is not None:
+                metadata = {
+                    'sql_query': sql_query,
+                    'results_summary': results_summary,
+                    'workspace': workspace,
+                    'feedback_rating': feedback_rating,
+                    'tables_used': tables_used,
+                    'is_manual_sample': is_manual_sample,
+                    'created_at': time.strftime('%Y-%m-%d %H:%M:%S')
+                }
+                
+                self.vector_store.insert_embedding(
+                    feedback_id=feedback_id,
+                    vector=embedding_vector.tolist(),
+                    query_text=query_text,
+                    metadata=metadata,
+                    collection_name=self.collection_name
+                )
             
             if is_manual_sample:
                 self.logger.info(f"Saved manual sample for query: '{query_text[:50]}...'")
@@ -185,67 +218,36 @@ class FeedbackManager:
         Returns:
             List[Dict]: List of similar queries with their SQL and other details
         """
-        if not self.engine and not self.connect():
-            self.logger.error("Failed to connect to database to find similar queries")
-            return []
-            
+        # Generate embedding for the input query
+        embedding_vector = self._generate_embedding(query_text)
+        
+        # If embedding generation failed, fall back to text-based search
+        if embedding_vector is None:
+            self.logger.warning("Embedding generation failed, falling back to text-based search")
+            return self._find_similar_queries_text_based(query_text, limit, positive_only)
+        
         try:
-            # Generate embedding for the input query
-            query_embedding = self._generate_embedding(query_text)
+            # Create filter expression for positive_only if needed
+            filter_expr = "feedback_rating == 1" if positive_only else None
             
-            # If embedding generation failed, fall back to text-based search
-            if query_embedding is None:
-                self.logger.warning("Embedding generation failed, falling back to text-based search")
+            # Use vector store for similarity search with collection name
+            similar_queries = self.vector_store.search_similar(
+                collection_name=self.collection_name,
+                vector=embedding_vector.tolist(),
+                limit=limit,
+                filter_expr=filter_expr
+            )
+            
+            if similar_queries:
+                self.logger.info(f"Found {len(similar_queries)} similar queries using vector similarity for '{query_text[:50]}...'")
+                return similar_queries
+            else:
+                self.logger.warning(f"No similar queries found in vector store, falling back to text-based search")
                 return self._find_similar_queries_text_based(query_text, limit, positive_only)
             
-            # Deserialize query embedding for comparison
-            query_embedding_vector = pickle.loads(query_embedding)
-            
-            # Fetch stored queries with embeddings
-            feedback_filter = "AND feedback_rating = 1" if positive_only else ""
-            with self.engine.connect() as conn:
-                query = text(f"""
-                SELECT feedback_id, query_text, sql_query, results_summary, 
-                       workspace, feedback_rating, created_at, tables_used, embedding
-                FROM query_feedback
-                WHERE embedding IS NOT NULL {feedback_filter}
-                """)
-                
-                result = conn.execute(query)
-                candidates = []
-                
-                for row in result:
-                    if row.embedding:
-                        # Deserialize stored embedding
-                        try:
-                            stored_embedding = pickle.loads(row.embedding)
-                            # Calculate similarity score
-                            similarity = cosine_similarity([query_embedding_vector], [stored_embedding])[0][0]
-                            
-                            tables_list = row.tables_used.split(',') if row.tables_used else []
-                            candidates.append({
-                                'feedback_id': row.feedback_id,
-                                'query_text': row.query_text,
-                                'sql_query': row.sql_query,
-                                'results_summary': row.results_summary,
-                                'workspace': row.workspace,
-                                'feedback_rating': row.feedback_rating,
-                                'created_at': row.created_at,
-                                'tables_used': tables_list,
-                                'similarity': similarity
-                            })
-                        except Exception as e:
-                            self.logger.warning(f"Failed to process embedding for feedback_id {row.feedback_id}: {str(e)}")
-                
-                # Sort by similarity score (descending) and take top N
-                similar_queries = sorted(candidates, key=lambda x: x['similarity'], reverse=True)[:limit]
-                
-            self.logger.info(f"Found {len(similar_queries)} similar queries using vector similarity for '{query_text[:50]}...'")
-            return similar_queries
-            
-        except SQLAlchemyError as e:
-            self.logger.error(f"Error finding similar queries: {str(e)}", exc_info=True)
-            return []
+        except Exception as e:
+            self.logger.error(f"Error finding similar queries with vector search: {str(e)}", exc_info=True)
+            return self._find_similar_queries_text_based(query_text, limit, positive_only)
     
     def find_similar_queries_with_reranking(self, query_text: str, limit: int = 2, positive_only: bool = True) -> List[Dict[str, Any]]:
         """Find similar previous queries using a two-stage search: vector similarity + reranking
@@ -258,118 +260,82 @@ class FeedbackManager:
         Returns:
             List[Dict]: List of similar queries with their SQL and other details
         """
-        if not self.engine and not self.connect():
-            self.logger.error("Failed to connect to database to find similar queries")
-            return []
-            
         try:
             # Stage 1: Vector search to get initial candidates (top 10)
             self.logger.info(f"Stage 1: Vector search for '{query_text[:50]}...'")
             initial_candidates_limit = 10  # Get top 10 candidates from vector search
             
             # Generate embedding for the input query
-            query_embedding = self._generate_embedding(query_text)
+            embedding_vector = self._generate_embedding(query_text)
             
             # If embedding generation failed, fall back to text-based search
-            if query_embedding is None:
+            if embedding_vector is None:
                 self.logger.warning("Embedding generation failed, falling back to text-based search")
                 return self._find_similar_queries_text_based(query_text, limit, positive_only)
             
-            # Deserialize query embedding for comparison
-            query_embedding_vector = pickle.loads(query_embedding)
+            # Create filter expression for positive_only if needed
+            filter_expr = "feedback_rating == 1" if positive_only else None
             
-            # Fetch stored queries with embeddings
-            feedback_filter = "AND feedback_rating = 1" if positive_only else ""
-            with self.engine.connect() as conn:
-                query = text(f"""
-                SELECT feedback_id, query_text, sql_query, results_summary, 
-                       workspace, feedback_rating, created_at, tables_used, embedding, is_manual_sample
-                FROM query_feedback
-                WHERE embedding IS NOT NULL {feedback_filter}
-                """)
+            # Use vector store for similarity search to get initial candidates
+            top_candidates = self.vector_store.search_similar(
+                collection_name=self.collection_name,
+                vector=embedding_vector.tolist(),
+                limit=initial_candidates_limit,
+                filter_expr=filter_expr
+            )
+           
+            if not top_candidates:
+                self.logger.warning("No candidates found from vector search, falling back to text-based search")
+                return self._find_similar_queries_text_based(query_text, limit, positive_only)
                 
-                result = conn.execute(query)
-                candidates = []
+            self.logger.info(f"Found {len(top_candidates)} initial candidates from vector search")
+            
+            # Stage 2: Rerank the top candidates using a more powerful model
+            if len(top_candidates) > limit:
+                self.logger.info(f"Stage 2: Reranking {len(top_candidates)} candidates")
+                reranker = self._get_reranking_model()
                 
-                for row in result:
-                    if row.embedding:
-                        # Deserialize stored embedding
-                        try:
-                            stored_embedding = pickle.loads(row.embedding)
-                            # Calculate similarity score
-                            similarity = cosine_similarity([query_embedding_vector], [stored_embedding])[0][0]
-                            
-                            tables_list = row.tables_used.split(',') if row.tables_used else []
-                            candidates.append({
-                                'feedback_id': row.feedback_id,
-                                'query_text': row.query_text,
-                                'sql_query': row.sql_query,
-                                'results_summary': row.results_summary,
-                                'workspace': row.workspace,
-                                'feedback_rating': row.feedback_rating,
-                                'created_at': row.created_at,
-                                'tables_used': tables_list,
-                                'similarity': similarity,
-                                'is_manual_sample': bool(row.is_manual_sample)
-                            })
-                        except Exception as e:
-                            self.logger.warning(f"Failed to process embedding for feedback_id {row.feedback_id}: {str(e)}")
-                
-                # Sort by similarity score (descending) and take top N for reranking
-                if candidates:
-                    candidates = sorted(candidates, key=lambda x: x['similarity'], reverse=True)
-                    top_candidates = candidates[:initial_candidates_limit]
-                    self.logger.info(f"Found {len(top_candidates)} initial candidates from vector search")
-                else:
-                    self.logger.warning("No candidates found from vector search")
-                    return []
-                
-                # Stage 2: Rerank the top candidates using a more powerful model
-                if len(top_candidates) > limit:
-                    self.logger.info(f"Stage 2: Reranking {len(top_candidates)} candidates")
-                    reranker = self._get_reranking_model()
-                    
-                    if reranker:
-                        # Prepare candidate pairs for reranking
-                        candidate_pairs = [(query_text, candidate['query_text']) for candidate in top_candidates]
+                if (reranker):
+                    # Prepare candidate pairs for reranking
+                    candidate_pairs = [(query_text, candidate['query_text']) for candidate in top_candidates]
+                    #self.logger.info(candidate_pairs)
+                    # Get reranking scores
+                    try:
+                        rerank_scores = reranker.predict(candidate_pairs)
                         
-                        # Get reranking scores
-                        try:
-                            rerank_scores = reranker.predict(candidate_pairs)
+                        # Add rerank scores to candidates
+                        for idx, score in enumerate(rerank_scores):
+                            top_candidates[idx]['rerank_score'] = float(score)
+                         
+                        # Filter out candidates with negative scores (indicating poor relevance)
+                        positive_scored_candidates = [c for c in top_candidates if c['rerank_score'] >= 0]
+                        
+                        if positive_scored_candidates:
+                            self.logger.info(f"Found {len(positive_scored_candidates)} candidates with positive reranking scores")
+                            # Sort by rerank score (higher is better) among positive scores
+                            reranked_candidates = sorted(positive_scored_candidates, key=lambda x: x['rerank_score'], reverse=True)
                             
-                            # Add rerank scores to candidates
-                            for idx, score in enumerate(rerank_scores):
-                                top_candidates[idx]['rerank_score'] = float(score)
-                                
-                            # Filter out candidates with negative scores (indicating poor relevance)
-                            positive_scored_candidates = [c for c in top_candidates if c['rerank_score'] >= 0]
-                            
-                            if positive_scored_candidates:
-                                self.logger.info(f"Found {len(positive_scored_candidates)} candidates with positive reranking scores")
-                                # Sort by rerank score (higher is better) among positive scores
-                                reranked_candidates = sorted(positive_scored_candidates, key=lambda x: x['rerank_score'], reverse=True)
-                                
-                                self.logger.info(f"Reranking successful, returning top {min(limit, len(reranked_candidates))} results")
-                                return reranked_candidates[:limit]
-                            else:
-                                self.logger.warning("No candidates with positive reranking scores, falling back to vector search results")
-                                return candidates[:limit]
-                            
-                        except Exception as e:
-                            self.logger.error(f"Reranking failed: {str(e)}", exc_info=True)
-                            self.logger.info("Falling back to vector search results")
+                            self.logger.info(f"Reranking successful, returning top {min(limit, len(reranked_candidates))} results")
+                            return reranked_candidates[:limit]
+                        else:
+                            self.logger.warning("No candidates with positive reranking scores, returning vector search results")
                             return top_candidates[:limit]
-                    else:
-                        self.logger.warning("Reranker not available, returning vector search results")
+                        
+                    except Exception as e:
+                        self.logger.error(f"Reranking failed: {str(e)}", exc_info=True)
+                        self.logger.info("Falling back to vector search results")
                         return top_candidates[:limit]
                 else:
-                    # Not enough candidates to rerank
-                    self.logger.info(f"Less than {limit+1} candidates, skipping reranking")
+                    self.logger.warning("Reranker not available, returning vector search results")
                     return top_candidates[:limit]
+            else:
+                # Not enough candidates to rerank
+                self.logger.info(f"Less than {limit+1} candidates, skipping reranking")
+                return top_candidates[:limit]
                 
-        except SQLAlchemyError as e:
+        except Exception as e:
             self.logger.error(f"Error in find_similar_queries_with_reranking: {str(e)}", exc_info=True)
-            return []
+            return self._find_similar_queries_text_based(query_text, limit, positive_only)
     
     def _find_similar_queries_text_based(self, query_text: str, limit: int = 1, positive_only: bool = True) -> List[Dict[str, Any]]:
         """Fallback method to find similar queries using text-based search
@@ -382,6 +348,10 @@ class FeedbackManager:
         Returns:
             List[Dict]: List of similar queries with their SQL and other details
         """
+        if not self.engine and not self.connect():
+            self.logger.error("Failed to connect to database for text-based search")
+            return []
+            
         try:
             # Create a simple filter condition based on text similarity
             search_terms = [term for term in query_text.lower().split() if len(term) > 3]
@@ -486,6 +456,26 @@ class FeedbackManager:
             return [], 0
             
         try:
+            if search_query and self.vector_store.client:
+                # Use vector search for more semantic search capabilities if a query is provided
+                embedding_vector = self._generate_embedding(search_query)
+                if embedding_vector is not None:
+                    filter_expr = "feedback_rating == 1"
+                    vector_results = self.vector_store.search_similar(
+                        collection_name=self.collection_name,
+                        vector=embedding_vector.tolist(),
+                        limit=limit,
+                        filter_expr=filter_expr
+                    )
+                    
+                    if vector_results:
+                        # Calculate total from database for pagination
+                        with self.engine.connect() as conn:
+                            count_query = text("SELECT COUNT(*) as total FROM query_feedback WHERE feedback_rating = 1")
+                            total = conn.execute(count_query).scalar() or 0
+                        return vector_results, total
+            
+            # Fallback to traditional database query
             offset = (page - 1) * limit
             
             # Build where clause
@@ -600,9 +590,7 @@ class FeedbackManager:
             tables_used = data.get('tables_used', [])
             tables_str = ','.join(tables_used) if tables_used else None
             
-            # Generate new embedding for the updated query text
-            embedding = self._generate_embedding(data['query_text'])
-            
+            # Update in SQLite
             with self.engine.connect() as conn:
                 query = text("""
                 UPDATE query_feedback
@@ -612,7 +600,6 @@ class FeedbackManager:
                     workspace = :workspace,
                     feedback_rating = :feedback_rating,
                     tables_used = :tables_used,
-                    embedding = :embedding,
                     is_manual_sample = :is_manual_sample
                 WHERE feedback_id = :sample_id
                 """)
@@ -625,10 +612,30 @@ class FeedbackManager:
                     'workspace': data.get('workspace', 'Default'),
                     'feedback_rating': data.get('feedback_rating', 1),
                     'tables_used': tables_str,
-                    'embedding': embedding,
                     'is_manual_sample': data.get('is_manual_sample', True)
                 })
                 conn.commit()
+            
+            # Update vector embedding in Milvus
+            embedding_vector = self._generate_embedding(data['query_text'])
+            if embedding_vector is not None:
+                metadata = {
+                    'sql_query': data['sql_query'],
+                    'results_summary': data.get('results_summary', ''),
+                    'workspace': data.get('workspace', 'Default'),
+                    'feedback_rating': data.get('feedback_rating', 1),
+                    'tables_used': tables_used,
+                    'is_manual_sample': data.get('is_manual_sample', True),
+                    'created_at': data.get('created_at', time.strftime('%Y-%m-%d %H:%M:%S'))
+                }
+                
+                self.vector_store.update_embedding(
+                    collection_name=self.collection_name,
+                    feedback_id=sample_id,
+                    vector=embedding_vector.tolist(),
+                    query_text=data['query_text'],
+                    metadata=metadata
+                )
                 
             self.logger.info(f"Updated sample ID {sample_id}")
             return True
@@ -651,10 +658,17 @@ class FeedbackManager:
             return False
             
         try:
+            # Delete from SQLite
             with self.engine.connect() as conn:
                 query = text("DELETE FROM query_feedback WHERE feedback_id = :sample_id")
                 conn.execute(query, {'sample_id': sample_id})
                 conn.commit()
+            
+            # Delete from vector store
+            self.vector_store.delete_embedding(
+                collection_name=self.collection_name,
+                feedback_id=sample_id
+            )
                 
             self.logger.info(f"Deleted sample ID {sample_id}")
             return True
@@ -662,10 +676,92 @@ class FeedbackManager:
         except SQLAlchemyError as e:
             self.logger.error(f"Error deleting sample: {str(e)}", exc_info=True)
             return False
+    
+    def migrate_existing_embeddings(self):
+        """Migrate existing embeddings from SQLite to the vector store
+        
+        Returns:
+            Dict: Migration statistics
+        """
+        if not self.engine and not self.connect():
+            self.logger.error("Failed to connect to database for migration")
+            return {'success': False, 'total': 0, 'migrated': 0}
+        
+        try:
+            self.logger.info("Starting migration of existing embeddings to vector store")
+            start_time = time.time()
+            migrated = 0
+            failed = 0
+            
+            with self.engine.connect() as conn:
+                # Get all entries with embeddings
+                query = text("""
+                SELECT feedback_id, query_text, sql_query, results_summary, 
+                       workspace, feedback_rating, created_at, tables_used, 
+                       is_manual_sample, embedding
+                FROM query_feedback
+                WHERE embedding IS NOT NULL
+                """)
+                
+                result = conn.execute(query)
+                
+                for row in result:
+                    try:
+                        # Deserialize stored embedding from SQLite
+                        stored_embedding = pickle.loads(row.embedding)
+                        
+                        # Prepare metadata
+                        tables_list = row.tables_used.split(',') if row.tables_used else []
+                        metadata = {
+                            'sql_query': row.sql_query,
+                            'results_summary': row.results_summary,
+                            'workspace': row.workspace,
+                            'feedback_rating': row.feedback_rating,
+                            'tables_used': tables_list,
+                            'is_manual_sample': bool(row.is_manual_sample),
+                            'created_at': str(row.created_at)
+                        }
+                        
+                        # Insert into vector store
+                        success = self.vector_store.insert_embedding(
+                            collection_name=self.collection_name,
+                            feedback_id=row.feedback_id,
+                            vector=stored_embedding.tolist(),
+                            query_text=row.query_text,
+                            metadata=metadata
+                        )
+                        
+                        if success:
+                            migrated += 1
+                        else:
+                            failed += 1
+                            
+                    except Exception as e:
+                        self.logger.error(f"Error migrating embedding {row.feedback_id}: {str(e)}")
+                        failed += 1
+            
+            total_time = time.time() - start_time
+            total = migrated + failed
+            
+            self.logger.info(f"Embedding migration completed in {total_time:.2f}s: {migrated} succeeded, {failed} failed")
+            
+            return {
+                'success': True,
+                'total': total,
+                'migrated': migrated,
+                'failed': failed,
+                'time_seconds': total_time
+            }
+            
+        except SQLAlchemyError as e:
+            self.logger.error(f"Error during embedding migration: {str(e)}", exc_info=True)
+            return {'success': False, 'total': 0, 'migrated': 0}
             
     def close(self):
         """Close database connections"""
-        self.logger.info("Closing database connection")
+        self.logger.info("Closing database connections")
         if self.engine:
             self.engine.dispose()
-            self.logger.debug("Database engine disposed")
+            self.logger.debug("SQLite database engine disposed")
+        
+        self.vector_store.close()

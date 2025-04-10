@@ -181,6 +181,122 @@ WHERE ...
             "raw_response": content
         }
     
+    def analyze_for_dashboard(self, query, sql, columns, data_sample):
+        """Analyze SQL query results to determine if it's suitable for dashboard visualization
+        
+        Args:
+            query (str): The original natural language query
+            sql (str): The SQL query that was executed
+            columns (list): List of column names in the result
+            data_sample (list): Sample of data rows for analysis (typically first 5 rows)
+            
+        Returns:
+            dict: Dashboard recommendations including visualization type, axes, and titles
+        """
+        start_time = time.time()
+        self.logger.info(f"Dashboard analysis started for query: '{query}'")
+        
+        # Convert data sample to a readable format
+        sample_str = ""
+        for row_idx, row in enumerate(data_sample[:5]):  # Limiting to first 5 rows max
+            sample_str += f"Row {row_idx+1}: {json.dumps(row)}\n"
+            
+        # Construct a message for the AI to analyze the results
+        messages = [
+            SystemMessage("""You are a data visualization expert. Analyze the given query results and determine if they're suitable for a dashboard visualization.
+
+Your task is to:
+1. Analyze the columns and data
+2. Determine if the data is suitable for visualization (has numeric values and categorical data)
+3. If suitable, recommend the best chart type (bar, line, pie, etc.)
+4. Identify the best columns for X and Y axes (or equivalent based on chart type). Only one column for each axis
+5. Suggest meaningful labels and title
+
+Return your analysis in JSON format exactly like this:
+{
+  "is_suitable": true_or_false,
+  "reason": "brief explanation of why it is or isn't suitable",
+  "chart_type": "recommended chart type if suitable",
+  "x_axis": {
+    "column": "column_name for x-axis",
+    "label": "suggested x-axis label"
+  },
+  "y_axis": {
+    "column": "column_name for y-axis",
+    "label": "suggested y-axis label"
+  },
+  "title": "suggested chart title"
+}
+
+Make decisions based on these criteria:
+- Bar charts are good for comparing categories
+- Line charts are good for time series 
+- Pie charts are good for part-to-whole relationships (under 7 categories)
+- Scatter plots are good for showing relationships between numeric values
+- Data needs at least one numeric column for most visualizations"""),
+            
+            UserMessage(f"""Query: {query}
+SQL: {sql}
+Columns: {', '.join(columns)}
+Data Sample:
+{sample_str}
+
+Analyze if this data is suitable for a dashboard visualization. If so, provide recommendations in the required JSON format.""")
+        ]
+        
+        try:
+            # Use LLM to analyze the query results
+            raw_response = self.llm_engine.generate_completion(messages, log_prefix="DASHBOARD_ANALYSIS")
+            
+            # Extract JSON from response
+            dashboard_recommendations = self._extract_json_from_response(raw_response)
+            
+            if dashboard_recommendations:
+                self.logger.info(f"Dashboard analysis results: suitable={dashboard_recommendations.get('is_suitable', False)}")
+            else:
+                self.logger.warning("Could not extract dashboard recommendations from response")
+                dashboard_recommendations = {
+                    "is_suitable": False,
+                    "reason": "Could not analyze results for dashboard potential"
+                }
+            
+            processing_time = time.time() - start_time
+            self.logger.info(f"Dashboard analysis completed in {processing_time:.2f}s")
+            
+            return dashboard_recommendations
+            
+        except Exception as e:
+            processing_time = time.time() - start_time
+            self.logger.error(f"Dashboard analysis error after {processing_time:.2f}s: {str(e)}", exc_info=True)
+            return {
+                "is_suitable": False,
+                "reason": f"Error analyzing results: {str(e)}"
+            }
+    
+    def _extract_json_from_response(self, content):
+        """Extract JSON from model response
+        
+        Args:
+            content (str): The model response content
+            
+        Returns:
+            dict: Extracted JSON object or None if extraction fails
+        """
+        try:
+            # Try to find JSON content using pattern matching
+            if '{' in content and '}' in content:
+                # Extract content between first { and last }
+                json_str = content[content.find('{'):content.rfind('}')+1]
+                
+                # Parse JSON
+                result = json.loads(json_str)
+                return result
+            
+            return None
+        except Exception as e:
+            self.logger.error(f"Error extracting JSON from response: {str(e)}")
+            return None
+    
     def close(self):
         """Close the Azure AI client connection"""
         self.logger.info("Closing Azure AI client connection")

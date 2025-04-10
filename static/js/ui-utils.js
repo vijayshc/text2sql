@@ -40,6 +40,7 @@ const uiUtils = {
         // Create toast notification for error with enhanced styling
         const toast = document.createElement('div');
         toast.className = 'toast align-items-center text-white bg-danger border-0 position-fixed top-0 end-0 m-3';
+        toast.style.zIndex = '9999'; // Ensure toast appears above all other UI elements
         toast.setAttribute('role', 'alert');
         toast.setAttribute('aria-live', 'assertive');
         toast.setAttribute('aria-atomic', 'true');
@@ -80,6 +81,7 @@ const uiUtils = {
         // Create toast notification for success
         const toast = document.createElement('div');
         toast.className = 'toast align-items-center text-white bg-success border-0 position-fixed top-0 end-0 m-3';
+        toast.style.zIndex = '9999'; // Ensure toast appears above all other UI elements
         toast.setAttribute('role', 'alert');
         toast.setAttribute('aria-live', 'polite');
         toast.setAttribute('aria-atomic', 'true');
@@ -120,6 +122,7 @@ const uiUtils = {
         // Create toast notification for timeout warnings - using a different style than regular errors
         const toast = document.createElement('div');
         toast.className = 'toast align-items-center text-white bg-warning border-0 position-fixed top-0 end-0 m-3';
+        toast.style.zIndex = '9999'; // Ensure toast appears above all other UI elements
         toast.setAttribute('role', 'alert');
         toast.setAttribute('data-bs-autohide', 'false'); // Don't auto-hide timeout warnings
         
@@ -189,5 +192,81 @@ const uiUtils = {
                 tab.show();
             }
         }
+    },
+    
+    // Generic toast notification
+    showToast: function(message, type = 'info') {
+        // Map type to appropriate method
+        switch(type.toLowerCase()) {
+            case 'success':
+                this.showSuccess(message);
+                break;
+            case 'error':
+            case 'danger':
+                this.showError(message);
+                break;
+            case 'warning':
+                this.showTimeoutWarning(message);
+                break;
+            default:
+                // For info and any other types
+                this.showSuccess(message);
+                break;
+        }
+    },
+    
+    // Show info toast notification
+    showInfo: function(message) {
+        // Create toast notification for info
+        const toast = document.createElement('div');
+        toast.className = 'toast align-items-center text-white bg-info border-0 position-fixed top-0 end-0 m-3';
+        toast.style.zIndex = '9999'; // Ensure toast appears above all other UI elements
+        toast.setAttribute('role', 'alert');
+        toast.setAttribute('aria-live', 'polite');
+        toast.setAttribute('aria-atomic', 'true');
+        
+        // Add info icon and improved layout
+        toast.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="fas fa-info-circle me-2"></i>${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        `;
+        
+        document.body.appendChild(toast);
+        
+        // Initialize Bootstrap toast with autohide
+        const bsToast = new bootstrap.Toast(toast, {
+            delay: 3000,
+            animation: true
+        });
+        bsToast.show();
+        
+        // Clean up DOM after toast is hidden
+        toast.addEventListener('hidden.bs.toast', () => {
+            // Add slide-out animation
+            toast.style.transform = 'translateX(30px)';
+            toast.style.opacity = '0';
+            toast.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+            
+            // Remove from DOM after animation
+            setTimeout(() => toast.remove(), 300);
+        });
+    },
+    
+    // Set active navigation item based on current URL
+    setActiveNavItem: function() {
+        const currentPath = window.location.pathname;
+        
+        // Get all navigation links
+        const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
+        
+        // Remove active class from all links
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+        });
+
     }
 };

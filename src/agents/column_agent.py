@@ -96,7 +96,7 @@ Consider columns that might be needed for:
             # Use LLMEngine for centralized LLM interaction
             raw_response = self.llm_engine.generate_completion(messages, log_prefix="COLUMN")
             raw_response = raw_response.strip()
-            self.logger.info(f"Raw model response: '{raw_response}'")
+            #self.logger.info(f"Raw model response: '{raw_response}'")
             
             # Extract JSON from response
             selected_columns = self._parse_column_selection(raw_response, table_info)

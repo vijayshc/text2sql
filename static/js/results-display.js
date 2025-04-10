@@ -144,6 +144,9 @@ const resultsDisplay = {
 
     // Display results in all tabs
     displayResults: function(result) {
+        // Store the current result in the global object for dashboard to access
+        text2sql.currentResult = result;
+        
         // Format and display SQL with syntax highlighting
         const sqlCode = document.getElementById('sqlCode');
         sqlCode.className = 'sql';
@@ -222,6 +225,59 @@ const resultsDisplay = {
         
         // Display steps
         this.displaySteps(result.steps);
+        
+        // Update dashboard with new data and handle notifications
+        if (typeof dashboard !== 'undefined') {
+            dashboard.handleQueryResults(result);
+            
+            // Add a notification badge to dashboard tab if there are dashboard recommendations
+            if (result.chart_data && 
+                result.chart_data.dashboard_recommendations && 
+                result.chart_data.dashboard_recommendations.is_suitable === true) {
+                
+                const dashboardTab = document.querySelector('a[href="#dashboard"]');
+                if (dashboardTab) {
+                    // Remove any existing badges
+                    const existingBadges = dashboardTab.querySelectorAll('.badge');
+                    existingBadges.forEach(badge => badge.remove());
+                    
+                    // Check if dashboard tab is not already active
+                    const activeTab = document.querySelector('.nav-link.active');
+                    if (activeTab && !activeTab.isEqualNode(dashboardTab)) {
+                        // Add notification badge
+                        const indicator = document.createElement('span');
+                        indicator.className = 'badge bg-success ms-1 pulse-animation';
+                        indicator.textContent = 'Auto';
+                        indicator.style.animation = 'pulse 1.5s infinite';
+                        dashboardTab.appendChild(indicator);
+                        
+                        // Add pulse animation if not already in CSS
+                        if (!document.getElementById('pulse-animation-style')) {
+                            const style = document.createElement('style');
+                            style.id = 'pulse-animation-style';
+                            style.textContent = `
+                                @keyframes pulse {
+                                    0% { transform: scale(1); }
+                                    50% { transform: scale(1.1); }
+                                    100% { transform: scale(1); }
+                                }
+                                .pulse-animation {
+                                    animation: pulse 1.5s infinite;
+                                }
+                            `;
+                            document.head.appendChild(style);
+                        }
+                        
+                        // Remove indicator when tab is clicked
+                        dashboardTab.addEventListener('click', function() {
+                            if (indicator.parentNode === dashboardTab) {
+                                dashboardTab.removeChild(indicator);
+                            }
+                        }, { once: true });
+                    }
+                }
+            }
+        }
     },
 
     // Display processing steps in the Steps tab

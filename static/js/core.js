@@ -12,7 +12,9 @@ const text2sql = {
     submitButton: null,
     viewSchemaBtn: null,
     schemaModal: null,
-    loadingSpinner: null
+    loadingSpinner: null,
+    tableMentions: [],
+    currentResult: null
 };
 
 // Initialize core functionality when DOM is loaded
@@ -29,6 +31,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     text2sql.loadingSpinner = document.getElementById('loadingSpinner');
+    
+    // Navigation handling is now managed by navigation-handler.js
     
     // Initialize the workspace description if element exists
     if (text2sql.workspaceSelect) {

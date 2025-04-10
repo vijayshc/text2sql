@@ -273,7 +273,7 @@ class SQLGenerationManager:
                         
         # Step 6b: Find similar successful queries from feedback database using reranking
         # First get top 10 candidates with vector search, then rerank them to get top 2
-        similar_queries = self.feedback_manager.find_similar_queries_with_reranking(query, limit=2)
+        similar_queries = self.feedback_manager.find_similar_queries_with_reranking(query, limit=1)
         
         if similar_queries:
             # Add these as high-quality examples for the AI model
@@ -337,6 +337,69 @@ class SQLGenerationManager:
                             "description": "Executing SQL query",
                             "result": f"Query returned {query_result['row_count']} rows"
                         }
+                        
+                        # Add the step info
+                        result["steps"].append(step_info)
+                        if progress_callback:
+                            progress_callback(step_info)
+                        
+                        # Step 9: Analyze query results for dashboard potential as a separate step
+                        if query_result["row_count"] > 0:
+                            self.logger.info("Analyzing query results for dashboard potential")
+                            try:
+                                # Get a sample of data for analysis (up to 5 rows)
+                                data_sample = result["chart_data"]["data"][:5]
+                                
+                                # Call AI to analyze dashboard potential
+                                dashboard_analysis = self.ai_client.analyze_for_dashboard(
+                                    query=query, 
+                                    sql=result["sql"],
+                                    columns=query_result["columns"],
+                                    data_sample=data_sample
+                                )
+                                
+                                # Add dashboard recommendations to result
+                                result["chart_data"]["dashboard_recommendations"] = dashboard_analysis
+                                
+                                # Create dashboard analysis step info
+                                dashboard_suitable = dashboard_analysis.get('is_suitable', False)
+                                self.logger.info(f"Dashboard analysis completed: suitable={dashboard_suitable}")
+                                
+                                step_result = "Data is suitable for visualization\n" if dashboard_suitable else "Data is not suitable for visualization"
+                                if dashboard_suitable:
+                                    chart_type = dashboard_analysis.get('chart_type', '')
+                                    step_result += f" - Recommended chart type: {chart_type}\n"
+                                    step_result += f" - Recommended x axis: {dashboard_analysis.get('x_axis','').get('column', '')}\n"
+                                    step_result += f" - Recommended y axis: {dashboard_analysis.get('y_axis','').get('column', '')}"
+                                
+                                dashboard_step_info = {
+                                    "step": "dashboard_analysis",
+                                    "description": "Analyzing data for dashboard potential",
+                                    "result": step_result
+                                }
+                                
+                                result["steps"].append(dashboard_step_info)
+                                if progress_callback:
+                                    progress_callback(dashboard_step_info)
+                                
+                            except Exception as e:
+                                self.logger.error(f"Error during dashboard analysis: {str(e)}")
+                                # Don't fail the whole query if dashboard analysis fails
+                                result["chart_data"]["dashboard_recommendations"] = {
+                                    "is_suitable": False,
+                                    "reason": f"Error during analysis: {str(e)}"
+                                }
+                                
+                                # Add error step for dashboard analysis
+                                error_step_info = {
+                                    "step": "dashboard_analysis",
+                                    "description": "Analyzing data for dashboard potential",
+                                    "result": f"Error: {str(e)}"
+                                }
+                                result["steps"].append(error_step_info)
+                                if progress_callback:
+                                    progress_callback(error_step_info)
+                        
                     else:
                         # Create execution step info for no rows
                         step_info = {
@@ -344,6 +407,11 @@ class SQLGenerationManager:
                             "description": "Executing SQL query",
                             "result": "Query executed successfully with no rows returned"
                         }
+                        
+                        # Add the step info
+                        result["steps"].append(step_info)
+                        if progress_callback:
+                            progress_callback(step_info)
                 else:
                     # Create execution step info for error
                     result["error"] = query_result["error"]
@@ -352,11 +420,11 @@ class SQLGenerationManager:
                         "description": "Executing SQL query",
                         "result": f"Error: {query_result['error']}"
                     }
-                
-                # Add the step info only once
-                result["steps"].append(step_info)
-                if progress_callback:
-                    progress_callback(step_info)
+                    
+                    # Add the step info
+                    result["steps"].append(step_info)
+                    if progress_callback:
+                        progress_callback(step_info)
                     
             except Exception as e:
                 result["error"] = f"Error executing query: {str(e)}"

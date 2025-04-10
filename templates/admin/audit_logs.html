@@ -1,0 +1,172 @@
+{% extends "base.html" if 'base.html' in available_templates else "index.html" %}
+
+{% block title %}Audit Logs - Text2SQL Assistant{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Audit Logs</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group ms-2" role="group">
+            <button id="exportLogsBtn" type="button" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-download"></i> Export
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">System Activity Logs</h6>
+        
+        <div class="dropdown no-arrow">
+            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                    type="button" id="filterDropdown" 
+                    data-bs-toggle="dropdown" 
+                    aria-expanded="false">
+                <i class="fas fa-filter fa-sm"></i> Filter
+            </button>
+            <div class="dropdown-menu dropdown-menu-end shadow animated--fade-in" aria-labelledby="filterDropdown">
+                <a class="dropdown-item filter-option" href="#" data-filter="all">All Activities</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item filter-option" href="#" data-filter="login">Login Events</a>
+                <a class="dropdown-item filter-option" href="#" data-filter="user">User Management</a>
+                <a class="dropdown-item filter-option" href="#" data-filter="query">SQL Queries</a>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped" id="auditLogTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Timestamp</th>
+                        <th>User</th>
+                        <th>IP Address</th>
+                        <th>Action</th>
+                        <th>Details</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr class="log-row" data-action="{{ log.action }}">
+                        <td>{{ log.id }}</td>
+                        <td>{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                        <td>{{ user_manager.get_username_by_id(log.user_id) if log.user_id else 'System' }}</td>
+                        <td>{{ log.ip_address or '-' }}</td>
+                        <td>
+                            <span class="badge
+                                {% if 'login' in log.action %}bg-info
+                                {% elif 'query' in log.action %}bg-primary
+                                {% elif 'error' in log.action %}bg-danger
+                                {% elif 'create' in log.action or 'update' in log.action or 'delete' in log.action %}bg-warning
+                                {% else %}bg-secondary{% endif %}">
+                                {{ log.action }}
+                            </span>
+                        </td>
+                        <td>{{ log.details }}</td>
+                        <td>
+                            {% if log.query_text or log.sql_query %}
+                            <button class="btn btn-sm btn-outline-primary view-details-btn" 
+                                    data-log-id="{{ log.id }}" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#logDetailModal">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            {% else %}
+                            -
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if page > 1 %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('admin.audit_logs', page=page-1) }}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for p in range(1|max_value(page-2), (total_pages + 1)|min_value(page+3)) %}
+                <li class="page-item {% if p == page %}active{% endif %}">
+                    <a class="page-link" href="{{ url_for('admin.audit_logs', page=p) }}">{{ p }}</a>
+                </li>
+                {% endfor %}
+                
+                {% if page < total_pages %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('admin.audit_logs', page=page+1) }}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<!-- Log Detail Modal -->
+<div class="modal fade" id="logDetailModal" tabindex="-1" aria-labelledby="logDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="logDetailModalLabel">Log Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3" id="queryTextContainer">
+                    <h6>Query Text</h6>
+                    <pre id="queryText" class="bg-light p-3 rounded"></pre>
+                </div>
+                <div class="mb-3" id="sqlQueryContainer">
+                    <h6>SQL Query</h6>
+                    <pre id="sqlQuery" class="bg-light p-3 rounded"></pre>
+                </div>
+                <div class="mb-3" id="responseContainer">
+                    <h6>Response</h6>
+                    <pre id="response" class="bg-light p-3 rounded"></pre>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Set active menu item
+    document.addEventListener('DOMContentLoaded', function() {
+        const adminMenuItems = document.querySelectorAll('.sidebar-nav .nav-link');
+        adminMenuItems.forEach(item => {
+            item.classList.remove('active');
+            if (item.getAttribute('href').includes('admin.audit_logs')) {
+                item.classList.add('active');
+            }
+        });
+    });
+</script>
+<script src="{{ url_for('static', filename='js/admin/audit-logs.js') }}"></script>
+{% endblock %}

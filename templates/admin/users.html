@@ -1,0 +1,121 @@
+{% extends "base.html" if 'base.html' in available_templates else "index.html" %}
+
+{% block title %}User Management - Text2SQL Assistant{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">User Management</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{{ url_for('admin.create_user') }}" class="btn btn-sm btn-primary ms-2">
+            <i class="fas fa-plus"></i> New User
+        </a>
+    </div>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Users</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="usersTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Roles</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>
+                            {% if user.is_active %}
+                            <span class="badge bg-success">Active</span>
+                            {% else %}
+                            <span class="badge bg-danger">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% for role in user.roles %}
+                            <span class="badge bg-info">{{ role.name }}</span>
+                            {% endfor %}
+                        </td>
+                        <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{{ url_for('admin.edit_user', user_id=user.id) }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                {% if user.username != 'admin' and user.id != current_user.id %}
+                                <button type="button" class="btn btn-sm btn-outline-danger" 
+                                        data-bs-toggle="modal" data-bs-target="#deleteModal" 
+                                        data-user-id="{{ user.id }}" data-username="{{ user.username }}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Delete User Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete user <strong id="deleteUserName"></strong>? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="post" action="">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Set active menu item
+    document.addEventListener('DOMContentLoaded', function() {
+        const adminMenuItems = document.querySelectorAll('.sidebar-nav .nav-link');
+        adminMenuItems.forEach(item => {
+            item.classList.remove('active');
+            if (item.getAttribute('href').includes('admin.list_users')) {
+                item.classList.add('active');
+            }
+        });
+    });
+</script>
+<script src="{{ url_for('static', filename='js/admin/users.js') }}"></script>
+{% endblock %}

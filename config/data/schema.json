@@ -1,78 +1,78 @@
 {
   "workspaces": [
     {
-      "name": "Default",
-      "description": "Main e-commerce database with sales and customer information",
+      "name": "dfd",
+      "description": "",
       "tables": [
         {
           "name": "customers",
           "description": "Customer information and profiles",
           "columns": [
             {
-              "name": "customer_id",
-              "description": "Unique customer identifier",
               "datatype": "INTEGER",
-              "is_primary_key": true
+              "description": "Unique customer identifier",
+              "is_primary_key": true,
+              "name": "customer_id"
             },
             {
-              "name": "first_name",
+              "datatype": "TEXT",
               "description": "Customer's first name",
-              "datatype": "TEXT",
-              "is_primary_key": false
+              "is_primary_key": false,
+              "name": "first_name"
             },
             {
-              "name": "last_name",
+              "datatype": "TEXT",
               "description": "Customer's last name",
-              "datatype": "TEXT",
-              "is_primary_key": false
+              "is_primary_key": false,
+              "name": "last_name"
             },
             {
-              "name": "email",
+              "datatype": "TEXT",
               "description": "Customer's email address (unique)",
-              "datatype": "TEXT",
-              "is_primary_key": false
+              "is_primary_key": false,
+              "name": "email"
             },
             {
-              "name": "phone",
+              "datatype": "TEXT",
               "description": "Customer's phone number",
-              "datatype": "TEXT",
-              "is_primary_key": false
+              "is_primary_key": false,
+              "name": "phone"
             },
             {
-              "name": "address",
+              "datatype": "TEXT",
               "description": "Customer's street address",
-              "datatype": "TEXT",
-              "is_primary_key": false
+              "is_primary_key": false,
+              "name": "address"
             },
             {
-              "name": "city",
+              "datatype": "TEXT",
               "description": "Customer's city",
-              "datatype": "TEXT",
-              "is_primary_key": false
+              "is_primary_key": false,
+              "name": "city"
             },
             {
-              "name": "state",
+              "datatype": "TEXT",
               "description": "Customer's state/province",
-              "datatype": "TEXT",
-              "is_primary_key": false
+              "is_primary_key": false,
+              "name": "state"
             },
             {
-              "name": "country",
+              "datatype": "TEXT",
               "description": "Customer's country",
-              "datatype": "TEXT",
-              "is_primary_key": false
+              "is_primary_key": false,
+              "name": "country"
             },
             {
-              "name": "postal_code",
+              "datatype": "TEXT",
               "description": "Customer's postal/zip code",
-              "datatype": "TEXT",
-              "is_primary_key": false
+              "is_primary_key": false,
+              "name": "postal_code"
             },
             {
-              "name": "registration_date",
-              "description": "Date when customer registered",
               "datatype": "TEXT",
-              "is_primary_key": false
+              "description": "Date when customer registered",
+              "is_primary_key": false,
+              "name": "registration_date"
             }
           ]
         },
@@ -239,6 +239,11 @@
           ]
         }
       ]
+    },
+    {
+      "name": "Customer",
+      "description": "",
+      "tables": []
     }
   ]
 }

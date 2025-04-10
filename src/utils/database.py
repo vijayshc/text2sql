@@ -1,10 +1,30 @@
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import sessionmaker, scoped_session
 from src.utils.schema_manager import SchemaManager
 import pandas as pd
 import logging
 import time
 from config.config import DATABASE_URI
+
+# Create a global session factory
+_Session = None
+
+def get_db_session():
+    """Get a scoped database session
+    
+    Returns:
+        sqlalchemy.orm.Session: A scoped SQLAlchemy session
+    """
+    global _Session
+    
+    if _Session is None:
+        logger = logging.getLogger('text2sql.database')
+        logger.info(f"Creating new database session factory with URI: {DATABASE_URI}")
+        engine = create_engine(DATABASE_URI)
+        _Session = scoped_session(sessionmaker(bind=engine))
+    
+    return _Session()
 
 class DatabaseManager:
     def __init__(self, connection_string=None):
