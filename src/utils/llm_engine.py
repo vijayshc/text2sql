@@ -39,7 +39,7 @@ class LLMEngine:
             self.logger.error(f"Failed to initialize LLM Engine: {str(e)}", exc_info=True)
             raise
     
-    def generate_completion(self, messages, log_prefix="LLM", max_tokens=None, temperature=None):
+    def generate_completion(self, messages, log_prefix="LLM", max_tokens=None, temperature=None, stream=False):
         """
         Generate a completion using the LLM
         
@@ -48,9 +48,11 @@ class LLMEngine:
             log_prefix (str, optional): Prefix for logging to identify the caller
             max_tokens (int, optional): Maximum tokens to generate, defaults to config value
             temperature (float, optional): Temperature for generation, defaults to config value
+            stream (bool, optional): Whether to stream the response, defaults to False
             
         Returns:
-            str: The generated completion text
+            If stream=False: str: The generated completion text
+            If stream=True: generator: A generator yielding text chunks
         """
         start_time = time.time()
         self.logger.info(f"[{log_prefix}] Completion generation started")
@@ -93,32 +95,68 @@ class LLMEngine:
         temperature = temperature or TEMPERATURE
         
         try:
-            self.logger.debug(f"[{log_prefix}] Sending request to {self.model_name} with max_tokens={max_tokens}, temperature={temperature}")
+            self.logger.debug(f"[{log_prefix}] Sending request to {self.model_name} with max_tokens={max_tokens}, temperature={temperature}, stream={stream}")
             call_start = time.time()
             
-            response = self.client.chat.completions.create(
-                model=self.model_name,
-                messages=openai_messages,
-                max_tokens=max_tokens,
-                temperature=temperature
-            )
-            
-            call_duration = time.time() - call_start
-            self.logger.debug(f"[{log_prefix}] Model response received in {call_duration:.2f}s")
-            
-            # Extract response text
-            completion_text = response.choices[0].message.content
-            
-            # Log truncated response if large
-            if len(completion_text) > 500:
-                self.logger.debug(f"[{log_prefix}] Raw model response: '{completion_text[:500]}...' (truncated)")
-            else:
-                self.logger.debug(f"[{log_prefix}] Raw model response: '{completion_text}'")
+            # Handle streaming case
+            if stream:
+                response = self.client.chat.completions.create(
+                    model=self.model_name,
+                    messages=openai_messages,
+                    max_tokens=max_tokens,
+                    temperature=temperature,
+                    stream=True
+                )
                 
-            processing_time = time.time() - start_time
-            self.logger.info(f"[{log_prefix}] Completion generation completed in {processing_time:.2f}s")
-            self.logger.info(f"**************************")
-            return completion_text
+                def response_generator():
+                    collected_content = []
+                    for chunk in response:
+                        if chunk.choices and len(chunk.choices) > 0:
+                            content = chunk.choices[0].delta.content
+                            if content:
+                                collected_content.append(content)
+                                yield content
+                    
+                    # Log at the end of streaming
+                    call_duration = time.time() - call_start
+                    full_response = "".join(collected_content)
+                    self.logger.debug(f"[{log_prefix}] Model streaming completed in {call_duration:.2f}s")
+                    if len(full_response) > 500:
+                        self.logger.debug(f"[{log_prefix}] Raw model response: '{full_response[:500]}...' (truncated)")
+                    else:
+                        self.logger.debug(f"[{log_prefix}] Raw model response: '{full_response}'")
+                    
+                    processing_time = time.time() - start_time
+                    self.logger.info(f"[{log_prefix}] Completion generation completed in {processing_time:.2f}s")
+                    self.logger.info(f"**************************")
+                
+                return response_generator()
+            
+            # Handle non-streaming case (original behavior)
+            else:
+                response = self.client.chat.completions.create(
+                    model=self.model_name,
+                    messages=openai_messages,
+                    max_tokens=max_tokens,
+                    temperature=temperature
+                )
+                
+                call_duration = time.time() - call_start
+                self.logger.debug(f"[{log_prefix}] Model response received in {call_duration:.2f}s")
+                
+                # Extract response text
+                completion_text = response.choices[0].message.content
+                
+                # Log truncated response if large
+                if len(completion_text) > 500:
+                    self.logger.debug(f"[{log_prefix}] Raw model response: '{completion_text[:500]}...' (truncated)")
+                else:
+                    self.logger.debug(f"[{log_prefix}] Raw model response: '{completion_text}'")
+                    
+                processing_time = time.time() - start_time
+                self.logger.info(f"[{log_prefix}] Completion generation completed in {processing_time:.2f}s")
+                self.logger.info(f"**************************")
+                return completion_text
             
         except Exception as e:
             processing_time = time.time() - start_time

@@ -1,0 +1,52 @@
+<!-- filepath: /home/vijay/text2sql/templates/knowledge/index.html -->
+{% extends "index.html" %}
+
+{% block head %}
+{{ super() }}
+<!-- Highlight.js for code highlighting -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css" rel="stylesheet">
+<!-- Markdown-it for markdown rendering -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/13.0.1/markdown-it.min.js"></script>
+<!-- Knowledge chat specific CSS -->
+<link href="{{ url_for('static', filename='css/knowledge-chat.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Knowledge Finder</h1>
+</div>
+
+<!-- Chat interface -->
+<div class="knowledge-chat-container">
+    <!-- Input area (now at the top) -->
+    <div class="knowledge-input-container">
+        <div class="input-group">
+            <textarea class="form-control" id="knowledgeQuery" rows="2" placeholder="Ask a question about the documents..."></textarea>
+            <button class="btn btn-primary" type="button" id="sendQueryBtn">
+                <i class="fas fa-paper-plane"></i> Send
+            </button>
+        </div>
+    </div>
+    
+    <!-- Messages container (now below the input) -->
+    <div class="knowledge-messages" id="knowledgeMessages">
+        <div class="message system-message">
+            <div class="avatar system-avatar">
+                <i class="fas fa-robot"></i>
+            </div>
+            <div class="message-content">
+                <p>Hello! I'm your knowledge assistant. Ask me anything about the documents in the knowledge base.</p>
+            </div>
+        </div>
+        <!-- Messages will be added here dynamically -->
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<!-- Highlight.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+<!-- Knowledge Base JS -->
+<script src="{{ url_for('static', filename='js/knowledge-base.js') }}"></script>
+{% endblock %}

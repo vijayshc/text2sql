@@ -133,6 +133,11 @@ class Permissions:
     VIEW_SCHEMA = "view_schema"
     MANAGE_SCHEMA = "manage_schema"
     
+    # Knowledge base permissions
+    VIEW_KNOWLEDGE = "view_knowledge"
+    USE_KNOWLEDGE = "use_knowledge"
+    MANAGE_KNOWLEDGE = "manage_knowledge"
+    
     # Admin permissions
     ADMIN_ACCESS = "admin_access"
     MANAGE_USERS = "manage_users"

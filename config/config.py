@@ -28,6 +28,12 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "default-dev-key-change-in-production"
 MAX_TOKENS = int(os.getenv('MAX_TOKENS', '2000'))
 TEMPERATURE = float(os.getenv('TEMPERATURE', '0.7'))
 
+# Knowledge base configuration
+UPLOADS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'uploads')
+os.makedirs(UPLOADS_DIR, exist_ok=True)
+CHUNK_SIZE = int(os.getenv('CHUNK_SIZE', '1000'))
+CHUNK_OVERLAP = int(os.getenv('CHUNK_OVERLAP', '200'))
+
 # Logging configuration
 LOG_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'logs')
 os.makedirs(LOG_DIR, exist_ok=True)

@@ -11,6 +11,7 @@ from src.routes.admin_routes import admin_bp
 from src.routes.admin_api_routes import admin_api_bp
 from src.routes.security_routes import security_bp, generate_csrf_token
 from src.routes.vector_db_routes import vector_db_bp
+from src.routes.knowledge_routes import knowledge_bp
 from src.models.user import Permissions
 from config.config import SECRET_KEY, DEBUG
 import logging
@@ -51,6 +52,14 @@ user_manager = UserManager()
 # Initialize the background task manager
 background_task_mgr = BackgroundTaskManager(sql_manager, user_manager)
 
+# Set up knowledge base permissions
+from src.utils.setup_knowledge_permissions import setup_knowledge_permissions
+setup_knowledge_permissions()
+
+# Configure uploads folder for knowledge base documents
+from config.config import UPLOADS_DIR
+app.config['UPLOAD_FOLDER'] = UPLOADS_DIR
+
 # Register blueprints
 app.register_blueprint(schema_bp)
 app.register_blueprint(auth_bp)
@@ -58,6 +67,7 @@ app.register_blueprint(admin_bp)
 app.register_blueprint(admin_api_bp)
 app.register_blueprint(security_bp)
 app.register_blueprint(vector_db_bp)
+app.register_blueprint(knowledge_bp)
 
 # Make CSRF token available in templates
 @app.context_processor
@@ -67,14 +77,8 @@ def inject_csrf_token():
 # Store query progress
 query_progress = {}
 
-# Authentication check for routes that require login
-def login_required(f):
-    def decorated_function(*args, **kwargs):
-        if not session.get('user_id'):
-            return redirect(url_for('auth.login', next=request.url))
-        return f(*args, **kwargs)
-    decorated_function.__name__ = f.__name__
-    return decorated_function
+# Import login_required from auth_utils
+from src.utils.auth_utils import login_required
 
 @app.route('/')
 @login_required
