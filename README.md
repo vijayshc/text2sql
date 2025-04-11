@@ -7,6 +7,8 @@ This project is a web application designed to bridge the gap between natural lan
 *   **Natural Language to SQL:** Converts user questions into executable SQL queries.
 *   **Database Interaction:** Executes generated SQL against a configured SQLite database (`text2sql.db`) and displays results.
 *   **Schema Awareness:** Leverages detailed schema information (`config/data/schema.json`), including table/column descriptions and relationships (`config/data/condition.json`), to generate contextually accurate queries.
+*   **Knowledge Base Management:** Uploads, processes, and chunks external documents (using MarkItDown for conversion), creating embeddings for semantic search and AI-powered Q&A functionality.
+*   **Document Q&A:** Answers questions based on uploaded documents using vector similarity search and cross-encoder reranking to find relevant context chunks.
 *   **Workspace Support:** Organizes database tables into logical workspaces for better context management.
 *   **Table Mentions:** Allows users to explicitly reference tables using `@tableName` syntax within their queries for precision.
 *   **Interactive UI:** Web interface built with Flask, Bootstrap 5, and modern JavaScript for a responsive user experience.
@@ -20,7 +22,7 @@ This project is a web application designed to bridge the gap between natural lan
 *   **SQL Self-Correction:** Attempts to automatically correct SQL queries that fail execution by feeding the database error back to the AI model for revision.
 *   **Robust Error Handling:** Implements custom error pages and provides user-friendly error messages in the UI when issues occur.
 *   **Configuration:** Flexible configuration via environment variables (`.env` file) for Azure AI, database connections, and application settings.
-*   **Vector Database Management:** Administrative interface for browsing, searching, and managing vector embeddings stored in Milvus vector database. Supports filtering, vector similarity search, and collection management.
+*   **Vector Database Management:** Administrative interface for browsing, searching, and managing vector embeddings stored in vector database. Supports filtering, vector similarity search, and collection management.
 
 ## User Management & Security Features
 

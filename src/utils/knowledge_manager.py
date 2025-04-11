@@ -75,6 +75,17 @@ class KnowledgeManager:
             )
         ''')
         
+        # Create document tags table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS knowledge_document_tags (
+                id TEXT PRIMARY KEY,
+                document_id TEXT NOT NULL,
+                tag TEXT NOT NULL,
+                created_at TIMESTAMP NOT NULL,
+                FOREIGN KEY (document_id) REFERENCES knowledge_documents(id) ON DELETE CASCADE
+            )
+        ''')
+        
         # Create chunks table
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS knowledge_chunks (
@@ -102,12 +113,13 @@ class KnowledgeManager:
         
         self.conn.commit()
     
-    def process_document(self, file_path: str, original_filename: str) -> str:
+    def process_document(self, file_path: str, original_filename: str, tags: List[str] = None) -> str:
         """Process a document, convert to markdown, chunk it and store in vector database
         
         Args:
             file_path: Path to the uploaded file
             original_filename: Original filename
+            tags: List of tags to associate with the document
             
         Returns:
             str: Document ID
@@ -125,6 +137,18 @@ class KnowledgeManager:
             'INSERT INTO knowledge_documents (id, original_filename, file_path, content_type, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
             (document_id, original_filename, file_path, content_type, 'processing', now, now)
         )
+        
+        # Save tags if provided
+        if tags and isinstance(tags, list) and len(tags) > 0:
+            for tag in tags:
+                tag = tag.strip().lower()  # Normalize tags
+                if tag:
+                    tag_id = str(uuid.uuid4())
+                    cursor.execute(
+                        'INSERT INTO knowledge_document_tags (id, document_id, tag, created_at) VALUES (?, ?, ?, ?)',
+                        (tag_id, document_id, tag, now)
+                    )
+        
         self.conn.commit()
         
         # Update processing status
@@ -366,6 +390,9 @@ class KnowledgeManager:
             cursor.execute('SELECT COUNT(*) FROM knowledge_chunks WHERE document_id = ?', (doc_id,))
             chunk_count = cursor.fetchone()[0]
             
+            # Get tags for this document
+            tags = self.get_document_tags(doc_id)
+            
             documents.append({
                 'id': doc_id,
                 'filename': filename,
@@ -373,102 +400,134 @@ class KnowledgeManager:
                 'status': status,
                 'created_at': created_at,
                 'processed_at': processed_at,
-                'chunk_count': chunk_count
+                'chunk_count': chunk_count,
+                'tags': tags
             })
         
         return documents
-    
-    def delete_document(self, document_id: str) -> bool:
-        """Delete a document and its chunks from the system
+        
+    def get_document_tags(self, document_id: str) -> List[str]:
+        """Get tags for a specific document
         
         Args:
             document_id: Document ID
             
         Returns:
+            List of tags
+        """
+        cursor = self.conn.cursor()
+        cursor.execute('SELECT tag FROM knowledge_document_tags WHERE document_id = ?', (document_id,))
+        return [row[0] for row in cursor.fetchall()]
+        
+    def get_all_tags(self) -> List[str]:
+        """Get a list of all unique tags in the system
+        
+        Returns:
+            List of unique tags
+        """
+        cursor = self.conn.cursor()
+        cursor.execute('SELECT DISTINCT tag FROM knowledge_document_tags ORDER BY tag')
+        return [row[0] for row in cursor.fetchall()]
+        
+    def _get_document_ids_by_tags(self, tags: List[str]) -> List[str]:
+        """Get document IDs that have all the specified tags
+        
+        Args:
+            tags: List of tags to filter by
+            
+        Returns:
+            List of document IDs
+        """
+        if not tags:
+            return None
+            
+        # Normalize tags
+        normalized_tags = [tag.strip().lower() for tag in tags if tag.strip()]
+        if not normalized_tags:
+            return None
+            
+        # Construct SQL query to find documents that have ALL the specified tags
+        # This uses a GROUP BY and HAVING COUNT to ensure documents have all tags
+        cursor = self.conn.cursor()
+        placeholders = ','.join(['?' for _ in normalized_tags])
+        
+        query = f"""
+            SELECT document_id FROM knowledge_document_tags
+            WHERE tag IN ({placeholders})
+            GROUP BY document_id
+            HAVING COUNT(DISTINCT tag) = ?
+        """
+        
+        # The params include all tags plus the count of tags
+        params = normalized_tags + [len(normalized_tags)]
+        
+        cursor.execute(query, params)
+        return [row[0] for row in cursor.fetchall()]
+        
+    def add_document_tag(self, document_id: str, tag: str) -> bool:
+        """Add a tag to a document
+        
+        Args:
+            document_id: Document ID
+            tag: Tag to add
+            
+        Returns:
             True if successful, False otherwise
         """
         try:
-            # Get file path
-            cursor = self.conn.cursor()
-            cursor.execute('SELECT file_path FROM knowledge_documents WHERE id = ?', (document_id,))
-            row = cursor.fetchone()
-            
-            if not row:
+            tag = tag.strip().lower()  # Normalize tag
+            if not tag:
                 return False
                 
-            file_path = row[0]
+            now = datetime.now().isoformat()
+            tag_id = str(uuid.uuid4())
             
-            # Delete file if it exists
-            if os.path.exists(file_path):
-                os.remove(file_path)
-            
-            # Get chunk IDs before deleting them from the database
-            chunk_ids = []
-            cursor.execute('SELECT id FROM knowledge_chunks WHERE document_id = ?', (document_id,))
-            for row in cursor.fetchall():
-                chunk_ids.append(row[0])
-            
-            # Delete from database (cascade will delete chunks)
-            cursor.execute('DELETE FROM knowledge_documents WHERE id = ?', (document_id,))
+            # Check if this tag already exists for this document
+            cursor = self.conn.cursor()
+            cursor.execute('SELECT id FROM knowledge_document_tags WHERE document_id = ? AND tag = ?', 
+                        (document_id, tag))
+            if cursor.fetchone():
+                return True  # Tag already exists
+                
+            # Add the new tag
+            cursor.execute(
+                'INSERT INTO knowledge_document_tags (id, document_id, tag, created_at) VALUES (?, ?, ?, ?)',
+                (tag_id, document_id, tag, now)
+            )
             self.conn.commit()
-            
-            # Remove from processing status dict if present
-            if document_id in self.processing_status:
-                del self.processing_status[document_id]                # Delete embeddings from vector store
-            if chunk_ids and self.vector_store:
-                try:
-                    # Process deletions in smaller batches to avoid syntax errors
-                    self.logger.info(f"Deleting {len(chunk_ids)} chunks from vector store in batches")
-                    batch_size = 15  # A reasonable batch size to prevent filter syntax errors
-                    
-                    # Create batches of chunk IDs
-                    for i in range(0, len(chunk_ids), batch_size):
-                        batch_chunk_ids = chunk_ids[i:i+batch_size]
-                        self.logger.info(f"Processing batch {i//batch_size + 1} with {len(batch_chunk_ids)} chunks")
-                        
-                        # Delete each chunk individually to avoid syntax issues with the filter expression
-                        for chunk_id in batch_chunk_ids:
-                            try:
-                                # Try to determine if ID is numeric or string
-                                try:
-                                    # Check if the chunk_id can be converted to an integer
-                                    int_id = int(chunk_id)
-                                    # If it's a number, use without quotes
-                                    filter_expr = f'chunk_id == {int_id}'
-                                except ValueError:
-                                    # If it's not a number, use with quotes
-                                    filter_expr = f'chunk_id == "{chunk_id}"'
-                                
-                                self.logger.info(f"Deleting chunk with filter: {filter_expr}")
-                                self.vector_store.client.delete(
-                                    collection_name='knowledge_chunks',
-                                    filter=filter_expr
-                                )
-                            except Exception as chunk_err:
-                                self.logger.error(f"Error deleting chunk {chunk_id}: {str(chunk_err)}")
-                        
-                        # Flush after each batch
-                        self.vector_store.client.flush('knowledge_chunks')
-                    
-                    # Reload the collection after all deletions
-                    self.vector_store.client.load_collection('knowledge_chunks')
-                    self.logger.info(f"Successfully deleted chunks from vector store for document {document_id}")
-                except Exception as e:
-                    self.logger.error(f"Error deleting chunks from vector store: {str(e)}", exc_info=True)
-                    # Continue despite vector store errors - document is already removed from DB
-            
             return True
         except Exception as e:
-            self.logger.error(f"Error deleting document {document_id}: {str(e)}", exc_info=True)
+            self.logger.error(f"Error adding tag to document {document_id}: {str(e)}", exc_info=True)
             return False
             
-    def get_answer(self, query: str, user_id: int, stream: bool = False):
+    def remove_document_tag(self, document_id: str, tag: str) -> bool:
+        """Remove a tag from a document
+        
+        Args:
+            document_id: Document ID
+            tag: Tag to remove
+            
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute('DELETE FROM knowledge_document_tags WHERE document_id = ? AND tag = ?', 
+                        (document_id, tag.strip().lower()))
+            self.conn.commit()
+            return True
+        except Exception as e:
+            self.logger.error(f"Error removing tag from document {document_id}: {str(e)}", exc_info=True)
+            return False
+    
+    def get_answer(self, query: str, user_id: int, stream: bool = False, tags: List[str] = None):
         """Get an answer to a query using the knowledge base
         
         Args:
             query: The user's question
             user_id: User ID
             stream: Whether to stream the response
+            tags: Optional list of tags to filter documents by
             
         Returns:
             If stream=False: Dictionary with answer and supporting information
@@ -478,12 +537,40 @@ class KnowledgeManager:
             # Create embedding for the query
             query_embedding = self._get_embedding(query)
             
+            # If tags are provided, get the document IDs that have these tags
+            filtered_document_ids = None
+            if tags and isinstance(tags, list) and len(tags) > 0:
+                self.logger.info(f"Filtering documents by tags: {tags}")
+                filtered_document_ids = self._get_document_ids_by_tags(tags)
+                self.logger.info(f"Filtered document IDs: {filtered_document_ids}")
+                if not filtered_document_ids:
+                    self.logger.info(f"No documents found with tags: {tags}")
+                    if stream:
+                        # For streaming requests, we need to return a tuple
+                        def empty_generator():
+                            yield "No documents found with the selected tags."
+                        return empty_generator(), []
+                    else:
+                        return {
+                            'success': False,
+                            'answer': 'No documents found with the selected tags.',
+                            'sources': []
+                        }
+            
             # Search for similar chunks in vector database
+            filter_expr = None
+            if filtered_document_ids:
+                # Create a filter expression like "document_id in ['id1', 'id2', ...]"
+                doc_ids_str = "', '".join(filtered_document_ids)
+                filter_expr = f"document_id in ['{doc_ids_str}']" if doc_ids_str else None
+            
+            
             top_chunks = self.vector_store.search_similar(
                 'knowledge_chunks',
                 query_embedding,
                 limit=100,
-                output_fields=['document_id', 'chunk_id', 'query_text']
+                output_fields=['document_id', 'chunk_id', 'query_text'],
+                filter_expr=filter_expr
             )
 
 
@@ -786,3 +873,122 @@ class KnowledgeManager:
             })
             
         return sources
+    
+    def _get_document_ids_by_tags(self, tags: List[str]) -> List[str]:
+        """Get document IDs that have all the specified tags
+        
+        Args:
+            tags: List of tags to filter by
+            
+        Returns:
+            List of document IDs
+        """
+        if not tags:
+            return None
+            
+        # Normalize tags
+        normalized_tags = [tag.strip().lower() for tag in tags if tag.strip()]
+        if not normalized_tags:
+            return None
+            
+        # Construct SQL query to find documents that have ALL the specified tags
+        # This uses a GROUP BY and HAVING COUNT to ensure documents have all tags
+        cursor = self.conn.cursor()
+        placeholders = ','.join(['?' for _ in normalized_tags])
+        
+        query = f"""
+            SELECT document_id FROM knowledge_document_tags
+            WHERE tag IN ({placeholders})
+            GROUP BY document_id
+            HAVING COUNT(DISTINCT tag) = ?
+        """
+        
+        # The params include all tags plus the count of tags
+        params = normalized_tags + [len(normalized_tags)]
+        
+        cursor.execute(query, params)
+        return [row[0] for row in cursor.fetchall()]
+
+    def delete_document(self, document_id: str) -> bool:
+        """Delete a document and its chunks from the system
+        
+        Args:
+            document_id: Document ID
+            
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            # Get file path
+            cursor = self.conn.cursor()
+            cursor.execute('SELECT file_path FROM knowledge_documents WHERE id = ?', (document_id,))
+            row = cursor.fetchone()
+            
+            if not row:
+                return False
+                
+            file_path = row[0]
+            
+            # Delete file if it exists
+            if os.path.exists(file_path):
+                os.remove(file_path)
+            
+            # Get chunk IDs before deleting them from the database
+            chunk_ids = []
+            cursor.execute('SELECT id FROM knowledge_chunks WHERE document_id = ?', (document_id,))
+            for row in cursor.fetchall():
+                chunk_ids.append(row[0])
+            
+            # Delete from database (cascade will delete chunks)
+            cursor.execute('DELETE FROM knowledge_documents WHERE id = ?', (document_id,))
+            self.conn.commit()
+            
+            # Remove from processing status dict if present
+            if document_id in self.processing_status:
+                del self.processing_status[document_id]                # Delete embeddings from vector store
+            if chunk_ids and self.vector_store:
+                try:
+                    # Process deletions in smaller batches to avoid syntax errors
+                    self.logger.info(f"Deleting {len(chunk_ids)} chunks from vector store in batches")
+                    batch_size = 15  # A reasonable batch size to prevent filter syntax errors
+                    
+                    # Create batches of chunk IDs
+                    for i in range(0, len(chunk_ids), batch_size):
+                        batch_chunk_ids = chunk_ids[i:i+batch_size]
+                        self.logger.info(f"Processing batch {i//batch_size + 1} with {len(batch_chunk_ids)} chunks")
+                        
+                        # Delete each chunk individually to avoid syntax issues with the filter expression
+                        for chunk_id in batch_chunk_ids:
+                            try:
+                                # Try to determine if ID is numeric or string
+                                try:
+                                    # Check if the chunk_id can be converted to an integer
+                                    int_id = int(chunk_id)
+                                    # If it's a number, use without quotes
+                                    filter_expr = f'chunk_id == {int_id}'
+                                except ValueError:
+                                    # If it's not a number, use with quotes
+                                    filter_expr = f'chunk_id == "{chunk_id}"'
+                                
+                                self.logger.info(f"Deleting chunk with filter: {filter_expr}")
+                                self.vector_store.client.delete(
+                                    collection_name='knowledge_chunks',
+                                    filter=filter_expr
+                                )
+                            except Exception as chunk_err:
+                                self.logger.error(f"Error deleting chunk {chunk_id}: {str(chunk_err)}")
+                        
+                        # Flush after each batch
+                        self.vector_store.client.flush('knowledge_chunks')
+                    
+                    # Reload the collection after all deletions
+                    self.vector_store.client.load_collection('knowledge_chunks')
+                    self.logger.info(f"Successfully deleted chunks from vector store for document {document_id}")
+                except Exception as e:
+                    self.logger.error(f"Error deleting chunks from vector store: {str(e)}", exc_info=True)
+                    # Continue despite vector store errors - document is already removed from DB
+            
+            return True
+        except Exception as e:
+            self.logger.error(f"Error deleting document {document_id}: {str(e)}", exc_info=True)
+            return False

@@ -3,6 +3,210 @@
  */
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Tags handling
+    const selectedTags = [];
+    let availableTags = [];
+    const tagSearchInput = document.getElementById('tagSearchInput');
+    const tagDropdown = document.getElementById('tagDropdown');
+    const selectedTagsContainer = document.getElementById('selectedTags');
+    const clearTagsBtn = document.getElementById('clearTagsBtn');
+    
+    // Load available tags
+    loadAvailableTags();
+    
+    // Track the currently selected item in dropdown
+    let currentFocusIndex = -1;
+    
+    // Handle tag input for @ mentions
+    tagSearchInput.addEventListener('input', function(e) {
+        const value = e.target.value;
+        currentFocusIndex = -1; // Reset focus index on input change
+        
+        // Show dropdown only when @ is typed
+        if (value.includes('@')) {
+            const searchTerm = value.split('@').pop().toLowerCase();
+            showTagDropdown(searchTerm);
+        } else {
+            hideTagDropdown();
+        }
+    });
+    
+    // Handle tag input focus
+    tagSearchInput.addEventListener('focus', function(e) {
+        // If the input already has @, show the dropdown
+        if (e.target.value.includes('@')) {
+            const searchTerm = e.target.value.split('@').pop().toLowerCase();
+            showTagDropdown(searchTerm);
+        }
+    });
+    
+    // Handle keyboard navigation for the dropdown
+    tagSearchInput.addEventListener('keydown', function(e) {
+        // Special handling for down arrow - if dropdown is hidden but @ is in input, show it first
+        if (e.key === 'ArrowDown' && tagDropdown.classList.contains('d-none') && tagSearchInput.value.includes('@')) {
+            e.preventDefault();
+            const searchTerm = tagSearchInput.value.split('@').pop().toLowerCase();
+            showTagDropdown(searchTerm);
+            // Wait for dropdown to populate before focusing first item
+            setTimeout(() => {
+                const items = tagDropdown.querySelectorAll('.tag-item');
+                if (items.length > 0) {
+                    currentFocusIndex = 0;
+                    updateFocusedItem(items);
+                }
+            }, 50);
+            return;
+        }
+        
+        // If dropdown is visible, handle keyboard navigation
+        if (!tagDropdown.classList.contains('d-none')) {
+            const items = tagDropdown.querySelectorAll('.tag-item');
+            const itemCount = items.length;
+            
+            if (itemCount === 0) return;
+            
+            // Handle arrow down
+            if (e.key === 'ArrowDown') {
+                e.preventDefault(); // Prevent cursor from moving in input field
+                currentFocusIndex = (currentFocusIndex < itemCount - 1) ? currentFocusIndex + 1 : 0;
+                updateFocusedItem(items);
+            }
+            // Handle arrow up
+            else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                currentFocusIndex = (currentFocusIndex > 0) ? currentFocusIndex - 1 : itemCount - 1;
+                updateFocusedItem(items);
+            }
+            // Handle enter key to select tag
+            else if (e.key === 'Enter' && currentFocusIndex >= 0) {
+                e.preventDefault();
+                const selectedTag = items[currentFocusIndex].textContent;
+                addTag(selectedTag);
+                hideTagDropdown();
+                tagSearchInput.value = '';
+            }
+            // Handle escape key to close dropdown
+            else if (e.key === 'Escape') {
+                hideTagDropdown();
+            }
+        }
+    });
+    
+    // Handle click outside to hide dropdown
+    document.addEventListener('click', function(e) {
+        if (!tagSearchInput.contains(e.target) && !tagDropdown.contains(e.target)) {
+            hideTagDropdown();
+        }
+    });
+    
+    // Handle clear tags button
+    clearTagsBtn.addEventListener('click', function() {
+        clearTags();
+    });
+    
+    // Function to load available tags
+    function loadAvailableTags() {
+        fetch('/api/knowledge/tags')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && Array.isArray(data.tags)) {
+                    availableTags = data.tags;
+                }
+            })
+            .catch(error => console.error('Error loading tags:', error));
+    }
+    
+    // Function to show tag dropdown with filtered tags
+    function showTagDropdown(searchTerm) {
+        // Filter tags based on search term
+        const filteredTags = availableTags.filter(tag => 
+            tag.toLowerCase().includes(searchTerm.toLowerCase()) && 
+            !selectedTags.includes(tag)
+        );
+        
+        // Clear dropdown
+        tagDropdown.innerHTML = '';
+        currentFocusIndex = -1;  // Reset focus index when showing dropdown
+        
+        if (filteredTags.length === 0) {
+            tagDropdown.classList.add('d-none');
+            return;
+        }
+        
+        // Add filtered tags to dropdown
+        filteredTags.forEach(tag => {
+            const tagItem = document.createElement('div');
+            tagItem.className = 'tag-item';
+            tagItem.textContent = tag;
+            tagItem.addEventListener('click', () => {
+                addTag(tag);
+                hideTagDropdown();
+                tagSearchInput.value = '';
+            });
+            tagDropdown.appendChild(tagItem);
+        });
+        
+        tagDropdown.classList.remove('d-none');
+    }
+    
+    // Function to update the focused item in the dropdown
+    function updateFocusedItem(items) {
+        // Remove focus from all items
+        for (let i = 0; i < items.length; i++) {
+            items[i].classList.remove('tag-item-focused');
+        }
+        
+        // Add focus to the selected item
+        if (currentFocusIndex >= 0) {
+            items[currentFocusIndex].classList.add('tag-item-focused');
+            items[currentFocusIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }
+    
+    // Function to hide tag dropdown
+    function hideTagDropdown() {
+        tagDropdown.classList.add('d-none');
+    }
+    
+    // Function to add a tag
+    function addTag(tag) {
+        if (!selectedTags.includes(tag)) {
+            selectedTags.push(tag);
+            renderSelectedTags();
+        }
+    }
+    
+    // Function to remove a tag
+    function removeTag(tag) {
+        const index = selectedTags.indexOf(tag);
+        if (index !== -1) {
+            selectedTags.splice(index, 1);
+            renderSelectedTags();
+        }
+    }
+    
+    // Function to clear all tags
+    function clearTags() {
+        selectedTags.length = 0;
+        renderSelectedTags();
+    }
+    
+    // Function to render selected tags
+    function renderSelectedTags() {
+        selectedTagsContainer.innerHTML = '';
+        
+        selectedTags.forEach(tag => {
+            const tagElement = document.createElement('span');
+            tagElement.className = 'selected-tag';
+            tagElement.innerHTML = `${tag} <span class="tag-remove"><i class="fas fa-times"></i></span>`;
+            
+            const removeBtn = tagElement.querySelector('.tag-remove');
+            removeBtn.addEventListener('click', () => removeTag(tag));
+            
+            selectedTagsContainer.appendChild(tagElement);
+        });
+    }
+    
     // Initialize markdown-it - the library exposes itself as a function, not as markdownIt
     const md = window.markdownit({
         html: false,
@@ -101,6 +305,13 @@ document.addEventListener('DOMContentLoaded', function() {
         updateSystemMessage(loadingMessage, '<div class="streaming-content"></div>');
         const streamingContentDiv = loadingMessage.querySelector('.streaming-content');
         
+        // Display tags if any are selected
+        let tagsInfo = '';
+        if (selectedTags.length > 0) {
+            tagsInfo = `<div class="tags-info mb-2"><small class="text-muted">Filtered by tags: ${selectedTags.map(tag => `<span class="badge bg-info text-dark">${tag}</span>`).join(' ')}</small></div>`;
+            streamingContentDiv.innerHTML = tagsInfo + streamingContentDiv.innerHTML;
+        }
+        
         // First make a POST request to initiate the query
         fetch('/api/knowledge/query/stream', {
             method: 'POST',
@@ -108,7 +319,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 'Content-Type': 'application/json',
                 'X-CSRF-Token': document.querySelector('input[name="csrf_token"]')?.value || ''
             },
-            body: JSON.stringify({ query: query })
+            body: JSON.stringify({ 
+                query: query,
+                tags: selectedTags 
+            })
         }).then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');

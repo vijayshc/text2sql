@@ -85,6 +85,7 @@ class LLMEngine:
         
         # Log the prompt message but truncate if too large
         prompt_str = str(openai_messages)
+        self.logger.info(f"[{log_prefix}] Prompt message: {prompt_str}")
         if len(prompt_str) > 500:
             self.logger.debug(f"[{log_prefix}] Prompt: {prompt_str[:500]}... (truncated)")
         else:

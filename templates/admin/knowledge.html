@@ -33,6 +33,7 @@
                         <th>Filename</th>
                         <th>Type</th>
                         <th>Status</th>
+                        <th>Tags</th>
                         <th>Uploaded</th>
                         <th>Chunks</th>
                         <th>Actions</th>
@@ -52,6 +53,13 @@
                             <span class="badge bg-danger">Error</span>
                             {% else %}
                             <span class="badge bg-secondary">{{ doc.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if doc.tags %}
+                                {% for tag in doc.tags %}
+                                <span class="badge bg-info text-dark">{{ tag }}</span>
+                                {% endfor %}
                             {% endif %}
                         </td>
                         <td>{{ doc.created_at }}</td>
@@ -84,6 +92,11 @@
                     <div class="mb-3">
                         <label for="documentFile" class="form-label">Select Document</label>
                         <input class="form-control" type="file" id="documentFile" name="document" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="documentTags" class="form-label">Tags</label>
+                        <input type="text" class="form-control" id="documentTags" name="tags" placeholder="Enter tags separated by commas">
+                        <div class="form-text">Add tags to categorize your document (e.g. policy, manual, report)</div>
                     </div>
                     <div class="small text-muted mb-3">
                         Supported file types: PDF, DOCX, XLSX, PPTX, and more.

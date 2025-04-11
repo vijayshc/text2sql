@@ -1108,3 +1108,10 @@ table.dataTable tbody td {
         margin-bottom: 0.5rem !important;
     }
 }
+
+/* Tag keyboard navigation styles */
+.tag-item-focused {
+    background-color: #9fe4ff;
+    border-left: 3px solid #4a6fdc;
+    padding-left: 9px; /* Adjust padding to account for border */
+}

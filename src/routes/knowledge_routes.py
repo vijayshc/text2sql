@@ -1,8 +1,3 @@
-"""
-Routes for the knowledge base feature.
-Handles document upload, conversion, chunking, embedding, and retrieval.
-"""
-
 from flask import Blueprint, render_template, request, jsonify, session, current_app, flash, redirect, url_for, send_from_directory
 import os
 import uuid
@@ -65,14 +60,24 @@ def upload_document():
         file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
         
+        # Get tags from the form data (comma-separated string)
+        tags = []
+        if 'tags' in request.form:
+            tags_string = request.form.get('tags', '')
+            if tags_string:
+                tags = [tag.strip() for tag in tags_string.split(',') if tag.strip()]
+        
         # Process the document asynchronously
-        document_id = knowledge_manager.process_document(file_path, original_filename)
+        document_id = knowledge_manager.process_document(file_path, original_filename, tags)
         
         return jsonify({
             'success': True, 
             'message': 'Document uploaded and processing started',
             'documentId': document_id,
-            'originalFilename': original_filename
+            'originalFilename': original_filename,
+            'tags': tags,
+            'originalFilename': original_filename,
+            'tags': tags
         })
     
     return jsonify({'success': False, 'error': 'Failed to upload document'}), 400
@@ -111,9 +116,11 @@ def query_knowledge():
         
     query = data.get('query')
     user_id = session.get('user_id')
+    # Get tags for filtering if provided
+    tags = data.get('tags', [])
     
     # Get the answer using the knowledge manager
-    result = knowledge_manager.get_answer(query, user_id)
+    result = knowledge_manager.get_answer(query, user_id, stream=False, tags=tags)
     
     return jsonify(result)
 
@@ -135,21 +142,31 @@ def query_knowledge_stream():
             return jsonify({"error": "No query provided"}), 400
             
         query = data.get('query')
+        tags = data.get('tags', [])
         
-        # Store the query in session for the subsequent GET request
+        # Store the query and tags in session for the subsequent GET request
         session['current_knowledge_query'] = query
+        session['current_knowledge_tags'] = tags
         return jsonify({"success": True, "message": "Query received"})
     
     # Handle GET request (SSE streaming)
     elif request.method == 'GET':
         query = request.args.get('query') or session.get('current_knowledge_query')
+        tags = session.get('current_knowledge_tags', [])
         
         if not query:
             return jsonify({"error": "No query found"}), 400
     
     try:
         # Get the streaming answer using the knowledge manager
-        stream_generator, sources = knowledge_manager.get_answer(query, user_id, stream=True)
+        result = knowledge_manager.get_answer(query, user_id, stream=True, tags=tags)
+        
+        # Check if result is a tuple with two values (stream_generator, sources)
+        if isinstance(result, tuple) and len(result) == 2:
+            stream_generator, sources = result
+        else:
+            # If it's not a tuple with two values, handle the error case
+            return jsonify({"error": "Invalid response from knowledge manager"}), 500
         
         # Create a generator that yields server-sent events
         def generate_sse():
@@ -185,3 +202,54 @@ def query_knowledge_stream():
             "success": False,
             "error": "An error occurred while processing your question."
         }), 500
+
+# Route to get all available tags
+@knowledge_bp.route('/api/knowledge/tags', methods=['GET'])
+@login_required
+@permission_required(Permissions.VIEW_KNOWLEDGE)
+def get_all_tags():
+    """Get a list of all available tags in the knowledge base"""
+    tags = knowledge_manager.get_all_tags()
+    return jsonify({'success': True, 'tags': tags})
+
+# Route to add a tag to a document
+@knowledge_bp.route('/api/knowledge/tag/add', methods=['POST'])
+@login_required
+@admin_required
+def add_document_tag():
+    """Add a tag to a document"""
+    data = request.get_json()
+    
+    if not data or 'document_id' not in data or 'tag' not in data:
+        return jsonify({'success': False, 'error': 'Missing document_id or tag'}), 400
+        
+    document_id = data.get('document_id')
+    tag = data.get('tag')
+    
+    success = knowledge_manager.add_document_tag(document_id, tag)
+    
+    if success:
+        return jsonify({'success': True, 'message': 'Tag added successfully'})
+    else:
+        return jsonify({'success': False, 'error': 'Failed to add tag'}), 500
+
+# Route to remove a tag from a document
+@knowledge_bp.route('/api/knowledge/tag/remove', methods=['POST'])
+@login_required
+@admin_required
+def remove_document_tag():
+    """Remove a tag from a document"""
+    data = request.get_json()
+    
+    if not data or 'document_id' not in data or 'tag' not in data:
+        return jsonify({'success': False, 'error': 'Missing document_id or tag'}), 400
+        
+    document_id = data.get('document_id')
+    tag = data.get('tag')
+    
+    success = knowledge_manager.remove_document_tag(document_id, tag)
+    
+    if success:
+        return jsonify({'success': True, 'message': 'Tag removed successfully'})
+    else:
+        return jsonify({'success': False, 'error': 'Failed to remove tag'}), 500
