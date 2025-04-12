@@ -6,6 +6,7 @@ Handles storage and retrieval of vector embeddings using Milvus.
 import logging
 import time
 import os
+import json
 from typing import List, Dict, Any, Optional
 import numpy as np
 
@@ -176,7 +177,7 @@ class VectorStore:
                 data=data
             )
             
-            self.logger.debug(f"Inserted embedding for feedback_id {feedback_id} into collection {collection_name}")
+            self.logger.info(f"Inserted embedding for feedback_id {feedback_id} into collection {collection_name}")
             return True
         except Exception as e:
             self.logger.error(f"Error inserting embedding into collection {collection_name}: {str(e)}", exc_info=True)
@@ -202,10 +203,12 @@ class VectorStore:
         try:
             # If no specific output fields are provided, try to get all available fields
             # from collection schema or use default fields
+            self.logger.info(f"output_fields: {output_fields}")
             if not output_fields:
                 try:
                     # Get collection schema to identify available fields
                     collection_info = self.client.describe_collection(collection_name)
+                    self.logger.info(f"Collection info: {collection_info}")
                     if 'schema' in collection_info:
                         output_fields = []
                         for field in collection_info['schema']:
@@ -216,15 +219,23 @@ class VectorStore:
                             if field_name and field_type and field_type != 'VECTOR':
                                 output_fields.append(field_name)
                 except Exception as schema_e:
-                    self.logger.warning(f"Couldn't get schema for {collection_name}: {schema_e}")
+                    self.logger.info(f"Couldn't get schema for {collection_name}: {schema_e}")
                     # Default fields if schema retrieval fails
                     output_fields = ["id"]
             
-            # Ensure ID field is included
-            if "id" not in output_fields and not any(f.lower() == 'id' for f in output_fields):
+            # Ensure output_fields is a list and ID field is included
+            if output_fields is None:
+                # Use a more comprehensive default field list when schema retrieval fails
+                output_fields = ["id", "query_text", "sql_query", "feedback_rating", "results_summary", 
+                                "workspace", "tables_used", "is_manual_sample", "created_at","chunk_id","document_id"]
+            elif "id" not in output_fields and not any(f.lower() == 'id' for f in output_fields):
                 output_fields.append("id")
                 
-            self.logger.debug(f"Searching collection {collection_name} with fields: {output_fields}")
+            self.logger.info(f"Searching collection {collection_name} with fields: {output_fields}")
+            
+            # Ensure we get all available fields by explicitly passing them
+            # Note: Milvus client needs output_fields parameter to return all columns
+            self.logger.info(f"Using output fields for search: {output_fields}")
             
             # Execute the search
             results = self.client.search(
@@ -235,22 +246,56 @@ class VectorStore:
                 output_fields=output_fields
             )
             
+
             # Process and format the results
             formatted_results = []
-           
+            
             if results and len(results) > 0:
+                # Log the structure of the first result for debugging
+                if len(results[0]) > 0:
+                    self.logger.info(f"Search result structure: {list(results[0][0].keys())}")
+
+                
                 for hit in results[0]:
                     # Create a base entry with the ID
                     entry = {'id': hit['id']}
                     
                     # Extract all entity fields
                     if 'entity' in hit and isinstance(hit['entity'], dict):
+                        #self.logger.info(f"Entity fields: {list(hit['entity'].keys())}")
                         for key, value in hit['entity'].items():
                             # Process special case for comma-separated values that might be lists
                             if isinstance(value, str) and ',' in value and key.endswith('_used'):
                                 entry[key] = value.split(',')
                             else:
                                 entry[key] = value
+                    
+                    # Extract metadata field if it exists
+                    if 'metadata' in hit and hit['metadata']:
+                        self.logger.info(f"Metadata found in hit")
+                        try:
+                            if isinstance(hit['metadata'], str):
+                                metadata_dict = json.loads(hit['metadata'])
+                                for key, value in metadata_dict.items():
+                                    entry[key] = value
+                            elif isinstance(hit['metadata'], dict):
+                                for key, value in hit['metadata'].items():
+                                    entry[key] = value
+                        except Exception as metadata_e:
+                            self.logger.error(f"Error parsing metadata: {metadata_e}")
+                    
+                    # Extract any other fields directly in the hit
+                    for key, value in hit.items():
+                        if key not in ['id', 'entity', 'distance', 'metadata'] and value is not None:
+                            entry[key] = value
+                    
+                    # Extract text field
+                    if 'text' in hit:
+                        entry['text'] = hit['text']
+                    
+                    # Extract query_text field
+                    if 'query_text' in hit:
+                        entry['query_text'] = hit['query_text']
                     
                     # Always add similarity score
                     entry['similarity'] = hit.get('distance')
@@ -311,7 +356,7 @@ class VectorStore:
                 filter=filter_expr
             )
             
-            self.logger.debug(f"Deleted embedding for feedback_id {feedback_id} from collection {collection_name}")
+            self.logger.info(f"Deleted embedding for feedback_id {feedback_id} from collection {collection_name}")
             return True
         except Exception as e:
             self.logger.error(f"Error deleting embedding from collection {collection_name}: {str(e)}", exc_info=True)
@@ -349,7 +394,7 @@ class VectorStore:
                             if field_name and field_type and field_type != 'VECTOR':
                                 output_fields.append(field_name)
                 except Exception as schema_e:
-                    self.logger.warning(f"Couldn't get schema for {collection_name}: {schema_e}")
+                    self.logger.info(f"Couldn't get schema for {collection_name}: {schema_e}")
                     # Default to just ID if schema retrieval fails
                     output_fields = ["id"]
             

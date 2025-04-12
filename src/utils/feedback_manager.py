@@ -58,7 +58,7 @@ class FeedbackManager:
             # Also connect to vector store
             vector_conn_success = self.vector_store.connect()
             if not vector_conn_success:
-                self.logger.warning("Failed to connect to vector store, vector similarity search will be unavailable")
+                self.logger.info("Failed to connect to vector store, vector similarity search will be unavailable")
             
             return True
         except Exception as e:
@@ -66,26 +66,10 @@ class FeedbackManager:
             print(f"Database connection error: {e}")
             return False
     
-    def _get_embedding_model(self):
-        """Get or initialize the sentence transformer model for embeddings
-        
-        Returns:
-            SentenceTransformer: The initialized embedding model
-        """
-        if self.embedding_model is None:
-            start_time = time.time()
-            self.logger.info("Loading embedding model 'sentence-transformers/all-MiniLM-L12-v2'")
-            try:
-                self.embedding_model = SentenceTransformer('all-MiniLM-L12-v2')
-                self.logger.info(f"Embedding model loaded in {time.time() - start_time:.2f}s")
-            except Exception as e:
-                self.logger.error(f"Failed to load embedding model: {str(e)}", exc_info=True)
-                # Return None if failed to load model
-                return None
-        return self.embedding_model
+    # _get_embedding_model method has been moved to LLMEngine class
     
     def _generate_embedding(self, text: str) -> Optional[np.ndarray]:
-        """Generate embedding for the given text
+        """Generate embedding for the given text using the centralized LLM engine
         
         Args:
             text (str): Text to generate embedding for
@@ -93,40 +77,36 @@ class FeedbackManager:
         Returns:
             Optional[np.ndarray]: Embedding vector or None if failed
         """
-        model = self._get_embedding_model()
-        if not model or not text:
+        if not text:
             return None
             
         try:
-            start_time = time.time()
-            # Generate embedding vector
-            embedding = model.encode(text)
+            # Use the centralized LLM engine to generate embeddings
+            from src.utils.llm_engine import LLMEngine
+            llm_engine = LLMEngine()
+            embedding = llm_engine.generate_embedding(text)
             
-            self.logger.debug(f"Generated embedding in {time.time() - start_time:.2f}s " +
-                             f"with shape {embedding.shape}")
+            # Return embedding result
             return embedding
             
         except Exception as e:
             self.logger.error(f"Error generating embedding: {str(e)}", exc_info=True)
             return None
             
+    # _get_reranking_model method has been moved to LLMEngine class
     def _get_reranking_model(self):
-        """Get or initialize a cross-encoder model for more accurate reranking
+        """Get the reranking model from the centralized LLM engine
         
         Returns:
-            SentenceTransformer: The initialized reranking model (cross-encoder)
+            CrossEncoder: The initialized reranking model (cross-encoder)
         """
-        if not hasattr(self, 'reranking_model') or self.reranking_model is None:
-            start_time = time.time()
-            self.logger.info("Loading reranking model 'cross-encoder/ms-marco-MiniLM-L-6-v2'")
-            try:
-                from sentence_transformers import CrossEncoder
-                self.reranking_model = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2')
-                self.logger.info(f"Reranking model loaded in {time.time() - start_time:.2f}s")
-            except Exception as e:
-                self.logger.error(f"Failed to load reranking model: {str(e)}", exc_info=True)
-                return None
-        return self.reranking_model
+        try:
+            from src.utils.llm_engine import LLMEngine
+            llm_engine = LLMEngine()
+            return llm_engine.get_reranking_model()
+        except Exception as e:
+            self.logger.error(f"Failed to get reranking model from LLMEngine: {str(e)}", exc_info=True)
+            return None
     
     def save_feedback(self, query_text: str, sql_query: str, results_summary: str, 
                       workspace: str, feedback_rating: int, tables_used: List[str], 
@@ -220,10 +200,11 @@ class FeedbackManager:
         """
         # Generate embedding for the input query
         embedding_vector = self._generate_embedding(query_text)
+        self.logger.info(f"Generated embedding for query: '{embedding_vector}...'")
         
         # If embedding generation failed, fall back to text-based search
         if embedding_vector is None:
-            self.logger.warning("Embedding generation failed, falling back to text-based search")
+            self.logger.info("Embedding generation failed, falling back to text-based search")
             return self._find_similar_queries_text_based(query_text, limit, positive_only)
         
         try:
@@ -242,7 +223,7 @@ class FeedbackManager:
                 self.logger.info(f"Found {len(similar_queries)} similar queries using vector similarity for '{query_text[:50]}...'")
                 return similar_queries
             else:
-                self.logger.warning(f"No similar queries found in vector store, falling back to text-based search")
+                self.logger.info(f"No similar queries found in vector store, falling back to text-based search")
                 return self._find_similar_queries_text_based(query_text, limit, positive_only)
             
         except Exception as e:
@@ -270,7 +251,7 @@ class FeedbackManager:
             
             # If embedding generation failed, fall back to text-based search
             if embedding_vector is None:
-                self.logger.warning("Embedding generation failed, falling back to text-based search")
+                self.logger.info("Embedding generation failed, falling back to text-based search")
                 return self._find_similar_queries_text_based(query_text, limit, positive_only)
             
             # Create filter expression for positive_only if needed
@@ -283,9 +264,11 @@ class FeedbackManager:
                 limit=initial_candidates_limit,
                 filter_expr=filter_expr
             )
+
+ 
            
             if not top_candidates:
-                self.logger.warning("No candidates found from vector search, falling back to text-based search")
+                self.logger.info("No candidates found from vector search, falling back to text-based search")
                 return self._find_similar_queries_text_based(query_text, limit, positive_only)
                 
             self.logger.info(f"Found {len(top_candidates)} initial candidates from vector search")
@@ -297,11 +280,37 @@ class FeedbackManager:
                 
                 if (reranker):
                     # Prepare candidate pairs for reranking
-                    candidate_pairs = [(query_text, candidate['query_text']) for candidate in top_candidates]
-                    #self.logger.info(candidate_pairs)
+                    # Handle cases where 'query_text' might be missing in the candidates
+                    candidate_pairs = []
+                    valid_candidates = []
+                    
+                    for candidate in top_candidates:
+                        # Check if query_text exists, otherwise try to find it in other fields
+                        if 'query_text' in candidate:
+                            candidate_pairs.append((query_text, candidate['query_text']))
+                            valid_candidates.append(candidate)
+                        else:
+                            # Look for query text in metadata fields
+                            self.logger.debug(f"'query_text' not found in candidate, checking alternative fields")
+                            if 'text' in candidate:
+                                candidate_pairs.append((query_text, candidate['text']))
+                                valid_candidates.append(candidate)
+                                # Create query_text field for consistency
+                                candidate['query_text'] = candidate['text']
+                            else:
+                                self.logger.info(f"Skipping candidate without query text: {candidate}")
+                    
+                    # Update top_candidates to only include valid ones
+                    top_candidates = valid_candidates
+                    
+                    if not candidate_pairs:
+                        self.logger.info("No valid candidates found with query text, skipping reranking")
+                        return top_candidates[:limit]
+                        
                     # Get reranking scores
                     try:
                         rerank_scores = reranker.predict(candidate_pairs)
+                        self.logger.info(f"Reranking scores: {rerank_scores}")
                         
                         # Add rerank scores to candidates
                         for idx, score in enumerate(rerank_scores):
@@ -318,7 +327,7 @@ class FeedbackManager:
                             self.logger.info(f"Reranking successful, returning top {min(limit, len(reranked_candidates))} results")
                             return reranked_candidates[:limit]
                         else:
-                            self.logger.warning("No candidates with positive reranking scores, returning vector search results")
+                            self.logger.info("No candidates with positive reranking scores, returning vector search results")
                             return top_candidates[:limit]
                         
                     except Exception as e:
@@ -326,7 +335,7 @@ class FeedbackManager:
                         self.logger.info("Falling back to vector search results")
                         return top_candidates[:limit]
                 else:
-                    self.logger.warning("Reranker not available, returning vector search results")
+                    self.logger.info("Reranker not available, returning vector search results")
                     return top_candidates[:limit]
             else:
                 # Not enough candidates to rerank
@@ -357,7 +366,7 @@ class FeedbackManager:
             search_terms = [term for term in query_text.lower().split() if len(term) > 3]
             
             if not search_terms:
-                self.logger.warning("No valid search terms found in query")
+                self.logger.info("No valid search terms found in query")
                 return []
                 
             # Build a simple LIKE query for each search term

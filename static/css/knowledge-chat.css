@@ -149,6 +149,15 @@
     position: relative;
 }
 
+/* Add border to d-flex align-items-center elements in knowledge base */
+.search-type-selector .d-flex.align-items-center,
+.tag-selection-container .d-flex.align-items-center {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 8px;
+    background-color: #fafafa;
+}
+
 .system-message .avatar {
     margin-right: 8px;
 }

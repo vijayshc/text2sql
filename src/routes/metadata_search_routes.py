@@ -22,24 +22,19 @@ schema_vectorizer = None
 llm_engine = None
 reranking_model = None
 
+# _get_reranking_model function has been moved to LLMEngine class
 def _get_reranking_model():
-    """Get or initialize a cross-encoder model for more accurate reranking
+    """Get the reranking model from the centralized LLM engine
     
     Returns:
         CrossEncoder: The initialized reranking model (cross-encoder)
     """
-    global reranking_model
-    if reranking_model is None:
-        start_time = time.time()
-        logger.info("Loading reranking model 'cross-encoder/ms-marco-MiniLM-L-6-v2'")
-        try:
-            from sentence_transformers import CrossEncoder
-            reranking_model = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2')
-            logger.info(f"Reranking model loaded in {time.time() - start_time:.2f}s")
-        except Exception as e:
-            logger.error(f"Failed to load reranking model: {str(e)}", exc_info=True)
-            return None
-    return reranking_model
+    global llm_engine
+    try:
+        return llm_engine.get_reranking_model()
+    except Exception as e:
+        logger.error(f"Failed to get reranking model from LLMEngine: {str(e)}", exc_info=True)
+        return None
 
 @metadata_search_bp.before_app_first_request
 def setup_metadata_search():

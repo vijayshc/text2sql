@@ -3,6 +3,7 @@ import json
 import sys
 import logging
 import time
+import numpy as np
 from config.config import (
     OPENROUTER_API_KEY, OPENROUTER_BASE_URL, OPENROUTER_MODEL,
     MAX_TOKENS, TEMPERATURE
@@ -35,9 +36,77 @@ class LLMEngine:
             )
             self.model_name = OPENROUTER_MODEL
             self.logger.info("LLM Engine initialized successfully")
+            # Initialize models as None initially - they will be loaded on demand
+            self.embedding_model = None
+            self.reranking_model = None
         except Exception as e:
             self.logger.error(f"Failed to initialize LLM Engine: {str(e)}", exc_info=True)
             raise
+    
+    def get_embedding_model(self):
+        """Get or initialize the sentence transformer model for embeddings
+        
+        Returns:
+            SentenceTransformer: The initialized embedding model
+        """
+        if self.embedding_model is None:
+            start_time = time.time()
+            self.logger.info("Loading embedding model 'sentence-transformers/all-MiniLM-L12-v2'")
+            try:
+                from sentence_transformers import SentenceTransformer
+                self.embedding_model = SentenceTransformer('all-MiniLM-L12-v2')
+                self.logger.info(f"Embedding model loaded in {time.time() - start_time:.2f}s")
+            except Exception as e:
+                self.logger.error(f"Failed to load embedding model: {str(e)}", exc_info=True)
+                # Return None if failed to load model
+                return None
+        return self.embedding_model
+    
+    def generate_embedding(self, text: str):
+        """Generate embedding for the given text
+        
+        Args:
+            text (str): Text to generate embedding for
+            
+        Returns:
+            numpy.ndarray or list: Embedding vector or None if failed
+        """
+        model = self.get_embedding_model()
+        if not model or not text:
+            self.logger.warning("Embedding model not available or empty text, using random embedding as fallback")
+            return np.random.randn(384).tolist()
+            
+        try:
+            start_time = time.time()
+            # Generate embedding vector
+            embedding = model.encode(text)
+            
+            self.logger.debug(f"Generated embedding in {time.time() - start_time:.2f}s " +
+                             f"with shape {embedding.shape}")
+            return embedding
+            
+        except Exception as e:
+            self.logger.error(f"Error generating embedding: {str(e)}", exc_info=True)
+            # Fallback to random embeddings
+            return np.random.randn(384).tolist()
+    
+    def get_reranking_model(self):
+        """Get or initialize a cross-encoder model for more accurate reranking
+        
+        Returns:
+            CrossEncoder: The initialized reranking model (cross-encoder)
+        """
+        if self.reranking_model is None:
+            start_time = time.time()
+            self.logger.info("Loading reranking model 'cross-encoder/ms-marco-MiniLM-L-6-v2'")
+            try:
+                from sentence_transformers import CrossEncoder
+                self.reranking_model = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2')
+                self.logger.info(f"Reranking model loaded in {time.time() - start_time:.2f}s")
+            except Exception as e:
+                self.logger.error(f"Failed to load reranking model: {str(e)}", exc_info=True)
+                return None
+        return self.reranking_model
     
     def generate_completion(self, messages, log_prefix="LLM", max_tokens=None, temperature=None, stream=False):
         """

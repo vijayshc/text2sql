@@ -325,27 +325,10 @@ class KnowledgeManager:
         
         self.conn.commit()
     
-    def _get_embedding_model(self):
-        """Get or initialize the sentence transformer model for embeddings
-        
-        Returns:
-            SentenceTransformer: The initialized embedding model
-        """
-        if not hasattr(self, 'embedding_model') or self.embedding_model is None:
-            start_time = time.time()
-            self.logger.info("Loading embedding model 'sentence-transformers/all-MiniLM-L12-v2'")
-            try:
-                from sentence_transformers import SentenceTransformer
-                self.embedding_model = SentenceTransformer('all-MiniLM-L12-v2')
-                self.logger.info(f"Embedding model loaded in {time.time() - start_time:.2f}s")
-            except Exception as e:
-                self.logger.error(f"Failed to load embedding model: {str(e)}", exc_info=True)
-                # Return None if failed to load model
-                return None
-        return self.embedding_model
+    # _get_embedding_model method has been moved to LLMEngine class
         
     def _get_embedding(self, text: str) -> List[float]:
-        """Get embedding for a text using sentence transformer model
+        """Get embedding for a text using the centralized LLM engine
         
         Args:
             text: Text to embed
@@ -353,25 +336,13 @@ class KnowledgeManager:
         Returns:
             Vector embedding
         """
-        model = self._get_embedding_model()
-        if not model or not text:
-            # Fall back to random embeddings if model loading failed
-            self.logger.warning("Embedding model not available, using random embedding as fallback")
-            return np.random.randn(384).tolist()
-            
-        try:
-            start_time = time.time()
-            # Generate embedding vector
-            embedding = model.encode(text)
-            
-            self.logger.debug(f"Generated embedding in {time.time() - start_time:.2f}s " +
-                             f"with shape {embedding.shape}")
+        # Use the centralized LLM engine to generate embeddings
+        embedding = self.llm_engine.generate_embedding(text)
+        
+        # Convert to list if it's a numpy array
+        if isinstance(embedding, np.ndarray):
             return embedding.tolist()
-            
-        except Exception as e:
-            self.logger.error(f"Error generating embedding: {str(e)}", exc_info=True)
-            # Fallback to random embeddings if embedding generation fails
-            return np.random.randn(384).tolist()
+        return embedding
     
     def get_document_status(self, document_id: str) -> Dict[str, Any]:
         """Get the processing status of a document
@@ -600,7 +571,7 @@ class KnowledgeManager:
             top_chunks = self.vector_store.search_similar(
                 'knowledge_chunks',
                 query_embedding,
-                limit=100,
+                limit=50,
                 output_fields=['document_id', 'chunk_id', 'query_text'],
                 filter_expr=filter_expr
             )
@@ -674,24 +645,22 @@ class KnowledgeManager:
                 'answer': 'Sorry, an error occurred while processing your question.'
             }
     
+    # _get_reranking_model method has been moved to LLMEngine class
+    # _get_reranking_model method has been moved to LLMEngine class
     def _get_reranking_model(self):
-        """Get or initialize a cross-encoder model for more accurate reranking
+        """Get the reranking model from the centralized LLM engine
         
         Returns:
             CrossEncoder: The initialized reranking model (cross-encoder)
         """
-        if not hasattr(self, 'reranking_model') or self.reranking_model is None:
-            start_time = time.time()
-            self.logger.info("Loading reranking model 'cross-encoder/ms-marco-MiniLM-L-6-v2'")
-            try:
-                from sentence_transformers import CrossEncoder
-                self.reranking_model = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2')
-                self.logger.info(f"Reranking model loaded in {time.time() - start_time:.2f}s")
-            except Exception as e:
-                self.logger.error(f"Failed to load reranking model: {str(e)}", exc_info=True)
-                return None
-        return self.reranking_model
-    
+        try:
+            from src.utils.llm_engine import LLMEngine
+            llm_engine = LLMEngine()
+            return llm_engine.get_reranking_model()
+        except Exception as e:
+            self.logger.error(f"Failed to get reranking model from LLMEngine: {str(e)}", exc_info=True)
+            return None
+            
     def _rerank_chunks(self, query: str, chunk_ids: List[str]) -> List[str]:
         """Rerank chunks using LLM for better relevance
         
