@@ -7,8 +7,12 @@ import sqlite3
 import os
 import pandas as pd
 from sqlalchemy import create_engine, text
-from src.models.user import Base, User, Role
+from src.models.user import Base, User, Role, Permission, Permissions
+from src.models.configuration import Configuration, ConfigType
 from src.utils.user_manager import UserManager
+from config.config import (AZURE_ENDPOINT, AZURE_MODEL_NAME, MAX_TOKENS, 
+                          TEMPERATURE, CHUNK_SIZE, CHUNK_OVERLAP,
+                          OPENROUTER_API_KEY, OPENROUTER_MODEL)
 
 def init_sample_db(db_path='text2sql.db'):
     """Initialize a sample database with example tables and data
@@ -211,12 +215,47 @@ def init_sample_db(db_path='text2sql.db'):
         db_uri = f"sqlite:///{full_path}"
         engine = create_engine(db_uri)
         
-        # Create auth tables
+        # Import all models that need tables created
+        from src.models.configuration import Base as ConfigBase
+        
+        # Create auth tables and other model tables
         Base.metadata.create_all(engine)
+        ConfigBase.metadata.create_all(engine)
         
         # Initialize user manager
         user_manager = UserManager()
         
+        # Add the MANAGE_CONFIG permission if it doesn't exist
+        try:
+            # Check if the permission already exists
+            from src.models.user import Permission, Permissions
+            manage_config_exists = user_manager.session.query(Permission).filter(Permission.name == Permissions.MANAGE_CONFIG).first()
+            
+            if not manage_config_exists:
+                # Create the MANAGE_CONFIG permission
+                manage_config_permission = Permission(
+                    name=Permissions.MANAGE_CONFIG,
+                    description="Permission to view and manage application configurations"
+                )
+                user_manager.session.add(manage_config_permission)
+                user_manager.session.commit()
+                print("Created MANAGE_CONFIG permission")
+                
+                # Assign the permission to the admin role
+                admin_role = user_manager.session.query(Role).filter(Role.name == "admin").first()
+                if admin_role:
+                    manage_config = user_manager.session.query(Permission).filter(Permission.name == Permissions.MANAGE_CONFIG).first()
+                    if manage_config and manage_config not in admin_role.permissions:
+                        admin_role.permissions.append(manage_config)
+                        user_manager.session.commit()
+                        print("Assigned MANAGE_CONFIG permission to admin role")
+                
+            # Clear the session to avoid stale data
+            user_manager.session.expire_all()
+        except Exception as e:
+            print(f"Error setting up MANAGE_CONFIG permission: {e}")
+            user_manager.session.rollback()
+
         # Delete existing admin user if exists
         try:
             existing_admin = user_manager.session.query(User).filter(User.username == "admin").first()
@@ -261,6 +300,97 @@ def init_sample_db(db_path='text2sql.db'):
                 user_manager.session.rollback()
         else:
             print("Failed to initialize authentication system")
+            
+        # Initialize configuration table and default values
+        print("Setting up configurations table...")
+        try:
+            # Initialize default configuration values
+            default_configs = [
+                # Azure OpenAI configurations
+                Configuration(
+                    key="azure_endpoint",
+                    value=AZURE_ENDPOINT,
+                    value_type=ConfigType.STRING,
+                    description="Azure OpenAI API endpoint URL",
+                    category="azure",
+                    is_sensitive=False
+                ),
+                Configuration(
+                    key="azure_model_name",
+                    value=AZURE_MODEL_NAME,
+                    value_type=ConfigType.STRING,
+                    description="Azure OpenAI model name",
+                    category="azure",
+                    is_sensitive=False
+                ),
+                
+                # OpenRouter configurations
+                Configuration(
+                    key="openrouter_api_key",
+                    value=OPENROUTER_API_KEY,
+                    value_type=ConfigType.STRING,
+                    description="OpenRouter API key for accessing models",
+                    category="openrouter",
+                    is_sensitive=True
+                ),
+                Configuration(
+                    key="openrouter_model",
+                    value=OPENROUTER_MODEL,
+                    value_type=ConfigType.STRING,
+                    description="Default OpenRouter model to use",
+                    category="openrouter",
+                    is_sensitive=False
+                ),
+                
+                # Model parameters
+                Configuration(
+                    key="max_tokens",
+                    value=str(MAX_TOKENS),
+                    value_type=ConfigType.INTEGER,
+                    description="Maximum number of tokens to generate",
+                    category="model",
+                    is_sensitive=False
+                ),
+                Configuration(
+                    key="temperature",
+                    value=str(TEMPERATURE),
+                    value_type=ConfigType.FLOAT,
+                    description="Sampling temperature for model output",
+                    category="model",
+                    is_sensitive=False
+                ),
+                
+                # Knowledge base configuration
+                Configuration(
+                    key="chunk_size",
+                    value=str(CHUNK_SIZE),
+                    value_type=ConfigType.INTEGER,
+                    description="Size of text chunks for knowledge base",
+                    category="knowledge",
+                    is_sensitive=False
+                ),
+                Configuration(
+                    key="chunk_overlap",
+                    value=str(CHUNK_OVERLAP),
+                    value_type=ConfigType.INTEGER,
+                    description="Overlap between knowledge base chunks",
+                    category="knowledge",
+                    is_sensitive=False
+                ),
+            ]
+            
+            # Add configurations to database
+            for config in default_configs:
+                # Check if configuration already exists to avoid duplicates
+                existing = user_manager.session.query(Configuration).filter(Configuration.key == config.key).first()
+                if not existing:
+                    user_manager.session.add(config)
+            
+            user_manager.session.commit()
+            print("Configuration table initialized with default values")
+        except Exception as e:
+            print(f"Error setting up configuration table: {e}")
+            user_manager.session.rollback()
         
         return True
         

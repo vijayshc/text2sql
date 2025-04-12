@@ -70,6 +70,8 @@ app.register_blueprint(security_bp)
 app.register_blueprint(vector_db_bp)
 app.register_blueprint(knowledge_bp)
 app.register_blueprint(metadata_search_bp)
+from src.routes.config_routes import config_bp
+app.register_blueprint(config_bp)
 
 # Make CSRF token available in templates
 @app.context_processor

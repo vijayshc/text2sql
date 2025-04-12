@@ -143,3 +143,4 @@ class Permissions:
     MANAGE_USERS = "manage_users"
     MANAGE_ROLES = "manage_roles"
     VIEW_AUDIT_LOGS = "view_audit_logs"
+    MANAGE_CONFIG = "manage_config"
