@@ -45,6 +45,54 @@ class VectorStore:
             self.logger.error(f"Vector database connection error: {str(e)}", exc_info=True)
             return False
     
+    def count(self, collection_name: str) -> int:
+        """Count documents in a collection
+        
+        Args:
+            collection_name: Name of the collection
+            
+        Returns:
+            int: Number of documents in the collection
+        """
+        try:
+            if not self.client:
+                self.logger.error("Vector database client not connected")
+                return 0
+                
+            count = self.client.count(collection_name)
+            return count
+        except Exception as e:
+            self.logger.error(f"Error counting documents in collection {collection_name}: {str(e)}")
+            return 0
+            
+    def list_entries(self, collection_name: str, limit: int = 100) -> List[Dict[str, Any]]:
+        """List entries in a collection with metadata
+        
+        Args:
+            collection_name: Name of the collection
+            limit: Maximum number of entries to return
+            
+        Returns:
+            List[Dict]: List of entries with metadata
+        """
+        try:
+            if not self.client:
+                self.logger.error("Vector database client not connected")
+                return []
+                
+            # Get entries with their metadata
+            entries = self.client.query(
+                collection_name=collection_name,
+                filter="",
+                output_fields=["text", "metadata"],
+                limit=limit
+            )
+            
+            return entries
+        except Exception as e:
+            self.logger.error(f"Error listing entries in collection {collection_name}: {str(e)}")
+            return []
+    
     def init_collection(self, collection_name: str, dimension: int = None) -> bool:
         """Initialize a vector collection if it doesn't exist
         

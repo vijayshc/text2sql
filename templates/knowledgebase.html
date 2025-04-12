@@ -12,12 +12,26 @@
 {% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+<!-- <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
     <h1 class="h2">Knowledge Finder</h1>
-</div>
+</div> -->
 
 <!-- Chat interface -->
 <div class="knowledge-chat-container">
+    <!-- Search type selector -->
+    <div class="search-type-selector">
+        <div class="d-flex align-items-center mb-2 mt-2" style="padding-left: 5px;">
+            <div class="me-2"><small class="text-muted">Search mode:</small></div>
+            <div class="btn-group" role="group" aria-label="Search mode">
+                <input type="radio" class="btn-check" name="search-type" id="search-knowledge" value="knowledge" checked>
+                <label class="btn btn-sm btn-outline-primary" for="search-knowledge">Knowledge Base</label>
+                
+                <input type="radio" class="btn-check" name="search-type" id="search-metadata" value="metadata">
+                <label class="btn btn-sm btn-outline-primary" for="search-metadata">Database Metadata</label>
+            </div>
+        </div>
+    </div>
+
     <!-- Input area (now at the top) -->
     <div class="knowledge-input-container">
         <div class="tag-selection-container mb-2">

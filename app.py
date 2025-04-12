@@ -12,6 +12,7 @@ from src.routes.admin_api_routes import admin_api_bp
 from src.routes.security_routes import security_bp, generate_csrf_token
 from src.routes.vector_db_routes import vector_db_bp
 from src.routes.knowledge_routes import knowledge_bp
+from src.routes.metadata_search_routes import metadata_search_bp
 from src.models.user import Permissions
 from config.config import SECRET_KEY, DEBUG
 import logging
@@ -68,6 +69,7 @@ app.register_blueprint(admin_api_bp)
 app.register_blueprint(security_bp)
 app.register_blueprint(vector_db_bp)
 app.register_blueprint(knowledge_bp)
+app.register_blueprint(metadata_search_bp)
 
 # Make CSRF token available in templates
 @app.context_processor

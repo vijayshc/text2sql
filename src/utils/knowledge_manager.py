@@ -325,8 +325,27 @@ class KnowledgeManager:
         
         self.conn.commit()
     
+    def _get_embedding_model(self):
+        """Get or initialize the sentence transformer model for embeddings
+        
+        Returns:
+            SentenceTransformer: The initialized embedding model
+        """
+        if not hasattr(self, 'embedding_model') or self.embedding_model is None:
+            start_time = time.time()
+            self.logger.info("Loading embedding model 'sentence-transformers/all-MiniLM-L12-v2'")
+            try:
+                from sentence_transformers import SentenceTransformer
+                self.embedding_model = SentenceTransformer('all-MiniLM-L12-v2')
+                self.logger.info(f"Embedding model loaded in {time.time() - start_time:.2f}s")
+            except Exception as e:
+                self.logger.error(f"Failed to load embedding model: {str(e)}", exc_info=True)
+                # Return None if failed to load model
+                return None
+        return self.embedding_model
+        
     def _get_embedding(self, text: str) -> List[float]:
-        """Get embedding for a text using embeddings API
+        """Get embedding for a text using sentence transformer model
         
         Args:
             text: Text to embed
@@ -334,12 +353,25 @@ class KnowledgeManager:
         Returns:
             Vector embedding
         """
-        # Use the LLM engine to get embeddings for the text
-        # Placeholder implementation - needs to be replaced with actual embedding logic
-        # In a real implementation, you would call an embedding API or use a local model
-        
-        # For placeholder, generate a random vector of the right dimension
-        return np.random.randn(384).tolist()
+        model = self._get_embedding_model()
+        if not model or not text:
+            # Fall back to random embeddings if model loading failed
+            self.logger.warning("Embedding model not available, using random embedding as fallback")
+            return np.random.randn(384).tolist()
+            
+        try:
+            start_time = time.time()
+            # Generate embedding vector
+            embedding = model.encode(text)
+            
+            self.logger.debug(f"Generated embedding in {time.time() - start_time:.2f}s " +
+                             f"with shape {embedding.shape}")
+            return embedding.tolist()
+            
+        except Exception as e:
+            self.logger.error(f"Error generating embedding: {str(e)}", exc_info=True)
+            # Fallback to random embeddings if embedding generation fails
+            return np.random.randn(384).tolist()
     
     def get_document_status(self, document_id: str) -> Dict[str, Any]:
         """Get the processing status of a document

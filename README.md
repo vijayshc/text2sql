@@ -148,9 +148,11 @@ The admin dashboard provides several key functions:
 ```
 text2sql/
 ├── app.py              # Main Flask application: routing, request handling
+├── README.md           # This file
 ├── requirements.txt    # Python dependencies
 ├── restart.sh          # Utility script for restarting the server
 ├── text2sql.db         # SQLite database file (created by init_db.py)
+├── vector_store.db     # Vector database file (e.g., ChromaDB, FAISS)
 ├── .env                # Environment variables (sensitive, DO NOT COMMIT)
 ├── .gitignore          # Specifies intentionally untracked files
 ├── config/
@@ -172,61 +174,77 @@ text2sql/
 │   │   ├── __init__.py
 │   │   ├── sql_generator.py   # Orchestrates the Text-to-SQL pipeline using agents and utils
 │   │   └── user.py            # User, role, and permission models for authentication
-│   ├── routes/         # Application route handlers
+│   ├── routes/         # Application route handlers (Blueprints)
 │   │   ├── __init__.py
 │   │   ├── admin_api_routes.py # Admin API endpoints
 │   │   ├── admin_routes.py    # Admin UI routes
 │   │   ├── auth_routes.py     # Authentication routes (login, logout, etc.)
-│   │   └── schema_routes.py   # Schema-related routes
+│   │   ├── knowledge_routes.py # Knowledge base interaction routes
+│   │   ├── schema_routes.py   # Schema-related routes
+│   │   ├── security_routes.py # Security-related routes (e.g., reauthentication)
+│   │   └── vector_db_routes.py # Vector DB management routes
 │   └── utils/          # Utility modules and helper functions
 │       ├── __init__.py
+│       ├── auth_utils.py      # Authentication helpers (password hashing, tokens)
 │       ├── azure_client.py    # Handles communication with Azure AI Inference API
 │       ├── background_tasks.py # Manages asynchronous processing of queries
-│       ├── csv_to_schema.py   # Script to help generate schema.json from CSV (manual refinement needed)
+│       ├── csv_to_schema.py   # Script to help generate schema.json from CSV
 │       ├── database.py        # Database connection and session management (SQLAlchemy)
-│       ├── feedback_manager.py # Manages storing/retrieving feedback and samples, handles embeddings
+│       ├── feedback_manager.py # Manages storing/retrieving feedback and samples
 │       ├── init_db.py         # Database schema creation and initial data loading
-│       ├── llm_engine.py      # Centralizes interaction logic with the LLM (prompt formatting, etc.)
+│       ├── knowledge_manager.py # Handles document processing, chunking, embeddings
+│       ├── llm_engine.py      # Centralizes interaction logic with the LLM
 │       ├── schema_manager.py  # Loads, parses, and provides access to schema information
 │       ├── template_filters.py # Custom Jinja2 template filters
-│       └── user_manager.py    # User authentication and permission management
+│       ├── user_manager.py    # User authentication and permission management
+│       └── vector_store.py    # Manages interaction with the vector database
 ├── static/             # Frontend assets (served directly by Flask/webserver)
 │   ├── css/
 │   │   ├── admin-schema.css   # Admin schema interface styles
-│   │   └── styles.css         # Main application styles
+│   │   ├── knowledge-chat.css # Styles for the knowledge base chat interface
+│   │   ├── styles.css         # Main application styles
+│   │   └── admin/             # Admin-specific CSS files
 │   └── js/             # Modularized JavaScript files
 │       ├── core.js             # Core frontend initialization, event listeners
-│       ├── feedback.js         # Handles sending feedback (thumbs up/down, reasons)
-│       ├── query-handler.js    # Manages query submission via AJAX, progress updates
-│       ├── results-display.js  # Renders results table, SQL, explanation, steps
+│       ├── feedback.js         # Handles sending feedback
+│       ├── knowledge-base.js   # JS for knowledge base interactions
+│       ├── query-handler.js    # Manages query submission via AJAX
+│       ├── results-display.js  # Renders results table, SQL, explanation
 │       ├── samples.js          # JavaScript for the sample management page
-│       ├── schema-manager.js   # Handles fetching and displaying schema in the modal
-│       ├── table-mentions.js   # Implements the @mention functionality in the query input
-│       ├── ui-utils.js         # Common UI helper functions (e.g., showing alerts)
+│       ├── schema-manager.js   # Handles fetching and displaying schema
+│       ├── table-mentions.js   # Implements the @mention functionality
+│       ├── ui-utils.js         # Common UI helper functions
 │       └── admin/             # Admin-specific JavaScript files
 │           ├── audit-logs.js   # Admin audit log functionality
 │           ├── dashboard.js    # Admin dashboard functionality
 │           ├── roles.js        # Role management functionality
 │           ├── schema-manager.js # Schema management functionality
-│           └── users.js        # User management functionality
-└── templates/          # HTML templates (rendered by Flask using Jinja2)
-    ├── index.html      # Main application page template
-    ├── samples.html    # Sample management page template
-    ├── 404.html        # Custom "Not Found" error page
-    ├── 500.html        # Custom "Internal Server Error" page
-    ├── base.html       # Base template extended by other pages
-    ├── admin/          # Admin interface templates
-    │   ├── audit_logs.html    # Audit log viewer
-    │   ├── index.html         # Admin dashboard
-    │   ├── roles.html         # Role management
-    │   ├── schema.html        # Schema management
-    │   ├── user_form.html     # User creation/editing form
-    │   └── users.html         # User management list
-    └── auth/           # Authentication templates
-        ├── change_password.html # Password change form
-        ├── login.html           # Login page
-        ├── reset_password.html  # Password reset form
-        └── reset_request.html   # Password reset request form
+│           ├── users.js        # User management functionality
+│           └── vector-db.js    # Vector DB management functionality
+├── templates/          # HTML templates (rendered by Flask using Jinja2)
+│   ├── index.html      # Main application page template
+│   ├── knowledgebase.html # Knowledge base interaction page
+│   ├── samples.html    # Sample management page template
+│   ├── 404.html        # Custom "Not Found" error page
+│   ├── 500.html        # Custom "Internal Server Error" page
+│   ├── base.html       # Base template extended by other pages
+│   ├── admin/          # Admin interface templates
+│   │   ├── audit_logs.html    # Audit log viewer
+│   │   ├── index.html         # Admin dashboard
+│   │   ├── knowledge.html     # Knowledge base management (admin view)
+│   │   ├── roles.html         # Role management
+│   │   ├── schema.html        # Schema management
+│   │   ├── user_form.html     # User creation/editing form
+│   │   ├── users.html         # User management list
+│   │   └── vector_db.html     # Vector DB management interface
+│   ├── auth/           # Authentication templates
+│   │   ├── change_password.html # Password change form
+│   │   ├── login.html           # Login page
+│   │   ├── reset_password.html  # Password reset form
+│   │   └── reset_request.html   # Password reset request form
+│   └── security/       # Security-related templates
+│       └── reauthenticate.html # Reauthentication prompt page
+└── uploads/            # Directory for storing uploaded knowledge base files
 ```
 
 ## Advanced Features & Concepts

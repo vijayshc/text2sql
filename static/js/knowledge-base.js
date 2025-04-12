@@ -11,6 +11,26 @@ document.addEventListener('DOMContentLoaded', function() {
     const selectedTagsContainer = document.getElementById('selectedTags');
     const clearTagsBtn = document.getElementById('clearTagsBtn');
     
+    // Radio buttons for search type
+    const searchKnowledgeRadio = document.getElementById('search-knowledge');
+    const searchMetadataRadio = document.getElementById('search-metadata');
+    const tagSelectionContainer = document.querySelector('.tag-selection-container');
+    
+    // Add event listeners to toggle tag selection container visibility
+    if (searchKnowledgeRadio && searchMetadataRadio && tagSelectionContainer) {
+        // Set initial state
+        tagSelectionContainer.style.display = searchKnowledgeRadio.checked ? 'block' : 'none';
+        
+        // Add event listeners for radio button changes
+        searchKnowledgeRadio.addEventListener('change', function() {
+            tagSelectionContainer.style.display = 'block';
+        });
+        
+        searchMetadataRadio.addEventListener('change', function() {
+            tagSelectionContainer.style.display = 'none';
+        });
+    }
+    
     // Load available tags
     loadAvailableTags();
     
@@ -291,12 +311,119 @@ document.addEventListener('DOMContentLoaded', function() {
         // Add the user's query to the chat
         addUserMessage(query);
         
-        // Create loading message
-        const loadingMessage = addSystemMessage('Searching knowledge base...', true);
+        // Get search type from radio button if it exists
+        const isMetadataSearch = document.getElementById('search-metadata') && 
+                                document.getElementById('search-metadata').checked;
+        
+        // Create loading message with appropriate text
+        const loadingText = isMetadataSearch ? 'Searching database metadata...' : 'Searching knowledge base...';
+        const loadingMessage = addSystemMessage(loadingText, true);
         
         // Clear input
         queryInput.value = '';
         
+        // If metadata search is selected, use the metadata search endpoint
+        if (isMetadataSearch) {
+            // Initialize an empty markdown content div with streaming support
+            updateSystemMessage(loadingMessage, '<div class="streaming-content"></div>');
+            const streamingContentDiv = loadingMessage.querySelector('.streaming-content');
+            let eventSource;
+            let sources = [];
+            
+            // First make the initial POST request to set up the stream
+            fetch('/api/metadata/search/stream', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': document.querySelector('input[name="csrf_token"]')?.value || ''
+                },
+                body: JSON.stringify({
+                    query: query,
+                    limit: 100
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Now open an EventSource connection to get the streaming response
+                    if (eventSource) {
+                        eventSource.close();
+                    }
+                    
+                    eventSource = new EventSource(`/api/metadata/search/stream?query=${encodeURIComponent(query)}`);
+                    let accumulatedText = '';
+                    
+                    // Listen for sources event
+                    eventSource.addEventListener('sources', function(event) {
+                        try {
+                            sources = JSON.parse(event.data);
+                            // Add sources information at the top if available
+                            if (sources && sources.length > 0) {
+                                const tagsInfo = `<div class="schema-sources-info">
+                                    
+                                </div>`;
+                                streamingContentDiv.innerHTML = tagsInfo + streamingContentDiv.innerHTML;
+                            }
+                        } catch (e) {
+                            console.error('Error parsing sources:', e);
+                        }
+                    });
+                    
+                    // Listen for message events (chunks of text)
+                    eventSource.onmessage = function(event) {
+                        try {
+                            const data = JSON.parse(event.data);
+                            if (data.text) {
+                                accumulatedText += data.text;
+                                // Convert markdown to HTML
+                                const answerHtml = md.render(accumulatedText);
+                                streamingContentDiv.innerHTML = sources.length > 0 ? 
+                                    streamingContentDiv.innerHTML.split('</div>')[0] + '</div>' + answerHtml : 
+                                    answerHtml;
+                                
+                                // Highlight any code blocks
+                                streamingContentDiv.querySelectorAll('pre code').forEach((block) => {
+                                    hljs.highlightElement(block);
+                                });
+                            }
+                        } catch (e) {
+                            console.error('Error parsing message:', e);
+                        }
+                    };
+                    
+                    // Listen for done event
+                    eventSource.addEventListener('done', function() {
+                        eventSource.close();
+                        
+                      
+                    });
+                    
+                    // Listen for error event
+                    eventSource.onerror = function() {
+                        eventSource.close();
+                        if (!accumulatedText) {
+                            updateSystemMessage(loadingMessage, `<p class="text-danger">Error: Failed to stream response</p>`);
+                        }
+                    };
+                    
+                } else {
+                    updateSystemMessage(loadingMessage, `<p class="text-danger">Error: ${data.error || 'Unknown error occurred'}</p>`);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                updateSystemMessage(loadingMessage, `<p class="text-danger">Sorry, an error occurred: ${error.message}</p>`);
+            });
+            
+            return; // Exit function after handling metadata search
+        }
+        
+        // For knowledge base search, continue with existing streaming logic
         let eventSource;
         let sources = [];
         let accumulatedText = '';
