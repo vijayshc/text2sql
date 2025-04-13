@@ -1,0 +1,410 @@
+/* Glassmorphism effect for Text2SQL application */
+
+/* Color variables for the glassmorphism theme */
+:root {
+    --glass-bg: rgba(255, 255, 255, 0.15);
+    --glass-border: rgba(255, 255, 255, 0.18);
+    --glass-shadow: rgba(0, 0, 0, 0.1);
+    --glass-blur: 16px;
+    
+    /* Updated theme colors */
+    --primary-color: #027699;
+    --secondary-color: #0597c4;
+    --accent-color: #006f91;
+    --success-color: #4ade80;
+    --warning-color: #fbbf24;
+    --danger-color: #f87171;
+    --light-bg: #f1f5f9;
+    --dark-text: #1e293b;
+    
+    /* Gradients */
+    --primary-gradient: linear-gradient(135deg, #0597c4, #027699);
+    --glass-gradient: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05));
+    
+    /* Additional theme properties */
+    --card-radius: 12px;
+}
+
+/* Apply a background with gradient */
+body {
+    background: linear-gradient(135deg, #f6f9fc, #e2e8f0);
+    color: var(--dark-text);
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Glassmorphism effect for cards */
+.card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    border-radius: var(--card-radius);
+    box-shadow: 0 8px 32px 0 var(--glass-shadow);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.card-header {
+    background: var(--glass-gradient);
+    border-bottom: 1px solid var(--glass-border);
+    border-radius: var(--card-radius) var(--card-radius) 0 0;
+}
+
+.card-body {
+    padding: 0.5rem;
+}
+
+/* Glassmorphism for form controls */
+.form-control, .form-select {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid var(--glass-border);
+    border-color: var(--primary-color);
+    border-radius: 8px;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    transition: all 0.3s ease;
+    
+}
+
+.form-control:focus, .form-select:focus {
+    background: rgba(255, 255, 255, 0.95);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.15);
+}
+
+/* Glassmorphism for select options */
+select option {
+    background-color: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    color: var(--dark-text);
+    padding: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+select option:hover, 
+select option:focus, 
+select option:active, 
+select option:checked {
+    background-color: rgba(2, 118, 153, 0.2) !important;
+    color: var(--primary-color);
+}
+
+/* Style for select element to better match glassmorphism */
+select.form-select {
+    appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, var(--primary-color) 50%), 
+                      linear-gradient(135deg, var(--primary-color) 50%, transparent 50%);
+    background-position: calc(100% - 20px) center, calc(100% - 15px) center;
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+    padding-right: 30px; /* Space for the custom arrow */
+}
+
+/* Buttons with glassmorphism */
+.btn {
+    border-radius: 8px;
+    padding: 0.5rem 1.25rem;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.btn-primary {
+    background: var(--primary-gradient);
+    border: none;
+    box-shadow: 0 2px 4px var(--secondary-color);
+}
+
+.btn-primary:hover, .btn-primary:focus {
+    background: linear-gradient(135deg, #0597c4, #027699);
+    box-shadow: 0 4px 8px var(--secondary-color);
+    transform: translateY(-1px);
+}
+
+.btn-outline-secondary {
+    border-color: var(--glass-border);
+    color: var(--secondary-color);
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.btn-outline-secondary:hover {
+    background: rgba(58, 12, 163, 0.1);
+    color: var(--secondary-color);
+    border-color: var(--secondary-color);
+}
+
+/* Sidebar with glassmorphism */
+.sidebar {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border-right: 1px solid var(--glass-border);
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.05);
+}
+
+.sidebar-brand {
+    background: var(--glass-gradient);
+    border-bottom: 1px solid var(--glass-border);
+    padding: 1.25rem 1.5rem;
+}
+
+.sidebar-nav .nav-link {
+    color: var(--dark-text);
+    border-radius: 8px;
+    margin: 0.25rem 1rem;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.sidebar-nav .nav-link:hover, .sidebar-nav .nav-link.active {
+    background: rgba(67, 97, 238, 0.1);
+    color: var(--primary-color);
+    transform: translateX(3px);
+}
+
+.sidebar-nav .nav-link.active {
+    background: rgba(67, 97, 238, 0.15);
+    border-left: 3px solid var(--primary-color);
+}
+
+.sidebar-nav .nav-link i {
+    color: var(--primary-color);
+    opacity: 0.8;
+}
+
+/* Progress bar styling */
+.progress {
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    height: 8px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    background: var(--primary-gradient);
+}
+
+/* Tables styling */
+.table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.table-bordered th, .table-bordered td {
+    border: 1px solid var(--glass-border);
+}
+
+.table thead th {
+    background: var(--primary-color);
+    border-bottom: 2px solid var(--glass-border);
+    color: white;
+    font-weight: 600;
+}
+/* Override Bootstrap's text-primary with more specificity */
+.text-primary,
+body .text-primary,
+.container-fluid .text-primary,
+.card .text-primary,
+a.text-primary,
+button.text-primary,
+.btn.text-primary {
+    color: var(--primary-color) !important;
+    font-weight: 600;
+}
+
+/* DataTables specific styling */
+.dataTables_wrapper {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border-radius: var(--card-radius);
+    padding: 0.5rem;
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 8px 32px 0 var(--glass-shadow);
+}
+
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter,
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_paginate {
+    padding: 0.5rem;
+    color: var(--dark-text);
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    background: rgba(255, 255, 255, 0.3);
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover:not(.disabled) {
+    background: rgba(67, 97, 238, 0.1) !important;
+    color: var(--primary-color) !important;
+    border: 1px solid var(--primary-color) !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background: var(--primary-gradient) !important;
+    color: white !important;
+    border: none !important;
+}
+
+table.dataTable tbody tr {
+    background: transparent;
+    transition: all 0.3s ease;
+}
+
+table.dataTable tbody tr:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+/* Nav tabs styling */
+.nav-tabs {
+    border-bottom: none;
+}
+
+.nav-tabs .nav-link {
+    border: none;
+    color: var(--dark-text);
+    border-radius: var(--card-radius) var(--card-radius) 0 0;
+    padding: 0.75rem 1.25rem;
+    transition: all 0.3s ease;
+}
+
+.nav-tabs .nav-link:hover {
+    background: rgba(67, 97, 238, 0.05);
+    color: var(--primary-color);
+}
+
+.nav-tabs .nav-link.active {
+    background: rgba(67, 97, 238, 0.1);
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--primary-color);
+}
+
+/* Dropdown menu with glassmorphism */
+.dropdown-menu {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    padding: 0.5rem;
+}
+
+.dropdown-item {
+    border-radius: 6px;
+    padding: 0.6rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.dropdown-item:hover {
+    background: rgba(67, 97, 238, 0.08);
+    color: var(--primary-color);
+}
+
+/* Code blocks with glassmorphism */
+pre {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border-radius: 10px;
+    border: 1px solid var(--glass-border);
+    padding: 1rem;
+}
+
+/* Table badge styling */
+.table-badge {
+    background: rgba(67, 97, 238, 0.1);
+    color: var(--primary-color);
+    border: 1px solid rgba(67, 97, 238, 0.2);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Query container with glassmorphism */
+.query-container {
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: var(--card-radius);
+    padding: 0.5rem;
+    border: 1px solid var(--glass-border);
+}
+
+/* Input group styling */
+.input-group {
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 8px;
+    padding: 0.25rem;
+    border: 1px solid var(--glass-border);
+}
+
+/* Custom styling for dynamically created elements */
+.step-card {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border-radius: 10px;
+    border: 1px solid var(--glass-border);
+    padding: 1rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.feedback-controls button {
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid var(--glass-border);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.feedback-controls button:hover {
+    transform: scale(1.1);
+}
+
+/* Custom scrollbar for the glassmorphism theme */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--secondary-color);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary-color);
+}
