@@ -1,0 +1,127 @@
+/**
+ * Database Query Editor CSS styles
+ */
+
+/* Schema Tree Styles */
+.db-schema-tree {
+    height: 600px;
+    overflow: auto;
+}
+
+.schema-tree-item {
+    cursor: pointer;
+    padding: 3px 8px;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+}
+
+.schema-tree-item:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.schema-tree-toggle {
+    margin-right: 5px;
+    width: 16px;
+    text-align: center;
+}
+
+.schema-tree-children {
+    margin-left: 20px;
+}
+
+/* Table styles */
+.schema-item-table {
+    color: #4e73df;
+}
+
+.schema-item-view {
+    color: #6f42c1;
+}
+
+.schema-item-column {
+    color: #212529;
+}
+
+.schema-item-pk {
+    color: #1cc88a;
+    font-weight: 500;
+}
+
+.schema-item-fk {
+    color: #f6c23e;
+}
+
+/* DataTable styles */
+table.dataTable tbody tr.shown {
+    background-color: #f8f9fa;
+}
+
+table.dataTable tbody td.details-control {
+    text-align: center;
+    cursor: pointer;
+    width: 20px;
+}
+
+table.dataTable tbody td.details-control i {
+    cursor: pointer;
+}
+
+.details-table {
+    background-color: #f8f9fc;
+    box-shadow: 0 0 1px rgba(0,0,0,.125);
+}
+
+.details-table td, .details-table th {
+    padding: 0.3rem 0.5rem;
+}
+
+/* Editor styling */
+#sqlEditor {
+    border: 1px solid #e3e6f0;
+}
+
+/* Toast message styling */
+.toast-message {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    background-color: #4e73df;
+    color: white;
+    border-radius: 4px;
+    z-index: 1050;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+/* Result message styles */
+.result-message {
+    padding: 15px;
+    border-radius: 4px;
+}
+
+.result-message.success {
+    background-color: #e3fcef;
+    color: #1cc88a;
+    border-left: 4px solid #1cc88a;
+}
+
+.result-message.error {
+    background-color: #fce3e3;
+    color: #e74a3b;
+    border-left: 4px solid #e74a3b;
+}
+
+.result-message.warning {
+    background-color: #fcf8e3;
+    color: #f6c23e;
+    border-left: 4px solid #f6c23e;
+}
+
+.result-message.info {
+    background-color: #e3f2fc;
+    color: #36b9cc;
+    border-left: 4px solid #36b9cc;
+}

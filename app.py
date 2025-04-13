@@ -9,6 +9,7 @@ from src.routes.schema_routes import schema_bp
 from src.routes.auth_routes import auth_bp, admin_required, permission_required
 from src.routes.admin_routes import admin_bp
 from src.routes.admin_api_routes import admin_api_bp
+from src.routes.admin_db_routes import admin_db_bp
 from src.routes.security_routes import security_bp, generate_csrf_token
 from src.routes.vector_db_routes import vector_db_bp
 from src.routes.knowledge_routes import knowledge_bp
@@ -66,6 +67,7 @@ app.register_blueprint(schema_bp)
 app.register_blueprint(auth_bp)
 app.register_blueprint(admin_bp)
 app.register_blueprint(admin_api_bp)
+app.register_blueprint(admin_db_bp)
 app.register_blueprint(security_bp)
 app.register_blueprint(vector_db_bp)
 app.register_blueprint(knowledge_bp)
