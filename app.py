@@ -74,6 +74,8 @@ app.register_blueprint(knowledge_bp)
 app.register_blueprint(metadata_search_bp)
 from src.routes.config_routes import config_bp
 app.register_blueprint(config_bp)
+from src.routes.query_editor_routes import query_editor_bp
+app.register_blueprint(query_editor_bp)
 
 # Make CSRF token available in templates
 @app.context_processor

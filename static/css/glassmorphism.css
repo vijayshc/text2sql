@@ -27,7 +27,7 @@
 
 /* Apply a background with gradient */
 body {
-    background: linear-gradient(135deg, #f6f9fc, #e2e8f0);
+    background: linear-gradient(135deg, #ffffff, #ffffff);
     color: var(--dark-text);
     min-height: 100vh;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -117,7 +117,7 @@ select.form-select {
 .btn-primary {
     background: var(--primary-gradient);
     border: none;
-    box-shadow: 0 2px 4px var(--secondary-color);
+    /* box-shadow: 0 2px 4px var(--secondary-color); */
 }
 
 .btn-primary:hover, .btn-primary:focus {

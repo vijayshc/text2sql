@@ -32,7 +32,7 @@ class DatabaseQueryEditor {
             
             // Create editor
             this.editor = monaco.editor.create(document.getElementById('sqlEditor'), {
-                value: '-- Write your SQL query here\n-- Press Ctrl+Enter to execute\nSELECT * FROM sqlite_master;',
+                value: '',
                 language: 'sql',
                 theme: 'vs',
                 automaticLayout: true,
@@ -231,13 +231,7 @@ class DatabaseQueryEditor {
         const thead = document.createElement('thead');
         const headerRow = document.createElement('tr');
         
-        // Add expand/collapse column for row details
-        const expandTh = document.createElement('th');
-        expandTh.className = 'details-control';
-        expandTh.innerHTML = '';
-        headerRow.appendChild(expandTh);
-        
-        // Add data columns
+        // Add data columns directly - no extra column
         result.columns.forEach(column => {
             const th = document.createElement('th');
             th.textContent = column;
@@ -255,10 +249,9 @@ class DatabaseQueryEditor {
         tableResponsive.appendChild(table);
         this.resultsContainer.appendChild(tableResponsive);
         
-        // Format the data for DataTables
+        // Format the data for DataTables - no extra column
         const dataSet = result.data.map(row => {
-            // Add an empty first column for the expand/collapse button
-            const rowData = [''];
+            const rowData = [];
             
             // Add actual data columns
             result.columns.forEach(column => {
@@ -277,9 +270,10 @@ class DatabaseQueryEditor {
         
         // Initialize DataTable
         this.dataTable = $('#sqlResultsTable').DataTable({
-            data: dataSet.map(row => row.slice(1)), // Remove the first empty element for expand button
-            columns: result.columns.map(column => ({ title: column })),
-            order: [[0, 'asc']], // Default sort on first data column
+            data: dataSet,
+            autoWidth: false,
+            ordering: true,
+            order: [[0, 'asc']], // Default sort on first column
             responsive: false, // Disable responsive mode to show horizontal scrollbar
             pageLength: 10,
             lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],

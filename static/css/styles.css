@@ -42,6 +42,13 @@ h4 {
     color: var(--primary-color);
 }
 
+.scrollable-results {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: auto;
+    max-height: 400px;
+}
+
 strong{
     color: var(--primary-color);
 }

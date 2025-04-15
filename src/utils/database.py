@@ -73,12 +73,12 @@ class DatabaseManager:
         try:
             # Execute the query and fetch results
             with self.engine.connect() as conn:
-                self.logger.debug("Query execution started")
+                self.logger.info("Query execution started")
                 execution_start = time.time()
                 result = conn.execute(text(sql_query))
                 data = result.fetchall()
                 execution_time = time.time() - execution_start
-                self.logger.debug(f"Query execution completed in {execution_time:.2f}s")
+                self.logger.info(f"Query execution completed in {execution_time:.2f}s")
                 
                 # Convert to pandas DataFrame for easier data manipulation
                 if data:
@@ -86,10 +86,10 @@ class DatabaseManager:
                     self.logger.info(f"Query returned {len(df)} rows with {len(df.columns)} columns")
                     
                     # Log sample data (first few rows) at debug level
-                    if len(df) > 0:
-                        sample_size = min(3, len(df))
-                        sample_df = df.head(sample_size)
-                        self.logger.debug(f"Sample data (first {sample_size} rows):\n{sample_df.to_string()}")
+                    # if len(df) > 0:
+                    #     sample_size = min(3, len(df))
+                    #     sample_df = df.head(sample_size)
+                    #     self.logger.info(f"Sample data (first {sample_size} rows):\n{sample_df.to_string()}")
                     
                     processing_time = time.time() - start_time
                     self.logger.info(f"Query processing completed in {processing_time:.2f}s")
@@ -140,7 +140,7 @@ class DatabaseManager:
         Returns:
             list: Example queries with matching SQL
         """
-        self.logger.debug(f"Getting query examples for table: {table_name if table_name else 'all tables'}")
+        self.logger.info(f"Getting query examples for table: {table_name if table_name else 'all tables'}")
         examples = []
         
         # Use schema manager to get table information
@@ -148,11 +148,11 @@ class DatabaseManager:
         
         # Add table-specific examples if table_name is provided
         if table_name:
-            self.logger.debug(f"Generating examples for table: {table_name}")
+            self.logger.info(f"Generating examples for table: {table_name}")
             examples.extend(self._generate_table_examples(table_name, schema_manager))
         else:
             # General database examples based on schema
-            self.logger.debug("Generating general database examples")
+            self.logger.info("Generating general database examples")
             examples = [
                 {
                     "question": "How many tables are in the database?",
@@ -175,7 +175,7 @@ class DatabaseManager:
                     }
                 ])
         
-        self.logger.debug(f"Generated {len(examples)} example queries (limit: {limit})")
+        self.logger.info(f"Generated {len(examples)} example queries (limit: {limit})")
         return examples[:limit]
     
     def _generate_table_examples(self, table_name, schema_manager):
@@ -188,7 +188,7 @@ class DatabaseManager:
         Returns:
             list: Example queries with matching SQL
         """
-        self.logger.debug(f"Generating example queries for table: {table_name}")
+        self.logger.info(f"Generating example queries for table: {table_name}")
         examples = [
             {
                 "question": f"How many records are in the {table_name} table?",
@@ -258,4 +258,54 @@ class DatabaseManager:
         self.logger.info("Closing database connection")
         if self.engine:
             self.engine.dispose()
-            self.logger.debug("Database engine disposed")
+            self.logger.info("Database engine disposed")
+    
+    def save_user_query(self, user_id, query_text, query_name, query_description):
+        """Save a user query to the database
+        
+        Args:
+            user_id (int): ID of the user saving the query
+            query_text (str): The SQL query text
+            query_name (str): Name of the query
+            query_description (str): Description of the query
+            
+        Returns:
+            int: ID of the saved query
+        """
+        self.logger.info(f"Saving user query: '{query_name}'")
+        
+        try:
+            session = get_db_session()
+            
+            # Create timestamp
+            import datetime
+            timestamp = datetime.datetime.now()
+            
+            # Insert query into user_queries table
+            result = session.execute(text("""
+                INSERT INTO user_queries 
+                (user_id, query_name, query_text, description, created_at)
+                VALUES (:user_id, :query_name, :query_text, :description, :created_at)
+                RETURNING id
+            """), {
+                'user_id': user_id,
+                'query_name': query_name,
+                'query_text': query_text,
+                'description': query_description,
+                'created_at': timestamp
+            })
+            
+            query_id = result.fetchone()[0]
+            session.commit()
+            
+            self.logger.info(f"Query saved with ID: {query_id}")
+            return query_id
+            
+        except Exception as e:
+            self.logger.error(f"Error saving user query: {str(e)}")
+            if session:
+                session.rollback()
+            raise
+        finally:
+            if session:
+                session.close()
