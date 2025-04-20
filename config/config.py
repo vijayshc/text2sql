@@ -10,7 +10,7 @@ load_dotenv()
 # OpenRouter configuration
 OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY', '')
 OPENROUTER_BASE_URL = os.getenv('OPENROUTER_BASE_URL', 'https://openrouter.ai/api/v1')
-OPENROUTER_MODEL = os.getenv('OPENROUTER_MODEL', 'openrouter/optimus-alpha')
+OPENROUTER_MODEL = os.getenv('OPENROUTER_MODEL', 'google/gemini-2.0-flash-exp:free')
 
 # Azure OpenAI configuration (kept for backward compatibility)
 AZURE_ENDPOINT = os.getenv('AZURE_ENDPOINT', 'https://models.inference.ai.azure.com')
@@ -121,3 +121,7 @@ LOGGING_CONFIG = {
 logger = logging.getLogger('text2sql')
 if not logger.hasHandlers():
     logging.config.dictConfig(LOGGING_CONFIG)
+
+# Example: /path/to/your/mcp/server/script.py
+# Ensure this path is correct for your environment
+MCP_SERVER_SCRIPT_PATH = os.getenv('MCP_SERVER_SCRIPT_PATH', './src/utils/dataengineer.py')

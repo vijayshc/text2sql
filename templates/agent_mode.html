@@ -1,0 +1,49 @@
+{% extends "index.html" %}
+
+{% block head %}
+{{ super() }}
+<!-- Highlight.js for code highlighting -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css" rel="stylesheet">
+<!-- Markdown-it for markdown rendering -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/13.0.1/markdown-it.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="knowledge-chat-container agent-chat-container">
+    <!-- Input area -->
+    <div class="knowledge-input-container mb-2">
+        <div class="input-group">
+            <textarea class="form-control glass" id="chatInput" rows="2" placeholder="Enter your instructions for the agent..."></textarea>
+            <button class="btn btn-primary" type="button" id="sendButton">
+                <i class="fas fa-paper-plane"></i> Send
+            </button>
+        </div>
+    </div>
+    <!-- Progress indicator -->
+    <div id="agentProgress" class="agent-progress mb-2" style="display: none;">
+        <div class="progress">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+        <small class="progress-status text-muted"></small>
+    </div>
+    <!-- Messages container -->
+    <div class="knowledge-messages" id="chatHistory">
+        <div class="message system-message">
+            <div class="avatar system-avatar">
+                <i class="fas fa-robot"></i>
+            </div>
+            <div class="message-content glass">
+                <p>Hello! I'm your agent assistant. How can I help?</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<!-- Highlight.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+<!-- Agent Mode JS -->
+<script src="{{ url_for('static', filename='js/agent-chat.js') }}"></script>
+{% endblock %}

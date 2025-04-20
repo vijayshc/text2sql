@@ -15,7 +15,7 @@ from src.routes.vector_db_routes import vector_db_bp
 from src.routes.knowledge_routes import knowledge_bp
 from src.routes.metadata_search_routes import metadata_search_bp
 from src.models.user import Permissions
-from config.config import SECRET_KEY, DEBUG
+from config.config import SECRET_KEY, DEBUG, MCP_SERVER_SCRIPT_PATH
 import logging
 import os
 import sys
@@ -35,6 +35,8 @@ app.config['DEBUG'] = DEBUG  # Use the value from config instead of hardcoding
 app.config['TEMPLATES_AUTO_RELOAD'] = DEBUG  # Only auto-reload templates in debug mode
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0 if DEBUG else 31536000  # 1 year in production
 app.jinja_env.auto_reload = DEBUG  # Only auto-reload Jinja in debug mode
+# Agent mode MCP server script path
+app.config['MCP_SERVER_SCRIPT_PATH'] = MCP_SERVER_SCRIPT_PATH
 
 # Set secure cookie settings
 app.config['SESSION_COOKIE_SECURE'] = not DEBUG  # Secure in production
@@ -75,7 +77,9 @@ app.register_blueprint(metadata_search_bp)
 from src.routes.config_routes import config_bp
 app.register_blueprint(config_bp)
 from src.routes.query_editor_routes import query_editor_bp
+from src.routes.agent_routes import agent_bp  # Agent Mode routes
 app.register_blueprint(query_editor_bp)
+app.register_blueprint(agent_bp)  # Register Agent Mode routes
 
 # Make CSRF token available in templates
 @app.context_processor

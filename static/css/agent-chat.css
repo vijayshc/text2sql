@@ -1,0 +1,92 @@
+/* Additional styles specific to agent-chat */
+
+.agent-chat-container {
+    /* Ensures the container takes full height if needed */
+}
+
+.chat-history {
+    overflow-y: auto;
+    background-color: rgba(255, 255, 255, 0.1); /* Slightly lighter background for chat */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.chat-message {
+    margin-bottom: 15px;
+    padding: 10px 15px;
+    border-radius: 10px;
+    max-width: 85%;
+    word-wrap: break-word;
+}
+
+.user-message {
+    background-color: rgba(0, 123, 255, 0.3); /* User message background */
+    color: #e0e0e0;
+    margin-left: auto;
+    border-bottom-right-radius: 0;
+}
+
+.agent-message {
+    background-color: rgba(255, 255, 255, 0.2); /* Agent message background */
+    color: #f0f0f0;
+    margin-right: auto;
+    border-bottom-left-radius: 0;
+}
+
+.agent-message pre {
+    background-color: rgba(0, 0, 0, 0.3);
+    padding: 10px;
+    border-radius: 5px;
+    overflow-x: auto;
+    color: #c7d2fe; /* Light code text */
+}
+
+.agent-message code {
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.status-message {
+    font-style: italic;
+    color: #adb5bd; /* Lighter text for status */
+    text-align: center;
+    margin: 10px 0;
+    font-size: 0.9em;
+}
+
+.error-message {
+    background-color: rgba(220, 53, 69, 0.3); /* Danger background */
+    color: #f8d7da; /* Light red text */
+    border: 1px solid rgba(220, 53, 69, 0.5);
+}
+
+.tool-call-message,
+.tool-result-message {
+    font-family: monospace;
+    font-size: 0.85em;
+    background-color: rgba(108, 117, 125, 0.2);
+    border: 1px solid rgba(108, 117, 125, 0.4);
+    color: #ced4da;
+}
+
+.tool-call-message strong,
+.tool-result-message strong {
+    color: #e9ecef;
+}
+
+.chat-input-group textarea {
+    resize: none;
+}
+
+.agent-progress {
+    height: 25px; /* Adjust as needed */
+}
+
+.agent-progress .progress {
+    height: 8px;
+}
+
+.agent-progress .progress-status {
+    font-size: 0.8em;
+    display: block;
+    text-align: center;
+    margin-top: 2px;
+}

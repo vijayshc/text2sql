@@ -327,18 +327,18 @@ function showAlert(type, message, container = 'body') {
     const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
     const alertIcon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
     
-    const alert = $(`
-        <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
-            <i class="fas ${alertIcon} me-2"></i> ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    `);
+    // const alert = $(`
+    //     <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+    //         <i class="fas ${alertIcon} me-2"></i> ${message}
+    //         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    //     </div>
+    // `);
     
-    // Append alert to container
-    $(container).prepend(alert);
+    // // Append alert to container
+    // $(container).prepend(alert);
     
-    // Auto-dismiss after 5 seconds
-    setTimeout(() => {
-        alert.alert('close');
-    }, 5000);
+    // // Auto-dismiss after 5 seconds
+    // setTimeout(() => {
+    //     alert.alert('close');
+    // }, 5000);
 }
