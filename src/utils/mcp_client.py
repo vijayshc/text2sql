@@ -202,8 +202,13 @@ class MCPClient:
                 messages.append({"role": "assistant", "content": message.content}) # Add assistant text response
 
             # --- Tool Calling Loop ---
-            while hasattr(message, 'tool_calls') and message.tool_calls:
-                logger.info(f"Tool calls detected: {len(message.tool_calls)}")
+            # Initialize tool loop counter to limit maximum iterations
+            tool_loop_counter = 0
+            max_tool_loops = 5  # Maximum number of tool calling loops allowed
+            
+            while hasattr(message, 'tool_calls') and message.tool_calls and tool_loop_counter < max_tool_loops:
+                tool_loop_counter += 1
+                logger.info(f"Tool calls detected: {len(message.tool_calls)} (Loop {tool_loop_counter}/{max_tool_loops})")
                 # Append the assistant's message with tool calls (even if content was null)
                 # Important: The API expects the *entire* message object including tool_calls
                 assistant_message_with_calls = {

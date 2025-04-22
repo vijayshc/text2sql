@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for, flash
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for, flash, current_app
 from src.models.sql_generator import SQLGenerationManager
 from src.utils.feedback_manager import FeedbackManager
 from src.utils.schema_manager import SchemaManager
@@ -14,8 +14,10 @@ from src.routes.security_routes import security_bp, generate_csrf_token
 from src.routes.vector_db_routes import vector_db_bp
 from src.routes.knowledge_routes import knowledge_bp
 from src.routes.metadata_search_routes import metadata_search_bp
+from src.routes.agent_routes import agent_bp
 from src.models.user import Permissions
 from config.config import SECRET_KEY, DEBUG, MCP_SERVER_SCRIPT_PATH
+from src.utils.mcp_client import get_mcp_client, shutdown_mcp_client
 import logging
 import os
 import sys
@@ -24,9 +26,70 @@ import uuid
 from datetime import datetime
 from threading import Thread
 import signal
+import asyncio
 
 # Get the logger configured in config.py
 logger = logging.getLogger('text2sql')
+
+# Global MCP client event loop and client
+mcp_event_loop = None
+mcp_client = None
+
+# Function to initialize MCP client
+def initialize_mcp_client():
+    """Initialize the global MCP client and event loop for use across the application."""
+    global mcp_event_loop, mcp_client
+    
+    if mcp_event_loop is None:
+        logger.info("Creating global MCP event loop")
+        mcp_event_loop = asyncio.new_event_loop()
+    
+    if mcp_client is None and MCP_SERVER_SCRIPT_PATH:
+        logger.info(f"Initializing global MCP client with server script: {MCP_SERVER_SCRIPT_PATH}")
+        try:
+            # Run in the global event loop
+            asyncio.set_event_loop(mcp_event_loop)
+            mcp_client = mcp_event_loop.run_until_complete(get_mcp_client())
+            
+            # Connect to MCP server if not already connected
+            if not mcp_client.is_connected():
+                mcp_event_loop.run_until_complete(mcp_client.connect_to_server(MCP_SERVER_SCRIPT_PATH))
+                logger.info("Successfully initialized MCP client on application startup")
+            
+            # Store MCP client and event loop in app context for access from blueprints
+            if hasattr(current_app, '_get_current_object'):
+                app = current_app._get_current_object()
+                app.mcp_client = mcp_client
+                app.mcp_event_loop = mcp_event_loop
+                logger.info("MCP client stored in Flask app context")
+            
+            return True
+        except Exception as e:
+            logger.error(f"Error initializing MCP client: {str(e)}")
+            return False
+    return False
+
+# Function to clean up MCP client
+def cleanup_mcp_client():
+    """Clean up the global MCP client and event loop."""
+    global mcp_event_loop, mcp_client
+    
+    if mcp_client is not None:
+        logger.info("Cleaning up global MCP client")
+        try:
+            if mcp_event_loop and not mcp_event_loop.is_closed():
+                mcp_event_loop.run_until_complete(shutdown_mcp_client())
+        except Exception as e:
+            logger.error(f"Error shutting down MCP client: {str(e)}")
+    
+    if mcp_event_loop is not None and not mcp_event_loop.is_closed():
+        try:
+            mcp_event_loop.close()
+        except Exception as e:
+            logger.error(f"Error closing MCP event loop: {str(e)}")
+    
+    mcp_client = None
+    mcp_event_loop = None
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -74,12 +137,11 @@ app.register_blueprint(security_bp)
 app.register_blueprint(vector_db_bp)
 app.register_blueprint(knowledge_bp)
 app.register_blueprint(metadata_search_bp)
+app.register_blueprint(agent_bp)  # Register the agent blueprint
 from src.routes.config_routes import config_bp
 app.register_blueprint(config_bp)
 from src.routes.query_editor_routes import query_editor_bp
-from src.routes.agent_routes import agent_bp  # Agent Mode routes
 app.register_blueprint(query_editor_bp)
-app.register_blueprint(agent_bp)  # Register Agent Mode routes
 
 # Make CSRF token available in templates
 @app.context_processor
@@ -599,6 +661,48 @@ def reload_app():
     os.kill(os.getpid(), signal.SIGUSR1)
     return "Reloading..."
 
+# Move initialization logic to an app setup function that registers with Flask
+def init_app_with_context(app):
+    """Initialize application components that need the app context"""
+    # Using `with app.app_context()` here causes the initialization to run during import time
+    # which leads to duplication when auto-reloading
+    
+    # Instead, use before_first_request but wrap in a function that only runs once
+    initialized = False
+    
+    @app.before_first_request
+    def initialize_on_first_request():
+        """Ensure MCP client is initialized on first request"""
+        nonlocal initialized
+        if not initialized:
+            logger.info("Initializing application-wide components on first request")
+            initialize_mcp_client()
+            initialized = True
+            logger.info("Application-wide components initialization complete")
+
+# Register initialization function with the app
+init_app_with_context(app)
+
+# Register cleanup functions for proper shutdown
+def shutdown_handler(signal_received=None, frame=None):
+    """Handle application shutdown gracefully"""
+    print("Shutting down application...")
+    cleanup_mcp_client()
+    if sql_manager:
+        sql_manager.close()
+    print("Application shutdown complete.")
+    sys.exit(0)
+
+# Register signal handlers for graceful shutdown
+signal.signal(signal.SIGINT, shutdown_handler)   # Ctrl+C
+signal.signal(signal.SIGTERM, shutdown_handler)  # kill command
+
+# Register Flask teardown function
+@app.teardown_appcontext
+def teardown_app_context(exception):
+    # This runs when the application context ends
+    pass  # We use the signal handlers for actual cleanup
+
 if __name__ == '__main__':
     try:
         if 'GITHUB_TOKEN' not in os.environ:
@@ -608,14 +712,22 @@ if __name__ == '__main__':
             sys.exit(1)
             
         # Print debug information to confirm settings
-        print("Starting Flask app with auto-reload enabled:")
+        print("Starting Flask app:")
         print(f"DEBUG mode: {app.debug}")
         print(f"TEMPLATES_AUTO_RELOAD: {app.config['TEMPLATES_AUTO_RELOAD']}")
         print(f"JINJA auto_reload: {app.jinja_env.auto_reload}")
         print(f"Working directory: {os.getcwd()}")
+        print(f"MCP server script path: {MCP_SERVER_SCRIPT_PATH}")
         
-        # Run the app with explicit settings to ensure reloader works
-        app.run(host='0.0.0.0', port=5000, debug=True, use_reloader=True, threaded=True)
+        # Check if application is in main process or reloader mode
+        is_reloader_process = os.environ.get('WERKZEUG_RUN_MAIN') == 'true'
+        
+        if is_reloader_process:
+            logger.info("Running in reloader subprocess - skipping redundant initialization logs")
+        
+        # Run the app with controlled reloader settings
+        app.run(host='0.0.0.0', port=5000, debug=DEBUG, use_reloader=DEBUG, threaded=True)
         
     finally:
-        sql_manager.close()
+        # Ensure cleanup happens
+        shutdown_handler()
