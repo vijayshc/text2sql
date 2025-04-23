@@ -42,8 +42,8 @@
 
 {% block scripts %}
 {{ super() }}
-<!-- Highlight.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+<!-- Tool Confirmation Dialog JS -->
+<script src="{{ url_for('static', filename='js/tool-confirmation.js') }}"></script>
 <!-- Agent Mode JS -->
 <script src="{{ url_for('static', filename='js/agent-chat.js') }}"></script>
 {% endblock %}

@@ -18,6 +18,9 @@ A web application that translates natural language questions into SQL queries, e
 *   **SQL Query Editor:** A dedicated interface for writing/editing SQL queries.
 *   **Vector DB Management UI:** Interface for admins to manage the vector database.
 *   **Security:** Includes features like CSRF protection, secure headers, and rate limiting.
+*   **Sensitive Tool Confirmation:** Requires user approval before executing potentially sensitive operations like shell commands.
+  
+  This feature adds an intermediate confirmation dialog whenever the agent attempts to run sensitive tools (e.g., `run_bash_shell`). Users will receive a popup showing the tool name and arguments, and must confirm or cancel execution. If canceled, the operation is aborted and the agent stops processing further.
 
 ## Tech Stack
 

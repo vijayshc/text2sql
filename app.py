@@ -15,6 +15,7 @@ from src.routes.vector_db_routes import vector_db_bp
 from src.routes.knowledge_routes import knowledge_bp
 from src.routes.metadata_search_routes import metadata_search_bp
 from src.routes.agent_routes import agent_bp
+from src.routes.tool_confirmation_routes import tool_confirmation_bp  # new import for confirmation endpoint
 from src.models.user import Permissions
 from config.config import SECRET_KEY, DEBUG, MCP_SERVER_SCRIPT_PATH
 from src.utils.mcp_client import get_mcp_client, shutdown_mcp_client
@@ -138,6 +139,7 @@ app.register_blueprint(vector_db_bp)
 app.register_blueprint(knowledge_bp)
 app.register_blueprint(metadata_search_bp)
 app.register_blueprint(agent_bp)  # Register the agent blueprint
+app.register_blueprint(tool_confirmation_bp)  # Register tool confirmation blueprint
 from src.routes.config_routes import config_bp
 app.register_blueprint(config_bp)
 from src.routes.query_editor_routes import query_editor_bp

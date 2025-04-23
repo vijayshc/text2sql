@@ -142,6 +142,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 hideProgress();
                 addMessage(`Calling ${update.tool_name} with args ${JSON.stringify(update.arguments)}`, 'agent');
                 break;
+            case 'confirm_request':
+                hideProgress();
+                // Prompt user for confirmation
+                window.showConfirmationDialog(update.tool_name, update.arguments)
+                    .then(decision => {
+                        // Send decision to server
+                        fetch('/agent/confirm_tool', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ call_id: update.call_id, confirm: decision })
+                        });
+                        // Optionally notify user
+                        addMessage(`User ${decision ? 'confirmed' : 'cancelled'} execution of ${update.tool_name}`, 'agent');
+                    });
+                break;
             case 'tool_result':
                 hideProgress();
                 addMessage(update.result, 'agent');

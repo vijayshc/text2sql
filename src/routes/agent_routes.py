@@ -5,6 +5,9 @@ import json
 from src.utils.mcp_client import get_mcp_client  # We will create this utility
 import logging
 import sys
+import uuid
+from src.routes.tool_confirmation_routes import confirm_flags  # for tracking confirmation
+import time  # needed for polling confirmation flags
 
 # We'll access MCP client through Flask's current_app instead of direct imports
 # This prevents circular import issues and ensures we access the same instance
@@ -60,10 +63,34 @@ def agent_chat():
         agen = client.process_query_stream(query)
         try:
             while True:
-                # Use the loop to get the next async generator item
-                # This works with both the global loop or the temporary one
+                # Get next update from MCP
                 upd = loop.run_until_complete(agen.__anext__())
-                yield f"data: {json.dumps(upd)}\n\n"
+                # Intercept sensitive tool calls for confirmation
+                if upd.get('type') == 'tool_call' and upd.get('tool_name') == 'run_bash_shell':
+                    # Generate unique call ID and set pending flag
+                    call_id = str(uuid.uuid4())
+                    confirm_flags[call_id] = None
+                    # Send confirmation request to client
+                    confirm_request = {
+                        'type': 'confirm_request',
+                        'call_id': call_id,
+                        'tool_name': upd.get('tool_name'),
+                        'arguments': upd.get('arguments')
+                    }
+                    yield f"data: {json.dumps(confirm_request)}\n\n"
+                    # Wait for user decision
+                    while confirm_flags.get(call_id) is None:
+                        time.sleep(0.1)
+                    decision = confirm_flags.pop(call_id)
+                    if not decision:
+                        # User aborted execution
+                        yield f"data: {json.dumps({'type': 'error', 'message': 'Tool execution cancelled by user.'})}\n\n"
+                        break  # Abort further processing
+                    # User confirmed: send original tool_call
+                    yield f"data: {json.dumps(upd)}\n\n"
+                else:
+                    # Regular update
+                    yield f"data: {json.dumps(upd)}\n\n"
         except StopAsyncIteration:
             # End of stream
             pass

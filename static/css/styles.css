@@ -1138,3 +1138,77 @@ table.dataTable tbody td {
     border-left: 3px solid #4a6fdc;
     padding-left: 9px; /* Adjust padding to account for border */
 }
+
+/* Confirmation dialog styles */
+.confirmation-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+}
+
+.confirmation-dialog {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
+  border-radius: 1rem;
+  box-shadow: var(--card-shadow);
+  padding: 1.5rem;
+  max-width: 400px;
+  width: 90%;
+  transition: all var(--transition-speed) ease;
+}
+
+.confirmation-dialog h3 {
+  margin-top: 0;
+  font-size: 1.1rem;
+  color: var(--primary-color);
+}
+
+.confirmation-dialog pre {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  max-height: 200px;
+  overflow: auto;
+}
+
+.confirmation-buttons {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.btn-confirm {
+  background-color: var(--success-color);
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color var(--transition-speed) ease;
+}
+
+.btn-confirm:hover {
+  background-color: #1e8449;
+}
+
+.btn-cancel {
+  background-color: var(--danger-color);
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color var(--transition-speed) ease;
+}
+
+.btn-cancel:hover {
+  background-color: #c0392b;
+}
