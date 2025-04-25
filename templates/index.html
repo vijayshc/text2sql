@@ -256,7 +256,10 @@
                             <!-- SQL Tab -->
                             <div class="tab-pane fade" id="sql" role="tabpanel">
                                 <div class="sql-section">
-                                    <pre class="bg-light p-3 rounded mb-0"><code id="sqlCode"></code></pre>
+                                    <div id="sqlEditorContainer" class="bg-light rounded mb-2" style="height: 300px; border: 1px solid #ccc;"></div>
+                                    <div class="d-flex align-items-center mb-2">
+                                        <button id="runSqlBtn" class="btn btn-primary btn-sm me-2"><i class="fas fa-play me-1"></i>Run SQL</button>
+                                    </div>
                                     <div id="feedbackControls" class="feedback-controls mt-3 mb-2" style="display: none;">
                                         <div class="d-flex align-items-center">
                                             <span class="me-3">Was this SQL useful?</span>
@@ -414,6 +417,9 @@
     <script src="{{ url_for('static', filename='js/feedback.js') }}"></script>
     <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
     <script src="{{ url_for('static', filename='js/query-handler.js') }}"></script>
+    <!-- Monaco Editor loader for SQL tab -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/loader.min.js"></script>
+    <script src="{{ url_for('static', filename='js/sql-editor.js') }}"></script>
     {% endblock %}
 </body>
 </html>

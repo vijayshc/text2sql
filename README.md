@@ -16,6 +16,7 @@ A web application that translates natural language questions into SQL queries, e
 *   **Configuration Management UI:** Allows admins to manage application settings via the UI.
 *   **Metadata Search:** Functionality to search database metadata.
 *   **SQL Query Editor:** A dedicated interface for writing/editing SQL queries.
+*   **Manual SQL Editor with Monaco Integration:** View, edit, and execute AI-generated SQL directly in a Monaco-powered editor within the SQL tab.
 *   **Vector DB Management UI:** Interface for admins to manage the vector database.
 *   **Security:** Includes features like CSRF protection, secure headers, and rate limiting.
 *   **Sensitive Tool Confirmation:** Requires user approval before executing potentially sensitive operations like shell commands.

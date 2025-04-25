@@ -16,7 +16,7 @@
     --danger-color: #f87171;
     --light-bg: #f1f5f9;
     --dark-text: #1e293b;
-    
+    --control-gradient: linear-gradient(135deg, #f6f9fc, #e2e8f0);
     /* Gradients */
     --primary-gradient: linear-gradient(135deg, #0597c4, #027699);
     --glass-gradient: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05));
@@ -27,7 +27,7 @@
 
 /* Apply a background with gradient */
 body {
-    background: linear-gradient(135deg, #ffffff, #ffffff);
+    background: linear-gradient(135deg, #f6f9fc, #e2e8f0);
     color: var(--dark-text);
     min-height: 100vh;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -58,6 +58,7 @@ body {
 .card-body {
     padding: 0.5rem;
 }
+
 
 /* Glassmorphism for form controls */
 .form-control, .form-select {
@@ -117,7 +118,7 @@ select.form-select {
 .btn-primary {
     background: var(--primary-gradient);
     border: none;
-    /* box-shadow: 0 2px 4px var(--secondary-color); */
+    box-shadow: 0 2px 4px var(--secondary-color);
 }
 
 .btn-primary:hover, .btn-primary:focus {
