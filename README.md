@@ -7,7 +7,7 @@ A web application that translates natural language questions into SQL queries, e
 *   **Natural Language to SQL:** Converts English questions to SQL.
 *   **Database Interaction:** Executes SQL and shows results.
 *   **Schema Awareness:** Uses database schema details for better query generation.
-*   **Knowledge Base Q&A:** Answers questions based on uploaded documents using vector search.
+*   **Knowledge Base Q&A:** Answers questions based on uploaded documents or directly pasted text using vector search.
 *   **User Feedback:** Collects feedback to refine query generation.
 *   **Sample Management:** Uses curated and successful past queries as examples for the AI.
 *   **User Management & RBAC:** Secure login, user roles, and permissions.

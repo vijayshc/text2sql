@@ -280,6 +280,133 @@ class KnowledgeManager:
         
         return chunks
     
+    def process_text_content(self, content_name: str, content_type: str, content: str, tags: List[str] = None) -> str:
+        """Process text content, chunk it and store in vector database
+        
+        Args:
+            content_name: Name of the content
+            content_type: Type of content
+            content: The actual text content
+            tags: List of tags to associate with the document
+            
+        Returns:
+            str: Document ID
+        """
+        document_id = str(uuid.uuid4())
+        now = datetime.now().isoformat()
+        
+        # Temporary file for consistency with file-based implementation
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as temp_file:
+            temp_file.write(content)
+            temp_file_path = temp_file.name
+        
+        # Save document info to database
+        cursor = self.conn.cursor()
+        cursor.execute(
+            'INSERT INTO knowledge_documents (id, original_filename, file_path, content_type, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            (document_id, content_name, temp_file_path, content_type, 'processing', now, now)
+        )
+        
+        # Save tags if provided
+        if tags and isinstance(tags, list) and len(tags) > 0:
+            for tag in tags:
+                tag = tag.strip().lower()  # Normalize tags
+                if tag:
+                    tag_id = str(uuid.uuid4())
+                    cursor.execute(
+                        'INSERT INTO knowledge_document_tags (id, document_id, tag, created_at) VALUES (?, ?, ?, ?)',
+                        (tag_id, document_id, tag, now)
+                    )
+        
+        self.conn.commit()
+        
+        # Update processing status
+        self.processing_status[document_id] = {
+            'status': 'processing',
+            'message': 'Text content received, starting processing'
+        }
+        
+        # Start processing in a separate thread
+        threading.Thread(
+            target=self._process_text_content_async,
+            args=(document_id, content, temp_file_path)
+        ).start()
+        
+        return document_id
+        
+    def _process_text_content_async(self, document_id: str, content: str, temp_file_path: str):
+        """Process text content asynchronously
+        
+        Args:
+            document_id: Document ID
+            content: Text content
+            temp_file_path: Path to temporary file
+        """
+        try:
+            self.logger.info(f"Starting text content processing for {document_id}")
+            
+            # Update status
+            self.processing_status[document_id] = {
+                'status': 'processing',
+                'message': 'Chunking text content'
+            }
+            
+            # Chunk the content directly
+            chunks = self._chunk_text(content, CHUNK_SIZE, CHUNK_OVERLAP)
+            self.logger.info(f"Created {len(chunks)} chunks for document {document_id}")
+            
+            # Save chunks to database and create embeddings
+            self.logger.info(f"Saving chunks and creating embeddings for document {document_id}")
+            self._save_chunks(document_id, chunks)
+            
+            # Update document status to completed
+            now = datetime.now().isoformat()
+            cursor = self.conn.cursor()
+            cursor.execute(
+                'UPDATE knowledge_documents SET status = ?, updated_at = ?, processed_at = ? WHERE id = ?',
+                ('completed', now, now, document_id)
+            )
+            self.conn.commit()
+            
+            # Update processing status
+            self.processing_status[document_id] = {
+                'status': 'completed',
+                'message': 'Text content processing completed successfully'
+            }
+            
+            # Clean up temporary file
+            try:
+                os.unlink(temp_file_path)
+                self.logger.info(f"Deleted temporary file {temp_file_path}")
+            except Exception as e:
+                self.logger.warning(f"Failed to delete temporary file {temp_file_path}: {str(e)}")
+            
+            self.logger.info(f"Document {document_id} processing completed successfully")
+            
+        except Exception as e:
+            self.logger.error(f"Error processing text content {document_id}: {str(e)}", exc_info=True)
+            
+            # Update document status to error
+            now = datetime.now().isoformat()
+            cursor = self.conn.cursor()
+            cursor.execute(
+                'UPDATE knowledge_documents SET status = ?, updated_at = ?, error = ? WHERE id = ?',
+                ('error', now, str(e), document_id)
+            )
+            self.conn.commit()
+            
+            # Update processing status
+            self.processing_status[document_id] = {
+                'status': 'error',
+                'message': f'Error processing text content: {str(e)}'
+            }
+            
+            # Clean up temporary file
+            try:
+                os.unlink(temp_file_path)
+            except:
+                pass
+    
     def _save_chunks(self, document_id: str, chunks: List[str]):
         """Save chunks to database and create embeddings
         

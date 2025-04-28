@@ -7,19 +7,33 @@
 // Initialize Monaco editor for SQL tab
 let sqlEditor;
 require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs' }});
-require(['vs/editor/editor.main'], function() {
-    sqlEditor = monaco.editor.create(document.getElementById('sqlEditorContainer'), {
-        value: '',
-        language: 'sql',
-        theme: 'vs-dark',
-        automaticLayout: true,
-        minimap: { enabled: false },
-        scrollBeyondLastLine: false,
-        fontSize: 14,
-        tabSize: 2
+
+// Wait for DOM to be fully loaded before initializing the editor
+document.addEventListener('DOMContentLoaded', function() {
+    require(['vs/editor/editor.main'], function() {
+        // Make sure the container exists before creating the editor
+        const editorContainer = document.getElementById('sqlEditorContainer');
+        if (editorContainer) {
+            sqlEditor = monaco.editor.create(editorContainer, {
+                value: '',
+                language: 'sql',
+                theme: 'vs-dark',
+                automaticLayout: true,
+                minimap: { enabled: false },
+                scrollBeyondLastLine: false,
+                fontSize: 14,
+                tabSize: 2
+            });
+            
+            // Make editor accessible globally for schema browser to use
+            window.sqlEditor = sqlEditor;
+            
+            // Resize handler
+            window.addEventListener('resize', () => sqlEditor.layout());
+        } else {
+            console.error('SQL Editor container not found in the DOM');
+        }
     });
-    // Resize handler
-    window.addEventListener('resize', () => sqlEditor.layout());
 });
 
 // Set generated SQL into editor when results are displayed
@@ -36,6 +50,10 @@ require(['vs/editor/editor.main'], function() {
 // Run SQL button handler
 $(document).ready(function() {
     $('#runSqlBtn').click(function() {
+        if (!sqlEditor) {
+            uiUtils.showError('SQL Editor not initialized');
+            return;
+        }
         const query = sqlEditor.getValue().trim();
         if (!query) {
             uiUtils.showError('Query cannot be empty');
