@@ -5,6 +5,7 @@ from src.utils.schema_manager import SchemaManager
 import pandas as pd
 import logging
 import time
+import sqlite3
 from config.config import DATABASE_URI
 
 # Create a global session factory
@@ -25,6 +26,23 @@ def get_db_session():
         _Session = scoped_session(sessionmaker(bind=engine))
     
     return _Session()
+
+def get_db_connection():
+    """Get a raw SQLite database connection
+    
+    Returns:
+        sqlite3.Connection: A SQLite connection object
+    """
+    # Extract the SQLite file path from the SQLAlchemy URI
+    if DATABASE_URI.startswith('sqlite:///'):
+        db_path = DATABASE_URI[10:]  # Remove sqlite:///
+    else:
+        # Default to text2sql.db if URI parsing fails
+        db_path = 'text2sql.db'
+        
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row  # Return rows as dictionaries
+    return conn
 
 class DatabaseManager:
     def __init__(self, connection_string=None):

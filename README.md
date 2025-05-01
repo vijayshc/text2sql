@@ -1,6 +1,18 @@
 # Text2SQL Assistant
 
-A web application that translates natural language questions into SQL queries, executes them against a database, and displays the results. It uses AI (Azure AI Inference) and incorporates feedback mechanisms to improve accuracy over time.
+A## Sensitive Tool Confirmation:** Requires user approval before executing potentially sensitive operations like shell commands.
+  
+  This feature adds an intermediate confirmation dialog whenever the agent attempts to run sensitive tools (e.g., `run_bash_shell`). Users will receive a popup showing the tool name and arguments, and must confirm or cancel execution. If canceled, the operation is aborted and the agent stops processing further.
+
+## MCP Server Management
+
+The application now supports managing multiple Model Context Protocol (MCP) servers:
+
+* **Server Types:** Support for both stdio (command-line process) and HTTP/SSE servers
+* **Admin Interface:** Add, configure, start/stop, and monitor MCP servers
+* **Auto-Selection:** The system can intelligently select the most appropriate MCP server for each user query
+* **Server State Persistence:** MCP server state (running/stopped) is preserved across application restarts
+* **Tool Discovery:** View available tools for each MCP server through the admin interfaceb application that translates natural language questions into SQL queries, executes them against a database, and displays the results. It uses AI (Azure AI Inference) and incorporates feedback mechanisms to improve accuracy over time.
 
 ## Key Features
 
@@ -18,6 +30,8 @@ A web application that translates natural language questions into SQL queries, e
 *   **SQL Query Editor:** A dedicated interface for writing/editing SQL queries.
 *   **Manual SQL Editor with Monaco Integration:** View, edit, and execute AI-generated SQL directly in a Monaco-powered editor within the SQL tab.
 *   **Vector DB Management UI:** Interface for admins to manage the vector database.
+*   **MCP Server Management:** Admin interface to manage multiple MCP servers of both stdio and HTTP types.
+*   **Multi-Server Agent:** Agent capable of working with multiple MCP servers and selecting the best server for each task.
 *   **Security:** Includes features like CSRF protection, secure headers, and rate limiting.
 *   **Sensitive Tool Confirmation:** Requires user approval before executing potentially sensitive operations like shell commands.
   
@@ -26,9 +40,10 @@ A web application that translates natural language questions into SQL queries, e
 ## Tech Stack
 
 *   **Backend:** Python, Flask, SQLAlchemy
-*   **AI:** Azure AI Inference Service, Sentence-Transformers
+*   **AI:** Azure AI Inference Service, Sentence-Transformers, OpenRouter
 *   **Frontend:** HTML, CSS, JavaScript, Bootstrap 5, jQuery
 *   **Database:** SQLite (default)
+*   **MCP Support:** Model Context Protocol support for both stdio and HTTP servers
 
 ## Setup and Installation
 

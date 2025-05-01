@@ -66,7 +66,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('agent.agent_mode') }}">
+                            <a class="nav-link" href="{{ url_for('agent.agent_page') }}">
                                 <i class="fas fa-robot"></i> Agent Mode
                             </a>
                         </li>
@@ -105,6 +105,13 @@
                                 <i class="fas fa-user-tag"></i> Roles & Permissions
                             </a>
                         </li>
+                        {% if is_admin %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin.mcp_servers') }}">
+                                <i class="fas fa-server"></i> MCP Servers
+                            </a>
+                        </li>
+                        {% endif %}
                         <li class="nav-item">
                             <a class="nav-link" href="/admin/schema">
                                 <i class="fas fa-database"></i> Schema Management
@@ -419,7 +426,7 @@
     <script src="{{ url_for('static', filename='js/query-handler.js') }}"></script>
     <!-- Monaco Editor loader for SQL tab -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/loader.min.js"></script>
-    <script src="{{ url_for('static', filename='js/sql-editor.js') }}"></script>
+    <!-- <script src="{{ url_for('static', filename='js/sql-editor.js') }}"></script> -->
     {% endblock %}
 </body>
 </html>

@@ -1,0 +1,59 @@
+/* MCP Servers Management CSS */
+
+.server-status {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.server-status.running {
+    background-color: #28a745;
+    box-shadow: 0 0 5px #28a745;
+}
+
+.server-status.stopped {
+    background-color: #6c757d;
+}
+
+.server-status.error {
+    background-color: #dc3545;
+    box-shadow: 0 0 5px #dc3545;
+}
+
+.server-actions {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+}
+
+.tool-item {
+    margin-bottom: 10px;
+    border-left: 3px solid #6610f2;
+    padding-left: 10px;
+}
+
+.tool-name {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.tool-description {
+    color: #6c757d;
+    margin-bottom: 5px;
+}
+
+.tool-params {
+    background-color: #f8f9fa;
+    padding: 8px;
+    border-radius: 4px;
+    margin-top: 5px;
+}
+
+.glass-modal {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}

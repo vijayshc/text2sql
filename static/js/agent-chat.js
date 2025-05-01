@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sendButton = document.getElementById('sendButton');
     const agentProgress = document.getElementById('agentProgress');
     const progressStatus = agentProgress.querySelector('.progress-status');
+    const serverSelect = document.getElementById('serverSelect');
 
     let eventSource = null;
 
@@ -70,12 +71,54 @@ document.addEventListener('DOMContentLoaded', () => {
     function showProgress(message) {
         agentProgress.style.display = 'block';
         progressStatus.textContent = message || 'Processing...';
+        // Ensure server select stays enabled even when showing progress
+        serverSelect.disabled = false;
     }
 
     function hideProgress() {
         agentProgress.style.display = 'none';
         progressStatus.textContent = '';
+        // Ensure server select stays enabled when hiding progress
+        serverSelect.disabled = false;
     }
+
+    // Load available MCP servers
+    function loadAvailableServers() {
+        fetch('/api/agent/servers')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.servers && data.servers.length > 0) {
+                    // Clear existing options (except the first one)
+                    while (serverSelect.options.length > 1) {
+                        serverSelect.remove(1);
+                    }
+                    
+                    // Add server options
+                    data.servers.forEach(server => {
+                        const option = document.createElement('option');
+                        option.value = server.id;
+                        option.textContent = server.name;
+                        if (server.description) {
+                            option.title = server.description;
+                        }
+                        serverSelect.appendChild(option);
+                    });
+                    
+                    // Enable the select element
+                    serverSelect.disabled = false;
+                } else {
+                    // If no servers available, disable the select element
+                    serverSelect.disabled = true;
+                }
+            })
+            .catch(error => {
+                console.error('Error loading MCP servers:', error);
+                serverSelect.disabled = true;
+            });
+    }
+    
+    // Load servers on page load
+    loadAvailableServers();
 
     function sendMessage() {
         const query = chatInput.value.trim();
@@ -85,13 +128,22 @@ document.addEventListener('DOMContentLoaded', () => {
         chatInput.value = '';
         sendButton.disabled = true;
         chatInput.disabled = true;
+        // Keep serverSelect enabled to allow switching between MCP servers during chat
         showProgress('Sending query to agent...');
+        
+        // Get selected server ID (if any)
+        const serverId = serverSelect.value;
 
         // Send POST to agent/chat and stream updates
-        fetch('/agent/chat', {
+        fetch('/api/agent/chat', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ query: query })
+            headers: { 
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ 
+                query: query,
+                server_id: serverId || undefined  // Only include if a server is selected
+            })
         })
         .then(async response => {
             if (!response.ok) throw new Error(`Server responded ${response.status}`);
@@ -126,6 +178,8 @@ document.addEventListener('DOMContentLoaded', () => {
             hideProgress();
             sendButton.disabled = false;
             chatInput.disabled = false;
+            // Make sure serverSelect stays enabled
+            serverSelect.disabled = false;
         });
     }
 
@@ -133,14 +187,20 @@ document.addEventListener('DOMContentLoaded', () => {
         switch (update.type) {
             case 'status':
                 showProgress(update.message);
+                // Ensure server selection remains enabled during status updates
+                serverSelect.disabled = false;
                 break;
             case 'llm_response':
                 hideProgress();
                 addMessage(update.content, 'agent');
+                // Ensure server selection remains enabled when receiving LLM responses
+                serverSelect.disabled = false;
                 break;
             case 'tool_call':
                 hideProgress();
                 addMessage(`Calling ${update.tool_name} with args ${JSON.stringify(update.arguments)}`, 'agent');
+                // Ensure server selection remains enabled during tool calls
+                serverSelect.disabled = false;
                 break;
             case 'confirm_request':
                 hideProgress();
@@ -160,14 +220,20 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'tool_result':
                 hideProgress();
                 addMessage(update.result, 'agent');
+                // Ensure server selection remains enabled when receiving tool results
+                serverSelect.disabled = false;
                 break;
             case 'done':
                 hideProgress();
                 addMessage('Agent finished processing.', 'agent');
+                // Ensure server selection remains enabled when agent is done
+                serverSelect.disabled = false;
                 break;
             case 'error':
                 hideProgress();
                 addMessage(update.message, 'agent');
+                // Ensure server selection remains enabled even after errors
+                serverSelect.disabled = false;
                 break;
             default:
                 console.warn('Unknown update type:', update.type);

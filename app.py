@@ -18,7 +18,6 @@ from src.routes.agent_routes import agent_bp
 from src.routes.tool_confirmation_routes import tool_confirmation_bp  # new import for confirmation endpoint
 from src.models.user import Permissions
 from config.config import SECRET_KEY, DEBUG, MCP_SERVER_SCRIPT_PATH
-from src.utils.mcp_client import get_mcp_client, shutdown_mcp_client
 import logging
 import os
 import sys
@@ -32,45 +31,31 @@ import asyncio
 # Get the logger configured in config.py
 logger = logging.getLogger('text2sql')
 
-# Global MCP client event loop and client
-mcp_event_loop = None
-mcp_client = None
+# Import new MCP client manager
+from src.utils.mcp_client_manager import MCPClientManager
+# Import MCP server model
+from src.models.mcp_server import MCPServer
 
-# Function to initialize MCP client
-def initialize_mcp_client():
-    """Initialize the global MCP client and event loop for use across the application."""
-    global mcp_event_loop, mcp_client
-    
-    if mcp_event_loop is None:
-        logger.info("Creating global MCP event loop")
-        mcp_event_loop = asyncio.new_event_loop()
-    
-    if mcp_client is None and MCP_SERVER_SCRIPT_PATH:
-        logger.info(f"Initializing global MCP client with server script: {MCP_SERVER_SCRIPT_PATH}")
-        try:
-            # Run in the global event loop
-            asyncio.set_event_loop(mcp_event_loop)
-            mcp_client = mcp_event_loop.run_until_complete(get_mcp_client())
-            
-            # Connect to MCP server if not already connected
-            if not mcp_client.is_connected():
-                mcp_event_loop.run_until_complete(mcp_client.connect_to_server(MCP_SERVER_SCRIPT_PATH))
-                logger.info("Successfully initialized MCP client on application startup")
-            
-            # Store MCP client and event loop in app context for access from blueprints
-            if hasattr(current_app, '_get_current_object'):
-                app = current_app._get_current_object()
-                app.mcp_client = mcp_client
-                app.mcp_event_loop = mcp_event_loop
-                logger.info("MCP client stored in Flask app context")
-            
-            return True
-        except Exception as e:
-            logger.error(f"Error initializing MCP client: {str(e)}")
-            return False
-    return False
+# Function to initialize MCP servers
+def initialize_mcp_servers():
+    """Initialize the MCP servers that are marked as running in the database."""
+    # Ensure the MCP servers table exists
+    MCPServer.create_table()
 
-# Function to clean up MCP client
+    # Start all servers marked as running in the database
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    results = loop.run_until_complete(MCPClientManager.start_all_running_servers())
+    loop.close()
+
+    # Log startup results
+    for result in results:
+        if result['success']:
+            logger.info(f"Successfully started MCP server: {result['server_name']}")
+        else:
+            logger.error(f"Failed to start MCP server {result['server_name']}: {result['message']}")
+
+# Function to clean up MCP client (no-op; old cleanup removed)
 def cleanup_mcp_client():
     """Clean up the global MCP client and event loop."""
     global mcp_event_loop, mcp_client
@@ -144,6 +129,9 @@ from src.routes.config_routes import config_bp
 app.register_blueprint(config_bp)
 from src.routes.query_editor_routes import query_editor_bp
 app.register_blueprint(query_editor_bp)
+# Register MCP server management blueprint
+from src.routes.mcp_admin_routes import mcp_admin_bp
+app.register_blueprint(mcp_admin_bp)
 
 # Make CSRF token available in templates
 @app.context_processor
@@ -636,11 +624,13 @@ def inject_user():
         user = user_manager.get_user_by_id(user_id)
         is_admin = user_manager.has_role(user_id, 'admin')
     
+    # Always return a dictionary, regardless of login state
     return dict(
         current_user=user,
         is_admin=is_admin,
         user_manager=user_manager,
-        has_permission=lambda permission: user_manager.has_permission(session.get('user_id'), permission) if session.get('user_id') else False
+        has_permission=lambda permission: user_manager.has_permission(session.get('user_id'), permission) if session.get('user_id') else False,
+        permissions=Permissions
     )
 
 @app.errorhandler(404)
@@ -674,11 +664,11 @@ def init_app_with_context(app):
     
     @app.before_first_request
     def initialize_on_first_request():
-        """Ensure MCP client is initialized on first request"""
+        """Ensure MCP servers are initialized on first request"""
         nonlocal initialized
         if not initialized:
             logger.info("Initializing application-wide components on first request")
-            initialize_mcp_client()
+            initialize_mcp_servers()
             initialized = True
             logger.info("Application-wide components initialization complete")
 
@@ -689,7 +679,17 @@ init_app_with_context(app)
 def shutdown_handler(signal_received=None, frame=None):
     """Handle application shutdown gracefully"""
     print("Shutting down application...")
-    cleanup_mcp_client()
+    
+    # Clean up MCP clients
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    try:
+        loop.run_until_complete(MCPClientManager.cleanup_all())
+    except Exception as e:
+        print(f"Error cleaning up MCP clients: {e}")
+    finally:
+        loop.close()
+    
     if sql_manager:
         sql_manager.close()
     print("Application shutdown complete.")
