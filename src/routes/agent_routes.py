@@ -66,6 +66,7 @@ def agent_chat():
     
     query = data.get('query')
     server_id = data.get('server_id')  # Optional specific server ID
+    conversation_history = data.get('conversation_history', [])  # Get history for follow-up questions
     
     def generate():
         loop = asyncio.new_event_loop()
@@ -87,9 +88,26 @@ def agent_chat():
             
         yield f"data: {json.dumps({'type': 'status', 'message': f'Connected to MCP server: {client.server_name}'})}\n\n"
 
-        # Stream updates
-        agen = client.process_query_stream(query)
-        try:
+        # Prepare query with conversation history if available
+        if conversation_history:
+            # Create a structured query with conversation history
+            structured_query = {
+                'query': query,
+                'conversation_history': conversation_history
+            }
+            logger.info(f"Processing query with {len(conversation_history)} previous messages for context")
+            # Stream updates with history
+            agen = client.process_query_stream(structured_query)
+        else:
+            # Stream updates with just the query
+            agen = client.process_query_stream(query)
+            
+        try:                # Track if we've found a final answer already to avoid duplicates
+            final_answer_found = False
+            current_responses = []
+            is_next_response_final = False  # Flag to mark the next LLM response as final
+            last_llm_response = None  # Track the last LLM response for fallback
+            
             while True:
                 # Get next update from MCP
                 upd = loop.run_until_complete(agen.__anext__())

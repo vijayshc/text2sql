@@ -6,6 +6,8 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css" rel="stylesheet">
 <!-- Markdown-it for markdown rendering -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/13.0.1/markdown-it.min.js"></script>
+<!-- Enhanced Agent Chat Styling -->
+<link href="{{ url_for('static', filename='css/admin/agent-chat-enhanced.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -39,8 +41,10 @@
             <div class="avatar system-avatar">
                 <i class="fas fa-robot"></i>
             </div>
-            <div class="message-content glass">
-                <p>Hello! I'm your agent assistant. How can I help?</p>
+            <div class="message-content glass final-answer">
+                <p>Hello! I'm your agent assistant. I'll help you solve tasks by using tools and accessing resources.</p>
+                <p>You can ask follow-up questions, and I'll maintain context from our conversation.</p>
+                <p>How can I help you today?</p>
             </div>
         </div>
     </div>

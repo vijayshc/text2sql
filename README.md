@@ -12,7 +12,8 @@ The application now supports managing multiple Model Context Protocol (MCP) serv
 * **Admin Interface:** Add, configure, start/stop, and monitor MCP servers
 * **Auto-Selection:** The system can intelligently select the most appropriate MCP server for each user query
 * **Server State Persistence:** MCP server state (running/stopped) is preserved across application restarts
-* **Tool Discovery:** View available tools for each MCP server through the admin interfaceb application that translates natural language questions into SQL queries, executes them against a database, and displays the results. It uses AI (Azure AI Inference) and incorporates feedback mechanisms to improve accuracy over time.
+* **Tool Discovery:** View available tools for each MCP server through the admin interface
+* **Conversation History for Follow-up Questions:** Agent chat now maintains conversation context, allowing users to ask follow-up questions with the context of previous exchangesb application that translates natural language questions into SQL queries, executes them against a database, and displays the results. It uses AI (Azure AI Inference) and incorporates feedback mechanisms to improve accuracy over time.
 
 ## Key Features
 

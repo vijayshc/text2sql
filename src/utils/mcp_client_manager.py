@@ -34,9 +34,9 @@ except ImportError as e:
     logger.error(f"Failed to import MCP: {e}")
     
 # API settings
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY","")
 OPENROUTER_BASE_URL = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")
-OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "google/gemini-2.0-flash-exp:free")
+OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "google/gemini-flash-1.5-8b-exp")
 
 # Global registry of active MCP clients
 _mcp_clients = {}
@@ -348,10 +348,17 @@ class MCPClient:
             yield {"type": "error", "message": "OpenAI client not configured."}
             return
 
-        logger.info(f"Processing query on server {self.server_name}: {query}")
-        yield {"type": "status", "message": f"Starting query processing on {self.server_name}..."}
+        # Handle either string query or structured query with conversation history
+        if isinstance(query, dict) and 'query' in query:
+            # Structured query with conversation history
+            logger.info(f"Processing query on server {self.server_name} with conversation history: {query['query']}")
+            yield {"type": "status", "message": f"Starting query processing on {self.server_name}..."}
+        else:
+            # Standard string query
+            logger.info(f"Processing query on server {self.server_name}: {query}")
+            yield {"type": "status", "message": f"Starting query processing on {self.server_name}..."}
 
-        # Set up conversation
+        # Set up conversation with system message
         messages = [
             {
                 "role": "system",
@@ -364,12 +371,35 @@ Follow these guidelines:
 5. SQL queries should be compatible with SQLite (avoid CTEs, use subqueries if needed)
 6. Retry failed steps only if it makes logical sense
 7. Provide a clear final answer when complete"""
-            },
-            {
-                "role": "user",
-                "content": query
             }
         ]
+        
+        # Add conversation history for context if available
+        if hasattr(query, 'get') and isinstance(query, dict) and query.get('conversation_history'):
+            # This is a dictionary query with conversation history
+            conversation_history = query.get('conversation_history', [])
+            current_query = query.get('query', '')
+            
+            # Add conversation history to messages
+            messages.extend(conversation_history)
+            
+            # Add the current query
+            messages.append({
+                "role": "user",
+                "content": current_query
+            })
+            logger.info(f"**************: {messages}")
+            logger.info(f"Processing query with conversation history ({len(conversation_history)} previous messages)")
+            
+            # Use the current query for logging
+            query_text = current_query
+        else:
+            # Standard string query without history
+            messages.append({
+                "role": "user",
+                "content": query
+            })
+            query_text = query
 
         # Get available tools
         available_tools = await self.get_available_tools()
@@ -636,7 +666,12 @@ Follow these guidelines:
             # Final message check
             last_msg = messages[-1] if messages else {}
             if message.content and not (last_msg.get("role") == "assistant" and last_msg.get("content") == message.content):
-                yield {"type": "llm_response", "content": message.content}
+                # Send the final message to the client
+                yield {"type": "llm_response", "content": message.content, "is_final": True}
+                
+                # Also update the conversation history with this final message
+                messages.append({"role": "assistant", "content": message.content})
+                logger.info(f"Added final assistant message to conversation history: {message.content[:50]}...")
 
             # Complete
             yield {"type": "status", "message": "Processing complete."}
