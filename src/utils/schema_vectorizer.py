@@ -224,7 +224,7 @@ Description: {column_description}
             # Create filter expression if workspace is specified
             filter_expr = None
             if filter_workspace:
-                filter_expr = f"workspace == '{filter_workspace}'"
+                filter_expr = {"workspace": filter_workspace}
             
             # Search for similar vectors
             results = self.vector_store.search_similar(
@@ -287,7 +287,7 @@ Description: {column_description}
             return None
             
     def filter_with_llm(self, query: str, limit: int = 100) -> Tuple[List[Dict[str, Any]], str]:
-        """Use LLM to extract schema filters from query and search filtered results
+        """Use LLM to create ChromaDB filters from query and search filtered results
         
         Args:
             query: User query
@@ -297,81 +297,119 @@ Description: {column_description}
             Tuple[List[Dict], str]: Search results and the filter expression used
         """
         try:
-            # Ask LLM to extract database/table/column names from query
-            extraction_prompt = f"""
-Extract any database names, table names, and column names from this query:
+            # Ask LLM to create ChromaDB filter from query
+            filter_prompt = f"""
+Analyze this database query and create a ChromaDB filter in JSON format for explicitly mentioned database, table, or column names:
 "{query}"
 
-Return as JSON with these fields (leave empty if not found):
-{{
-  "database": "",
-  "table": "",
-  "column": ""
-}}
+EXTRACTION RULES:
+1. Extract EXPLICITLY mentioned database/table/column names from the query
+2. Recognize column names that are clearly stated (e.g., "first_name", "user_id", "order_date")
+3. Do NOT infer or guess names from generic descriptions
+4. Use $and for specific column(s) within specific table(s)
+5. Use $or for multiple alternatives (different tables OR different columns)
+6. Generic terms like "customer information", "user data" are NOT explicit column names
+7. But explicit names like "first_name", "last_name", "email" ARE valid column names
+
+LOGICAL OPERATORS:
+- Use $and when query asks for specific column(s) IN/FROM/WITHIN specific table(s)
+- Use $or when query asks for multiple alternatives (table1 OR table2, column1 OR column2)
+- Single entity (just table OR just column) doesn't need logical operators
+
+Return a JSON object that can be used as a ChromaDB "where" clause filter.
+Use these field names: "workspace", "table", "column"
+
+Valid examples (explicit names):
+- "users table" → {{"table": "users"}}
+- "user_id column" → {{"column": "user_id"}}
+- "phone column from customers table" → {{"$and": [{{"table": "customers"}}, {{"column": "phone"}}]}}
+- "what does column phone from customers table contains" → {{"$and": [{{"table": "customers"}}, {{"column": "phone"}}]}}
+- "user_id column in users table" → {{"$and": [{{"table": "users"}}, {{"column": "user_id"}}]}}
+- "first_name and last_name columns" → {{"$or": [{{"column": "first_name"}}, {{"column": "last_name"}}]}}
+- "users table and orders table" → {{"$or": [{{"table": "users"}}, {{"table": "orders"}}]}}
+- "email, phone, address columns" → {{"$or": [{{"column": "email"}}, {{"column": "phone"}}, {{"column": "address"}}]}}
+- "email and phone from users table" → {{"$and": [{{"table": "users"}}, {{"$or": [{{"column": "email"}}, {{"column": "phone"}}]}}]}}
+- "sales database" → {{"workspace": "sales"}}
+
+Invalid examples (no explicit names):
+- "get me customer information" → null (generic term, no explicit column name)
+- "show user data" → null (generic term, no explicit table name)
+- "find sales information" → null (generic term, no explicit database name)
+- "column containing customer name" → null (no explicit column name mentioned)
+
+KEY DISTINCTION:
+- "column X FROM/IN table Y" = $and (specific column within specific table)
+- "column X AND column Y" = $or (multiple columns as alternatives)
+- "table X AND table Y" = $or (multiple tables as alternatives)
+
+If no EXPLICIT database/table/column names are found in the query, return: null
+
+Return only the JSON filter object, nothing else.
             """
             
-            # Converting the prompt to the format expected by generate_completion
             formatted_prompt = [
-                {"role": "system", "content": "Extract database schema entities from the query and return results as JSON."},
-                {"role": "user", "content": extraction_prompt}
+                {"role": "system", "content": "You are a database expert. Create ChromaDB filters from user queries for explicitly mentioned database/table/column names. Use $and for specific columns within specific tables (e.g., 'column X FROM table Y'). Use $or for multiple alternatives (e.g., 'table1 AND table2' or 'column1 AND column2'). Pay attention to prepositions like 'from', 'in', 'within' which indicate $and relationships. Return only valid JSON."},
+                {"role": "user", "content": filter_prompt}
             ]
             
-            extraction_result = self.llm_engine.generate_completion(formatted_prompt, log_prefix="Schema Entity Extraction")
-            self.logger.info(f"LLM extraction result: {extraction_result}")
-            # Parse extraction results (assuming JSON response from LLM)
+            filter_result = self.llm_engine.generate_completion(formatted_prompt, log_prefix="ChromaDB Filter Creation")
+            self.logger.info(f"LLM filter result: {filter_result}")
+            
+            # Parse the filter result
+            filter_expr = None
+            filter_description = "No specific filter"
+            
             try:
                 import json
-                filters = json.loads(extraction_result)
-            except:
-                # Fallback if LLM doesn't return valid JSON
-                self.logger.warning("LLM didn't return valid JSON, using fallback extraction")
-                filters = {
-                    "database": "",
-                    "table": "",
-                    "column": ""
-                }
+                filter_result_clean = filter_result.strip()
                 
-            # Build filter expression based on extracted entities
-            filter_parts = []
-            if filters.get("database"):
-                filter_parts.append(f"workspace == '{filters['database']}'")
-            if filters.get("table"):
-                filter_parts.append(f"table == '{filters['table']}'")
-            if filters.get("column"):
-                filter_parts.append(f"column == '{filters['column']}'")
+                # Extract JSON from markdown code blocks if present
+                if filter_result_clean.startswith('```json'):
+                    # Remove markdown code block markers
+                    filter_result_clean = filter_result_clean[7:]  # Remove ```json
+                    if filter_result_clean.endswith('```'):
+                        filter_result_clean = filter_result_clean[:-3]  # Remove ```
+                    filter_result_clean = filter_result_clean.strip()
+                elif filter_result_clean.startswith('```'):
+                    # Remove generic code block markers
+                    filter_result_clean = filter_result_clean[3:]  # Remove ```
+                    if filter_result_clean.endswith('```'):
+                        filter_result_clean = filter_result_clean[:-3]  # Remove ```
+                    filter_result_clean = filter_result_clean.strip()
                 
-            filter_expr = " && ".join(filter_parts) if filter_parts else None
-
-            self.logger.info(f"Filter expression generated: {filter_expr}")
+                if filter_result_clean and filter_result_clean.lower() != "null":
+                    filter_expr = json.loads(filter_result_clean)
+                    filter_description = f"Filter: {json.dumps(filter_expr, separators=(',', ':'))}"
+                    self.logger.info(f"Using ChromaDB filter: {filter_expr}")
+            except json.JSONDecodeError as e:
+                self.logger.warning(f"LLM didn't return valid JSON filter: {e}. Using unfiltered search.")
+                filter_expr = None
             
-            # Initial search attempt (potentially filtered)
-            results = self.vector_store.search_similar(
-                'schema_metadata',
-                self._get_embedding(query),
-                limit=limit,
-                filter_expr=filter_expr,
-                output_fields=["id", "text", "metadata"]
-            )
-
-            # If filters were applied and no results were found, try again without filters
-            if filter_expr and not results:
-                self.logger.info(f"No results found with filter '{filter_expr}'. Retrying without filter.")
-                results = self.vector_store.search_similar(
+            # Perform search based on whether we have a filter or not
+            if filter_expr:
+                # Direct hit detected - retrieve records by filter only, no vector search
+                self.logger.info(f"Direct hit detected with filter: {filter_expr}. Retrieving records by filter only.")
+                results = self.vector_store.query_by_filter(
                     'schema_metadata',
-                    self._get_embedding(query),
+                    filter_expr=filter_expr,
                     limit=limit,
-                    filter_expr=None,  # Perform unfiltered search
                     output_fields=["id", "text", "metadata"]
                 )
                 
-            
-            return results, filter_expr
-            
-        except Exception as e:
-            self.logger.error(f"Error filtering with LLM: {str(e)}", exc_info=True)
-            # Attempt a basic search as a fallback on error during filtering
-            try:
-                self.logger.info("Performing fallback unfiltered search due to LLM filtering error.")
+                # If no results with filter, fall back to vector search
+                if not results:
+                    self.logger.info(f"No results found with filter. Falling back to vector search.")
+                    results = self.vector_store.search_similar(
+                        'schema_metadata',
+                        self._get_embedding(query),
+                        limit=limit,
+                        filter_expr=None,
+                        output_fields=["id", "text", "metadata"]
+                    )
+                    filter_description = "Filter removed (no results), using vector search"
+            else:
+                # No filter - use vector search
+                self.logger.info("No filter detected. Using vector search.")
                 results = self.vector_store.search_similar(
                     'schema_metadata',
                     self._get_embedding(query),
@@ -379,7 +417,22 @@ Return as JSON with these fields (leave empty if not found):
                     filter_expr=None,
                     output_fields=["id", "text", "metadata"]
                 )
-                return results, None # Indicate no filter was successfully applied
+            
+            return results, filter_description
+            
+        except Exception as e:
+            self.logger.error(f"Error in LLM filtering: {str(e)}", exc_info=True)
+            # Fallback to unfiltered search
+            try:
+                self.logger.info("Performing fallback unfiltered search due to error.")
+                results = self.vector_store.search_similar(
+                    'schema_metadata',
+                    self._get_embedding(query),
+                    limit=limit,
+                    filter_expr=None,
+                    output_fields=["id", "text", "metadata"]
+                )
+                return results, "Error in filtering, using unfiltered search"
             except Exception as fallback_e:
                 self.logger.error(f"Fallback search also failed: {str(fallback_e)}", exc_info=True)
-                return [], None
+                return [], "Search failed"

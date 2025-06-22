@@ -21,13 +21,14 @@
     <!-- Custom CSS -->
     <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/knowledge-chat.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/glassmorphism.css') }}" rel="stylesheet">
     
 </head>
 <body>
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
-            <div class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse" id="appSidebar">
+            <div class="col-md-3 col-lg-2 d-md-block sidebar collapse" id="appSidebar">
                 <div class="position-sticky ">
                     <a href="/" class="sidebar-brand">
                         <span>AI Assistant</span>
@@ -55,8 +56,18 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" href="/query-editor">
+                                <i class="fas fa-code"></i> Query Editor
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" href="/knowledge">
                                 <i class="fas fa-book"></i> Knowledge Finder
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('agent.agent_page') }}">
+                                <i class="fas fa-robot"></i> Agent Mode
                             </a>
                         </li>
                         <li class="nav-item">
@@ -94,6 +105,13 @@
                                 <i class="fas fa-user-tag"></i> Roles & Permissions
                             </a>
                         </li>
+                        {% if is_admin %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin.mcp_servers') }}">
+                                <i class="fas fa-server"></i> MCP Servers
+                            </a>
+                        </li>
+                        {% endif %}
                         <li class="nav-item">
                             <a class="nav-link" href="/admin/schema">
                                 <i class="fas fa-database"></i> Schema Management
@@ -229,8 +247,8 @@
                         <div class="tab-content">
                             <!-- Results Tab -->
                             <div class="tab-pane fade show active" id="results" role="tabpanel">
-                                <div class="table-responsive">
-                                    <table id="resultsTable" class="table table-striped table-bordered nowrap">
+                                <div class="scrollable-results">
+                                    <table id="resultsTable" class="table table-hover">
                                         <thead>
                                             <tr></tr>
                                         </thead>
@@ -245,7 +263,10 @@
                             <!-- SQL Tab -->
                             <div class="tab-pane fade" id="sql" role="tabpanel">
                                 <div class="sql-section">
-                                    <pre class="bg-light p-3 rounded mb-0"><code id="sqlCode"></code></pre>
+                                    <div id="sqlEditorContainer" class="bg-light rounded mb-2" style="height: 300px; border: 1px solid #ccc;"></div>
+                                    <div class="d-flex align-items-center mb-2">
+                                        <button id="runSqlBtn" class="btn btn-primary btn-sm me-2"><i class="fas fa-play me-1"></i>Run SQL</button>
+                                    </div>
                                     <div id="feedbackControls" class="feedback-controls mt-3 mb-2" style="display: none;">
                                         <div class="d-flex align-items-center">
                                             <span class="me-3">Was this SQL useful?</span>
@@ -403,6 +424,9 @@
     <script src="{{ url_for('static', filename='js/feedback.js') }}"></script>
     <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
     <script src="{{ url_for('static', filename='js/query-handler.js') }}"></script>
+    <!-- Monaco Editor loader for SQL tab -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/loader.min.js"></script>
+    <script src="{{ url_for('static', filename='js/sql-editor.js') }}"></script>
     {% endblock %}
 </body>
 </html>

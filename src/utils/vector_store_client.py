@@ -211,14 +211,14 @@ class VectorStoreClient:
             return False
     
     def search_similar(self, collection_name: str, vector: List[float], limit: int = 5, 
-                       filter_expr: str = None, output_fields: List[str] = None) -> List[Dict[str, Any]]:
+                       filter_expr: Optional[Dict[str, Any]] = None, output_fields: List[str] = None) -> List[Dict[str, Any]]:
         """Search for similar vectors
         
         Args:
             collection_name (str): Name of the collection to search in
             vector (List[float]): Query vector to search with
             limit (int): Maximum number of results to return
-            filter_expr (str, optional): Filter expression for the search
+            filter_expr (Dict[str, Any], optional): ChromaDB where clause for filtering
             output_fields (List[str], optional): Specific fields to return (kept for compatibility)
             
         Returns:
@@ -231,11 +231,9 @@ class VectorStoreClient:
                 "n_results": limit
             }
             
-            # Convert filter expression to where clause if needed
+            # Use filter expression directly as where clause
             if filter_expr:
-                where_clause = self._convert_filter_to_where(filter_expr)
-                if where_clause:
-                    search_data["where"] = where_clause
+                search_data["where"] = filter_expr
             
             response = self.session.post(
                 f"{self.service_url}/collections/{collection_name}/search",
@@ -344,22 +342,21 @@ class VectorStoreClient:
             self.logger.error(f"Error deleting embedding from collection {collection_name}: {str(e)}", exc_info=True)
             return False
     
-    def delete_by_filter(self, collection_name: str, filter_expr: str) -> bool:
+    def delete_by_filter(self, collection_name: str, filter_expr: Dict[str, Any]) -> bool:
         """Delete documents from a collection by filter expression
         
         Args:
             collection_name (str): Name of the collection to delete from
-            filter_expr (str): Filter expression to identify documents to delete
+            filter_expr (Dict[str, Any]): ChromaDB where clause to identify documents to delete
             
         Returns:
             bool: True if successful, False otherwise
         """
         try:
             # First, get the documents matching the filter
-            where_clause = self._convert_filter_to_where(filter_expr)
             params = {}
-            if where_clause:
-                params['where'] = json.dumps(where_clause)
+            if filter_expr:
+                params['where'] = json.dumps(filter_expr)
             
             response = self.session.get(
                 f"{self.service_url}/collections/{collection_name}/documents",
@@ -386,13 +383,13 @@ class VectorStoreClient:
             self.logger.error(f"Error deleting by filter from collection {collection_name}: {str(e)}", exc_info=True)
             return False
 
-    def query_by_filter(self, collection_name: str, filter_expr: str, limit: int = 100,
+    def query_by_filter(self, collection_name: str, filter_expr: Dict[str, Any], limit: int = 100,
                          output_fields: List[str] = None) -> List[Dict[str, Any]]:
         """Query entries by filter expression
         
         Args:
             collection_name (str): Name of the collection to query
-            filter_expr (str): Filter expression for the query
+            filter_expr (Dict[str, Any]): ChromaDB where clause for filtering
             limit (int): Maximum number of results to return
             output_fields (List[str], optional): Specific fields to return (kept for compatibility)
             
@@ -402,10 +399,9 @@ class VectorStoreClient:
         try:
             params = {'limit': limit}
             
-            # Convert filter expression to where clause
-            where_clause = self._convert_filter_to_where(filter_expr)
-            if where_clause:
-                params['where'] = json.dumps(where_clause)
+            # Use filter expression directly as where clause
+            if filter_expr:
+                params['where'] = json.dumps(filter_expr)
             
             response = self.session.get(
                 f"{self.service_url}/collections/{collection_name}/documents",
@@ -445,14 +441,14 @@ class VectorStoreClient:
         self.client = None
 
     def search_by_text(self, collection_name: str, query_text: str, limit: int = 5, 
-                       filter_expr: str = None) -> List[Dict[str, Any]]:
+                       filter_expr: Dict[str, Any] = None) -> List[Dict[str, Any]]:
         """Search for similar vectors using text query
         
         Args:
             collection_name (str): Name of the collection to search in
             query_text (str): Text query to search with
             limit (int): Maximum number of results to return
-            filter_expr (str, optional): Filter expression for the search
+            filter_expr (Dict[str, Any], optional): ChromaDB where clause for filtering
             
         Returns:
             List[Dict]: List of search results with similarity scores
@@ -464,11 +460,9 @@ class VectorStoreClient:
                 "n_results": limit
             }
             
-            # Convert filter expression to where clause if needed
+            # Use filter expression directly as where clause
             if filter_expr:
-                where_clause = self._convert_filter_to_where(filter_expr)
-                if where_clause:
-                    search_data["where"] = where_clause
+                search_data["where"] = filter_expr
             
             response = self.session.post(
                 f"{self.service_url}/collections/{collection_name}/search",
@@ -572,38 +566,6 @@ class VectorStoreClient:
             self.logger.error(f"Error deleting collection {collection_name}: {str(e)}", exc_info=True)
             return False
 
-    def _convert_filter_to_where(self, filter_expr: str) -> Optional[Dict[str, Any]]:
-        """Convert Milvus-style filter expression to ChromaDB where clause
-        
-        Args:
-            filter_expr: Filter expression string
-            
-        Returns:
-            Dict: Where clause for ChromaDB or None if conversion failed
-        """
-        if not filter_expr or not filter_expr.strip():
-            return None
-        
-        try:
-            # Simple conversions for common patterns
-            if "==" in filter_expr:
-                parts = filter_expr.split("==")
-                if len(parts) == 2:
-                    key = parts[0].strip()
-                    value = parts[1].strip().strip('"\'')
-                    # Try to convert to appropriate type
-                    try:
-                        value = int(value)
-                    except ValueError:
-                        try:
-                            value = float(value)
-                        except ValueError:
-                            pass  # Keep as string
-                    return {key: value}
-        except Exception as e:
-            self.logger.warning(f"Could not parse filter expression '{filter_expr}': {e}")
-        
-        return None
 
 # For backward compatibility, create an alias
 VectorStore = VectorStoreClient

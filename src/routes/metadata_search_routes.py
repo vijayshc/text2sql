@@ -177,8 +177,18 @@ def search_metadata_stream():
         # Filter results with LLM to extract schema entities
         results, filter_expr = schema_vectorizer.filter_with_llm(query, limit=limit)
         
-        # Apply reranking if requested and we have enough results
-        if rerank and len(results) > 1:
+        # Simple logic: if filter was applied, skip reranking (direct hit optimization)
+        skip_reranking = filter_expr and filter_expr.startswith('Filter:')
+        
+        # Apply reranking only if no direct hits detected and we have enough results
+        if skip_reranking:
+            logger.info(f"Direct hit detected (filter applied), skipping reranking for {len(results)} results")
+        elif not rerank:
+            logger.info("Reranking disabled by request")
+        elif len(results) <= 1:
+            logger.info(f"Only {len(results)} results, skipping reranking")
+        
+        if not skip_reranking and rerank and len(results) > 1:
             try:
                 logger.info(f"Reranking {len(results)} results for streaming endpoint")
                 reranker = _get_reranking_model()
@@ -255,6 +265,7 @@ def search_metadata_stream():
                 })
         
         # Get streaming answer
+        # logger.info(f"input {sources}")
         stream_generator = generate_metadata_response(query, sources, stream=True)
         
         # Create a generator that yields server-sent events
