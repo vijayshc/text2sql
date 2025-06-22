@@ -138,24 +138,31 @@ class FeedbackManager:
             
             # Insert feedback into database (store a null for embedding, we'll use vector store)
             with self.engine.connect() as conn:
-                query = text("""
-                INSERT INTO query_feedback 
-                (query_text, sql_query, results_summary, workspace, feedback_rating, tables_used, embedding, is_manual_sample)
-                VALUES (:query_text, :sql_query, :results_summary, :workspace, :feedback_rating, :tables_used, NULL, :is_manual_sample)
-                RETURNING feedback_id
-                """)
-                
-                result = conn.execute(query, {
-                    'query_text': query_text,
-                    'sql_query': sql_query,
-                    'results_summary': results_summary,
-                    'workspace': workspace,
-                    'feedback_rating': feedback_rating,
-                    'tables_used': tables_str,
-                    'is_manual_sample': is_manual_sample
-                })
-                feedback_id = result.scalar()
-                conn.commit()
+                # Start a transaction
+                trans = conn.begin()
+                try:
+                    query = text("""
+                    INSERT INTO query_feedback 
+                    (query_text, sql_query, results_summary, workspace, feedback_rating, tables_used, embedding, is_manual_sample)
+                    VALUES (:query_text, :sql_query, :results_summary, :workspace, :feedback_rating, :tables_used, NULL, :is_manual_sample)
+                    RETURNING feedback_id
+                    """)
+                    
+                    result = conn.execute(query, {
+                        'query_text': query_text,
+                        'sql_query': sql_query,
+                        'results_summary': results_summary,
+                        'workspace': workspace,
+                        'feedback_rating': feedback_rating,
+                        'tables_used': tables_str,
+                        'is_manual_sample': is_manual_sample
+                    })
+                    feedback_id = result.scalar()
+                    result.close()  # Close the result to free up the connection
+                    trans.commit()  # Commit the transaction
+                except Exception as e:
+                    trans.rollback()  # Rollback on error
+                    raise e
             
             # Store embedding in vector database if available
             if embedding_vector is not None:
@@ -262,7 +269,7 @@ class FeedbackManager:
                 collection_name=self.collection_name,
                 vector=embedding_vector.tolist(),
                 limit=initial_candidates_limit,
-                filter_expr=filter_expr
+                # filter_expr=filter_expr
             )
 
  
@@ -601,31 +608,36 @@ class FeedbackManager:
             
             # Update in SQLite
             with self.engine.connect() as conn:
-                query = text("""
-                UPDATE query_feedback
-                SET query_text = :query_text,
-                    sql_query = :sql_query,
-                    results_summary = :results_summary,
-                    workspace = :workspace,
-                    feedback_rating = :feedback_rating,
-                    tables_used = :tables_used,
-                    is_manual_sample = :is_manual_sample
-                WHERE feedback_id = :sample_id
-                """)
-                
-                conn.execute(query, {
-                    'sample_id': sample_id,
-                    'query_text': data['query_text'],
-                    'sql_query': data['sql_query'],
-                    'results_summary': data.get('results_summary', ''),
-                    'workspace': data.get('workspace', 'Default'),
-                    'feedback_rating': data.get('feedback_rating', 1),
-                    'tables_used': tables_str,
-                    'is_manual_sample': data.get('is_manual_sample', True)
-                })
-                conn.commit()
+                trans = conn.begin()
+                try:
+                    query = text("""
+                    UPDATE query_feedback
+                    SET query_text = :query_text,
+                        sql_query = :sql_query,
+                        results_summary = :results_summary,
+                        workspace = :workspace,
+                        feedback_rating = :feedback_rating,
+                        tables_used = :tables_used,
+                        is_manual_sample = :is_manual_sample
+                    WHERE feedback_id = :sample_id
+                    """)
+                    
+                    conn.execute(query, {
+                        'sample_id': sample_id,
+                        'query_text': data['query_text'],
+                        'sql_query': data['sql_query'],
+                        'results_summary': data.get('results_summary', ''),
+                        'workspace': data.get('workspace', 'Default'),
+                        'feedback_rating': data.get('feedback_rating', 1),
+                        'tables_used': tables_str,
+                        'is_manual_sample': data.get('is_manual_sample', True)
+                    })
+                    trans.commit()
+                except Exception as e:
+                    trans.rollback()
+                    raise e
             
-            # Update vector embedding in Milvus
+            # Update vector embedding in ChromaDB
             embedding_vector = self._generate_embedding(data['query_text'])
             if embedding_vector is not None:
                 metadata = {
@@ -669,9 +681,14 @@ class FeedbackManager:
         try:
             # Delete from SQLite
             with self.engine.connect() as conn:
-                query = text("DELETE FROM query_feedback WHERE feedback_id = :sample_id")
-                conn.execute(query, {'sample_id': sample_id})
-                conn.commit()
+                trans = conn.begin()
+                try:
+                    query = text("DELETE FROM query_feedback WHERE feedback_id = :sample_id")
+                    conn.execute(query, {'sample_id': sample_id})
+                    trans.commit()
+                except Exception as e:
+                    trans.rollback()
+                    raise e
             
             # Delete from vector store
             self.vector_store.delete_embedding(

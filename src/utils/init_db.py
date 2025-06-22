@@ -229,7 +229,8 @@ def init_sample_db(db_path='text2sql.db'):
         try:
             # Check if the permission already exists
             from src.models.user import Permission, Permissions
-            manage_config_exists = user_manager.session.query(Permission).filter(Permission.name == Permissions.MANAGE_CONFIG).first()
+            session = user_manager._get_session()
+            manage_config_exists = session.query(Permission).filter(Permission.name == Permissions.MANAGE_CONFIG).first()
             
             if not manage_config_exists:
                 # Create the MANAGE_CONFIG permission
@@ -237,44 +238,47 @@ def init_sample_db(db_path='text2sql.db'):
                     name=Permissions.MANAGE_CONFIG,
                     description="Permission to view and manage application configurations"
                 )
-                user_manager.session.add(manage_config_permission)
-                user_manager.session.commit()
+                session.add(manage_config_permission)
+                session.commit()
                 print("Created MANAGE_CONFIG permission")
                 
                 # Assign the permission to the admin role
-                admin_role = user_manager.session.query(Role).filter(Role.name == "admin").first()
+                admin_role = session.query(Role).filter(Role.name == "admin").first()
                 if admin_role:
-                    manage_config = user_manager.session.query(Permission).filter(Permission.name == Permissions.MANAGE_CONFIG).first()
+                    manage_config = session.query(Permission).filter(Permission.name == Permissions.MANAGE_CONFIG).first()
                     if manage_config and manage_config not in admin_role.permissions:
                         admin_role.permissions.append(manage_config)
-                        user_manager.session.commit()
+                        session.commit()
                         print("Assigned MANAGE_CONFIG permission to admin role")
                 
             # Clear the session to avoid stale data
-            user_manager.session.expire_all()
+            session.expire_all()
         except Exception as e:
             print(f"Error setting up MANAGE_CONFIG permission: {e}")
-            user_manager.session.rollback()
+            session = user_manager._get_session()
+            session.rollback()
 
         # Delete existing admin user if exists
         try:
-            existing_admin = user_manager.session.query(User).filter(User.username == "admin").first()
+            session = user_manager._get_session()
+            existing_admin = session.query(User).filter(User.username == "admin").first()
             
             if existing_admin:
                 # Remove all role assignments first
                 existing_admin.roles = []
-                user_manager.session.commit()
+                session.commit()
                 
                 # Then delete the user
-                user_manager.session.delete(existing_admin)
-                user_manager.session.commit()
+                session.delete(existing_admin)
+                session.commit()
                 print("Deleted existing admin user")
                 
                 # Clear the session to avoid stale data
-                user_manager.session.expire_all()
+                session.expire_all()
         except Exception as e:
             print(f"Error deleting existing admin user: {e}")
-            user_manager.session.rollback()
+            session = user_manager._get_session()
+            session.rollback()
 
         # Initialize roles and permissions
         if user_manager.initialize_roles_permissions():
@@ -288,7 +292,8 @@ def init_sample_db(db_path='text2sql.db'):
                 
                 if admin_id:
                     # Get admin role and assign to user
-                    admin_role = user_manager.session.query(Role).filter(Role.name == "admin").first()
+                    session = user_manager._get_session()
+                    admin_role = session.query(Role).filter(Role.name == "admin").first()
                     if admin_role and user_manager.add_user_to_role(admin_id, admin_role.id):
                         print("Admin user recreated successfully (admin/admin123)")
                     else:
@@ -297,7 +302,8 @@ def init_sample_db(db_path='text2sql.db'):
                     print("Failed to create admin user")
             except Exception as e:
                 print(f"Error creating admin user: {e}")
-                user_manager.session.rollback()
+                session = user_manager._get_session()
+                session.rollback()
         else:
             print("Failed to initialize authentication system")
             
@@ -380,17 +386,19 @@ def init_sample_db(db_path='text2sql.db'):
             ]
             
             # Add configurations to database
+            session = user_manager._get_session()
             for config in default_configs:
                 # Check if configuration already exists to avoid duplicates
-                existing = user_manager.session.query(Configuration).filter(Configuration.key == config.key).first()
+                existing = session.query(Configuration).filter(Configuration.key == config.key).first()
                 if not existing:
-                    user_manager.session.add(config)
+                    session.add(config)
             
-            user_manager.session.commit()
+            session.commit()
             print("Configuration table initialized with default values")
         except Exception as e:
             print(f"Error setting up configuration table: {e}")
-            user_manager.session.rollback()
+            session = user_manager._get_session()
+            session.rollback()
         
         return True
         

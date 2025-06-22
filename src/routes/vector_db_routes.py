@@ -68,7 +68,7 @@ def get_collections():
                 }), 500
         
         # Get all collections
-        collections = vector_store.client.list_collections()
+        collections = vector_store.list_collections()
         
         return jsonify({
             'success': True,
@@ -96,17 +96,21 @@ def get_collection_details(collection_name):
                 }), 500
         
         # Check if collection exists
-        if collection_name not in vector_store.client.list_collections():
+        collections = vector_store.list_collections()
+        
+        if collection_name not in collections:
             return jsonify({
                 'success': False,
                 'error': f'Collection {collection_name} does not exist'
             }), 404
         
-        # Get collection info
-        collection_info = vector_store.client.describe_collection(collection_name)
+        # Get collection info using vector store method
+        collection_info = vector_store.get_collection_metadata(collection_name)
         
-        # Get collection statistics
-        stats = vector_store.client.get_collection_stats(collection_name)
+        # Get collection statistics (simplified for ChromaDB)
+        stats = {
+            'row_count': collection_info.get('count', 0)
+        }
         
         return jsonify({
             'success': True,
@@ -146,7 +150,9 @@ def create_collection():
                 }), 500
         
         # Check if collection already exists
-        if collection_name in vector_store.client.list_collections():
+        collections = vector_store.list_collections()
+        
+        if collection_name in collections:
             return jsonify({
                 'success': False,
                 'error': f'Collection {collection_name} already exists'
@@ -195,14 +201,16 @@ def delete_collection(collection_name):
                 }), 500
         
         # Check if collection exists
-        if collection_name not in vector_store.client.list_collections():
+        collections = vector_store.list_collections()
+        
+        if collection_name not in collections:
             return jsonify({
                 'success': False,
                 'error': f'Collection {collection_name} does not exist'
             }), 404
         
         # Delete the collection
-        vector_store.client.drop_collection(collection_name)
+        vector_store.client.delete_collection(name=collection_name)
         
         # Log the action
         user_manager.log_audit_event(
@@ -229,6 +237,8 @@ def delete_collection(collection_name):
 def get_collection_data(collection_name):
     """Get data from a collection"""
     try:
+        logger.info(f"GET_COLLECTION_DATA: Requesting data for collection {collection_name}")
+        
         # Make sure we're connected to the vector database
         if not vector_store.client:
             if not vector_store.connect():
@@ -238,7 +248,12 @@ def get_collection_data(collection_name):
                 }), 500
         
         # Check if collection exists
-        if collection_name not in vector_store.client.list_collections():
+        collections = vector_store.list_collections()
+        logger.info(f"GET_COLLECTION_DATA: Available collections: {collections}")
+        logger.info(f"GET_COLLECTION_DATA: Looking for collection: {collection_name}")
+        
+        if collection_name not in collections:
+            logger.error(f"GET_COLLECTION_DATA: Collection {collection_name} not found in {collections}")
             return jsonify({
                 'success': False,
                 'error': f'Collection {collection_name} does not exist'
@@ -249,40 +264,35 @@ def get_collection_data(collection_name):
         offset = request.args.get('offset', 0, type=int)
         filter_expr = request.args.get('filter', "")
         
-        # Get collection data
-        results = vector_store.client.query(
-            collection_name=collection_name,
-            filter=filter_expr if filter_expr else None,
-            limit=limit,
-            offset=offset
-        )
+        # Get collection data using our vector_store methods
+        try:
+            if filter_expr:
+                # Use query_by_filter for filtered results
+                all_results = vector_store.query_by_filter(
+                    collection_name=collection_name,
+                    filter_expr=filter_expr,
+                    limit=limit + offset  # Get more results to handle offset
+                )
+                # Apply offset manually
+                results = all_results[offset:offset + limit] if len(all_results) > offset else []
+                total_count = len(all_results)
+            else:
+                # Use list_entries for all results
+                all_results = vector_store.list_entries(
+                    collection_name=collection_name,
+                    limit=limit + offset  # Get more results to handle offset
+                )
+                # Apply offset manually
+                results = all_results[offset:offset + limit] if len(all_results) > offset else []
+                total_count = vector_store.count(collection_name)
+        except Exception as e:
+            return jsonify({
+                'success': False,
+                'error': f'Failed to retrieve data: {str(e)}'
+            }), 500
         
         # Convert NumPy types to native Python types for JSON serialization
         results = convert_numpy_types(results)
-        
-        # Get total count for pagination
-        total_count = 0
-        try:
-            # For filtered results, we need to query without limit/offset to count total results
-            if filter_expr:
-                # Use get_collection_stats for unfiltered count
-                # For filtered count, we need to query all records and count them
-                # This is a workaround since MilvusClient doesn't provide a direct count method
-                count_query = vector_store.client.query(
-                    collection_name=collection_name,
-                    filter=filter_expr,
-                    output_fields=["id"],  # Only fetch ID field to minimize data transfer
-                    limit=10000  # Use a high limit to get approximate count
-                )
-                total_count = len(count_query)
-            else:
-                # For unfiltered results, use collection stats which is more efficient
-                collection_stats = vector_store.client.get_collection_stats(collection_name)
-                total_count = collection_stats.get('row_count', 0)
-        except Exception as count_error:
-            logger.warning(f"Error getting record count: {str(count_error)}")
-            # Fallback to results length if count query fails
-            total_count = len(results)
         
         return jsonify({
             'success': True,
@@ -313,27 +323,33 @@ def delete_collection_data(collection_name, id):
                 }), 500
         
         # Check if collection exists
-        if collection_name not in vector_store.client.list_collections():
+        collections = vector_store.list_collections()
+        
+        if collection_name not in collections:
             return jsonify({
                 'success': False,
                 'error': f'Collection {collection_name} does not exist'
             }), 404
         
-        # Delete the record
-        vector_store.client.delete(collection_name, f"id == {id}")
-        
-        # Log the action
-        user_manager.log_audit_event(
-            user_id=session.get('user_id'),
-            action='delete_vector_record',
-            details=f"Deleted record ID {id} from vector collection: {collection_name}",
-            ip_address=request.remote_addr
-        )
-        
-        return jsonify({
-            'success': True,
-            'message': f'Record {id} deleted successfully from collection {collection_name}'
-        })
+        # Delete the record using our vector_store method
+        if vector_store.delete_embedding(collection_name, id):
+            # Log the action
+            user_manager.log_audit_event(
+                user_id=session.get('user_id'),
+                action='delete_vector_record',
+                details=f"Deleted record ID {id} from vector collection: {collection_name}",
+                ip_address=request.remote_addr
+            )
+            
+            return jsonify({
+                'success': True,
+                'message': f'Record {id} deleted successfully from collection {collection_name}'
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': f'Failed to delete record {id} from collection {collection_name}'
+            }), 500
     except Exception as e:
         logger.exception(f"Error deleting record: {str(e)}")
         return jsonify({
@@ -369,63 +385,45 @@ def search_collection(collection_name):
                 }), 500
         
         # Check if collection exists
-        if collection_name not in vector_store.client.list_collections():
+        collections = vector_store.list_collections()
+        
+        if collection_name not in collections:
             return jsonify({
                 'success': False,
                 'error': f'Collection {collection_name} does not exist'
             }), 404
         
-        # Load the embedding model if not already loaded
-        if embedding_model is None:
-            start_time = time.time()
-            logger.info("Loading embedding model...")
-            embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
-            logger.info(f"Embedding model loaded in {time.time() - start_time:.2f}s")
-        
-        # Generate embedding for the search text
-        vector = embedding_model.encode(search_text).tolist()
-        
-        # Get collection info to identify available fields
-        collection_info = vector_store.client.describe_collection(collection_name)
-        
-        # Identify all non-vector fields to include in output
-        output_fields = []
-        
-        if 'schema' in collection_info:
-            for field in collection_info['schema']:
-                field_name = field.get('name')
-                field_type = field.get('type')
-                
-                # Skip vector fields
-                if field_name and field_type and field_type != 'VECTOR':
-                    output_fields.append(field_name)
-        
-        # Ensure ID field is included
-        if 'id' not in output_fields and not any(f.lower() == 'id' for f in output_fields):
-            output_fields.append('id')
-        
-        # Perform search using our generic vector_store method
-        formatted_results = vector_store.search_similar(
-            collection_name=collection_name,
-            vector=vector,
-            limit=limit,
-            filter_expr=filter_expr,
-            output_fields=output_fields
-        )
-        
-        # Convert NumPy types to native Python types for JSON serialization
-        formatted_results = convert_numpy_types(formatted_results)
-        
-        # Log first result for debugging
-        if formatted_results:
-            first_result = formatted_results[0]
-            logger.debug(f"First search result: {first_result}")
-            logger.debug(f"Fields in first result: {list(first_result.keys())}")
-        
-        return jsonify({
-            'success': True,
-            'results': formatted_results
-        })
+        # Use ChromaDB's built-in search functionality (no need for separate embedding model)
+        try:
+            # Use our search_by_text method which leverages ChromaDB's built-in embedding
+            results = vector_store.search_by_text(
+                collection_name=collection_name,
+                query_text=search_text,
+                limit=limit,
+                filter_expr=filter_expr
+            )
+            
+            # Convert NumPy types to native Python types for JSON serialization
+            results = convert_numpy_types(results)
+            
+            # Log first result for debugging
+            if results:
+                logger.info(f"Search returned {len(results)} results for '{search_text[:50]}...'")
+            
+            return jsonify({
+                'success': True,
+                'results': results,
+                'total': len(results),
+                'search_text': search_text
+            })
+            
+        except Exception as search_error:
+            logger.error(f"Search error: {str(search_error)}")
+            return jsonify({
+                'success': False,
+                'error': f'Search failed: {str(search_error)}'
+            }), 500
+            
     except Exception as e:
         logger.exception(f"Error searching collection: {str(e)}")
         return jsonify({
@@ -748,6 +746,46 @@ def upload_collection_data(collection_name):
         
     except Exception as e:
         logger.exception(f"Error uploading data: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@vector_db_bp.route('/api/vector-db/test', methods=['GET'])
+@admin_required
+@permission_required(Permissions.ADMIN_ACCESS)
+def test_vector_db():
+    """Test vector database connectivity and collections"""
+    try:
+        logger.info("TEST_VECTOR_DB: Starting test")
+        
+        # Test connection
+        if not vector_store.client:
+            if not vector_store.connect():
+                return jsonify({
+                    'success': False,
+                    'error': 'Failed to connect to vector database'
+                }), 500
+        
+        # Get collections
+        collections = vector_store.list_collections()
+        logger.info(f"TEST_VECTOR_DB: Collections: {collections}")
+        
+        # Test specific collection
+        if 'schema_metadata' in collections:
+            count = vector_store.count('schema_metadata')
+            entries = vector_store.list_entries('schema_metadata', limit=3)
+            logger.info(f"TEST_VECTOR_DB: schema_metadata count: {count}, entries: {len(entries)}")
+        
+        return jsonify({
+            'success': True,
+            'connected': True,
+            'collections': collections,
+            'schema_metadata_exists': 'schema_metadata' in collections
+        })
+        
+    except Exception as e:
+        logger.exception(f"TEST_VECTOR_DB: Error: {str(e)}")
         return jsonify({
             'success': False,
             'error': str(e)

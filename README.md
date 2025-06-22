@@ -44,7 +44,23 @@ The application now supports managing multiple Model Context Protocol (MCP) serv
 *   **AI:** Azure AI Inference Service, Sentence-Transformers, OpenRouter
 *   **Frontend:** HTML, CSS, JavaScript, Bootstrap 5, jQuery
 *   **Database:** SQLite (default)
+*   **Vector Database:** ChromaDB (for embeddings and similarity search)
 *   **MCP Support:** Model Context Protocol support for both stdio and HTTP servers
+
+## Vector Database Migration to ChromaDB
+
+The application has been migrated from Milvus to ChromaDB for vector storage and similarity search. ChromaDB provides:
+
+*   **Simplified Setup:** No external server required, embedded database
+*   **Better Integration:** Native Python integration with automatic embedding generation
+*   **Improved Performance:** Optimized for local deployments
+*   **Enhanced Features:** Built-in metadata filtering and collection management
+
+### Migration Benefits:
+- Reduced infrastructure complexity
+- Automatic embedding generation using sentence-transformers
+- Better error handling and logging
+- Improved search accuracy with built-in reranking
 
 ## Setup and Installation
 

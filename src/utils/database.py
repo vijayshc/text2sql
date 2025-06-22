@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, text, pool
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import sessionmaker, scoped_session
 from src.utils.schema_manager import SchemaManager
@@ -22,7 +22,25 @@ def get_db_session():
     if _Session is None:
         logger = logging.getLogger('text2sql.database')
         logger.info(f"Creating new database session factory with URI: {DATABASE_URI}")
-        engine = create_engine(DATABASE_URI)
+        
+        # Configure engine with thread safety for SQLite
+        engine_args = {
+            'pool_pre_ping': True,
+            'pool_recycle': 300,
+            'echo': False
+        }
+        
+        # Add SQLite-specific thread safety parameters
+        if DATABASE_URI.startswith('sqlite:'):
+            engine_args.update({
+                'connect_args': {
+                    'check_same_thread': False,
+                    'timeout': 20
+                },
+                'poolclass': pool.StaticPool
+            })
+        
+        engine = create_engine(DATABASE_URI, **engine_args)
         _Session = scoped_session(sessionmaker(bind=engine))
     
     return _Session()

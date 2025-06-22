@@ -36,11 +36,38 @@ except ImportError as e:
 # API settings
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY","")
 OPENROUTER_BASE_URL = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")
-OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "google/gemini-flash-1.5-8b-exp")
+OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "deepseek/deepseek-chat-v3-0324:free")
 
 # Global registry of active MCP clients
 _mcp_clients = {}
-_mcp_client_lock = asyncio.Lock()
+_mcp_client_lock = None
+
+def _get_or_create_lock():
+    """Get or create an asyncio lock for the current event loop."""
+    global _mcp_client_lock
+    try:
+        # Try to get the current event loop
+        loop = asyncio.get_running_loop()
+        
+        # Check if we have a lock and if it's bound to the current loop
+        if _mcp_client_lock is None:
+            _mcp_client_lock = asyncio.Lock()
+        else:
+            # Check if the lock is bound to a different loop
+            try:
+                # This will raise RuntimeError if bound to different loop
+                _mcp_client_lock._get_loop()
+                if _mcp_client_lock._get_loop() != loop:
+                    _mcp_client_lock = asyncio.Lock()
+            except RuntimeError:
+                # Lock is bound to different loop, create new one
+                _mcp_client_lock = asyncio.Lock()
+                
+        return _mcp_client_lock
+    except RuntimeError:
+        # No running event loop, create a new lock
+        _mcp_client_lock = asyncio.Lock()
+        return _mcp_client_lock
 
 class MCPClient:
     """Client for interacting with an MCP server (stdio or HTTP)."""
@@ -806,7 +833,8 @@ class MCPClientManager:
             An MCPClient instance or None if not found/failed
         """
         global _mcp_clients
-        async with _mcp_client_lock:
+        lock = _get_or_create_lock()
+        async with lock:
             # Import here to avoid circular imports
             from src.models.mcp_server import MCPServer
             
@@ -1036,7 +1064,8 @@ class MCPClientManager:
         global _mcp_clients
         
         cleanup_tasks = []
-        async with _mcp_client_lock:
+        lock = _get_or_create_lock()
+        async with lock:
             for server_id, client in _mcp_clients.items():
                 if client:
                     cleanup_tasks.append(client.cleanup())

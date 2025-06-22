@@ -1107,10 +1107,10 @@ class KnowledgeManager:
                                 self.logger.error(f"Error deleting chunk {chunk_id}: {str(chunk_err)}")
                         
                         # Flush after each batch
-                        self.vector_store.client.flush('knowledge_chunks')
+                        # self.vector_store.client.flush('knowledge_chunks')
                     
                     # Reload the collection after all deletions
-                    self.vector_store.client.load_collection('knowledge_chunks')
+                    # self.vector_store.client.load_collection('knowledge_chunks')
                     self.logger.info(f"Successfully deleted chunks from vector store for document {document_id}")
                 except Exception as e:
                     self.logger.error(f"Error deleting chunks from vector store: {str(e)}", exc_info=True)

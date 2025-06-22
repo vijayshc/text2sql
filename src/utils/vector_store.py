@@ -1,6 +1,6 @@
 """
 Vector database client for Text2SQL application.
-Handles storage and retrieval of vector embeddings using Milvus.
+Handles storage and retrieval of vector embeddings using ChromaDB.
 """
 
 import logging
@@ -10,40 +10,53 @@ import json
 from typing import List, Dict, Any, Optional
 import numpy as np
 
-from pymilvus import MilvusClient, Collection, CollectionSchema, FieldSchema, DataType
+import chromadb
+from chromadb.config import Settings
+from chromadb.utils import embedding_functions
 
 logger = logging.getLogger('text2sql.vector')
 
 class VectorStore:
-    """Vector database client for storing and retrieving embeddings"""
+    """Vector database client for storing and retrieving embeddings using ChromaDB"""
     
     def __init__(self, uri=None):
         """Initialize the vector database client
         
         Args:
-            uri (str, optional): Milvus server URI, defaults to local file-based storage
+            uri (str, optional): ChromaDB persist directory, defaults to local file-based storage
         """
         self.logger = logging.getLogger('text2sql.vector')
-        self.uri = uri or "./vector_store.db"
+        self.persist_directory = uri or "./chroma_data"
         self.client = None
+        self.embedding_function = None
         # Default dimension for popular embedding models - can be overridden per collection
         self.default_vector_dim = 384
         
     def connect(self) -> bool:
-        """Connect to Milvus server
+        """Connect to ChromaDB
         
         Returns:
             bool: True if successful, False otherwise
         """
         start_time = time.time()
-        self.logger.info(f"Connecting to vector database at {self.uri}")
+        self.logger.info(f"Connecting to ChromaDB at {self.persist_directory}")
         
         try:
-            self.client = MilvusClient(self.uri)
-            self.logger.info(f"Vector database connection established in {time.time() - start_time:.2f}s")
+            # Create the data directory if it doesn't exist
+            os.makedirs(self.persist_directory, exist_ok=True)
+            
+            # Initialize ChromaDB client with persistent storage
+            self.client = chromadb.PersistentClient(path=self.persist_directory)
+            
+            # Initialize embedding function (using sentence transformers)
+            self.embedding_function = embedding_functions.SentenceTransformerEmbeddingFunction(
+                model_name="all-MiniLM-L6-v2"
+            )
+            
+            self.logger.info(f"ChromaDB connection established in {time.time() - start_time:.2f}s")
             return True
         except Exception as e:
-            self.logger.error(f"Vector database connection error: {str(e)}", exc_info=True)
+            self.logger.error(f"ChromaDB connection error: {str(e)}", exc_info=True)
             return False
     
     def count(self, collection_name: str) -> int:
@@ -57,11 +70,17 @@ class VectorStore:
         """
         try:
             if not self.client:
-                self.logger.error("Vector database client not connected")
+                self.logger.error("ChromaDB client not connected")
                 return 0
                 
-            count = self.client.count(collection_name)
-            return count
+            try:
+                collection = self.client.get_collection(name=collection_name)
+                count = collection.count()
+                return count
+            except Exception as e:
+                # Collection doesn't exist
+                self.logger.info(f"Collection {collection_name} doesn't exist: {str(e)}")
+                return 0
         except Exception as e:
             self.logger.error(f"Error counting documents in collection {collection_name}: {str(e)}")
             return 0
@@ -78,18 +97,26 @@ class VectorStore:
         """
         try:
             if not self.client:
-                self.logger.error("Vector database client not connected")
+                self.logger.error("ChromaDB client not connected")
                 return []
-                
-            # Get entries with their metadata
-            entries = self.client.query(
-                collection_name=collection_name,
-                filter="",
-                output_fields=["text", "metadata"],
-                limit=limit
-            )
             
-            return entries
+            try:
+                collection = self.client.get_collection(name=collection_name)
+                result = collection.get(limit=limit, include=['metadatas', 'documents'])
+                
+                entries = []
+                for i, doc_id in enumerate(result['ids']):
+                    entry = {
+                        'id': doc_id,
+                        'text': result['documents'][i] if i < len(result['documents']) else '',
+                        'metadata': result['metadatas'][i] if i < len(result['metadatas']) else {}
+                    }
+                    entries.append(entry)
+                
+                return entries
+            except Exception as e:
+                self.logger.info(f"Collection {collection_name} doesn't exist or is empty: {str(e)}")
+                return []
         except Exception as e:
             self.logger.error(f"Error listing entries in collection {collection_name}: {str(e)}")
             return []
@@ -99,7 +126,7 @@ class VectorStore:
         
         Args:
             collection_name (str): Name of the collection to initialize
-            dimension (int, optional): Vector dimension, defaults to class default
+            dimension (int, optional): Vector dimension (not used in ChromaDB, kept for compatibility)
             
         Returns:
             bool: True if successful, False otherwise
@@ -108,25 +135,22 @@ class VectorStore:
             return False
             
         try:
-            # Check if collection exists
-            has_collection = collection_name in self.client.list_collections()
-            
-            if not has_collection:
+            # Try to get existing collection
+            try:
+                collection = self.client.get_collection(name=collection_name)
+                self.logger.info(f"Collection '{collection_name}' already exists")
+                return True
+            except Exception:
+                # Collection doesn't exist, create it
                 self.logger.info(f"Creating collection '{collection_name}'")
                 
-                # Use provided dimension or default
-                vector_dim = dimension or self.default_vector_dim
-                
-                self.client.create_collection(
-                    collection_name=collection_name,
-                    dimension=vector_dim,
+                collection = self.client.create_collection(
+                    name=collection_name,
+                    embedding_function=self.embedding_function
                 )
                 
-                self.logger.info(f"Collection '{collection_name}' created successfully with dimension {vector_dim}")
-            else:
-                self.logger.info(f"Collection '{collection_name}' already exists")
-                
-            return True
+                self.logger.info(f"Collection '{collection_name}' created successfully")
+                return True
         except Exception as e:
             self.logger.error(f"Error initializing collection {collection_name}: {str(e)}", exc_info=True)
             return False
@@ -138,7 +162,7 @@ class VectorStore:
         Args:
             collection_name (str): Name of the collection to insert into
             feedback_id (int): ID of the feedback entry (primary key)
-            vector (List[float]): Vector embedding to store
+            vector (List[float]): Vector embedding to store (optional for ChromaDB with embedding function)
             query_text (str): The query text associated with the embedding
             metadata (Dict): Additional metadata to store with the vector
             
@@ -149,6 +173,14 @@ class VectorStore:
             return False
             
         try:
+            # Get or create collection
+            try:
+                collection = self.client.get_collection(name=collection_name)
+            except Exception:
+                if not self.init_collection(collection_name):
+                    return False
+                collection = self.client.get_collection(name=collection_name)
+            
             # Prepare metadata (ensure all values are of supported types)
             clean_metadata = {}
             if metadata:
@@ -156,26 +188,28 @@ class VectorStore:
                     # Convert any lists to strings to avoid type issues
                     if isinstance(v, list):
                         clean_metadata[k] = ','.join(str(x) for x in v)
-                    else:
-                        clean_metadata[k] = v
+                    elif v is not None:
+                        clean_metadata[k] = str(v)
             
-            # Prepare data for insertion
-            data = [{
-                "id": feedback_id,
-                "vector": vector,
-                "query_text": query_text
-            }]
+            # Add query_text to metadata for better searchability
+            clean_metadata['query_text'] = query_text
             
-            # Add metadata fields
-            if clean_metadata:
-                for k, v in clean_metadata.items():
-                    data[0][k] = v
-            
-            # Insert the data
-            result = self.client.insert(
-                collection_name=collection_name,
-                data=data
-            )
+            # Insert the data - ChromaDB will handle embedding generation if we don't provide embeddings
+            if vector and len(vector) > 0:
+                # Use provided vector
+                collection.add(
+                    ids=[str(feedback_id)],
+                    documents=[query_text],
+                    metadatas=[clean_metadata],
+                    embeddings=[vector]
+                )
+            else:
+                # Let ChromaDB generate embeddings
+                collection.add(
+                    ids=[str(feedback_id)],
+                    documents=[query_text],
+                    metadatas=[clean_metadata]
+                )
             
             self.logger.info(f"Inserted embedding for feedback_id {feedback_id} into collection {collection_name}")
             return True
@@ -189,10 +223,10 @@ class VectorStore:
         
         Args:
             collection_name (str): Name of the collection to search in
-            vector (List[float]): Query vector to search with
+            vector (List[float]): Query vector to search with (optional for ChromaDB with embedding function)
             limit (int): Maximum number of results to return
-            filter_expr (str, optional): Filter expression for the search
-            output_fields (List[str], optional): Specific fields to return
+            filter_expr (str, optional): Filter expression for the search (ChromaDB uses where clause)
+            output_fields (List[str], optional): Specific fields to return (kept for compatibility)
             
         Returns:
             List[Dict]: List of search results with similarity scores
@@ -201,106 +235,94 @@ class VectorStore:
             return []
             
         try:
-            # If no specific output fields are provided, try to get all available fields
-            # from collection schema or use default fields
-            self.logger.info(f"output_fields: {output_fields}")
-            if not output_fields:
+            # Get collection
+            try:
+                collection = self.client.get_collection(name=collection_name)
+            except Exception:
+                self.logger.info(f"Collection {collection_name} doesn't exist")
+                return []
+            
+            self.logger.info(f"Searching collection {collection_name} with limit: {limit}")
+            
+            # Prepare where clause from filter_expr if provided
+            where_clause = None
+            if filter_expr:
+                # Convert Milvus-style filter to ChromaDB where clause
+                # This is a basic conversion - might need more sophisticated parsing
                 try:
-                    # Get collection schema to identify available fields
-                    collection_info = self.client.describe_collection(collection_name)
-                    self.logger.info(f"Collection info: {collection_info}")
-                    if 'schema' in collection_info:
-                        output_fields = []
-                        for field in collection_info['schema']:
-                            field_name = field.get('name')
-                            field_type = field.get('type')
-                            
-                            # Skip vector fields as they're usually large
-                            if field_name and field_type and field_type != 'VECTOR':
-                                output_fields.append(field_name)
-                except Exception as schema_e:
-                    self.logger.info(f"Couldn't get schema for {collection_name}: {schema_e}")
-                    # Default fields if schema retrieval fails
-                    output_fields = ["id"]
-            
-            # Ensure output_fields is a list and ID field is included
-            if output_fields is None:
-                # Use a more comprehensive default field list when schema retrieval fails
-                output_fields = ["id", "query_text", "sql_query", "feedback_rating", "results_summary", 
-                                "workspace", "tables_used", "is_manual_sample", "created_at","chunk_id","document_id"]
-            elif "id" not in output_fields and not any(f.lower() == 'id' for f in output_fields):
-                output_fields.append("id")
-                
-            self.logger.info(f"Searching collection {collection_name} with fields: {output_fields}")
-            
-            # Ensure we get all available fields by explicitly passing them
-            # Note: Milvus client needs output_fields parameter to return all columns
-            self.logger.info(f"Using output fields for search: {output_fields}")
+                    # Simple conversions for common patterns
+                    if "==" in filter_expr:
+                        parts = filter_expr.split("==")
+                        if len(parts) == 2:
+                            key = parts[0].strip()
+                            value = parts[1].strip().strip('"\'')
+                            # Try to convert to appropriate type
+                            try:
+                                value = int(value)
+                            except ValueError:
+                                try:
+                                    value = float(value)
+                                except ValueError:
+                                    pass  # Keep as string
+                            where_clause = {key: value}
+                except Exception as e:
+                    self.logger.warning(f"Could not parse filter expression '{filter_expr}': {e}")
             
             # Execute the search
-            results = self.client.search(
-                collection_name=collection_name,
-                data=[vector],
-                filter=filter_expr,
-                limit=limit,
-                output_fields=output_fields
-            )
-            
+            if vector and len(vector) > 0:
+                # Use provided vector for search
+                results = collection.query(
+                    query_embeddings=[vector],
+                    n_results=limit,
+                    where=where_clause,
+                    include=['metadatas', 'documents', 'distances']
+                )
+                print(collection_name,results,where_clause)
+            else:
+                # This shouldn't happen in normal usage, but handle gracefully
+                self.logger.warning("No vector provided for search, returning empty results")
+                return []
 
             # Process and format the results
             formatted_results = []
             
-            if results and len(results) > 0:
-                # Log the structure of the first result for debugging
-                if len(results[0]) > 0:
-                    self.logger.info(f"Search result structure: {list(results[0][0].keys())}")
-
+            if results and 'ids' in results and len(results['ids']) > 0:
+                # ChromaDB returns results in a different format
+                ids = results['ids'][0] if results['ids'] else []
+                documents = results['documents'][0] if results['documents'] else []
+                metadatas = results['metadatas'][0] if results['metadatas'] else []
+                distances = results['distances'][0] if results['distances'] else []
                 
-                for hit in results[0]:
+                self.logger.info(f"Found {len(ids)} search results")
+                
+                for i, doc_id in enumerate(ids):
                     # Create a base entry with the ID
-                    entry = {'id': hit['id']}
+                    entry = {'id': doc_id}
                     
-                    # Extract all entity fields
-                    if 'entity' in hit and isinstance(hit['entity'], dict):
-                        #self.logger.info(f"Entity fields: {list(hit['entity'].keys())}")
-                        for key, value in hit['entity'].items():
+                    # Add document text
+                    if i < len(documents) and documents[i]:
+                        entry['query_text'] = documents[i]
+                        entry['text'] = documents[i]
+                    
+                    # Add metadata fields
+                    if i < len(metadatas) and metadatas[i]:
+                        metadata = metadatas[i]
+                        for key, value in metadata.items():
                             # Process special case for comma-separated values that might be lists
                             if isinstance(value, str) and ',' in value and key.endswith('_used'):
                                 entry[key] = value.split(',')
                             else:
                                 entry[key] = value
                     
-                    # Extract metadata field if it exists
-                    if 'metadata' in hit and hit['metadata']:
-                        self.logger.info(f"Metadata found in hit")
-                        try:
-                            if isinstance(hit['metadata'], str):
-                                metadata_dict = json.loads(hit['metadata'])
-                                for key, value in metadata_dict.items():
-                                    entry[key] = value
-                            elif isinstance(hit['metadata'], dict):
-                                for key, value in hit['metadata'].items():
-                                    entry[key] = value
-                        except Exception as metadata_e:
-                            self.logger.error(f"Error parsing metadata: {metadata_e}")
+                    # Add similarity score (ChromaDB returns distance, convert to similarity)
+                    if i < len(distances):
+                        # ChromaDB typically returns L2 distance, convert to similarity score
+                        # Similarity = 1 / (1 + distance) for a more intuitive score
+                        distance = distances[i]
+                        similarity = 1 / (1 + distance) if distance >= 0 else 0
+                        entry['similarity'] = similarity
+                        entry['distance'] = distance
                     
-                    # Extract any other fields directly in the hit
-                    for key, value in hit.items():
-                        if key not in ['id', 'entity', 'distance', 'metadata'] and value is not None:
-                            entry[key] = value
-                    
-                    # Extract text field
-                    if 'text' in hit:
-                        entry['text'] = hit['text']
-                    
-                    # Extract query_text field
-                    if 'query_text' in hit:
-                        entry['query_text'] = hit['query_text']
-                    
-                    # Always add similarity score
-                    entry['similarity'] = hit.get('distance')
-                    
-                    # Add the processed entry to results
                     formatted_results.append(entry)
             
             return formatted_results
@@ -326,11 +348,11 @@ class VectorStore:
             return False
             
         try:
-            # Delete the existing record
-            self.delete_embedding(collection_name, feedback_id)
-            
-            # Insert the new record
-            return self.insert_embedding(collection_name, feedback_id, vector, query_text, metadata)
+            # Delete the existing record first
+            if self.delete_embedding(collection_name, feedback_id):
+                # Insert the new record
+                return self.insert_embedding(collection_name, feedback_id, vector, query_text, metadata)
+            return False
         except Exception as e:
             self.logger.error(f"Error updating embedding in collection {collection_name}: {str(e)}", exc_info=True)
             return False
@@ -349,12 +371,15 @@ class VectorStore:
             return False
             
         try:
+            # Get collection
+            try:
+                collection = self.client.get_collection(name=collection_name)
+            except Exception:
+                self.logger.info(f"Collection {collection_name} doesn't exist")
+                return True  # Consider it successful if collection doesn't exist
+            
             # Delete by ID
-            filter_expr = f"id == {feedback_id}"
-            result = self.client.delete(
-                collection_name=collection_name,
-                filter=filter_expr
-            )
+            collection.delete(ids=[str(feedback_id)])
             
             self.logger.info(f"Deleted embedding for feedback_id {feedback_id} from collection {collection_name}")
             return True
@@ -368,9 +393,9 @@ class VectorStore:
         
         Args:
             collection_name (str): Name of the collection to query
-            filter_expr (str): Filter expression for the query
+            filter_expr (str): Filter expression for the query (converted to ChromaDB where clause)
             limit (int): Maximum number of results to return
-            output_fields (List[str], optional): Specific fields to return
+            output_fields (List[str], optional): Specific fields to return (kept for compatibility)
             
         Returns:
             List[Dict]: List of query results
@@ -379,49 +404,71 @@ class VectorStore:
             return []
             
         try:
-            # If no specific output fields are provided, try to get all available fields
-            if not output_fields:
+            # Get collection
+            try:
+                collection = self.client.get_collection(name=collection_name)
+            except Exception:
+                self.logger.info(f"Collection {collection_name} doesn't exist")
+                return []
+            
+            # Prepare where clause from filter_expr if provided
+            where_clause = None
+            if filter_expr and filter_expr.strip():
+                # Convert Milvus-style filter to ChromaDB where clause
                 try:
-                    # Get collection schema to identify available fields
-                    collection_info = self.client.describe_collection(collection_name)
-                    if 'schema' in collection_info:
-                        output_fields = []
-                        for field in collection_info['schema']:
-                            field_name = field.get('name')
-                            field_type = field.get('type')
-                            
-                            # Skip vector fields as they're usually large
-                            if field_name and field_type and field_type != 'VECTOR':
-                                output_fields.append(field_name)
-                except Exception as schema_e:
-                    self.logger.info(f"Couldn't get schema for {collection_name}: {schema_e}")
-                    # Default to just ID if schema retrieval fails
-                    output_fields = ["id"]
+                    # Simple conversions for common patterns
+                    if "==" in filter_expr:
+                        parts = filter_expr.split("==")
+                        if len(parts) == 2:
+                            key = parts[0].strip()
+                            value = parts[1].strip().strip('"\'')
+                            # Try to convert to appropriate type
+                            try:
+                                value = int(value)
+                            except ValueError:
+                                try:
+                                    value = float(value)
+                                except ValueError:
+                                    pass  # Keep as string
+                            where_clause = {key: value}
+                except Exception as e:
+                    self.logger.warning(f"Could not parse filter expression '{filter_expr}': {e}")
             
             # Execute the query
-            results = self.client.query(
-                collection_name=collection_name,
-                filter=filter_expr,
-                output_fields=output_fields,
-                limit=limit
+            results = collection.get(
+                where=where_clause,
+                limit=limit,
+                include=['metadatas', 'documents']
             )
             
             # Process and format the results generically
             formatted_results = []
             
-            for hit in results:
-                # Create a base entry with original data
-                entry = {}
+            if results and 'ids' in results:
+                ids = results['ids']
+                documents = results.get('documents', [])
+                metadatas = results.get('metadatas', [])
                 
-                # Copy all fields from result
-                for key, value in hit.items():
-                    # Special handling for lists stored as comma-separated strings
-                    if isinstance(value, str) and ',' in value and key.endswith('_used'):
-                        entry[key] = value.split(',')
-                    else:
-                        entry[key] = value
-                
-                formatted_results.append(entry)
+                for i, doc_id in enumerate(ids):
+                    # Create a base entry
+                    entry = {'id': doc_id}
+                    
+                    # Add document text
+                    if i < len(documents) and documents[i]:
+                        entry['query_text'] = documents[i]
+                        entry['text'] = documents[i]
+                    
+                    # Add metadata fields
+                    if i < len(metadatas) and metadatas[i]:
+                        metadata = metadatas[i]
+                        for key, value in metadata.items():
+                            # Special handling for lists stored as comma-separated strings
+                            if isinstance(value, str) and ',' in value and key.endswith('_used'):
+                                entry[key] = value.split(',')
+                            else:
+                                entry[key] = value
+                    
+                    formatted_results.append(entry)
             
             return formatted_results
         except Exception as e:
@@ -430,6 +477,141 @@ class VectorStore:
     
     def close(self):
         """Close the connection to the vector database"""
-        self.logger.info("Closing vector database connection")
-        # With Milvus client, explicit closing is not required
+        self.logger.info("Closing ChromaDB connection")
+        # ChromaDB doesn't require explicit closing for persistent client
         self.client = None
+
+    def search_by_text(self, collection_name: str, query_text: str, limit: int = 5, 
+                       filter_expr: str = None) -> List[Dict[str, Any]]:
+        """Search for similar vectors using text query (ChromaDB will handle embedding)
+        
+        Args:
+            collection_name (str): Name of the collection to search in
+            query_text (str): Text query to search with
+            limit (int): Maximum number of results to return
+            filter_expr (str, optional): Filter expression for the search
+            
+        Returns:
+            List[Dict]: List of search results with similarity scores
+        """
+        if not self.client and not self.connect():
+            return []
+            
+        try:
+            # Get collection
+            try:
+                collection = self.client.get_collection(name=collection_name)
+            except Exception:
+                self.logger.info(f"Collection {collection_name} doesn't exist")
+                return []
+            
+            self.logger.info(f"Searching collection {collection_name} with text: '{query_text[:50]}...'")
+            
+            # Prepare where clause from filter_expr if provided
+            where_clause = None
+            if filter_expr:
+                try:
+                    if "==" in filter_expr:
+                        parts = filter_expr.split("==")
+                        if len(parts) == 2:
+                            key = parts[0].strip()
+                            value = parts[1].strip().strip('"\'')
+                            try:
+                                value = int(value)
+                            except ValueError:
+                                try:
+                                    value = float(value)
+                                except ValueError:
+                                    pass
+                            where_clause = {key: value}
+                except Exception as e:
+                    self.logger.warning(f"Could not parse filter expression '{filter_expr}': {e}")
+            
+            # Execute the search using text query (ChromaDB will generate embeddings)
+            results = collection.query(
+                query_texts=[query_text],
+                n_results=limit,
+                where=where_clause,
+                include=['metadatas', 'documents', 'distances']
+            )
+
+            # Process and format the results (same as search_similar)
+            formatted_results = []
+            
+            if results and 'ids' in results and len(results['ids']) > 0:
+                ids = results['ids'][0] if results['ids'] else []
+                documents = results['documents'][0] if results['documents'] else []
+                metadatas = results['metadatas'][0] if results['metadatas'] else []
+                distances = results['distances'][0] if results['distances'] else []
+                
+                self.logger.info(f"Found {len(ids)} search results")
+                
+                for i, doc_id in enumerate(ids):
+                    entry = {'id': doc_id}
+                    
+                    if i < len(documents) and documents[i]:
+                        entry['query_text'] = documents[i]
+                        entry['text'] = documents[i]
+                    
+                    if i < len(metadatas) and metadatas[i]:
+                        metadata = metadatas[i]
+                        for key, value in metadata.items():
+                            if isinstance(value, str) and ',' in value and key.endswith('_used'):
+                                entry[key] = value.split(',')
+                            else:
+                                entry[key] = value
+                    
+                    if i < len(distances):
+                        distance = distances[i]
+                        similarity = 1 / (1 + distance) if distance >= 0 else 0
+                        entry['similarity'] = similarity
+                        entry['distance'] = distance
+                    
+                    formatted_results.append(entry)
+            
+            return formatted_results
+        except Exception as e:
+            self.logger.error(f"Error searching by text in collection {collection_name}: {str(e)}", exc_info=True)
+            return []
+    
+    def list_collections(self) -> List[str]:
+        """List all collections
+        
+        Returns:
+            List[str]: List of collection names
+        """
+        try:
+            if not self.client and not self.connect():
+                self.logger.error("Failed to connect for list_collections")
+                return []
+            
+            collection_list = self.client.list_collections()
+            collection_names = [col.name for col in collection_list]
+            self.logger.info(f"LIST_COLLECTIONS: Found collections: {collection_names}")
+            return collection_names
+        except Exception as e:
+            self.logger.error(f"Error listing collections: {e}")
+            return []
+    
+    def get_collection_metadata(self, collection_name: str) -> Dict[str, Any]:
+        """Get metadata for a collection
+        
+        Args:
+            collection_name: Name of the collection
+            
+        Returns:
+            Dict: Collection metadata
+        """
+        try:
+            if not self.client and not self.connect():
+                return {}
+            
+            collection = self.client.get_collection(name=collection_name)
+            return {
+                'name': collection_name,
+                'count': collection.count(),
+                'metadata': getattr(collection, 'metadata', {})
+            }
+        except Exception as e:
+            self.logger.error(f"Error getting collection metadata for {collection_name}: {e}")
+            return {}
