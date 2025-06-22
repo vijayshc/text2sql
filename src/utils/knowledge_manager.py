@@ -1099,9 +1099,9 @@ class KnowledgeManager:
                                     filter_expr = f'chunk_id == "{chunk_id}"'
                                 
                                 self.logger.info(f"Deleting chunk with filter: {filter_expr}")
-                                self.vector_store.client.delete(
+                                self.vector_store.delete_by_filter(
                                     collection_name='knowledge_chunks',
-                                    filter=filter_expr
+                                    filter_expr=filter_expr
                                 )
                             except Exception as chunk_err:
                                 self.logger.error(f"Error deleting chunk {chunk_id}: {str(chunk_err)}")

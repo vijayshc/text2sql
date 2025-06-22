@@ -210,7 +210,11 @@ def delete_collection(collection_name):
             }), 404
         
         # Delete the collection
-        vector_store.client.delete_collection(name=collection_name)
+        if not vector_store.delete_collection(collection_name):
+            return jsonify({
+                'success': False,
+                'error': f'Failed to delete collection {collection_name}'
+            }), 500
         
         # Log the action
         user_manager.log_audit_event(
@@ -488,7 +492,7 @@ def upload_collection_data(collection_name):
                 }), 500
         
         # Check if collection exists
-        available_collections = vector_store.client.list_collections()
+        available_collections = vector_store.list_collections()
         logger.info(f"Available collections: {available_collections}")
         if collection_name not in available_collections:
             logger.error(f"Collection not found: {collection_name}")
@@ -610,7 +614,7 @@ def upload_collection_data(collection_name):
             }), 400
         
         # Get collection info to determine vector dimension
-        collection_info = vector_store.client.describe_collection(collection_name)
+        collection_info = vector_store.get_collection_metadata(collection_name)
         vector_dimension = None
         
         # Try to get dimension from different possible locations in the API response
@@ -642,8 +646,8 @@ def upload_collection_data(collection_name):
         
         # Get collection info to verify schema compatibility
         try:
-            collection_schema = vector_store.client.describe_collection(collection_name).get('schema', [])
-            schema_fields = [field.get('name') for field in collection_schema if field.get('name')]
+            collection_metadata = vector_store.get_collection_metadata(collection_name)
+            schema_fields = []  # ChromaDB doesn't expose schema in the same way
             logger.debug(f"Collection schema fields: {schema_fields}")
         except Exception as schema_e:
             logger.error(f"Error fetching collection schema: {str(schema_e)}")
@@ -670,23 +674,31 @@ def upload_collection_data(collection_name):
                     logger.debug(f"Generating embedding for text: '{text[:100]}...' (truncated)")
                     embedding = embedding_model.encode(text).tolist()
                     
-                    # Prepare data for insertion
-                    insert_data = {
-                        "vector": embedding,
-                        **record  # Include all original fields
-                    }
+                    # Prepare metadata (exclude text from metadata)
+                    metadata = {k: v for k, v in record.items() if k != text_field_name}
                     
-                    logger.debug(f"Inserting data with fields: {list(insert_data.keys())}")
+                    # Generate a unique ID for this record
+                    record_id = inserted_count + error_count + 1
                     
-                    # Insert into collection
+                    logger.debug(f"Inserting record {record_id} with metadata: {list(metadata.keys())}")
+                    
+                    # Insert into collection using the ChromaDB API
                     try:
-                        result = vector_store.client.insert(collection_name, [insert_data])
-                        logger.debug(f"Insert result: {result}")
-                        inserted_count += 1
+                        success = vector_store.insert_embedding(
+                            collection_name=collection_name,
+                            feedback_id=record_id,
+                            vector=embedding,
+                            query_text=text,
+                            metadata=metadata
+                        )
+                        if success:
+                            inserted_count += 1
+                        else:
+                            error_count += 1
+                            logger.error(f"Failed to insert record {record_id}")
                     except Exception as insert_error:
                         logger.error(f"Error inserting record into collection: {str(insert_error)}")
                         logger.error(f"Insert error traceback: {traceback.format_exc()}")
-                        logger.error(f"Record structure causing error: {insert_data.keys()}")
                         error_count += 1
                 except Exception as embed_error:
                     logger.error(f"Error generating embedding: {str(embed_error)}")
@@ -702,30 +714,22 @@ def upload_collection_data(collection_name):
         
         # Explicitly flush changes and ensure data is committed
         try:
-            vector_store.client.load_collection(
-                collection_name=collection_name
-            )
-            logger.info(f"Flushing changes to collection {collection_name}")
+            # ChromaDB automatically handles persistence
+            logger.info(f"Data insertion completed for collection {collection_name}")
             # Attempt to force a flush/commit of the data
-            if hasattr(vector_store.client, 'flush') and callable(getattr(vector_store.client, 'flush')):
-                vector_store.client.flush(collection_name)
-                logger.info(f"Flushed collection {collection_name}")
+            # ChromaDB doesn't require manual flush operations
+            logger.info(f"ChromaDB handles persistence automatically")
             
             # Force collection to load for immediate visibility
-            if hasattr(vector_store.client, 'load_collection') and callable(getattr(vector_store.client, 'load_collection')):
-                vector_store.client.load_collection(collection_name)
-                logger.info(f"Loaded collection {collection_name}")
+            # ChromaDB doesn't require manual load operations
+            logger.info(f"Collection {collection_name} is automatically available")
                 
             # For some vector DB implementations, a query might be needed to refresh
             if inserted_count > 0:
                 logger.info(f"Running validation query on {collection_name} to ensure visibility")
-                # Simple query to verify data is accessible
-                test_query = vector_store.client.query(
-                    collection_name=collection_name,
-                    filter="",
-                    limit=1
-                )
-                logger.debug(f"Validation query returned {len(test_query) if test_query else 0} records")
+                # Verify data accessibility by getting collection count
+                count = vector_store.count(collection_name)
+                logger.debug(f"Collection now contains {count} documents")
         except Exception as commit_error:
             logger.warning(f"Non-critical error during commit operations: {str(commit_error)}")
             logger.warning(traceback.format_exc())

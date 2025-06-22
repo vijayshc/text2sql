@@ -68,18 +68,7 @@ class VectorStore:
         """
         return self.client.init_collection(collection_name, dimension)
     
-    def delete_collection(self, collection_name: str) -> bool:
-        """Delete a collection
-        
-        Args:
-            collection_name (str): Name of the collection to delete
-            
-        Returns:
-            bool: True if successful, False otherwise
-        """
-        return self.client.delete_collection(collection_name)
-
-    def insert_embedding(self, collection_name: str, feedback_id: int, vector: List[float],
+    def insert_embedding(self, collection_name: str, feedback_id: int, vector: List[float], 
                         query_text: str, metadata: Dict[str, Any] = None) -> bool:
         """Insert a vector embedding into the database
         
@@ -139,18 +128,6 @@ class VectorStore:
         """
         return self.client.delete_embedding(collection_name, feedback_id)
     
-    def delete_by_filter(self, collection_name: str, filter_expr: str) -> bool:
-        """Delete documents from a collection by filter expression
-        
-        Args:
-            collection_name (str): Name of the collection to delete from
-            filter_expr (str): Filter expression to identify documents to delete
-            
-        Returns:
-            bool: True if successful, False otherwise
-        """
-        return self.client.delete_by_filter(collection_name, filter_expr)
-
     def query_by_filter(self, collection_name: str, filter_expr: str, limit: int = 100, 
                          output_fields: List[str] = None) -> List[Dict[str, Any]]:
         """Query entries by filter expression

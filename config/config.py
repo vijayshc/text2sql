@@ -34,6 +34,10 @@ os.makedirs(UPLOADS_DIR, exist_ok=True)
 CHUNK_SIZE = int(os.getenv('CHUNK_SIZE', '1000'))
 CHUNK_OVERLAP = int(os.getenv('CHUNK_OVERLAP', '200'))
 
+# ChromaDB Service configuration
+CHROMADB_SERVICE_URL = os.getenv('CHROMADB_SERVICE_URL', 'http://localhost:8001')
+CHROMADB_SERVICE_TIMEOUT = int(os.getenv('CHROMADB_SERVICE_TIMEOUT', '30'))
+
 # Logging configuration
 LOG_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'logs')
 os.makedirs(LOG_DIR, exist_ok=True)

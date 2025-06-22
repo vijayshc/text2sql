@@ -24,25 +24,25 @@ class ChromaService:
             List[Dict]: List of collection information
         """
         try:
-            if not self.vector_store.client and not self.vector_store.connect():
+            if not self.vector_store.connect():
                 return []
             
             collections_info = []
-            collection_list = self.vector_store.client.list_collections()
+            collection_names = self.vector_store.list_collections()
             
-            for collection in collection_list:
+            for collection_name in collection_names:
                 try:
-                    col_obj = self.vector_store.client.get_collection(name=collection.name)
+                    metadata = self.vector_store.get_collection_metadata(collection_name)
                     info = {
-                        'name': collection.name,
-                        'count': col_obj.count(),
-                        'metadata': getattr(collection, 'metadata', {})
+                        'name': collection_name,
+                        'count': metadata.get('count', 0),
+                        'metadata': metadata.get('metadata', {})
                     }
                     collections_info.append(info)
                 except Exception as e:
-                    self.logger.warning(f"Could not get info for collection {collection.name}: {e}")
+                    self.logger.warning(f"Could not get info for collection {collection_name}: {e}")
                     collections_info.append({
-                        'name': collection.name,
+                        'name': collection_name,
                         'count': 0,
                         'error': str(e)
                     })
@@ -62,11 +62,10 @@ class ChromaService:
             bool: True if collection exists, False otherwise
         """
         try:
-            if not self.vector_store.client and not self.vector_store.connect():
+            if not self.vector_store.connect():
                 return False
                 
-            collection_list = self.vector_store.client.list_collections()
-            collection_names = [col.name for col in collection_list]
+            collection_names = self.vector_store.list_collections()
             return collection_name in collection_names
         except Exception as e:
             self.logger.error(f"Error checking collection existence: {e}")
@@ -82,18 +81,18 @@ class ChromaService:
             Dict: Collection statistics
         """
         try:
-            if not self.vector_store.client and not self.vector_store.connect():
+            if not self.vector_store.connect():
                 return {'error': 'Not connected to ChromaDB'}
             
             if not self.collection_exists(collection_name):
                 return {'error': 'Collection does not exist'}
             
-            collection = self.vector_store.client.get_collection(name=collection_name)
+            metadata = self.vector_store.get_collection_metadata(collection_name)
             
             return {
                 'name': collection_name,
-                'count': collection.count(),
-                'metadata': getattr(collection, 'metadata', {})
+                'count': metadata.get('count', 0),
+                'metadata': metadata.get('metadata', {})
             }
         except Exception as e:
             self.logger.error(f"Error getting collection stats for {collection_name}: {e}")
@@ -110,28 +109,18 @@ class ChromaService:
             bool: True if successful, False otherwise
         """
         try:
-            if not self.vector_store.client and not self.vector_store.connect():
+            if not self.vector_store.connect():
                 return False
             
             if self.collection_exists(collection_name):
                 self.logger.info(f"Collection {collection_name} already exists")
                 return True
             
-            # Create collection with metadata if provided
-            if metadata:
-                collection = self.vector_store.client.create_collection(
-                    name=collection_name,
-                    embedding_function=self.vector_store.embedding_function,
-                    metadata=metadata
-                )
-            else:
-                collection = self.vector_store.client.create_collection(
-                    name=collection_name,
-                    embedding_function=self.vector_store.embedding_function
-                )
-            
-            self.logger.info(f"Created collection {collection_name}")
-            return True
+            # Use the vector_store init_collection method
+            success = self.vector_store.init_collection(collection_name)
+            if success:
+                self.logger.info(f"Created collection {collection_name}")
+            return success
         except Exception as e:
             self.logger.error(f"Error creating collection {collection_name}: {e}")
             return False
@@ -146,16 +135,17 @@ class ChromaService:
             bool: True if successful, False otherwise
         """
         try:
-            if not self.vector_store.client and not self.vector_store.connect():
+            if not self.vector_store.connect():
                 return False
             
             if not self.collection_exists(collection_name):
                 self.logger.info(f"Collection {collection_name} does not exist")
                 return True
             
-            self.vector_store.client.delete_collection(name=collection_name)
-            self.logger.info(f"Deleted collection {collection_name}")
-            return True
+            success = self.vector_store.delete_collection(collection_name)
+            if success:
+                self.logger.info(f"Deleted collection {collection_name}")
+            return success
         except Exception as e:
             self.logger.error(f"Error deleting collection {collection_name}: {e}")
             return False
@@ -167,7 +157,7 @@ class ChromaService:
             List[str]: List of collection names
         """
         try:
-            if not self.vector_store.client and not self.vector_store.connect():
+            if not self.vector_store.connect():
                 return []
                 
             return self.vector_store.list_collections()

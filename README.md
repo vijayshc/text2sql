@@ -44,23 +44,60 @@ The application now supports managing multiple Model Context Protocol (MCP) serv
 *   **AI:** Azure AI Inference Service, Sentence-Transformers, OpenRouter
 *   **Frontend:** HTML, CSS, JavaScript, Bootstrap 5, jQuery
 *   **Database:** SQLite (default)
-*   **Vector Database:** ChromaDB (for embeddings and similarity search)
+*   **Vector Database:** ChromaDB REST API Service (for embeddings and similarity search)
 *   **MCP Support:** Model Context Protocol support for both stdio and HTTP servers
 
-## Vector Database Migration to ChromaDB
+## ChromaDB Service Configuration
 
-The application has been migrated from Milvus to ChromaDB for vector storage and similarity search. ChromaDB provides:
+The ChromaDB service can be configured through `chromadb_service/config.py`:
 
-*   **Simplified Setup:** No external server required, embedded database
-*   **Better Integration:** Native Python integration with automatic embedding generation
-*   **Improved Performance:** Optimized for local deployments
-*   **Enhanced Features:** Built-in metadata filtering and collection management
+```python
+# Service Configuration
+SERVICE_HOST = "localhost"      # Service host
+SERVICE_PORT = 8001            # Service port  
+DEBUG = False                  # Debug mode
+CHROMADB_PERSIST_DIR = "../chroma_data"  # Data directory
 
-### Migration Benefits:
-- Reduced infrastructure complexity
-- Automatic embedding generation using sentence-transformers
-- Better error handling and logging
-- Improved search accuracy with built-in reranking
+# Embedding Configuration
+EMBEDDING_MODEL = "all-MiniLM-L6-v2"    # Sentence transformer model
+EMBEDDING_DIMENSION = 384               # Embedding dimension
+```
+
+### Migration from Direct ChromaDB
+
+If you're migrating from a version that used direct ChromaDB integration:
+
+1. **Backup existing data:** `python migrate_to_chromadb.py` includes backup functionality
+2. **Start ChromaDB service:** Follow the setup instructions above
+3. **Test migration:** Run `python test_chromadb_migration.py` to verify functionality
+4. **Update configuration:** Ensure `CHROMADB_SERVICE_URL` in `config/config.py` points to your service
+
+The migration maintains all existing data and functionality while providing improved architecture and scalability.
+
+## Vector Database Architecture - ChromaDB REST API
+
+The application uses a standalone ChromaDB service accessed via REST API for vector storage and similarity search. This architecture provides:
+
+*   **Service Separation:** ChromaDB runs as a separate service, allowing for better scalability and maintenance
+*   **REST API Access:** All vector operations (add, delete, search, etc.) are performed through HTTP REST API calls
+*   **Microservices Architecture:** Clear separation between the main application and vector database service
+*   **Enhanced Performance:** Dedicated service for vector operations with optimized resource allocation
+*   **Better Error Handling:** Comprehensive error handling and logging for all vector operations
+
+### Architecture Benefits:
+- **Scalability:** Vector service can be scaled independently
+- **Maintainability:** Clear separation of concerns between services
+- **Reliability:** Robust error handling and automatic retry mechanisms
+- **Flexibility:** Easy to replace or upgrade vector database service without affecting main application
+- **Monitoring:** Dedicated logging and monitoring for vector operations
+
+### ChromaDB Service:
+The ChromaDB service (`chromadb_service/`) is a standalone Flask application that:
+- Manages ChromaDB collections and embeddings
+- Provides REST API endpoints for all vector operations
+- Handles embedding generation using sentence-transformers
+- Includes comprehensive error handling and logging
+- Supports all required operations: insert, search, update, delete, and filtering
 
 ## Setup and Installation
 
@@ -69,12 +106,20 @@ The application has been migrated from Milvus to ChromaDB for vector storage and
 3.  **Install:** `pip install -r requirements.txt`
 4.  **Configure:** Create a `.env` file (copy `.env.example` if available) and fill in `AZURE_ENDPOINT`, `AZURE_MODEL_NAME`, `GITHUB_TOKEN` (for Azure auth), `DATABASE_URI`, and `SECRET_KEY`. See `config/config.py` for more options.
 5.  **Initialize DB:** `python src/utils/init_db.py` (Creates DB and default admin user: admin/admin123 - **change immediately!**)
+6.  **Setup ChromaDB Service:** 
+   - Navigate to `chromadb_service/` directory
+   - Install service dependencies: `pip install -r requirements.txt`
+   - Start the ChromaDB service: `chmod +x start_service.sh && ./start_service.sh`
+   - The service will run on `http://localhost:8001` by default
 
 ## Running the Application
 
-1.  **Start Server:** `python app.py` or `./restart.sh`
-2.  **Access:** Open `http://127.0.0.1:5000` in your browser.
-3.  **Login:** Use the default admin credentials and change the password via the admin panel.
+1.  **Start ChromaDB Service:** `cd chromadb_service && ./start_service.sh` (runs on port 8001)
+2.  **Start Main Application:** `python app.py` or `./restart.sh` (runs on port 5000)
+3.  **Access:** Open `http://127.0.0.1:5000` in your browser.
+4.  **Login:** Use the default admin credentials and change the password via the admin panel.
+
+**Important:** The ChromaDB service must be running before starting the main application, as all vector operations depend on it.
 
 ## Project Structure Overview
 
@@ -91,10 +136,73 @@ text2sql/
 │   ├── static/         # CSS, JavaScript files
 │   ├── templates/      # HTML templates
 │   └── utils/          # Helper modules (DB, AI client, auth, etc.)
+├── chromadb_service/   # Standalone ChromaDB REST API service
+│   ├── app.py          # ChromaDB service Flask application
+│   ├── requirements.txt # Service-specific dependencies
+│   ├── config.py       # Service configuration
+│   ├── start_service.sh # Service startup script
+│   └── README.md       # Service documentation
 ├── logs/               # Log files
 ├── uploads/            # Uploaded knowledge base documents
 └── text2sql.db         # Default SQLite database
 ```
+
+## Service Management & Troubleshooting
+
+### ChromaDB Service Management
+
+**Starting the Service:**
+```bash
+cd chromadb_service
+./start_service.sh
+```
+
+**Stopping the Service:**
+```bash
+# Find the process ID
+ps aux | grep "python app.py"
+# Kill the process
+kill <PID>
+```
+
+**Service Health Check:**
+```bash
+curl http://localhost:8001/health
+```
+
+**View Service Logs:**
+```bash
+tail -f chromadb_service/service.log
+```
+
+### Common Issues
+
+**1. ChromaDB Service Not Starting:**
+- Check if port 8001 is available: `netstat -tlnp | grep 8001`
+- Verify Python environment and dependencies
+- Check service logs for error messages
+
+**2. Connection Refused Errors:**
+- Ensure ChromaDB service is running before starting main application
+- Verify `CHROMADB_SERVICE_URL` in config matches service address
+- Check firewall settings if running on different machines
+
+**3. Vector Search Not Working:**
+- Verify collections exist: Check admin vector DB management UI
+- Ensure embeddings are being generated properly
+- Check ChromaDB service logs for embedding errors
+
+**4. Performance Issues:**
+- Monitor ChromaDB service resource usage
+- Consider increasing service timeout settings
+- Check embedding model performance (all-MiniLM-L6-v2 is lightweight)
+
+### Development Tips
+
+- Use `DEBUG=True` in ChromaDB service config during development
+- Monitor both application and service logs simultaneously
+- Test vector operations using the admin interface before implementing new features
+- Use the migration test script to verify functionality after changes
 
 ## Security Highlights
 
