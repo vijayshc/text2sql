@@ -208,30 +208,21 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Actions
             const actionsCell = document.createElement('td');
-            actionsCell.className = 'text-center action-buttons';
-            
-            // Create a container for the buttons to keep them together
-            const buttonContainer = document.createElement('div');
-            buttonContainer.className = 'd-flex justify-content-center gap-2';
-            actionsCell.appendChild(buttonContainer);
+            actionsCell.className = 'text-center';
             
             const editBtn = document.createElement('button');
-            editBtn.className = 'btn btn-sm btn-outline-primary';
+            editBtn.className = 'btn btn-sm btn-outline-primary me-2';
             editBtn.innerHTML = '<i class="fas fa-edit"></i>';
             editBtn.title = 'Edit';
-            editBtn.style.minWidth = 'auto';
-            editBtn.style.padding = '0.25rem 0.5rem';
             editBtn.addEventListener('click', () => showEditConfigModal(config.id));
-            buttonContainer.appendChild(editBtn);
+            actionsCell.appendChild(editBtn);
             
             const deleteBtn = document.createElement('button');
             deleteBtn.className = 'btn btn-sm btn-outline-danger';
             deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
             deleteBtn.title = 'Delete';
-            deleteBtn.style.minWidth = 'auto';
-            deleteBtn.style.padding = '0.25rem 0.5rem';
             deleteBtn.addEventListener('click', () => confirmDeleteConfig(config.id));
-            buttonContainer.appendChild(deleteBtn);
+            actionsCell.appendChild(deleteBtn);
             
             row.appendChild(actionsCell);
             

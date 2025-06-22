@@ -35,15 +35,8 @@ const feedback = {
     
     // Validate that we have SQL before submitting feedback
     validateFeedbackSubmission: function() {
-        // Check for static SQL block or Monaco editor
-        let sqlQuery = '';
-        const sqlCodeEl = document.getElementById('sqlCode');
-        if (sqlCodeEl) {
-            sqlQuery = sqlCodeEl.textContent.trim();
-        } else if (typeof sqlEditor !== 'undefined' && sqlEditor) {
-            sqlQuery = sqlEditor.getValue().trim();
-        }
-        if (!sqlQuery) {
+        const sqlCode = document.getElementById('sqlCode');
+        if (!sqlCode || !sqlCode.textContent.trim()) {
             uiUtils.showError('Cannot submit feedback: No SQL query available');
             return false;
         }
@@ -54,19 +47,10 @@ const feedback = {
     submitFeedback: async function(rating, result) {
         try {
             if (!this.validateFeedbackSubmission()) return;
-            // Determine the SQL to submit (use edited SQL if available)
-            let sqlQuery = '';
-            const sqlCodeEl = document.getElementById('sqlCode');
-            if (sqlCodeEl && sqlCodeEl.textContent.trim()) {
-                sqlQuery = sqlCodeEl.textContent.trim();
-            } else if (typeof sqlEditor !== 'undefined' && sqlEditor) {
-                sqlQuery = sqlEditor.getValue().trim();
-            } else {
-                sqlQuery = result.sql || '';
-            }
+            
             const feedbackData = {
                 query_text: text2sql.queryInput.value,
-                sql_query: sqlQuery,
+                sql_query: result.sql,
                 feedback_rating: rating,
                 results_summary: result.chart_data ? 
                     `Returned ${result.chart_data.data.length} rows with ${result.chart_data.columns.length} columns` : 

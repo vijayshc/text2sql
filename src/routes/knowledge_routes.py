@@ -75,46 +75,12 @@ def upload_document():
             'message': 'Document uploaded and processing started',
             'documentId': document_id,
             'originalFilename': original_filename,
+            'tags': tags,
+            'originalFilename': original_filename,
             'tags': tags
         })
     
     return jsonify({'success': False, 'error': 'Failed to upload document'}), 400
-
-# Route to handle direct text input
-@knowledge_bp.route('/api/knowledge/text', methods=['POST'])
-@login_required
-@admin_required
-def add_text_content():
-    """Handle direct text input and processing"""
-    data = request.get_json()
-    
-    if not data:
-        return jsonify({'success': False, 'error': 'No data provided'}), 400
-        
-    # Extract required fields
-    name = data.get('name')
-    content_type = data.get('content_type')
-    content = data.get('content')
-    tags = data.get('tags', [])
-    
-    # Validate required fields
-    if not name or not content_type or not content:
-        return jsonify({'success': False, 'error': 'Missing required fields'}), 400
-    
-    try:
-        # Process the text content
-        document_id = knowledge_manager.process_text_content(name, content_type, content, tags)
-        
-        return jsonify({
-            'success': True, 
-            'message': 'Text content submitted for processing',
-            'documentId': document_id,
-            'name': name,
-            'tags': tags
-        })
-    except Exception as e:
-        current_app.logger.error(f"Error processing text content: {str(e)}", exc_info=True)
-        return jsonify({'success': False, 'error': f'Failed to process text content: {str(e)}'}), 500
 
 # Route to check document processing status
 @knowledge_bp.route('/api/knowledge/status/<document_id>', methods=['GET'])

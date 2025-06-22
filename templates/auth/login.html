@@ -4,29 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Text2SQL | Login</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/glassmorphism.css') }}">
     <style>
         .auth-container {
             max-width: 400px;
             margin: 100px auto;
             padding: 20px;
-            border-radius: var(--card-radius);
-            background: var(--glass-bg);
-            backdrop-filter: blur(var(--glass-blur));
-            -webkit-backdrop-filter: blur(var(--glass-blur));
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 8px 32px 0 var(--glass-shadow);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            background-color: #fff;
         }
         .auth-header {
             text-align: center;
             margin-bottom: 20px;
-        }
-        .auth-header h2 {
-            color: var(--primary-color);
-            font-weight: 600;
         }
         .form-group {
             margin-bottom: 15px;
@@ -35,25 +25,14 @@
             display: block;
             margin-bottom: 5px;
             font-weight: 500;
-            color: var(--dark-text);
         }
         .form-group input {
             width: 100%;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.8);
-            border: 1px solid var(--glass-border);
-            border-radius: 8px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
             font-size: 16px;
             box-sizing: border-box;
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            transition: all 0.3s ease;
-        }
-        .form-group input:focus {
-            background: rgba(255, 255, 255, 0.95);
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.25rem rgba(2, 118, 153, 0.15);
-            outline: none;
         }
         .form-footer {
             display: flex;
@@ -62,52 +41,42 @@
             margin-top: 20px;
         }
         .form-footer a {
-            color: var(--primary-color);
+            color: #0066cc;
             text-decoration: none;
-            transition: all 0.3s ease;
         }
         .form-footer a:hover {
             text-decoration: underline;
         }
         .btn {
-            background: var(--primary-gradient);
+            background-color: #0066cc;
             color: white;
             border: none;
             padding: 10px 20px;
-            border-radius: 8px;
+            border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(2, 118, 153, 0.3);
         }
         .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(2, 118, 153, 0.4);
+            background-color: #0052a3;
         }
         .flash {
-            padding: 12px 15px;
+            padding: 10px;
             margin-bottom: 15px;
-            border-radius: var(--card-radius);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            display: flex;
-            align-items: center;
+            border-radius: 4px;
         }
         .flash-success {
-            background: rgba(74, 222, 128, 0.15);
-            border-left: 3px solid var(--success-color);
-            color: #166534;
+            background-color: #dff0d8;
+            border: 1px solid #d6e9c6;
+            color: #3c763d;
         }
         .flash-danger {
-            background: rgba(248, 113, 113, 0.15);
-            border-left: 3px solid var(--danger-color);
-            color: #991b1b;
+            background-color: #f2dede;
+            border: 1px solid #ebccd1;
+            color: #a94442;
         }
         .flash-warning {
-            background: rgba(251, 191, 36, 0.15);
-            border-left: 3px solid var(--warning-color);
+            background-color: #fcf8e3;
+            border: 1px solid #faebcc;
             color: #8a6d3b;
         }
         .flash-info {

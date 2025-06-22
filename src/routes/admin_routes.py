@@ -19,12 +19,6 @@ user_manager = UserManager()
 def admin_index():
     """Admin dashboard"""
     return render_template('admin/index.html', available_templates=['admin/index.html'])
-    
-@admin_bp.route('/mcp-servers')
-@admin_required
-def mcp_servers():
-    """MCP Server management page"""
-    return render_template('admin/mcp_servers.html', available_templates=['admin/mcp_servers.html'])
 
 @admin_bp.route('/users')
 @admin_required

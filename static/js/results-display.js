@@ -147,30 +147,33 @@ const resultsDisplay = {
         // Store the current result in the global object for dashboard to access
         text2sql.currentResult = result;
         
-        // Format and display SQL with syntax highlighting if static SQL block exists
-        const sqlCodeEl = document.getElementById('sqlCode');
-        if (sqlCodeEl) {
-            sqlCodeEl.className = 'sql';
-            sqlCodeEl.textContent = result.sql || '';
-            // Format SQL keywords
-            if (result.sql) {
-                const formattedSQL = result.sql
-                    .replace(/\b(SELECT|FROM|WHERE|JOIN|ON|GROUP BY|ORDER BY|HAVING|INSERT|UPDATE|DELETE|AND|OR|AS|DISTINCT|INNER|LEFT|RIGHT|OUTER|UNION|ALL|LIMIT|OFFSET|DESC|ASC)\b/gi, 
-                        match => `<span class="sql-keyword">${match}</span>`)
-                    .replace(/'([^']*)'/g, match => `<span class="sql-string">${match}</span>`)
-                    .replace(/\b(\d+(\.\d+)?)\b/g, match => `<span class="sql-number">${match}</span>`)
-                    .replace(/\b(SUM|COUNT|AVG|MIN|MAX|COALESCE|CONCAT|SUBSTR|CAST|ROUND|DATE|EXTRACT)\(/gi,
-                        match => `<span class="sql-function">${match}</span>`);
-                sqlCodeEl.innerHTML = formattedSQL;
-                // Add a subtle fade-in animation
-                sqlCodeEl.style.opacity = '0';
-                sqlCodeEl.style.transform = 'translateY(10px)';
-                setTimeout(() => {
-                    sqlCodeEl.style.transition = 'all 0.5s ease';
-                    sqlCodeEl.style.opacity = '1';
-                    sqlCodeEl.style.transform = 'translateY(0)';
-                }, 100);
-            }
+        // Format and display SQL with syntax highlighting
+        const sqlCode = document.getElementById('sqlCode');
+        sqlCode.className = 'sql';
+        sqlCode.textContent = result.sql || '';
+        
+        // Format SQL keywords
+        if (result.sql) {
+            // Add more sophisticated SQL syntax highlighting
+            const formattedSQL = result.sql
+                .replace(/\b(SELECT|FROM|WHERE|JOIN|ON|GROUP BY|ORDER BY|HAVING|INSERT|UPDATE|DELETE|AND|OR|AS|DISTINCT|INNER|LEFT|RIGHT|OUTER|UNION|ALL|LIMIT|OFFSET|DESC|ASC)\b/gi, 
+                    match => `<span class="sql-keyword">${match}</span>`)
+                .replace(/'([^']*)'/g, match => `<span class="sql-string">${match}</span>`)
+                .replace(/\b(\d+(\.\d+)?)\b/g, match => `<span class="sql-number">${match}</span>`)
+                .replace(/\b(SUM|COUNT|AVG|MIN|MAX|COALESCE|CONCAT|SUBSTR|CAST|ROUND|DATE|EXTRACT)\(/gi,
+                    match => `<span class="sql-function">${match}</span>`);
+                    
+            sqlCode.innerHTML = formattedSQL;
+            
+            // Add a subtle fade-in animation
+            sqlCode.style.opacity = '0';
+            sqlCode.style.transform = 'translateY(10px)';
+            
+            setTimeout(() => {
+                sqlCode.style.transition = 'all 0.5s ease';
+                sqlCode.style.opacity = '1';
+                sqlCode.style.transform = 'translateY(0)';
+            }, 100);
         }
         
         // Show the feedback controls if we have SQL

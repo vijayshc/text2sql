@@ -288,7 +288,7 @@ def export_audit_logs():
 @admin_required
 @permission_required(Permissions.ADMIN_ACCESS)
 def migrate_embeddings():
-    """Migrate existing embeddings from SQLite to ChromaDB vector database
+    """Migrate existing embeddings from SQLite to Milvus vector database
     
     GET: Returns status and statistics about embeddings
     POST: Executes the migration process
@@ -300,7 +300,7 @@ def migrate_embeddings():
         
         # For GET requests, just return statistics
         if request.method == 'POST':
-            # Get stats from SQLite and ChromaDB
+            # Get stats from SQLite and Milvus
             stats = feedback_manager.get_feedback_stats()
             
             # Check if vector store is connected

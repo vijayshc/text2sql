@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize DataTable
     const documentsTable = $('#documentsTable').DataTable({
         responsive: true,
-        order: [[4, 'desc']], // Sort by upload date by default
+        order: [[3, 'desc']], // Sort by upload date by default
         language: {
             emptyTable: "No documents available in the knowledge base"
         }
@@ -168,101 +168,5 @@ document.addEventListener('DOMContentLoaded', function() {
         .finally(() => {
             documentToDelete = null;
         });
-    });
-    
-    // Paste Text functionality
-    const textForm = document.getElementById('pasteTextForm');
-    const contentNameInput = document.getElementById('contentName');
-    const contentTypeSelect = document.getElementById('contentType');
-    const contentTextArea = document.getElementById('contentText');
-    const contentTagsInput = document.getElementById('contentTags');
-    const submitTextBtn = document.getElementById('submitTextBtn');
-    const textProcessProgress = document.getElementById('textProcessProgress');
-    const progressBarText = textProcessProgress.querySelector('.progress-bar');
-    const textProcessingAlert = document.getElementById('textProcessingAlert');
-    const textProcessingMessage = document.getElementById('textProcessingMessage');
-    
-    submitTextBtn.addEventListener('click', function() {
-        // Basic validation
-        if (!contentNameInput.value.trim()) {
-            alert('Please enter a content name');
-            return;
-        }
-        
-        if (!contentTypeSelect.value) {
-            alert('Please select a content type');
-            return;
-        }
-        
-        if (!contentTextArea.value.trim()) {
-            alert('Please enter some content text');
-            return;
-        }
-        
-        // Prepare data for submission
-        const data = {
-            name: contentNameInput.value.trim(),
-            content_type: contentTypeSelect.value,
-            content: contentTextArea.value.trim(),
-            tags: contentTagsInput.value ? contentTagsInput.value.split(',').map(tag => tag.trim()) : []
-        };
-        
-        // Show progress bar
-        textProcessProgress.classList.remove('d-none');
-        
-        // Disable submit button during processing
-        submitTextBtn.disabled = true;
-        submitTextBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Processing...';
-        
-        // Send text data to server
-        fetch('/api/knowledge/text', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
-            },
-            body: JSON.stringify(data),
-            credentials: 'same-origin'
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Submission failed');
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                // Update progress bar to 100%
-                progressBarText.style.width = '100%';
-                progressBarText.setAttribute('aria-valuenow', 100);
-                
-                // Hide progress bar and show processing alert
-                setTimeout(() => {
-                    textProcessProgress.classList.add('d-none');
-                    textProcessingAlert.classList.remove('d-none');
-                    
-                    // Start polling for processing status
-                    pollProcessingStatus(data.documentId);
-                }, 500);
-            } else {
-                throw new Error(data.error || 'Submission failed');
-            }
-        })
-        .catch(error => {
-            console.error('Error submitting text:', error);
-            textProcessProgress.classList.add('d-none');
-            submitTextBtn.disabled = false;
-            submitTextBtn.innerHTML = 'Add Content';
-            alert('Error submitting text content: ' + error.message);
-        });
-    });
-    
-    // Reset modal form when it's closed
-    $('#pasteTextModal').on('hidden.bs.modal', function() {
-        textForm.reset();
-        textProcessProgress.classList.add('d-none');
-        textProcessingAlert.classList.add('d-none');
-        submitTextBtn.disabled = false;
-        submitTextBtn.innerHTML = 'Add Content';
     });
 });
