@@ -16,6 +16,7 @@ from src.routes.knowledge_routes import knowledge_bp
 from src.routes.metadata_search_routes import metadata_search_bp
 from src.routes.agent_routes import agent_bp
 from src.routes.tool_confirmation_routes import tool_confirmation_bp  # new import for confirmation endpoint
+from src.routes.skill_routes import skill_bp  # Import skill routes
 from src.models.user import Permissions
 from config.config import SECRET_KEY, DEBUG, MCP_SERVER_SCRIPT_PATH
 import logging
@@ -35,12 +36,17 @@ logger = logging.getLogger('text2sql')
 from src.utils.mcp_client_manager import MCPClientManager
 # Import MCP server model
 from src.models.mcp_server import MCPServer
+# Import skill model
+from src.models.skill import Skill
 
 # Function to initialize MCP servers
 def initialize_mcp_servers():
     """Initialize the MCP servers that are marked as running in the database."""
     # Ensure the MCP servers table exists
     MCPServer.create_table()
+    
+    # Ensure the skills table exists
+    Skill.create_table()
 
     # Start all servers marked as running in the database
     loop = asyncio.new_event_loop()
@@ -132,6 +138,8 @@ app.register_blueprint(query_editor_bp)
 # Register MCP server management blueprint
 from src.routes.mcp_admin_routes import mcp_admin_bp
 app.register_blueprint(mcp_admin_bp)
+# Register skill management blueprint
+app.register_blueprint(skill_bp)
 
 # Make CSRF token available in templates
 @app.context_processor
@@ -656,21 +664,11 @@ def reload_app():
 # Move initialization logic to an app setup function that registers with Flask
 def init_app_with_context(app):
     """Initialize application components that need the app context"""
-    # Using `with app.app_context()` here causes the initialization to run during import time
-    # which leads to duplication when auto-reloading
-    
-    # Instead, use before_first_request but wrap in a function that only runs once
-    initialized = False
-    
-    @app.before_first_request
-    def initialize_on_first_request():
-        """Ensure MCP servers are initialized on first request"""
-        nonlocal initialized
-        if not initialized:
-            logger.info("Initializing application-wide components on first request")
-            initialize_mcp_servers()
-            initialized = True
-            logger.info("Application-wide components initialization complete")
+    # Initialize immediately within app context
+    with app.app_context():
+        logger.info("Initializing application-wide components")
+        initialize_mcp_servers()
+        logger.info("Application-wide components initialization complete")
 
 # Register initialization function with the app
 init_app_with_context(app)

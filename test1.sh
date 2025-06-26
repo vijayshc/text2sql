@@ -1,4 +1,7 @@
 cp -r ~/text2sql_react/* .
-find . -type d -name __pycache__ | xargs rm -rf
-rm logs/*
-rm uploads/*
+rm -rf logs
+rm -rf uploads
+rm -rf chromadb_data
+rm -rf backup_milvus
+rm -rf tmp
+

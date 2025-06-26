@@ -4,6 +4,41 @@ A## Sensitive Tool Confirmation:** Requires user approval before executing poten
   
   This feature adds an intermediate confirmation dialog whenever the agent attempts to run sensitive tools (e.g., `run_bash_shell`). Users will receive a popup showing the tool name and arguments, and must confirm or cancel execution. If canceled, the operation is aborted and the agent stops processing further.
 
+## MCP Skill Library Server
+
+The application includes a built-in MCP Skill Library Server that acts as an enterprise skill repository for agent mode:
+
+* **Skill Management:** Create, edit, and manage enterprise-specific task execution patterns and procedures
+* **Vector Search:** AI-powered semantic search to find relevant skills based on natural language queries
+* **Category Organization:** Skills organized by categories (data engineering, automation, security, etc.)
+* **HTTP/SSE Interface:** Runs as an independent MCP server accessible via HTTP with Server-Sent Events
+* **Agent Integration:** LLMs can search the skill library to learn how to perform complex enterprise tasks
+* **Step-by-Step Guidance:** Each skill provides detailed technical steps, prerequisites, and examples
+
+### Skill Library Features:
+- **Pure Vector Search:** Find skills using natural language queries with semantic similarity search (no hardcoded filtering)
+- **Dynamic Categories:** Skills organized by categories dynamically retrieved from the database
+- **Detailed Documentation:** Each skill includes prerequisites, step-by-step instructions, and usage examples
+- **Version Control:** Skills are versioned and can be updated or deprecated
+- **Admin Interface:** Web-based management interface for creating and editing skills
+- **MCP Protocol Compliance:** Proper MCP server implementation using FastMCP with SSE transport
+- **Vector Embedding:** Skills are embedded for semantic similarity search
+
+### Available Skill Categories:
+Categories are dynamically managed through the admin interface and retrieved from the database. Common categories include:
+- **Data Engineering:** Data pipeline creation, ETL processes, data transformation
+- **Database Management:** Database operations, schema management, optimization  
+- **Machine Learning:** ML model development, training, deployment
+- **DevOps:** Deployment, infrastructure management, CI/CD
+- **Security:** Security implementation, compliance, access control
+- **Automation:** Process automation, scripting, workflow automation
+- **Testing:** Testing frameworks, quality assurance, validation
+- **Integration:** System integration, API development, data connections
+- **Reporting:** Report generation, dashboard creation, visualization
+- **Monitoring:** System monitoring, alerting, performance tracking
+
+**Note:** Categories are no longer hardcoded and can be customized through the admin interface.
+
 ## MCP Server Management
 
 The application now supports managing multiple Model Context Protocol (MCP) servers:
@@ -275,6 +310,134 @@ tail -f chromadb_service/service.log
 
 **3. Vector Search Not Working:**
 - Verify collections exist: Check admin vector DB management UI
+
+## MCP Skill Library Server Setup
+
+The MCP Skill Library Server provides enterprise skill management and can be integrated with agent mode for enhanced task execution capabilities.
+
+### Quick Start
+
+**1. Initialize Skill Database:**
+```bash
+# Load sample skills into the database
+python3 init_skill_library_db.py
+```
+
+**2. Start MCP Skill Server:**
+```bash
+# Start the skill library server (HTTP/SSE)
+./start_mcp_skill_server.sh
+```
+
+**3. Configure in Agent Mode:**
+Add the MCP Skill Server to your agent configuration:
+- Server Type: HTTP
+- URL: `http://localhost:8002`
+- Name: `skill-library`
+
+### Skill Management
+
+**Access Admin Interface:**
+Navigate to **Admin → Skill Library** in the web interface to:
+- View and search existing skills
+- Create new skills with detailed steps
+- Import skills from JSON files
+- Manage skill categories and versions
+- View skill library statistics
+
+**Skill Structure:**
+Each skill contains:
+- **Name & Description:** Clear identification and purpose
+- **Category:** Domain classification (data engineering, DevOps, etc.)
+- **Prerequisites:** Required knowledge, tools, or access
+- **Technical Steps:** Detailed step-by-step instructions
+- **Examples:** Usage scenarios and sample implementations
+- **Tags:** Keywords for better searchability
+
+**Sample Skills Included:**
+- Database Schema Analysis
+- ETL Pipeline Development  
+- Data Quality Assessment
+- API Integration Development
+- Automated Report Generation
+- Database Performance Optimization
+- Data Migration Planning
+- Real-time Data Streaming Setup
+- Automated Testing Framework
+- Security Audit and Compliance
+
+### Integration with Agent Mode
+
+When the MCP Skill Server is configured in agent mode, LLMs can:
+
+1. **Search Skills:** Use natural language to find relevant skills
+   ```
+   Agent: "How do I optimize database performance?"
+   Skill Library: Returns "Database Performance Optimization" skill
+   ```
+
+2. **Get Detailed Steps:** Retrieve comprehensive technical instructions
+   ```
+   Agent: "Get details for skill ID abc123"
+   Skill Library: Returns complete skill with prerequisites and steps
+   ```
+
+3. **Browse Categories:** Explore skills by domain expertise
+   ```
+   Agent: "List all data engineering skills"
+   Skill Library: Returns filtered skills by category
+   ```
+
+4. **Execute with Context:** Use skill instructions to carry out complex tasks through other MCP servers
+
+### Advanced Configuration
+
+**Environment Variables:**
+```bash
+# Skill server configuration
+export MCP_SKILL_HOST=localhost
+export MCP_SKILL_PORT=8002
+export MCP_SKILL_DEBUG=false
+
+# Vector search requires ChromaDB service
+export CHROMADB_SERVICE_URL=http://localhost:8001
+```
+
+**Custom Skill Import:**
+Create a JSON file with your enterprise skills:
+```json
+{
+  "skills": [
+    {
+      "name": "Custom Enterprise Skill",
+      "description": "Description of the skill",
+      "category": "data_engineering",
+      "steps": ["Step 1", "Step 2", "Step 3"],
+      "tags": ["custom", "enterprise"],
+      "prerequisites": ["Requirement 1"],
+      "examples": ["Example usage"]
+    }
+  ]
+}
+```
+
+Then import via the admin interface or API endpoint.
+
+### API Integration
+
+The MCP Skill Server provides a REST API for external integration:
+
+**Available Endpoints:**
+- `GET /health` - Health check
+- `POST /mcp/initialize` - MCP protocol initialization
+- `POST /mcp/tools/list` - List available tools
+- `POST /mcp/tools/call` - Execute skill operations
+
+**MCP Tools:**
+- `search_skills` - Search skills with natural language
+- `get_skill_details` - Get complete skill information
+- `list_categories` - List skill categories with counts
+- `get_skill_stats` - Get skill library statistics
 - Ensure embeddings are being generated properly
 - Check ChromaDB service logs for embedding errors
 

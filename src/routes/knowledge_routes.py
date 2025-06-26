@@ -12,13 +12,15 @@ from src.models.user import Permissions
 # Blueprint for knowledge base routes
 knowledge_bp = Blueprint('knowledge', __name__)
 
-# Initialize knowledge manager
+# Initialize knowledge manager with lazy loading
 knowledge_manager = None
 
-@knowledge_bp.before_app_first_request
-def setup_knowledge_manager():
+def get_knowledge_manager():
+    """Get knowledge manager instance with lazy initialization"""
     global knowledge_manager
-    knowledge_manager = KnowledgeManager()
+    if knowledge_manager is None:
+        knowledge_manager = KnowledgeManager()
+    return knowledge_manager
 
 # Knowledge base homepage route
 @knowledge_bp.route('/knowledge')
@@ -35,7 +37,7 @@ def knowledge_index():
 def admin_knowledge():
     """Render the admin interface for knowledge base management"""
     # Get list of documents from knowledge manager
-    documents = knowledge_manager.list_documents()
+    documents = get_knowledge_manager().list_documents()
     return render_template('admin/knowledge.html', documents=documents)
 
 # Route to handle document upload
@@ -68,7 +70,7 @@ def upload_document():
                 tags = [tag.strip() for tag in tags_string.split(',') if tag.strip()]
         
         # Process the document asynchronously
-        document_id = knowledge_manager.process_document(file_path, original_filename, tags)
+        document_id = get_knowledge_manager().process_document(file_path, original_filename, tags)
         
         return jsonify({
             'success': True, 
@@ -103,7 +105,7 @@ def add_text_content():
     
     try:
         # Process the text content
-        document_id = knowledge_manager.process_text_content(name, content_type, content, tags)
+        document_id = get_knowledge_manager().process_text_content(name, content_type, content, tags)
         
         return jsonify({
             'success': True, 
@@ -122,7 +124,7 @@ def add_text_content():
 @admin_required
 def document_status(document_id):
     """Get the processing status of a document"""
-    status = knowledge_manager.get_document_status(document_id)
+    status = get_knowledge_manager().get_document_status(document_id)
     return jsonify(status)
 
 # Route to delete a document
@@ -131,7 +133,7 @@ def document_status(document_id):
 @admin_required
 def delete_document(document_id):
     """Delete a document and its chunks from the system"""
-    success = knowledge_manager.delete_document(document_id)
+    success = get_knowledge_manager().delete_document(document_id)
     if success:
         return jsonify({'success': True, 'message': 'Document deleted successfully'})
     else:
@@ -154,7 +156,7 @@ def query_knowledge():
     tags = data.get('tags', [])
     
     # Get the answer using the knowledge manager
-    result = knowledge_manager.get_answer(query, user_id, stream=False, tags=tags)
+    result = get_knowledge_manager().get_answer(query, user_id, stream=False, tags=tags)
     
     return jsonify(result)
 
@@ -193,7 +195,7 @@ def query_knowledge_stream():
     
     try:
         # Get the streaming answer using the knowledge manager
-        result = knowledge_manager.get_answer(query, user_id, stream=True, tags=tags)
+        result = get_knowledge_manager().get_answer(query, user_id, stream=True, tags=tags)
         
         # Check if result is a tuple with two values (stream_generator, sources)
         if isinstance(result, tuple) and len(result) == 2:
@@ -243,7 +245,7 @@ def query_knowledge_stream():
 @permission_required(Permissions.VIEW_KNOWLEDGE)
 def get_all_tags():
     """Get a list of all available tags in the knowledge base"""
-    tags = knowledge_manager.get_all_tags()
+    tags = get_knowledge_manager().get_all_tags()
     return jsonify({'success': True, 'tags': tags})
 
 # Route to add a tag to a document
@@ -260,7 +262,7 @@ def add_document_tag():
     document_id = data.get('document_id')
     tag = data.get('tag')
     
-    success = knowledge_manager.add_document_tag(document_id, tag)
+    success = get_knowledge_manager().add_document_tag(document_id, tag)
     
     if success:
         return jsonify({'success': True, 'message': 'Tag added successfully'})
@@ -281,7 +283,7 @@ def remove_document_tag():
     document_id = data.get('document_id')
     tag = data.get('tag')
     
-    success = knowledge_manager.remove_document_tag(document_id, tag)
+    success = get_knowledge_manager().remove_document_tag(document_id, tag)
     
     if success:
         return jsonify({'success': True, 'message': 'Tag removed successfully'})

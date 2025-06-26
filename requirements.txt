@@ -1,8 +1,10 @@
+Flask>=2.3.3
 Flask-Login
 Flask-WTF
 Flask-SQLAlchemy
 Flask-Migrate
 Flask-Mail
+Flask-CORS>=4.0.0
 python-dotenv # Added for .env file support
 aiosqlite
 pandas

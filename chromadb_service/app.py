@@ -75,9 +75,8 @@ class ChromaDBService:
 # Initialize the service
 chroma_service = ChromaDBService()
 
-@app.before_first_request
-def initialize_service():
-    """Initialize ChromaDB service on first request"""
+# Initialize service immediately at startup
+with app.app_context():
     chroma_service.connect()
 
 # Health check endpoint

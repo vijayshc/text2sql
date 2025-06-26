@@ -1,0 +1,331 @@
+{
+  "skills": [
+    {
+      "name": "Database Schema Analysis",
+      "description": "Analyze database schema structure, relationships, and data quality to understand the data model and identify optimization opportunities",
+      "category": "database_management",
+      "tags": ["schema", "analysis", "data-modeling", "optimization"],
+      "prerequisites": [
+        "Access to database connection details",
+        "Understanding of SQL fundamentals",
+        "Database admin or read permissions"
+      ],
+      "steps": [
+        "Connect to the target database using appropriate credentials",
+        "Query information_schema or system tables to get table structures",
+        "Analyze table relationships through foreign key constraints", 
+        "Examine data types, nullable columns, and constraints",
+        "Identify primary keys and unique constraints",
+        "Analyze table sizes and row counts",
+        "Check for indexes and their usage patterns",
+        "Document findings including potential issues or improvements",
+        "Generate schema diagram or documentation",
+        "Provide recommendations for optimization"
+      ],
+      "examples": [
+        "Analyzing a PostgreSQL schema for performance bottlenecks",
+        "Documenting legacy database structure for migration planning",
+        "Identifying orphaned tables and unused columns"
+      ],
+      "status": "active",
+      "version": "1.0"
+    },
+    {
+      "name": "ETL Pipeline Development",
+      "description": "Design and implement Extract, Transform, Load pipelines for data integration between systems using modern data engineering practices",
+      "category": "etl_pipeline",
+      "tags": ["etl", "data-pipeline", "integration", "automation"],
+      "prerequisites": [
+        "Understanding of source and target data formats",
+        "Access to source systems and target databases",
+        "Knowledge of data transformation requirements",
+        "Familiarity with scheduling systems"
+      ],
+      "steps": [
+        "Analyze source data structure and quality",
+        "Define data transformation business rules",
+        "Design error handling and data validation logic",
+        "Implement extraction logic from source systems",
+        "Develop transformation functions for data cleansing",
+        "Create staging area for intermediate processing",
+        "Implement loading mechanism to target system",
+        "Add logging and monitoring capabilities",
+        "Set up data quality checks and alerts",
+        "Schedule pipeline execution and monitoring",
+        "Test with sample data and edge cases",
+        "Deploy to production with rollback plan"
+      ],
+      "examples": [
+        "Building a daily ETL pipeline from CRM to data warehouse",
+        "Creating real-time streaming ETL for IoT sensor data",
+        "Migrating legacy batch processes to modern pipeline"
+      ],
+      "status": "active",
+      "version": "1.2"
+    },
+    {
+      "name": "Data Quality Assessment",
+      "description": "Perform comprehensive data quality analysis to identify completeness, accuracy, consistency, and validity issues in datasets",
+      "category": "data_analysis",
+      "tags": ["data-quality", "validation", "profiling", "assessment"],
+      "prerequisites": [
+        "Access to target datasets",
+        "Understanding of business data requirements",
+        "Knowledge of data profiling tools",
+        "Statistical analysis background"
+      ],
+      "steps": [
+        "Define data quality dimensions and metrics",
+        "Profile data to understand structure and patterns",
+        "Check for missing values and null patterns",
+        "Analyze data completeness across all fields",
+        "Validate data formats and type consistency",
+        "Identify duplicate records and deduplication logic",
+        "Check referential integrity across tables",
+        "Analyze data distribution and outliers",
+        "Validate business rules and constraints",
+        "Generate data quality scorecard and reports",
+        "Document findings and remediation recommendations",
+        "Create automated data quality monitoring"
+      ],
+      "examples": [
+        "Assessing customer data quality before CRM migration",
+        "Validating financial data accuracy for regulatory compliance",
+        "Profiling product catalog data for e-commerce platform"
+      ],
+      "status": "active",
+      "version": "1.1"
+    },
+    {
+      "name": "API Integration Development",
+      "description": "Design and implement robust API integrations between systems with proper error handling, authentication, and data transformation",
+      "category": "integration", 
+      "tags": ["api", "integration", "rest", "webhooks", "authentication"],
+      "prerequisites": [
+        "API documentation and access credentials",
+        "Understanding of authentication methods",
+        "Knowledge of data formats (JSON, XML)",
+        "Error handling and retry logic requirements"
+      ],
+      "steps": [
+        "Review API documentation and endpoints",
+        "Set up authentication mechanism (OAuth, API keys, etc)",
+        "Design data mapping between systems",
+        "Implement API client with proper error handling",
+        "Add retry logic for transient failures",
+        "Implement rate limiting and throttling",
+        "Create data transformation and validation layer",
+        "Set up logging and monitoring for API calls",
+        "Implement webhook handlers if required",
+        "Add integration tests and error scenarios",
+        "Document integration architecture and flows",
+        "Deploy with monitoring and alerting"
+      ],
+      "examples": [
+        "Integrating Salesforce CRM with custom application via REST API",
+        "Building webhook listeners for payment processing system",
+        "Creating bidirectional sync between HR systems"
+      ],
+      "status": "active",
+      "version": "1.0"
+    },
+    {
+      "name": "Automated Report Generation",
+      "description": "Build automated reporting systems that generate, format, and distribute regular business reports with scheduled delivery",
+      "category": "reporting",
+      "tags": ["reporting", "automation", "scheduling", "visualization"],
+      "prerequisites": [
+        "Access to source data systems",
+        "Report template and format requirements",
+        "Delivery channel setup (email, file system, etc)",
+        "Scheduling system access"
+      ],
+      "steps": [
+        "Analyze reporting requirements and data sources",
+        "Design report template and layout structure",
+        "Develop data extraction and aggregation queries", 
+        "Implement report generation logic with proper formatting",
+        "Add charts, graphs, and visualization components",
+        "Create automated scheduling mechanism",
+        "Set up report distribution channels (email, portal, etc)",
+        "Implement error handling and notification system",
+        "Add report archival and retention policies",
+        "Create monitoring dashboard for report health",
+        "Test report generation with various data scenarios",
+        "Deploy with production scheduling and monitoring"
+      ],
+      "examples": [
+        "Weekly sales performance reports with charts and KPIs",
+        "Monthly financial statements with automatic PDF generation",
+        "Daily operational dashboards with real-time metrics"
+      ],
+      "status": "active",
+      "version": "1.0"
+    },
+    {
+      "name": "Database Performance Optimization",
+      "description": "Systematically analyze and optimize database performance through query tuning, indexing strategies, and configuration improvements",
+      "category": "database_management",
+      "tags": ["performance", "optimization", "indexing", "query-tuning"],
+      "prerequisites": [
+        "Database admin access and permissions",
+        "Understanding of query execution plans", 
+        "Knowledge of database-specific optimization techniques",
+        "Performance monitoring tools access"
+      ],
+      "steps": [
+        "Identify performance bottlenecks using monitoring tools",
+        "Analyze slow query logs and execution plans",
+        "Review existing index usage and effectiveness",
+        "Identify missing indexes for frequently used queries",
+        "Optimize query structures and join strategies",
+        "Review database configuration parameters",
+        "Implement partitioning strategies for large tables",
+        "Optimize database statistics and maintenance jobs",
+        "Set up performance monitoring and alerting",
+        "Test performance improvements with realistic workloads",
+        "Document optimization changes and recommendations",
+        "Monitor post-optimization performance metrics"
+      ],
+      "examples": [
+        "Optimizing PostgreSQL database for high-transaction application",
+        "Tuning MySQL queries for e-commerce platform",
+        "Implementing SQL Server indexing strategy for reporting workload"
+      ],
+      "status": "active",
+      "version": "1.3"
+    },
+    {
+      "name": "Data Migration Planning and Execution",
+      "description": "Plan and execute large-scale data migration projects with validation, rollback procedures, and minimal downtime strategies",
+      "category": "data_engineering",
+      "tags": ["migration", "data-transfer", "validation", "rollback"],
+      "prerequisites": [
+        "Complete understanding of source and target systems",
+        "Data mapping and transformation requirements",
+        "Downtime windows and business constraints",
+        "Backup and recovery procedures"
+      ],
+      "steps": [
+        "Analyze source and target system architectures",
+        "Create detailed data mapping and transformation rules",
+        "Design migration strategy with phases and rollback plans",
+        "Develop data extraction and validation scripts",
+        "Implement data transformation and cleansing logic",
+        "Create target system loading procedures",
+        "Build comprehensive validation and testing framework",
+        "Plan cutover procedures and rollback strategies",
+        "Execute migration in phases with validation checkpoints",
+        "Perform post-migration validation and reconciliation",
+        "Update application configurations and connections",
+        "Monitor system performance and data integrity"
+      ],
+      "examples": [
+        "Migrating legacy Oracle database to PostgreSQL cloud",
+        "Moving on-premise data warehouse to cloud platform",
+        "Consolidating multiple databases into single data lake"
+      ],
+      "status": "active",
+      "version": "1.1"
+    },
+    {
+      "name": "Real-time Data Streaming Setup",
+      "description": "Implement real-time data streaming architectures using modern streaming platforms for continuous data processing and analytics",
+      "category": "data_engineering",
+      "tags": ["streaming", "real-time", "kafka", "event-processing"],
+      "prerequisites": [
+        "Understanding of streaming concepts and patterns",
+        "Access to streaming platform (Kafka, Kinesis, etc)",
+        "Knowledge of event schema design",
+        "Monitoring and alerting infrastructure"
+      ],
+      "steps": [
+        "Design event schema and topic structure",
+        "Set up streaming platform infrastructure",
+        "Implement data producers for source systems",
+        "Create stream processing logic for transformations",
+        "Set up consumer applications for target systems",
+        "Implement error handling and dead letter queues",
+        "Add monitoring and alerting for stream health",
+        "Implement back-pressure and flow control",
+        "Set up data retention and archival policies",
+        "Create stream processing unit tests",
+        "Deploy with proper scaling and fault tolerance",
+        "Monitor throughput, latency, and error rates"
+      ],
+      "examples": [
+        "Building real-time analytics pipeline for user behavior data",
+        "Streaming IoT sensor data for predictive maintenance",
+        "Creating event-driven microservices communication"
+      ],
+      "status": "active",
+      "version": "1.0"
+    },
+    {
+      "name": "Automated Testing Framework Setup",
+      "description": "Establish comprehensive automated testing frameworks for data pipelines, APIs, and applications with CI/CD integration",
+      "category": "testing",
+      "tags": ["testing", "automation", "ci-cd", "quality-assurance"],
+      "prerequisites": [
+        "Understanding of testing methodologies",
+        "Access to CI/CD pipeline tools",
+        "Knowledge of testing frameworks and tools",
+        "Test data management strategies"
+      ],
+      "steps": [
+        "Define testing strategy and scope coverage",
+        "Set up testing framework and tools selection",
+        "Create test data management and provisioning",
+        "Implement unit tests for individual components",
+        "Develop integration tests for system interactions",
+        "Create end-to-end test scenarios for user workflows",
+        "Set up performance and load testing capabilities",
+        "Integrate tests with CI/CD pipeline automation",
+        "Implement test reporting and failure analysis",
+        "Create test environment management procedures",
+        "Set up automated test execution scheduling",
+        "Monitor test results and maintain test suite health"
+      ],
+      "examples": [
+        "Setting up pytest framework for Python data pipeline testing",
+        "Creating API test automation with Postman and Newman",
+        "Building comprehensive test suite for web application"
+      ],
+      "status": "active",
+      "version": "1.0"
+    },
+    {
+      "name": "Security Audit and Compliance Implementation",
+      "description": "Conduct comprehensive security audits and implement compliance measures for data systems and applications",
+      "category": "security",
+      "tags": ["security", "compliance", "audit", "data-protection"],
+      "prerequisites": [
+        "Understanding of security frameworks and regulations",
+        "Access to system configurations and logs",
+        "Knowledge of encryption and access control methods",
+        "Compliance requirements documentation"
+      ],
+      "steps": [
+        "Review current security policies and implementations",
+        "Conduct vulnerability assessment of systems and applications",
+        "Analyze access controls and user permission structures",
+        "Review data encryption at rest and in transit",
+        "Audit logging and monitoring capabilities",
+        "Assess backup and disaster recovery procedures",
+        "Review compliance with relevant regulations (GDPR, HIPAA, etc)",
+        "Implement security recommendations and controls",
+        "Set up security monitoring and alerting systems",
+        "Create incident response procedures and documentation",
+        "Conduct security training and awareness programs",
+        "Establish regular security review and update processes"
+      ],
+      "examples": [
+        "GDPR compliance audit for customer data management system",
+        "Security assessment for financial services application",
+        "Implementing SOC 2 controls for SaaS platform"
+      ],
+      "status": "active",
+      "version": "1.0"
+    }
+  ]
+}

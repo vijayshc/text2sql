@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/home/vijay/text2sql_react/chromadb_service/app.py", line 78, in <module>
+    @app.before_first_request
+     ^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Flask' object has no attribute 'before_first_request'. Did you mean: '_got_first_request'?

@@ -17,10 +17,21 @@ metadata_search_bp = Blueprint('metadata_search', __name__)
 # Logger
 logger = logging.getLogger('text2sql.metadata_search')
 
-# Initialize components
+# Initialize components with lazy loading
 schema_vectorizer = None
 llm_engine = None
 reranking_model = None
+
+def get_metadata_components():
+    """Get metadata search components with lazy initialization"""
+    global schema_vectorizer, llm_engine
+    
+    if schema_vectorizer is None or llm_engine is None:
+        logger.info("Initializing metadata search components")
+        schema_vectorizer = SchemaVectorizer()
+        llm_engine = LLMEngine()
+    
+    return schema_vectorizer, llm_engine
 
 # _get_reranking_model function has been moved to LLMEngine class
 def _get_reranking_model():
@@ -29,29 +40,24 @@ def _get_reranking_model():
     Returns:
         CrossEncoder: The initialized reranking model (cross-encoder)
     """
-    global llm_engine
+    # Ensure components are initialized
+    _, llm_engine_instance = get_metadata_components()
     try:
-        return llm_engine.get_reranking_model()
+        return llm_engine_instance.get_reranking_model()
     except Exception as e:
         logger.error(f"Failed to get reranking model from LLMEngine: {str(e)}", exc_info=True)
         return None
-
-@metadata_search_bp.before_app_first_request
-def setup_metadata_search():
-    """Initialize needed components on first request"""
-    global schema_vectorizer, llm_engine
-    
-    logger.info("Initializing metadata search components")
-    schema_vectorizer = SchemaVectorizer()
-    llm_engine = LLMEngine()
 
 @metadata_search_bp.route('/api/metadata/process', methods=['POST'])
 @login_required
 def process_schema_metadata():
     """API endpoint for processing schema metadata into vector store"""
     try:
+        # Get initialized components
+        schema_vectorizer_instance, _ = get_metadata_components()
+        
         # Process schema metadata
-        success = schema_vectorizer.process_schema_metadata()
+        success = schema_vectorizer_instance.process_schema_metadata()
         
         if success:
             return jsonify({'success': True, 'message': 'Schema metadata processed successfully'})
@@ -73,8 +79,11 @@ def admin_metadata():
 def get_metadata_stats():
     """Get statistics about the schema metadata in the vector database"""
     try:
+        # Get initialized components
+        schema_vectorizer_instance, _ = get_metadata_components()
+        
         # Get stats from vector store
-        stats = schema_vectorizer.get_stats()
+        stats = schema_vectorizer_instance.get_stats()
         
         if stats:
             return jsonify({'success': True, 'stats': stats})
@@ -127,8 +136,11 @@ For results that include multiple tables, present a summary in a markdown table 
             }
         ]
         
+        # Get initialized components
+        _, llm_engine_instance = get_metadata_components()
+        
         # Generate text with LLM using the correct method, with streaming if requested
-        return llm_engine.generate_completion(messages, log_prefix="Metadata QA", stream=stream)
+        return llm_engine_instance.generate_completion(messages, log_prefix="Metadata QA", stream=stream)
         
     except Exception as e:
         logger.error(f"Error generating metadata response: {str(e)}", exc_info=True)
@@ -173,9 +185,12 @@ def search_metadata_stream():
         rerank = request.args.get('rerank', session.get('current_metadata_rerank', True))
         if isinstance(rerank, str) and rerank.lower() == 'false':
             rerank = False
+        
+        # Get initialized components
+        schema_vectorizer_instance, _ = get_metadata_components()
             
         # Filter results with LLM to extract schema entities
-        results, filter_expr = schema_vectorizer.filter_with_llm(query, limit=limit)
+        results, filter_expr = schema_vectorizer_instance.filter_with_llm(query, limit=limit)
         
         # Simple logic: if filter was applied, skip reranking (direct hit optimization)
         skip_reranking = filter_expr and filter_expr.startswith('Filter:')
