@@ -10,7 +10,7 @@ load_dotenv()
 # OpenRouter configuration
 OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY', '')
 OPENROUTER_BASE_URL = os.getenv('OPENROUTER_BASE_URL', 'https://openrouter.ai/api/v1')
-OPENROUTER_MODEL = os.getenv('OPENROUTER_MODEL', 'google/gemini-2.0-flash-exp:free')
+OPENROUTER_MODEL = os.getenv('OPENROUTER_MODEL', 'meta-llama/llama-3.3-70b-instruct:free')
 
 # Azure OpenAI configuration (kept for backward compatibility)
 AZURE_ENDPOINT = os.getenv('AZURE_ENDPOINT', 'https://models.inference.ai.azure.com')
@@ -27,6 +27,16 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "default-dev-key-change-in-production"
 # Model configuration
 MAX_TOKENS = int(os.getenv('MAX_TOKENS', '2000'))
 TEMPERATURE = float(os.getenv('TEMPERATURE', '0.7'))
+
+# Message format configuration
+MESSAGE_FORMAT = os.getenv('MESSAGE_FORMAT', 'openai').lower()  # 'openai' or 'llama'
+# Valid options: 'openai', 'llama'
+SUPPORTED_MESSAGE_FORMATS = ['openai', 'llama']
+
+# Validate message format
+if MESSAGE_FORMAT not in SUPPORTED_MESSAGE_FORMATS:
+    print(f"Warning: Invalid MESSAGE_FORMAT '{MESSAGE_FORMAT}'. Defaulting to 'openai'.")
+    MESSAGE_FORMAT = 'openai'
 
 # Knowledge base configuration
 UPLOADS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'uploads')

@@ -5,7 +5,6 @@ import os
 import sys
 from typing import Optional, AsyncGenerator, Dict, Any, List, Union, Tuple
 from contextlib import AsyncExitStack
-from openai import OpenAI
 from dotenv import load_dotenv
 import logging
 import uuid
@@ -32,11 +31,9 @@ try:
     logger.info("Successfully imported MCP library components")
 except ImportError as e:
     logger.error(f"Failed to import MCP: {e}")
-    
-# API settings
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY","")
-OPENROUTER_BASE_URL = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")
-OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "deepseek/deepseek-chat-v3-0324:free")
+
+# Import common LLM engine
+from src.utils.common_llm import get_llm_engine
 
 # Global registry of active MCP clients
 _mcp_clients = {}
@@ -86,19 +83,12 @@ class MCPClient:
         self.server_config = None
         self.session = None
         self.exit_stack = AsyncExitStack()
-        self.model = OPENROUTER_MODEL
-        self.client = None
         self._is_connected = False
         self._connection_lock = asyncio.Lock()
         self._available_tools_cache = None
         
-        if OPENROUTER_API_KEY:
-            self.client = OpenAI(
-                base_url=OPENROUTER_BASE_URL,
-                api_key=OPENROUTER_API_KEY,
-            )
-        else:
-            logger.warning(f"OPENROUTER_API_KEY not found for server {self.server_name}. OpenAI client not initialized.")
+        # Get the shared LLM engine instance
+        self.llm_engine = get_llm_engine()
 
     async def connect_to_stdio_server(self, command, args=None, env=None):
         """Connect to an MCP server via stdio.
@@ -118,8 +108,8 @@ class MCPClient:
                 logger.info(f"Already connected to MCP server {self.server_name}.")
                 return True
 
-            if not self.client:
-                logger.error(f"OpenAI client not initialized for server {self.server_name}")
+            if not self.llm_engine:
+                logger.error(f"LLM Engine not available for server {self.server_name}")
                 return False
                 
             if not command:
@@ -237,8 +227,8 @@ class MCPClient:
                 logger.info(f"Already connected to HTTP MCP server {self.server_name}.")
                 return True
 
-            if not self.client:
-                logger.error(f"OpenAI client not initialized for server {self.server_name}")
+            if not self.llm_engine:
+                logger.error(f"LLM Engine not available for server {self.server_name}")
                 return False
             
             logger.info(f"Connecting to HTTP MCP server: {self.server_name} at {base_url}")
@@ -371,8 +361,8 @@ class MCPClient:
             yield {"type": "error", "message": f"Not connected to MCP server {self.server_name}."}
             return
             
-        if not self.client:
-            yield {"type": "error", "message": "OpenAI client not configured."}
+        if not self.llm_engine:
+            yield {"type": "error", "message": "LLM Engine not configured."}
             return
 
         # Handle either string query or structured query with conversation history
@@ -390,14 +380,19 @@ class MCPClient:
             {
                 "role": "system",
                 "content": f"""You are an AI assistant using tools provided by the MCP server '{self.server_name}'.
+
+CRITICAL FUNCTION CALLING RULES:
+- When you need to use ANY tool/function, respond with ONLY the JSON format specified in the prompt
+- Do NOT explain what you're doing before calling functions
+- Do NOT mix explanations with function calls
+- Use functions immediately when needed, then explain results after getting tool responses
+
 Follow these guidelines:
-1. Plan your approach before taking action
-2. Explain your reasoning and actions clearly
-3. When using tools, clearly state the tool name and arguments
-4. After receiving tool results, provide a brief summary
-5. SQL queries should be compatible with SQLite (avoid CTEs, use subqueries if needed)
-6. Retry failed steps only if it makes logical sense
-7. Provide a clear final answer when complete"""
+1. Use tools proactively to solve user requests
+2. SQL queries should be compatible with SQLite (avoid CTEs, use subqueries if needed)
+3. After receiving tool results, provide a clear summary
+4. Only retry failed steps if it makes logical sense
+5. Provide a clear final answer when complete"""
             }
         ]
         
@@ -437,17 +432,17 @@ Follow these guidelines:
         try:
             yield {"type": "status", "message": "Generating initial plan..."}
             
-            # First LLM call
-            response = self.client.chat.completions.create(
-                model=self.model,
-                max_tokens=1500,
+            # First LLM call using the common LLM engine
+            response = self.llm_engine.generate_completion_with_tools(
                 messages=messages,
                 tools=available_tools,
-                tool_choice="auto"
+                tool_choice="auto",
+                log_prefix=f"MCP-{self.server_name}",
+                max_tokens=1500
             )
 
             message = response.choices[0].message
-            logger.info(f"Initial LLM response from {self.server_name}: {message}")
+            logger.info(f"Initial LLM response from {self.server_name}: content='{message.content}', has_tool_calls={hasattr(message, 'tool_calls') and message.tool_calls is not None}")
 
             # Stream initial response if any
             if message.content:
@@ -674,16 +669,16 @@ Follow these guidelines:
 
                 # Next LLM call with the tool results
                 yield {"type": "status", "message": "Processing tool results..."}
-                response = self.client.chat.completions.create(
-                    model=self.model,
-                    max_tokens=1500,
+                response = self.llm_engine.generate_completion_with_tools(
                     messages=messages,
                     tools=available_tools,
-                    tool_choice="auto"
+                    tool_choice="auto",
+                    log_prefix=f"MCP-{self.server_name}",
+                    max_tokens=1500
                 )
                 
                 message = response.choices[0].message
-                logger.info(f"LLM response after tool calls on {self.server_name}: {message}")
+                logger.info(f"LLM response after tool calls on {self.server_name}: content='{message.content}', has_tool_calls={hasattr(message, 'tool_calls') and message.tool_calls is not None}")
 
                 # Stream the response
                 if message.content:
@@ -1120,15 +1115,10 @@ class MCPClientManager:
                     "tools": tools_description
                 })
             
-            # Use OpenRouter LLM for server selection
-            if OPENROUTER_API_KEY:
-                client = OpenAI(
-                    base_url=OPENROUTER_BASE_URL,
-                    api_key=OPENROUTER_API_KEY,
-                )
-                
-                response = client.chat.completions.create(
-                    model=OPENROUTER_MODEL,
+            # Use LLM engine for server selection
+            llm_engine = get_llm_engine()
+            if llm_engine:
+                response = llm_engine.generate_completion(
                     messages=[
                         {
                             "role": "system",
@@ -1138,10 +1128,11 @@ class MCPClientManager:
                             "role": "user",
                             "content": f"Select the most appropriate MCP server for this query: \n\nQuery: {query}\n\nAvailable servers:\n{json.dumps(server_descriptions, indent=2)}\n\nRespond ONLY with the server ID number."
                         }
-                    ]
+                    ],
+                    log_prefix="MCP-ServerSelection"
                 )
                 
-                server_id_str = response.choices[0].message.content.strip()
+                server_id_str = response.strip()
                 try:
                     server_id = int(server_id_str)
                     # Verify this is an actual server ID

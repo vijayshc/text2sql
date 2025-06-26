@@ -30,60 +30,7 @@
     </div>
 </div>
 
-<!-- Statistics Dashboard -->
-<div class="card shadow mb-4">
-    <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">Statistics</h6>
-    </div>
-    <div class="card-body">
-        <div class="row">
-            <div class="col-md-3">
-                <div class="stat-card glassmorphism-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-brain"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h4 id="totalSkills">-</h4>
-                        <p>Total Skills</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stat-card glassmorphism-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-layer-group"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h4 id="totalCategories">-</h4>
-                        <p>Categories</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stat-card glassmorphism-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h4 id="activeSkills">-</h4>
-                        <p>Active Skills</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stat-card glassmorphism-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h4 id="lastUpdated">-</h4>
-                        <p>Last Updated</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+
 
 <!-- Filters and Search -->
 <div class="card shadow mb-4">
@@ -271,33 +218,6 @@
 </div>
 
 <style>
-.stat-card {
-    padding: 1.5rem;
-    border-radius: 15px;
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-}
-
-.stat-icon {
-    font-size: 2.5rem;
-    margin-right: 1rem;
-    color: var(--primary-color);
-}
-
-.stat-content h4 {
-    margin: 0;
-    font-size: 2rem;
-    font-weight: bold;
-    color: var(--text-color);
-}
-
-.stat-content p {
-    margin: 0;
-    color: var(--text-muted);
-    font-size: 0.9rem;
-}
-
 .badge-category {
     font-size: 0.8rem;
     padding: 0.4rem 0.8rem;
@@ -316,7 +236,6 @@ let categories = [];
 $(document).ready(function() {
     loadCategories();
     loadSkills();
-    loadStats();
     
     // Set up search on enter key
     $('#searchQuery').keypress(function(e) {
@@ -538,7 +457,6 @@ function saveSkill() {
             $('#createSkillModal').modal('hide');
             showAlert(response.message, 'success');
             loadSkills();
-            loadStats();
         } else {
             showAlert('Error: ' + response.error, 'danger');
         }
@@ -628,7 +546,6 @@ function deleteSkill(skillId, skillName) {
         if (response.success) {
             showAlert(response.message, 'success');
             loadSkills();
-            loadStats();
         } else {
             showAlert('Error: ' + response.error, 'danger');
         }
@@ -650,7 +567,6 @@ function vectorizeSkills() {
         .done(function(response) {
             if (response.success) {
                 showAlert(response.message, 'success');
-                loadStats();
             } else {
                 showAlert('Error: ' + response.error, 'danger');
             }
@@ -687,7 +603,6 @@ function importSkills() {
                     
                     showAlert(message, response.errors && response.errors.length > 0 ? 'warning' : 'success');
                     loadSkills();
-                    loadStats();
                 } else {
                     showAlert('Import failed: ' + response.error, 'danger');
                 }
@@ -699,28 +614,6 @@ function importSkills() {
     } catch (e) {
         showAlert('Invalid JSON format: ' + e.message, 'danger');
     }
-}
-
-// Load statistics
-function loadStats() {
-    $.get('/api/skills/stats')
-        .done(function(response) {
-            if (response.success && response.stats) {
-                const stats = response.stats;
-                $('#totalSkills').text(stats.total_skills || 0);
-                $('#totalCategories').text(stats.total_categories || 0);
-                $('#activeSkills').text(stats.total_skills || 0); // Assuming all loaded skills are active
-                $('#lastUpdated').text(stats.last_updated || 'Unknown');
-            } else {
-                $('#totalSkills').text('0');
-                $('#totalCategories').text('0');
-                $('#activeSkills').text('0');
-                $('#lastUpdated').text('Never');
-            }
-        })
-        .fail(function(xhr) {
-            console.error('Error loading stats:', xhr);
-        });
 }
 
 // Utility functions

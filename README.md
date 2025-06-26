@@ -48,7 +48,38 @@ The application now supports managing multiple Model Context Protocol (MCP) serv
 * **Auto-Selection:** The system can intelligently select the most appropriate MCP server for each user query
 * **Server State Persistence:** MCP server state (running/stopped) is preserved across application restarts
 * **Tool Discovery:** View available tools for each MCP server through the admin interface
-* **Conversation History for Follow-up Questions:** Agent chat now maintains conversation context, allowing users to ask follow-up questions with the context of previous exchangesb application that translates natural language questions into SQL queries, executes them against a database, and displays the results. It uses AI (Azure AI Inference) and incorporates feedback mechanisms to improve accuracy over time.
+* **Unified LLM Integration:** All MCP servers now use the common LLM engine for consistent behavior and configuration
+
+## Code Architecture Improvements
+
+Recent updates have improved the codebase architecture:
+
+* **Common LLM Engine:** Centralized LLM management through `src/utils/common_llm.py` providing a shared instance across all components
+* **Unified Tool Calling:** All MCP client interactions now use the same LLM engine for tool calling operations
+* **Consistent Configuration:** Single source of truth for LLM configuration (model, temperature, max_tokens) across the application
+* **Better Error Handling:** Improved error handling and retry logic for MCP server communications
+* **Multi-Format Support:** Support for both OpenAI and Llama message formats with configurable switching
+
+## Message Format Support
+
+The application now supports multiple message formats for different LLM providers:
+
+* **OpenAI Format:** Standard OpenAI message format with native tool calling support
+* **Llama Format:** Custom Llama chat template format with tool calling implementation
+* **Dynamic Switching:** Configure message format via environment variable `MESSAGE_FORMAT` (openai/llama)
+* **Admin Interface:** Web-based interface to test and switch between message formats
+* **Tool Calling:** Both formats support function/tool calling with automatic conversion
+* **Testing Tools:** Built-in message format testing and preview functionality
+
+### Llama Format Features:
+- Custom chat template using `<|begin_of_text|>`, `<|start_header_id|>`, and `<|eot_id|>` tokens
+- Tool definitions embedded directly in the prompt
+- Function call responses parsed from `[func1(param=value), func2()]` format
+- Automatic conversion between OpenAI and Llama formats
+- Support for conversation history and multi-turn interactions
+
+### Configuration:
+Set `MESSAGE_FORMAT=llama` in your `.env` file to use Llama format, or `MESSAGE_FORMAT=openai` (default) for OpenAI format.
 
 ## Key Features
 
