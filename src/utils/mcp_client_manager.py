@@ -46,49 +46,90 @@ def _get_or_create_lock():
         # Try to get the current event loop
         loop = asyncio.get_running_loop()
         
-        # Check if we have a lock and if it's bound to the current loop
+        # Always create a new lock for each event loop to avoid binding issues
         if _mcp_client_lock is None:
             _mcp_client_lock = asyncio.Lock()
         else:
-            # Check if the lock is bound to a different loop
+            # Check if we need a new lock by testing if the current one is usable
             try:
-                # This will raise RuntimeError if bound to different loop
-                _mcp_client_lock._get_loop()
-                if _mcp_client_lock._get_loop() != loop:
+                # Try to check if lock is bound to current loop
+                # If this succeeds without error, the lock is good to use
+                if hasattr(_mcp_client_lock, '_get_loop'):
+                    lock_loop = _mcp_client_lock._get_loop()
+                    if lock_loop != loop or lock_loop.is_closed():
+                        _mcp_client_lock = asyncio.Lock()
+                else:
+                    # Fallback: just create a new lock if we can't check
                     _mcp_client_lock = asyncio.Lock()
-            except RuntimeError:
-                # Lock is bound to different loop, create new one
+            except (RuntimeError, AttributeError):
+                # Lock is bound to different/closed loop or doesn't support _get_loop
                 _mcp_client_lock = asyncio.Lock()
                 
         return _mcp_client_lock
     except RuntimeError:
-        # No running event loop, create a new lock
-        _mcp_client_lock = asyncio.Lock()
-        return _mcp_client_lock
+        # No running event loop - this should not happen in async contexts
+        # Return None to indicate no lock available
+        logger.warning("No running event loop found when creating lock")
+        return None
 
 class MCPClient:
     """Client for interacting with an MCP server (stdio or HTTP)."""
     
-    def __init__(self, server_id=None, server_name=None, server_type=None):
+    def __init__(self, server_id=None, server_name=None, server_type=None, per_request_connection=True):
         """Initialize an MCP client.
         
         Args:
             server_id: Optional ID of the server (for multi-server management)
             server_name: Optional name of the server
             server_type: Either 'stdio' or 'http'
+            per_request_connection: If True, establish fresh connections for each request
+                                   If False, maintain persistent connections (legacy mode)
         """
         self.server_id = server_id
         self.server_name = server_name or f"server_{server_id}" if server_id else "unnamed_server"
         self.server_type = server_type
         self.server_config = None
         self.session = None
-        self.exit_stack = AsyncExitStack()
+        self.exit_stack = None  # Will be created when needed
         self._is_connected = False
-        self._connection_lock = asyncio.Lock()
+        self._connection_lock = None  # Will be created when needed
         self._available_tools_cache = None
+        self.per_request_connection = per_request_connection  # New mode flag
         
         # Get the shared LLM engine instance
         self.llm_engine = get_llm_engine()
+
+    def _ensure_connection_lock(self):
+        """Ensure we have a connection lock for the current event loop."""
+        if self._connection_lock is None:
+            try:
+                loop = asyncio.get_running_loop()
+                self._connection_lock = asyncio.Lock()
+            except RuntimeError:
+                # No event loop running, can't create lock
+                logger.warning(f"Cannot create connection lock for {self.server_name}: no event loop")
+                return None
+        else:
+            # Check if lock is still valid for current event loop
+            try:
+                loop = asyncio.get_running_loop()
+                if hasattr(self._connection_lock, '_get_loop'):
+                    lock_loop = self._connection_lock._get_loop()
+                    if lock_loop != loop or lock_loop.is_closed():
+                        self._connection_lock = asyncio.Lock()
+            except (RuntimeError, AttributeError):
+                # Create new lock if current one is invalid
+                try:
+                    self._connection_lock = asyncio.Lock()
+                except RuntimeError:
+                    return None
+        return self._connection_lock
+
+    def _ensure_exit_stack(self):
+        """Ensure we have a fresh exit stack."""
+        if self.exit_stack is None:
+            self.exit_stack = AsyncExitStack()
+        return self.exit_stack
 
     async def connect_to_stdio_server(self, command, args=None, env=None):
         """Connect to an MCP server via stdio.
@@ -103,7 +144,7 @@ class MCPClient:
             logger.error(f"Cannot connect to stdio MCP server {self.server_name}: MCP library not available")
             return False
             
-        async with self._connection_lock:
+        async with self._ensure_connection_lock() or asyncio.Lock():
             if self._is_connected:
                 logger.info(f"Already connected to MCP server {self.server_name}.")
                 return True
@@ -146,16 +187,12 @@ class MCPClient:
 
                 # Set up the connection
                 try:
-                    # Make sure we have a clean exit stack
-                    if self.exit_stack is None:
-                        self.exit_stack = AsyncExitStack()
+                    # Ensure we have a clean exit stack
+                    self._ensure_exit_stack()
                     
                     # Log before establishing stdio connection
                     logger.info(f"Establishing stdio connection with command: {command}")
-                    stdio_transport = await asyncio.wait_for(
-                        self.exit_stack.enter_async_context(stdio_client(server_params)),
-                        timeout=10.0  # Add timeout to prevent hanging
-                    )
+                    stdio_transport = await self.exit_stack.enter_async_context(stdio_client(server_params))
                     logger.info("Stdio transport created successfully")
                     
                     # Unpack the transport
@@ -163,26 +200,16 @@ class MCPClient:
                     logger.info("Creating ClientSession")
                     
                     # Create session
-                    self.session = await asyncio.wait_for(
-                        self.exit_stack.enter_async_context(ClientSession(self.stdio, self.write)),
-                        timeout=5.0
-                    )
+                    self.session = await self.exit_stack.enter_async_context(ClientSession(self.stdio, self.write))
                     logger.info("ClientSession created successfully")
 
                     # Initialize the session
                     logger.info("Initializing MCP session")
-                    await asyncio.wait_for(
-                        self.session.initialize(),
-                        timeout=5.0
-                    )
+                    await self.session.initialize()
                     logger.info("MCP session initialized successfully")
-                except asyncio.TimeoutError as to_err:
-                    logger.error(f"Timeout establishing stdio connection: {to_err}")
-                    await self.cleanup()
-                    return False
                 except Exception as conn_err:
                     logger.error(f"Error establishing stdio connection: {conn_err}")
-                    await self.cleanup()
+                    await self._safe_cleanup()
                     return False
 
                 # Get and cache tools
@@ -202,12 +229,12 @@ class MCPClient:
                     return True
                 except Exception as tool_err:
                     logger.error(f"Error getting tools from stdio server: {tool_err}")
-                    await self.cleanup()
+                    await self._safe_cleanup()
                     return False
                     
             except Exception as e:
                 logger.exception(f"Failed to connect to stdio MCP server {self.server_name}")
-                await self.cleanup()
+                await self._safe_cleanup()
                 return False
 
     async def connect_to_http_server(self, base_url, headers=None):
@@ -222,7 +249,7 @@ class MCPClient:
             logger.error(f"Cannot connect to HTTP MCP server {self.server_name}: MCP library not available")
             return False
             
-        async with self._connection_lock:
+        async with self._ensure_connection_lock() or asyncio.Lock():
             if self._is_connected:
                 logger.info(f"Already connected to HTTP MCP server {self.server_name}.")
                 return True
@@ -233,40 +260,27 @@ class MCPClient:
             
             logger.info(f"Connecting to HTTP MCP server: {self.server_name} at {base_url}")
             try:
-                # Create a fresh event loop specifically for SSE connections
-                # This is important as SSE connections are long-lived and may need their own event loop
-                logger.info("Setting up fresh event loop for HTTP/SSE connection")
-                try:
-                    # First check if we can reuse the existing loop
-                    loop = asyncio.get_event_loop()
-                    if loop.is_closed():
-                        logger.warning("Event loop is closed. Creating new event loop for HTTP/SSE.")
-                        loop = asyncio.new_event_loop()
-                        asyncio.set_event_loop(loop)
-                except RuntimeError:
-                    logger.warning("No event loop found. Creating new event loop for HTTP/SSE.")
-                    loop = asyncio.new_event_loop()
-                    asyncio.set_event_loop(loop)
-                
-                # Make sure we have a clean exit stack
-                if self.exit_stack is None:
-                    self.exit_stack = AsyncExitStack()
+                # Ensure we have a clean exit stack
+                self._ensure_exit_stack()
                 
                 # Store the SSE client context manager to maintain reference
                 logger.info(f"Creating SSE client for {base_url}")
                 self._streams_context = sse_client(base_url, headers=headers)
                 
-                # Get SSE streams with timeout to prevent hanging
+                # Get SSE streams without timeout to avoid event loop issues
                 logger.info("Entering SSE client async context")
-                streams = await asyncio.wait_for(
-                    self.exit_stack.enter_async_context(self._streams_context),
-                    timeout=10.0
-                )
+                try:
+                    streams = await self.exit_stack.enter_async_context(self._streams_context)
+                except Exception as stream_err:
+                    logger.error(f"Error connecting to SSE endpoint: {base_url} - {stream_err}")
+                    await self._safe_cleanup()
+                    return False
                 
                 # Create and store session explicitly
                 logger.info("Creating ClientSession")
                 if not streams:
                     logger.error("SSE streams not initialized properly")
+                    await self._safe_cleanup()
                     return False
                 
                 # Check if we got a single stream or a tuple
@@ -278,46 +292,48 @@ class MCPClient:
                     logger.info("Got single stream from SSE client")
                     self._session_context = ClientSession(streams)
                 
-                # Enter session context with timeout
+                # Enter session context without timeout
                 logger.info("Entering ClientSession async context")
-                self.session = await asyncio.wait_for(
-                    self.exit_stack.enter_async_context(self._session_context),
-                    timeout=5.0
-                )
+                try:
+                    self.session = await self.exit_stack.enter_async_context(self._session_context)
+                except Exception as session_err:
+                    logger.error(f"Error creating ClientSession: {session_err}")
+                    await self._safe_cleanup()
+                    return False
                 
-                # Initialize the session with timeout
+                # Initialize the session without timeout
                 logger.info("Initializing MCP session")
-                await asyncio.wait_for(
-                    self.session.initialize(),
-                    timeout=10.0
-                )
+                try:
+                    await self.session.initialize()
+                except Exception as init_err:
+                    logger.error(f"Error initializing MCP session: {init_err}")
+                    await self._safe_cleanup()
+                    return False
                 
-                # Get and cache tools with timeout
+                # Get and cache tools without timeout
                 logger.info("Fetching available tools")
-                response = await asyncio.wait_for(
-                    self.session.list_tools(),
-                    timeout=10.0
-                )
-                self._available_tools_cache = [{
-                    "type": "function",
-                    "function": {
-                        "name": tool.name,
-                        "description": tool.description,
-                        "parameters": tool.inputSchema
-                    }
-                } for tool in response.tools]
+                try:
+                    response = await self.session.list_tools()
+                    self._available_tools_cache = [{
+                        "type": "function",
+                        "function": {
+                            "name": tool.name,
+                            "description": tool.description,
+                            "parameters": tool.inputSchema
+                        }
+                    } for tool in response.tools]
+                except Exception as tools_err:
+                    logger.error(f"Error fetching tools: {tools_err}")
+                    await self._safe_cleanup()
+                    return False
 
                 self._is_connected = True
                 logger.info(f"Successfully connected to HTTP MCP server {self.server_name} with {len(self._available_tools_cache)} tools")
                 return True
                 
-            except asyncio.TimeoutError as te:
-                logger.error(f"Timeout connecting to HTTP MCP server {self.server_name}: {te}")
-                await self.cleanup()
-                return False
             except Exception as e:
                 logger.exception(f"Failed to connect to HTTP MCP server {self.server_name}")
-                await self.cleanup()
+                await self._safe_cleanup()
                 return False
 
     def is_connected(self) -> bool:
@@ -326,12 +342,16 @@ class MCPClient:
 
     async def get_available_tools(self) -> Optional[list]:
         """Get the list of available tools from the MCP server."""
-        if not self.is_connected():
-            logger.warning(f"Cannot get tools: not connected to MCP server {self.server_name}.")
-            return None
-            
+        # Return cached tools if available
         if self._available_tools_cache:
             return self._available_tools_cache
+        
+        # Ensure we have a connection
+        if not self.is_connected():
+            logger.info(f"Establishing connection to get tools for {self.server_name}")
+            if not await self._ensure_fresh_connection():
+                logger.error(f"Cannot get tools: failed to connect to MCP server {self.server_name}")
+                return None
             
         try:
             response = await self.session.list_tools()
@@ -346,6 +366,8 @@ class MCPClient:
             return self._available_tools_cache
         except Exception as e:
             logger.exception(f"Failed to retrieve tools from MCP server {self.server_name}.")
+            # Reset connection state on failure
+            self._reset_state()
             return None
 
     async def process_query_stream(self, query: str) -> AsyncGenerator[Dict[str, Any], None]:
@@ -357,12 +379,19 @@ class MCPClient:
         Returns:
             An async generator with streaming updates
         """
-        if not self.is_connected():
-            yield {"type": "error", "message": f"Not connected to MCP server {self.server_name}."}
+        # Check event loop availability first
+        if not self._is_event_loop_available():
+            yield {"type": "error", "message": f"No event loop available for query processing on {self.server_name}"}
             return
-            
+        
         if not self.llm_engine:
             yield {"type": "error", "message": "LLM Engine not configured."}
+            return
+
+        # For per-request connection pattern: Always establish fresh connection
+        connection_success = await self._ensure_fresh_connection()
+        if not connection_success:
+            yield {"type": "error", "message": f"Failed to establish connection to MCP server {self.server_name}"}
             return
 
         # Handle either string query or structured query with conversation history
@@ -423,10 +452,16 @@ Follow these guidelines:
             })
             query_text = query
 
-        # Get available tools
-        available_tools = await self.get_available_tools()
+        # Get available tools - ensure we have a connection
+        available_tools = None
+        if self._available_tools_cache:
+            available_tools = self._available_tools_cache
+        else:
+            available_tools = await self.get_available_tools()
+            
         if not available_tools:
             yield {"type": "error", "message": f"Could not retrieve tools from server {self.server_name}."}
+            await self._cleanup_after_request()
             return
 
         try:
@@ -482,172 +517,14 @@ Follow these guidelines:
                         # Parse and execute tool
                         tool_args = json.loads(tool_args_str)
                         logger.info(f"Calling tool '{tool_name}' with args: {tool_args}")
-#                        yield {"type": "tool_call", "tool_name": tool_name, "arguments": tool_args}
 
-                        # Call the tool through the MCP session
-                        try:
-                            # Make sure event loop is available before making the call
-                            try:
-                                loop = asyncio.get_event_loop()
-                                if loop.is_closed():
-                                    logger.warning(f"Event loop closed before tool call '{tool_name}'. Creating new event loop.")
-                                    loop = asyncio.new_event_loop()
-                                    asyncio.set_event_loop(loop)
-                            except RuntimeError:
-                                logger.warning(f"No event loop found before tool call '{tool_name}'. Creating new event loop.")
-                                loop = asyncio.new_event_loop()
-                                asyncio.set_event_loop(loop)
-                            
-                            # Special handling for HTTP/SSE connections
-                            if self.server_type == 'http':
-                                # For SSE connections, we need to be extra careful about event loop state
-                                loop = asyncio.get_event_loop()
-                                if not loop.is_running():
-                                    logger.info(f"Using fresh event loop for HTTP/SSE tool call: {tool_name}")
-                            
-                            logger.info(f"STARTING TOOL CALL: About to call {tool_name} via MCP session")
-                            result = await asyncio.wait_for(
-                                self.session.call_tool(tool_name, tool_args),
-                                timeout=15.0  # Increased timeout for better stability
-                            )
-                            logger.info(f"TOOL CALL COMPLETED: {tool_name} call returned successfully")
-                        except asyncio.TimeoutError:
-                            logger.error(f"TIMEOUT: Tool call to {tool_name} timed out after 15 seconds")
-                            # Don't raise exception, try to reconnect instead
-                            await self.cleanup()
-                            success = False
-                            
-                            # Reconnect with new event loop
-                            asyncio.set_event_loop(asyncio.new_event_loop())
-                            
-                            if self.server_type == "stdio" and self.server_config:
-                                success = await self.connect_to_stdio_server(
-                                    self.server_config.get("command"),
-                                    self.server_config.get("args"),
-                                    self.server_config.get("env")
-                                )
-                            elif self.server_type == "http" and self.server_config:
-                                success = await self.connect_to_http_server(
-                                    self.server_config.get("base_url"),
-                                    self.server_config.get("headers")
-                                )
-                            
-                            if success:
-                                logger.info(f"RETRY TOOL CALL: Retrying {tool_name} after timeout reconnection")
-                                result = await asyncio.wait_for(
-                                    self.session.call_tool(tool_name, tool_args),
-                                    timeout=15.0
-                                )
-                            else:
-                                raise Exception(f"Tool call timeout: {tool_name} did not respond within 15 seconds and reconnection failed")
-                        except RuntimeError as rt_err:
-                            # Handle "Event loop is closed" error specifically
-                            logger.warning(f"Runtime error calling tool '{tool_name}' on {self.server_name}: {rt_err}")
-                            
-                            # Special handling for HTTP/SSE connections which are more sensitive to event loop issues
-                            if self.server_type == "http":
-                                logger.info(f"Using special handling for HTTP/SSE event loop issues with tool '{tool_name}'")
-                                # Force cleanup but don't wait for it to complete to avoid further event loop errors
-                                asyncio.create_task(self.cleanup())
-                                
-                                # Create fresh event loop for HTTP connections
-                                loop = asyncio.new_event_loop()
-                                asyncio.set_event_loop(loop)
-                                
-                                # Allow a moment for things to stabilize
-                                await asyncio.sleep(0.5)
-                                
-                                logger.info(f"Reconnecting HTTP server with fresh event loop after error")
-                                success = await self.connect_to_http_server(
-                                    self.server_config.get("base_url"),
-                                    self.server_config.get("headers")
-                                )
-                            else:
-                                # For stdio connections, use the standard approach
-                                # Force cleanup
-                                await self.cleanup()
-                                
-                                # Create a completely new event loop
-                                loop = asyncio.new_event_loop()
-                                asyncio.set_event_loop(loop)
-                                
-                                # Reconnect with fresh event loop
-                                success = False
-                                logger.info(f"Reconnecting stdio server after event loop error")
-                                success = await self.connect_to_stdio_server(
-                                    self.server_config.get("command"),
-                                    self.server_config.get("args"),
-                                    self.server_config.get("env")
-                                )
-                            
-                            if not success:
-                                logger.error(f"Failed to reconnect after event loop error for tool '{tool_name}'")
-                                raise Exception(f"Failed to recover from event loop error when calling tool '{tool_name}'")
-                            
-                            # Retry the call after reconnection
-                            logger.info(f"RETRY TOOL CALL: Retrying {tool_name} after event loop reconnection")
-                            result = await asyncio.wait_for(
-                                self.session.call_tool(tool_name, tool_args),
-                                timeout=15.0  # Add timeout to prevent hanging on retry
-                            )
-                        except Exception as call_exc:
-                            logger.warning(f"Error calling tool '{tool_name}' on {self.server_name}: {call_exc}. Attempting to reconnect.")
-                            # Try to reconnect based on server type
-                            await self.cleanup()  # Ensure clean disconnection before reconnecting
-                            
-                            # Create a new event loop for reconnection
-                            try:
-                                if asyncio.get_event_loop().is_closed():
-                                    asyncio.set_event_loop(asyncio.new_event_loop())
-                            except Exception:
-                                asyncio.set_event_loop(asyncio.new_event_loop())
-                            
-                            success = False
-                            if self.server_type == "stdio" and self.server_config:
-                                success = await self.connect_to_stdio_server(
-                                    self.server_config.get("command"),
-                                    self.server_config.get("args"),
-                                    self.server_config.get("env")
-                                )
-                            elif self.server_type == "http" and self.server_config:
-                                success = await self.connect_to_http_server(
-                                    self.server_config.get("base_url"),
-                                    self.server_config.get("headers")
-                                )
-                                
-                            if not success:
-                                raise Exception(f"Failed to reconnect for tool '{tool_name}' call")
-                                
-                            # Retry the call after reconnection
-                            logger.info(f"RETRY TOOL CALL: Retrying {tool_name} after reconnection")
-                            result = await asyncio.wait_for(
-                                self.session.call_tool(tool_name, tool_args),
-                                timeout=15.0  # Add timeout to prevent hanging on retry
-                            )
-                        
-                        # Process result
-                        logger.info(f"Tool '{tool_name}' result on {self.server_name}: {result}")
-                        
-                        # Format result for OpenAI API
-                        result_content = str(result.content)
-                        if hasattr(result.content, '__getitem__'):
-                            try:
-                                # Try to access as sequence
-                                result_content = str(result.content[0].text)
-                            except (IndexError, AttributeError):
-                                # Fallback to string representation
-                                result_content = str(result.content)
-                                
-                        tool_results_for_next_call.append({
-                            "role": "tool",
-                            "tool_call_id": tool_call_id,
-                            "name": tool_name,
-                            "content": result_content
-                        })
+                        # Execute tool with robust error handling
+                        tool_result = await self._execute_tool_with_recovery(tool_name, tool_args, tool_call_id)
+                        tool_results_for_next_call.append(tool_result)
 
                     except json.JSONDecodeError:
                         logger.error(f"Failed to decode arguments for tool {tool_name}: {tool_args_str}")
-                        yield {"type": "error", "message": f"Invalid arguments format for tool {tool_name}"}
+                        # Don't yield error to user, handle gracefully in backend
                         tool_results_for_next_call.append({
                             "role": "tool",
                             "tool_call_id": tool_call_id,
@@ -655,13 +532,13 @@ Follow these guidelines:
                             "content": json.dumps({"error": "Invalid arguments format provided by LLM."})
                         })
                     except Exception as tool_exc:
-                        logger.exception(f"Error executing tool {tool_name} on {self.server_name}")
-                        yield {"type": "error", "message": f"Error calling tool {tool_name}: {str(tool_exc)}"}
+                        logger.exception(f"Unexpected error processing tool {tool_name} on {self.server_name}")
+                        # Handle gracefully without exposing internal errors to LLM
                         tool_results_for_next_call.append({
                             "role": "tool",
                             "tool_call_id": tool_call_id,
                             "name": tool_name,
-                            "content": json.dumps({"error": f"Tool execution failed: {str(tool_exc)}"})
+                            "content": json.dumps({"error": "Tool temporarily unavailable. Please try again."})
                         })
 
                 # Add all tool results to the conversation
@@ -697,121 +574,289 @@ Follow these guidelines:
 
             # Complete
             yield {"type": "status", "message": "Processing complete."}
+            
+            # Clean up connection after request (per-request pattern)
+            await self._cleanup_after_request()
 
         except Exception as e:
             logger.exception(f"Error processing query on server {self.server_name}")
+            # Clean up on error as well
+            await self._cleanup_after_request()
             yield {"type": "error", "message": f"An error occurred: {str(e)}"}
 
     async def cleanup(self):
-        """Clean up resources (close session and exit stack)."""
-        async with self._connection_lock:
-            # Skip if we're already cleaned up
-            if not self.exit_stack and not self.session and not self._is_connected:
-                logger.debug(f"Cleanup for {self.server_name} skipped - already cleaned up")
-                return
-                
-            logger.info(f"Cleaning up MCP client resources for server {self.server_name}...")
-            
-            # Create a working event loop if needed
-            need_new_loop = False
-            try:
-                loop = asyncio.get_event_loop()
-                if loop.is_closed():
-                    logger.warning(f"Event loop closed during cleanup for {self.server_name}. Creating new loop.")
-                    need_new_loop = True
-            except RuntimeError:
-                logger.warning(f"No event loop found during cleanup for {self.server_name}. Creating new loop.")
-                need_new_loop = True
-                
-            if need_new_loop:
-                asyncio.set_event_loop(asyncio.new_event_loop())
-            
-            # Clean up session separately first
-            if hasattr(self, '_session_context') and self._session_context:
-                try:
-                    # For SSE connections, we need to check the event loop state before cleanup
-                    if self.server_type == 'http':
-                        # Try to ensure we have a valid event loop
-                        try:
-                            loop = asyncio.get_event_loop()
-                            if loop.is_closed():
-                                loop = asyncio.new_event_loop()
-                                asyncio.set_event_loop(loop)
-                        except RuntimeError:
-                            loop = asyncio.new_event_loop()
-                            asyncio.set_event_loop(loop)
-                            
-                    await asyncio.wait_for(
-                        self._session_context.__aexit__(None, None, None),
-                        timeout=3.0
-                    )
-                except Exception as e:
-                    logger.warning(f"Error closing session context for {self.server_name}: {e}")
-                finally:
-                    self._session_context = None
-                    
-            # Clean up streams separately
-            if hasattr(self, '_streams_context') and self._streams_context:
-                try:
-                    # Make sure we have a working event loop before cleaning up SSE streams
-                    if self.server_type == 'http':
-                        try:
-                            loop = asyncio.get_event_loop()
-                            if loop.is_closed():
-                                loop = asyncio.new_event_loop()
-                                asyncio.set_event_loop(loop)
-                        except RuntimeError:
-                            loop = asyncio.new_event_loop()
-                            asyncio.set_event_loop(loop)
-                            
-                    await asyncio.wait_for(
-                        self._streams_context.__aexit__(None, None, None),
-                        timeout=3.0
-                    )
-                except Exception as e:
-                    logger.warning(f"Error closing streams context for {self.server_name}: {e}")
-                finally:
-                    self._streams_context = None                # Now clean up the exit stack
-            if self.exit_stack:
-                try:
-                    # Use a timeout to prevent hanging during cleanup
-                    # For HTTP/SSE connections, we need special handling for event loop issues
-                    if self.server_type == 'http':
-                        try:
-                            # Create a fresh event loop for cleanup if needed
-                            loop = asyncio.get_event_loop()
-                            if loop.is_closed():
-                                logger.info(f"Creating fresh event loop for HTTP/SSE cleanup")
-                                loop = asyncio.new_event_loop()
-                                asyncio.set_event_loop(loop)
-                            
-                            # For HTTP/SSE connections, use a shorter timeout to avoid blocking
-                            await asyncio.wait_for(
-                                self.exit_stack.aclose(),
-                                timeout=3.0
-                            )
-                        except (RuntimeError, asyncio.TimeoutError):
-                            logger.warning(f"Forcing exit stack cleanup for HTTP/SSE server {self.server_name}")
-                            # Just reset the exit stack without waiting for it to close properly
-                            self.exit_stack = None
-                    else:
-                        # For stdio connections, use normal approach
-                        await asyncio.wait_for(
-                            self.exit_stack.aclose(),
-                            timeout=5.0
-                        )
-                except asyncio.TimeoutError:
-                    logger.warning(f"Timeout during exit stack cleanup for {self.server_name}")
-                except Exception as e:
-                    logger.warning(f"Ignored error during exit stack cleanup for {self.server_name}: {e}")
-            
-            # Reset all state variables
-            self.exit_stack = None
-            self.session = None
-            self._is_connected = False
-            self._available_tools_cache = None
-            logger.info(f"MCP client resources cleaned up for server {self.server_name}.")
+        """Clean up resources (close session and exit stack) - Public method."""
+        await self._safe_cleanup()
 
+    async def _safe_cleanup(self):
+        """Safe cleanup that handles event loop issues gracefully."""
+        # Use connection lock if available
+        lock = self._ensure_connection_lock()
+        if lock:
+            async with lock:
+                await self._perform_cleanup()
+        else:
+            # No event loop available, do synchronous cleanup
+            await self._perform_cleanup()
+    
+    async def _perform_cleanup(self):
+        """Perform the actual cleanup operations."""
+        # Skip if we're already cleaned up
+        if not self.exit_stack and not self.session and not self._is_connected:
+            logger.debug(f"Cleanup for {self.server_name} skipped - already cleaned up")
+            return
+            
+        logger.info(f"Cleaning up MCP client resources for server {self.server_name}...")
+        
+        # Check event loop state
+        event_loop_available = True
+        try:
+            loop = asyncio.get_running_loop()
+            if loop.is_closed():
+                event_loop_available = False
+                logger.warning(f"Event loop is closed during cleanup of {self.server_name}")
+        except RuntimeError:
+            event_loop_available = False
+            logger.warning(f"No running event loop for cleanup of {self.server_name}")
+        
+        # If no event loop, just reset state
+        if not event_loop_available:
+            logger.info(f"Event loop unavailable - performing synchronous cleanup for {self.server_name}")
+            self._reset_state()
+            return
+        
+        # Try to close the exit stack if it exists
+        if self.exit_stack is not None:
+            try:
+                await self.exit_stack.aclose()
+                logger.debug(f"Exit stack closed successfully for {self.server_name}")
+            except Exception as e:
+                logger.warning(f"Error during exit stack cleanup for {self.server_name}: {e}")
+                # Continue with state reset even if exit stack cleanup fails
+        
+        # Reset all state variables
+        self._reset_state()
+        logger.info(f"MCP client resources cleaned up for server {self.server_name}.")
+    
+    def _reset_state(self):
+        """Reset all connection state variables."""
+        # Reset connection state
+        self.session = None
+        self._is_connected = False
+        self._available_tools_cache = None
+        
+        # Clear context references
+        if hasattr(self, '_session_context'):
+            self._session_context = None
+        if hasattr(self, '_streams_context'):
+            self._streams_context = None
+        
+        # Reset exit stack - create new one only when needed
+        self.exit_stack = None
+            
+        logger.debug(f"Reset state for MCP client {self.server_name}")
+
+    def _validate_connection(self) -> bool:
+        """Validate that the connection is ready for tool calls.
+        
+        Returns:
+            bool: True if connection is valid, False otherwise
+        """
+        # Check basic connection state
+        if not self._is_connected or not self.session:
+            logger.warning(f"Connection validation failed: not connected to {self.server_name}")
+            return False
+            
+        # Check event loop state
+        try:
+            loop = asyncio.get_running_loop()
+            if loop.is_closed():
+                logger.error(f"Connection validation failed: event loop is closed for {self.server_name}")
+                self._is_connected = False
+                self.session = None
+                return False
+        except RuntimeError:
+            logger.error(f"Connection validation failed: no running event loop for {self.server_name}")
+            self._is_connected = False
+            self.session = None
+            return False
+            
+        return True
+
+    def _is_event_loop_available(self) -> bool:
+        """Check if there's a running event loop available.
+        
+        Returns:
+            bool: True if event loop is available and running, False otherwise
+        """
+        try:
+            loop = asyncio.get_running_loop()
+            return not loop.is_closed()
+        except RuntimeError:
+            return False
+
+    async def _ensure_fresh_connection(self) -> bool:
+        """Ensure we have a fresh, working connection for per-request pattern.
+        
+        Returns:
+            bool: True if connection is ready, False otherwise
+        """
+        try:
+            # Always clean up existing connection for fresh start
+            if self._is_connected or self.session:
+                logger.info(f"Cleaning up existing connection for fresh start on {self.server_name}")
+                await self._safe_cleanup()
+            
+            # Establish new connection
+            if not self.server_config:
+                logger.error(f"No server config available for {self.server_name}")
+                return False
+                
+            success = False
+            if self.server_type == "stdio":
+                success = await self.connect_to_stdio_server(
+                    self.server_config.get("command"),
+                    self.server_config.get("args"),
+                    self.server_config.get("env")
+                )
+            elif self.server_type == "http":
+                success = await self.connect_to_http_server(
+                    self.server_config.get("base_url"),
+                    self.server_config.get("headers")
+                )
+            else:
+                logger.error(f"Unknown server type: {self.server_type}")
+                return False
+                
+            if success:
+                logger.info(f"Fresh connection established successfully for {self.server_name}")
+            else:
+                logger.error(f"Failed to establish fresh connection for {self.server_name}")
+                
+            return success
+            
+        except Exception as e:
+            logger.exception(f"Error ensuring fresh connection for {self.server_name}")
+            return False
+
+    async def _execute_tool_with_recovery(self, tool_name: str, tool_args: dict, tool_call_id: str) -> dict:
+        """Execute a tool call with robust error handling and recovery.
+        
+        Args:
+            tool_name: Name of the tool to call
+            tool_args: Arguments for the tool
+            tool_call_id: ID of the tool call for response tracking
+            
+        Returns:
+            dict: Tool result in OpenAI API format
+        """
+        max_retries = 3
+        retry_count = 0
+        
+        while retry_count < max_retries:
+            try:
+                # Check connection before attempting tool call
+                if not self.session or not self._is_connected:
+                    logger.warning(f"No active session for tool '{tool_name}' on {self.server_name}, attempting reconnection")
+                    
+                    # Try to re-establish connection
+                    if not await self._ensure_fresh_connection():
+                        raise Exception(f"Failed to establish connection for tool '{tool_name}'")
+                
+                logger.info(f"TOOL CALL ATTEMPT {retry_count + 1}: Calling {tool_name} via MCP session")
+                result = await self.session.call_tool(tool_name, tool_args)
+                logger.info(f"TOOL CALL SUCCESS: {tool_name} completed successfully")
+                
+                # Format result for OpenAI API
+                result_content = self._format_tool_result(result)
+                
+                return {
+                    "role": "tool",
+                    "tool_call_id": tool_call_id,
+                    "name": tool_name,
+                    "content": result_content
+                }
+                
+            except Exception as call_exc:
+                retry_count += 1
+                error_msg = str(call_exc).lower()
+                
+                logger.warning(f"Tool call attempt {retry_count} failed for '{tool_name}' on {self.server_name}: {call_exc}")
+                
+                # Check for unrecoverable errors
+                if any(term in error_msg for term in ["event loop is closed", "runtime error", "no running loop"]):
+                    logger.error(f"Unrecoverable runtime error during tool call '{tool_name}' - stopping retries")
+                    break
+                
+                # If we have retries left, try to recover
+                if retry_count < max_retries:
+                    logger.info(f"Attempting recovery for tool '{tool_name}' (attempt {retry_count}/{max_retries})")
+                    
+                    # Reset connection state
+                    self._reset_state()
+                    
+                    # Wait a bit before retry
+                    await asyncio.sleep(0.5 * retry_count)  # Progressive backoff
+                    
+                    # Try to re-establish connection
+                    if not await self._ensure_fresh_connection():
+                        logger.error(f"Failed to re-establish connection during recovery for tool '{tool_name}'")
+                        continue  # Try again or fail if max retries reached
+                else:
+                    logger.error(f"Max retries ({max_retries}) reached for tool '{tool_name}' on {self.server_name}")
+                    break
+        
+        # If we get here, all retries failed
+        logger.error(f"Tool '{tool_name}' execution failed after {max_retries} attempts on {self.server_name}")
+        
+        # Return a graceful error response that doesn't expose internal issues
+        return {
+            "role": "tool",
+            "tool_call_id": tool_call_id,
+            "name": tool_name,
+            "content": json.dumps({
+                "error": f"The {tool_name} tool is temporarily unavailable. Please try your request again or rephrase it."
+            })
+        }
+
+    def _format_tool_result(self, result) -> str:
+        """Format tool result for consistent output.
+        
+        Args:
+            result: Raw tool result from MCP session
+            
+        Returns:
+            str: Formatted result content
+        """
+        try:
+            result_content = str(result.content)
+            
+            # Handle different result content formats
+            if hasattr(result.content, '__getitem__'):
+                try:
+                    # Try to access as sequence
+                    if hasattr(result.content[0], 'text'):
+                        result_content = str(result.content[0].text)
+                    else:
+                        result_content = str(result.content[0])
+                except (IndexError, AttributeError):
+                    # Fallback to string representation
+                    result_content = str(result.content)
+            
+            return result_content
+            
+        except Exception as e:
+            logger.warning(f"Error formatting tool result: {e}")
+            return json.dumps({"error": "Unable to format tool result"})
+
+    async def _cleanup_after_request(self):
+        """Clean up connection resources after request completion (for per-request pattern)."""
+        try:
+            if self.session or self._is_connected:
+                logger.debug(f"Cleaning up connection resources after request for {self.server_name}")
+                await self._safe_cleanup()
+        except Exception as e:
+            logger.warning(f"Error during post-request cleanup for {self.server_name}: {e}")
 
 class MCPClientManager:
     """Manager class for handling multiple MCP clients."""
@@ -829,6 +874,34 @@ class MCPClientManager:
         """
         global _mcp_clients
         lock = _get_or_create_lock()
+        
+        # Handle case where no lock is available (no event loop)
+        if lock is None:
+            logger.warning("No event loop available for client management - operating without lock")
+            # Import here to avoid circular imports
+            from src.models.mcp_server import MCPServer
+            
+            # Check if client already exists and is connected
+            client = _mcp_clients.get(server_id)
+            if client and client.is_connected():
+                return client
+            
+            # Get server config
+            server = MCPServer.get_by_id(server_id)
+            if not server:
+                logger.error(f"Server with ID {server_id} not found")
+                return None
+            
+            # Create new client with per-request connection mode enabled for better reliability
+            client = MCPClient(
+                server_id=server.id, 
+                server_name=server.name, 
+                server_type=server.server_type,
+                per_request_connection=True
+            )
+            client.server_config = server.config
+            return client
+        
         async with lock:
             # Import here to avoid circular imports
             from src.models.mcp_server import MCPServer
@@ -844,8 +917,13 @@ class MCPClientManager:
                 logger.error(f"Server with ID {server_id} not found")
                 return None
             
-            # Create new client
-            client = MCPClient(server_id=server.id, server_name=server.name, server_type=server.server_type)
+            # Create new client with per-request connection mode enabled for better reliability
+            client = MCPClient(
+                server_id=server.id, 
+                server_name=server.name, 
+                server_type=server.server_type,
+                per_request_connection=True
+            )
             client.server_config = server.config
             
             # Connect if requested
@@ -1013,16 +1091,6 @@ class MCPClientManager:
         if server_type == 'http':
             logger.info(f"Using longer delay for HTTP/SSE server restart: {server.name}")
             await asyncio.sleep(1.0)
-            
-            # Create fresh event loop for HTTP restarts
-            try:
-                loop = asyncio.get_event_loop()
-                if loop.is_closed():
-                    logger.info("Creating fresh event loop for HTTP server restart")
-                    asyncio.set_event_loop(asyncio.new_event_loop())
-            except RuntimeError:
-                logger.info("No event loop found, creating new one for HTTP server restart")
-                asyncio.set_event_loop(asyncio.new_event_loop())
         else:
             # Small delay for stdio servers
             await asyncio.sleep(0.5)
@@ -1058,15 +1126,34 @@ class MCPClientManager:
         """Clean up all MCP clients."""
         global _mcp_clients
         
-        cleanup_tasks = []
         lock = _get_or_create_lock()
+        
+        # Handle case where no lock is available
+        if lock is None:
+            logger.warning("No event loop available for cleanup_all - performing without lock")
+            clients_to_cleanup = list(_mcp_clients.values())
+            _mcp_clients.clear()
+            
+            # Attempt cleanup without async coordination
+            for client in clients_to_cleanup:
+                if client:
+                    try:
+                        client._reset_state()
+                    except Exception as e:
+                        logger.warning(f"Error resetting client state during cleanup_all: {e}")
+            return
+        
         async with lock:
+            cleanup_tasks = []
             for server_id, client in _mcp_clients.items():
                 if client:
-                    cleanup_tasks.append(client.cleanup())
+                    cleanup_tasks.append(client._safe_cleanup())
             
             if cleanup_tasks:
-                await asyncio.gather(*cleanup_tasks, return_exceptions=True)
+                try:
+                    await asyncio.gather(*cleanup_tasks, return_exceptions=True)
+                except Exception as e:
+                    logger.warning(f"Error during gather in cleanup_all: {e}")
             
             _mcp_clients.clear()
     

@@ -74,9 +74,12 @@ The application now supports multiple message formats for different LLM provider
 ### Llama Format Features:
 - Custom chat template using `<|begin_of_text|>`, `<|start_header_id|>`, and `<|eot_id|>` tokens
 - Tool definitions embedded directly in the prompt
-- Function call responses parsed from `[func1(param=value), func2()]` format
+- Function call responses in JSON format: `{"tool_calls": [{"name": "func_name", "arguments": {...}}]}`
+- Robust JSON parsing with fallback to natural language extraction
 - Automatic conversion between OpenAI and Llama formats
 - Support for conversation history and multi-turn interactions
+- Improved event loop management for HTTP/SSE MCP connections
+- Enhanced error handling and connection recovery
 
 ### Configuration:
 Set `MESSAGE_FORMAT=llama` in your `.env` file to use Llama format, or `MESSAGE_FORMAT=openai` (default) for OpenAI format.
@@ -103,6 +106,27 @@ Set `MESSAGE_FORMAT=llama` in your `.env` file to use Llama format, or `MESSAGE_
 *   **Sensitive Tool Confirmation:** Requires user approval before executing potentially sensitive operations like shell commands.
   
   This feature adds an intermediate confirmation dialog whenever the agent attempts to run sensitive tools (e.g., `run_bash_shell`). Users will receive a popup showing the tool name and arguments, and must confirm or cancel execution. If canceled, the operation is aborted and the agent stops processing further.
+
+## Recent Updates
+
+### MCP Connection Reliability Improvements (2025-06-27)
+
+**Major Enhancement:** Implemented robust connection management for MCP servers to handle connection failures gracefully:
+
+* **Per-Request Connection Pattern:** Fresh connections are established for each request instead of maintaining persistent connections, eliminating timeout and stale connection issues
+* **Automatic Error Recovery:** Tool execution failures are automatically retried with progressive backoff (up to 3 attempts)
+* **Graceful Error Handling:** Connection errors are handled in the backend without exposing technical details to users or the LLM
+* **Resource Management:** Proper cleanup of connections after each request to prevent resource leaks
+* **Enhanced Stability:** Eliminates "Runtime error during tool execution - server connection lost" errors
+* **Improved User Experience:** Users see meaningful responses instead of technical error messages
+
+**Technical Details:**
+- Added `per_request_connection=True` mode as default for all new MCP clients
+- Implemented `_execute_tool_with_recovery()` with intelligent retry logic
+- Enhanced connection validation and event loop health checks
+- Improved tool result formatting with fallback mechanisms
+
+For detailed technical information, see [MCP_CONNECTION_IMPROVEMENTS.md](MCP_CONNECTION_IMPROVEMENTS.md).
 
 ## Tech Stack
 
