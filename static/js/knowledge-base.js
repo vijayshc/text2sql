@@ -3,126 +3,54 @@
  */
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Tags handling
+    // Tags handling with new compact UI
     const selectedTags = [];
     let availableTags = [];
     const tagSearchInput = document.getElementById('tagSearchInput');
-    const tagDropdown = document.getElementById('tagDropdown');
-    const selectedTagsContainer = document.getElementById('selectedTags');
-    const clearTagsBtn = document.getElementById('clearTagsBtn');
+    const tagOptionsContainer = document.getElementById('tagOptionsContainer');
+    const selectedTagsPreview = document.getElementById('selectedTagsPreview');
+    const selectedTagsList = document.getElementById('selectedTagsList');
+    const clearAllTagsBtn = document.getElementById('clearAllTags');
+    const tagFilterText = document.getElementById('tagFilterText');
+    const tagCountBadge = document.getElementById('tagCountBadge');
     
     // Radio buttons for search type
     const searchKnowledgeRadio = document.getElementById('search-knowledge');
     const searchMetadataRadio = document.getElementById('search-metadata');
-    const tagSelectionContainer = document.querySelector('.tag-selection-container');
+    const tagFilterContainer = document.querySelector('.tag-filter-container');
     
-    // Add event listeners to toggle tag selection container visibility
-    if (searchKnowledgeRadio && searchMetadataRadio && tagSelectionContainer) {
+    // Add event listeners to toggle tag filter container visibility
+    if (searchKnowledgeRadio && searchMetadataRadio && tagFilterContainer) {
         // Set initial state
-        tagSelectionContainer.style.display = searchKnowledgeRadio.checked ? 'block' : 'none';
+        tagFilterContainer.style.display = searchKnowledgeRadio.checked ? 'block' : 'none';
         
         // Add event listeners for radio button changes
         searchKnowledgeRadio.addEventListener('change', function() {
-            tagSelectionContainer.style.display = 'block';
+            tagFilterContainer.style.display = 'block';
         });
         
         searchMetadataRadio.addEventListener('change', function() {
-            tagSelectionContainer.style.display = 'none';
+            tagFilterContainer.style.display = 'block';
         });
     }
     
     // Load available tags
     loadAvailableTags();
     
-    // Track the currently selected item in dropdown
-    let currentFocusIndex = -1;
+    // Handle tag search input
+    if (tagSearchInput) {
+        tagSearchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            filterTagOptions(searchTerm);
+        });
+    }
     
-    // Handle tag input for @ mentions
-    tagSearchInput.addEventListener('input', function(e) {
-        const value = e.target.value;
-        currentFocusIndex = -1; // Reset focus index on input change
-        
-        // Show dropdown only when @ is typed
-        if (value.includes('@')) {
-            const searchTerm = value.split('@').pop().toLowerCase();
-            showTagDropdown(searchTerm);
-        } else {
-            hideTagDropdown();
-        }
-    });
-    
-    // Handle tag input focus
-    tagSearchInput.addEventListener('focus', function(e) {
-        // If the input already has @, show the dropdown
-        if (e.target.value.includes('@')) {
-            const searchTerm = e.target.value.split('@').pop().toLowerCase();
-            showTagDropdown(searchTerm);
-        }
-    });
-    
-    // Handle keyboard navigation for the dropdown
-    tagSearchInput.addEventListener('keydown', function(e) {
-        // Special handling for down arrow - if dropdown is hidden but @ is in input, show it first
-        if (e.key === 'ArrowDown' && tagDropdown.classList.contains('d-none') && tagSearchInput.value.includes('@')) {
-            e.preventDefault();
-            const searchTerm = tagSearchInput.value.split('@').pop().toLowerCase();
-            showTagDropdown(searchTerm);
-            // Wait for dropdown to populate before focusing first item
-            setTimeout(() => {
-                const items = tagDropdown.querySelectorAll('.tag-item');
-                if (items.length > 0) {
-                    currentFocusIndex = 0;
-                    updateFocusedItem(items);
-                }
-            }, 50);
-            return;
-        }
-        
-        // If dropdown is visible, handle keyboard navigation
-        if (!tagDropdown.classList.contains('d-none')) {
-            const items = tagDropdown.querySelectorAll('.tag-item');
-            const itemCount = items.length;
-            
-            if (itemCount === 0) return;
-            
-            // Handle arrow down
-            if (e.key === 'ArrowDown') {
-                e.preventDefault(); // Prevent cursor from moving in input field
-                currentFocusIndex = (currentFocusIndex < itemCount - 1) ? currentFocusIndex + 1 : 0;
-                updateFocusedItem(items);
-            }
-            // Handle arrow up
-            else if (e.key === 'ArrowUp') {
-                e.preventDefault();
-                currentFocusIndex = (currentFocusIndex > 0) ? currentFocusIndex - 1 : itemCount - 1;
-                updateFocusedItem(items);
-            }
-            // Handle enter key to select tag
-            else if (e.key === 'Enter' && currentFocusIndex >= 0) {
-                e.preventDefault();
-                const selectedTag = items[currentFocusIndex].textContent;
-                addTag(selectedTag);
-                hideTagDropdown();
-                tagSearchInput.value = '';
-            }
-            // Handle escape key to close dropdown
-            else if (e.key === 'Escape') {
-                hideTagDropdown();
-            }
-        }
-    });
-    
-    // Handle click outside to hide dropdown
-    document.addEventListener('click', function(e) {
-        if (!tagSearchInput.contains(e.target) && !tagDropdown.contains(e.target)) {
-            hideTagDropdown();
-        }
-    });
-    
-    // Handle clear tags button
-    clearTagsBtn.addEventListener('click', function() {
-        clearTags();
-    });
+    // Handle clear all tags button
+    if (clearAllTagsBtn) {
+        clearAllTagsBtn.addEventListener('click', function() {
+            clearAllTags();
+        });
+    }
     
     // Function to load available tags
     function loadAvailableTags() {
@@ -131,68 +59,93 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 if (data.success && Array.isArray(data.tags)) {
                     availableTags = data.tags;
+                    renderTagOptions();
+                } else {
+                    showTagOptionsMessage('No tags available');
                 }
             })
-            .catch(error => console.error('Error loading tags:', error));
+            .catch(error => {
+                console.error('Error loading tags:', error);
+                showTagOptionsMessage('Error loading tags');
+            });
     }
     
-    // Function to show tag dropdown with filtered tags
-    function showTagDropdown(searchTerm) {
-        // Filter tags based on search term
-        const filteredTags = availableTags.filter(tag => 
-            tag.toLowerCase().includes(searchTerm.toLowerCase()) && 
-            !selectedTags.includes(tag)
-        );
+    // Function to render tag options
+    function renderTagOptions(filteredTags = null) {
+        if (!tagOptionsContainer) return;
         
-        // Clear dropdown
-        tagDropdown.innerHTML = '';
-        currentFocusIndex = -1;  // Reset focus index when showing dropdown
+        const tagsToShow = filteredTags || availableTags;
+        tagOptionsContainer.innerHTML = '';
         
-        if (filteredTags.length === 0) {
-            tagDropdown.classList.add('d-none');
+        if (tagsToShow.length === 0) {
+            showTagOptionsMessage('No tags found');
             return;
         }
         
-        // Add filtered tags to dropdown
-        filteredTags.forEach(tag => {
-            const tagItem = document.createElement('div');
-            tagItem.className = 'tag-item';
-            tagItem.textContent = tag;
-            tagItem.addEventListener('click', () => {
-                addTag(tag);
-                hideTagDropdown();
-                tagSearchInput.value = '';
+        tagsToShow.forEach(tag => {
+            const tagOption = document.createElement('div');
+            tagOption.className = 'tag-option';
+            
+            const isSelected = selectedTags.includes(tag);
+            tagOption.innerHTML = `
+                <input type="checkbox" class="form-check-input" id="tag-${tag}" ${isSelected ? 'checked' : ''}>
+                <label class="form-check-label" for="tag-${tag}">${tag}</label>
+            `;
+            
+            const checkbox = tagOption.querySelector('.form-check-input');
+            const label = tagOption.querySelector('.form-check-label');
+            
+            // Handle checkbox change
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    addTag(tag);
+                } else {
+                    removeTag(tag);
+                }
             });
-            tagDropdown.appendChild(tagItem);
+            
+            // Handle clicking on the entire option
+            tagOption.addEventListener('click', function(e) {
+                if (e.target !== checkbox) {
+                    checkbox.checked = !checkbox.checked;
+                    checkbox.dispatchEvent(new Event('change'));
+                }
+            });
+            
+            tagOptionsContainer.appendChild(tagOption);
         });
-        
-        tagDropdown.classList.remove('d-none');
     }
     
-    // Function to update the focused item in the dropdown
-    function updateFocusedItem(items) {
-        // Remove focus from all items
-        for (let i = 0; i < items.length; i++) {
-            items[i].classList.remove('tag-item-focused');
+    // Function to filter tag options based on search term
+    function filterTagOptions(searchTerm) {
+        if (!searchTerm) {
+            renderTagOptions();
+            return;
         }
         
-        // Add focus to the selected item
-        if (currentFocusIndex >= 0) {
-            items[currentFocusIndex].classList.add('tag-item-focused');
-            items[currentFocusIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
+        const filteredTags = availableTags.filter(tag => 
+            tag.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        renderTagOptions(filteredTags);
     }
     
-    // Function to hide tag dropdown
-    function hideTagDropdown() {
-        tagDropdown.classList.add('d-none');
+    // Function to show message in tag options container
+    function showTagOptionsMessage(message) {
+        if (!tagOptionsContainer) return;
+        
+        tagOptionsContainer.innerHTML = `
+            <div class="text-center text-muted py-2">
+                <small>${message}</small>
+            </div>
+        `;
     }
     
     // Function to add a tag
     function addTag(tag) {
         if (!selectedTags.includes(tag)) {
             selectedTags.push(tag);
-            renderSelectedTags();
+            updateTagDisplay();
+            updateTagCheckboxes();
         }
     }
     
@@ -201,29 +154,71 @@ document.addEventListener('DOMContentLoaded', function() {
         const index = selectedTags.indexOf(tag);
         if (index !== -1) {
             selectedTags.splice(index, 1);
-            renderSelectedTags();
+            updateTagDisplay();
+            updateTagCheckboxes();
         }
     }
     
     // Function to clear all tags
-    function clearTags() {
+    function clearAllTags() {
         selectedTags.length = 0;
-        renderSelectedTags();
+        updateTagDisplay();
+        updateTagCheckboxes();
     }
     
-    // Function to render selected tags
-    function renderSelectedTags() {
-        selectedTagsContainer.innerHTML = '';
+    // Function to update tag display and UI elements
+    function updateTagDisplay() {
+        updateFilterButtonText();
+        updateSelectedTagsPreview();
+    }
+    
+    // Function to update the filter button text and badge
+    function updateFilterButtonText() {
+        if (!tagFilterText || !tagCountBadge) return;
+        
+        if (selectedTags.length === 0) {
+            tagFilterText.textContent = 'Filter by tags';
+            tagCountBadge.classList.add('d-none');
+        } else {
+            tagFilterText.textContent = `Tags (${selectedTags.length})`;
+            tagCountBadge.textContent = selectedTags.length;
+            tagCountBadge.classList.remove('d-none');
+        }
+    }
+    
+    // Function to update selected tags preview
+    function updateSelectedTagsPreview() {
+        if (!selectedTagsPreview || !selectedTagsList) return;
+        
+        if (selectedTags.length === 0) {
+            selectedTagsPreview.style.display = 'none';
+            return;
+        }
+        
+        selectedTagsPreview.style.display = 'block';
+        selectedTagsList.innerHTML = '';
         
         selectedTags.forEach(tag => {
-            const tagElement = document.createElement('span');
-            tagElement.className = 'selected-tag';
-            tagElement.innerHTML = `${tag} <span class="tag-remove"><i class="fas fa-times"></i></span>`;
+            const tagPill = document.createElement('span');
+            tagPill.className = 'selected-tag-pill';
+            tagPill.innerHTML = `${tag} <span class="remove-tag" data-tag="${tag}">×</span>`;
             
-            const removeBtn = tagElement.querySelector('.tag-remove');
-            removeBtn.addEventListener('click', () => removeTag(tag));
+            const removeBtn = tagPill.querySelector('.remove-tag');
+            removeBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                removeTag(tag);
+            });
             
-            selectedTagsContainer.appendChild(tagElement);
+            selectedTagsList.appendChild(tagPill);
+        });
+    }
+    
+    // Function to update checkboxes in the options container
+    function updateTagCheckboxes() {
+        const checkboxes = tagOptionsContainer.querySelectorAll('.form-check-input');
+        checkboxes.forEach(checkbox => {
+            const tag = checkbox.id.replace('tag-', '');
+            checkbox.checked = selectedTags.includes(tag);
         });
     }
     

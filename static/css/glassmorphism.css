@@ -1,223 +1,301 @@
 /* Glassmorphism effect for Text2SQL application */
 
-/* Color variables for the glassmorphism theme */
+/* Color variables matching the provided design */
 :root {
-    --glass-bg: rgba(255, 255, 255, 0.15);
-    --glass-border: rgba(255, 255, 255, 0.18);
-    --glass-shadow: rgba(0, 0, 0, 0.1);
-    --glass-blur: 16px;
+    /* Main background and surface colors */
+    --glass-bg: #1f1f1f;
+    --glass-border: #2d2d2d;
+    --glass-shadow: rgba(0, 0, 0, 0.4);
+    --glass-blur: 0px; /* Remove blur for cleaner look */
     
-    /* Updated theme colors */
-    --primary-color: #027699;
-    --secondary-color: #0597c4;
-    --accent-color: #006f91;
-    --success-color: #4ade80;
-    --warning-color: #fbbf24;
-    --danger-color: #f87171;
-    --light-bg: #f1f5f9;
-    --dark-text: #1e293b;
-    --control-gradient: linear-gradient(135deg, #f6f9fc, #e2e8f0);
-    /* Gradients */
-    --primary-gradient: linear-gradient(135deg, #0597c4, #027699);
-    --glass-gradient: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05));
+    /* Theme colors matching the design - neutral greys */
+    --primary-color: #ffffff;
+    --secondary-color: #e5e5e5;
+    --accent-color: #b0b0b0;
+    --success-color: #10b981;
+    --warning-color: #f59e0b;
+    --danger-color: #ef4444;
+    --light-bg: #121212;
+    --dark-text: #ffffff;
+    --text-secondary: #b0b0b0;
+    --text-muted: #808080;
+    --control-gradient: linear-gradient(135deg, #1f1f1f, #2a2a2a);
+    
+    /* Gradients for clean design - neutral */
+    --primary-gradient: linear-gradient(135deg, #ffffff, #e5e5e5);
+    --glass-gradient: linear-gradient(135deg, #1f1f1f, #252525);
     
     /* Additional theme properties */
-    --card-radius: 12px;
+    --card-radius: 8px;
+    --sidebar-bg: #1a1a1a;
+    --main-bg: #161616;
 }
 
-/* Apply a background with gradient */
+/* Clean dark background matching the design */
 body {
-    background: linear-gradient(135deg, #f6f9fc, #e2e8f0);
+    background: var(--main-bg);
     color: var(--dark-text);
     min-height: 100vh;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Glassmorphism effect for cards */
+/* Clean card design matching the screenshots */
 .card {
     background: var(--glass-bg);
-    backdrop-filter: blur(var(--glass-blur));
-    -webkit-backdrop-filter: blur(var(--glass-blur));
     border: 1px solid var(--glass-border);
     border-radius: var(--card-radius);
-    box-shadow: 0 8px 32px 0 var(--glass-shadow);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     transition: all 0.3s ease;
 }
 
 .card:hover {
-    box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.15);
-    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transform: translateY(-1px);
 }
 
 .card-header {
-    background: var(--glass-gradient);
+    background: var(--glass-bg);
     border-bottom: 1px solid var(--glass-border);
     border-radius: var(--card-radius) var(--card-radius) 0 0;
+    color: var(--dark-text);
 }
 
 .card-body {
-    padding: 0.5rem;
+    padding: 1rem;
+    background: var(--glass-bg);
+    color: var(--dark-text);
 }
 
 
-/* Glassmorphism for form controls */
+/* Form controls matching the clean design */
 .form-control, .form-select {
-    background: rgba(255, 255, 255, 0.8);
-    border: 1px solid var(--glass-border);
-    border-color: var(--primary-color);
-    border-radius: 8px;
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    transition: all 0.3s ease;
-    
+    background: #2a2a2a;
+    border: 1px solid #3a3a3a;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    color: var(--dark-text);
+    padding: 0.5rem 0.75rem;
 }
 
 .form-control:focus, .form-select:focus {
-    background: rgba(255, 255, 255, 0.95);
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.15);
+    background: #2a2a2a;
+    border-color: #ffffff;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+    outline: none;
 }
 
-/* Glassmorphism for select options */
+.form-control::placeholder {
+    color: var(--text-muted);
+}
+
+/* Glass form controls */
+.glass {
+    background: #3a3a3a;
+    border: 1px solid #4a4a4a;
+    color: #ffffff;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.glass:focus {
+    background: #3a3a3a;
+    border-color: #ffffff;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+.glass::placeholder {
+    color: #888;
+}
+
+/* Select options styling */
 select option {
-    background-color: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(var(--glass-blur));
-    -webkit-backdrop-filter: blur(var(--glass-blur));
+    background-color: #2a2a2a;
     color: var(--dark-text);
     padding: 10px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border: none;
 }
 
 select option:hover, 
 select option:focus, 
 select option:active, 
 select option:checked {
-    background-color: rgba(2, 118, 153, 0.2) !important;
-    color: var(--primary-color);
+    background-color: #ffffff !important;
+    color: #1f1f1f;
 }
 
-/* Style for select element to better match glassmorphism */
+/* Style for select element */
 select.form-select {
     appearance: none;
-    background-image: linear-gradient(45deg, transparent 50%, var(--primary-color) 50%), 
-                      linear-gradient(135deg, var(--primary-color) 50%, transparent 50%);
-    background-position: calc(100% - 20px) center, calc(100% - 15px) center;
-    background-size: 5px 5px, 5px 5px;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23b0b0b0' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.75rem center;
     background-repeat: no-repeat;
-    padding-right: 30px; /* Space for the custom arrow */
+    background-size: 16px 12px;
+    padding-right: 2.5rem;
 }
 
-/* Buttons with glassmorphism */
+/* Clean button styling */
 .btn {
-    border-radius: 8px;
+    border-radius: 6px;
     padding: 0.5rem 1.25rem;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     font-weight: 500;
+    border: none;
 }
 
 .btn-primary {
-    background: var(--primary-gradient);
-    border: none;
-    box-shadow: 0 2px 4px var(--secondary-color);
+    background: #ffffff;
+    color: #1f1f1f;
+    box-shadow: 0 2px 4px rgba(255, 255, 255, 0.2);
 }
 
 .btn-primary:hover, .btn-primary:focus {
-    background: linear-gradient(135deg, #0597c4, #027699);
-    box-shadow: 0 4px 8px var(--secondary-color);
+    background: #e5e5e5;
+    box-shadow: 0 4px 8px rgba(255, 255, 255, 0.3);
     transform: translateY(-1px);
+    color: #1f1f1f;
 }
 
 .btn-outline-secondary {
-    border-color: var(--glass-border);
-    color: var(--secondary-color);
-    background: rgba(255, 255, 255, 0.5);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+    border: 1px solid var(--glass-border);
+    color: var(--text-secondary);
+    background: transparent;
 }
 
 .btn-outline-secondary:hover {
-    background: rgba(58, 12, 163, 0.1);
-    color: var(--secondary-color);
-    border-color: var(--secondary-color);
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
 }
 
-/* Sidebar with glassmorphism */
+/* Secondary glass button for toggles */
+.glass-secondary {
+    background: transparent;
+    border: 1px solid #3a3a3a;
+    color: #ffffff;
+    transition: all 0.2s ease;
+}
+
+.glass-secondary:hover {
+    background: #3a3a3a;
+    color: #ffffff;
+}
+
+.glass-secondary.active {
+    background: #ffffff;
+    color: #1f1f1f;
+    border-color: #ffffff;
+}
+
+/* Sidebar matching the design */
 .sidebar {
-    background: var(--glass-bg);
-    backdrop-filter: blur(var(--glass-blur));
-    -webkit-backdrop-filter: blur(var(--glass-blur));
+    background: var(--sidebar-bg);
     border-right: 1px solid var(--glass-border);
-    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.05);
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
 }
 
 .sidebar-brand {
-    background: var(--glass-gradient);
+    background: var(--sidebar-bg);
     border-bottom: 1px solid var(--glass-border);
-    padding: 1.25rem 1.5rem;
+    padding: 1rem 1.25rem;
+    color: var(--dark-text);
 }
 
 .sidebar-nav .nav-link {
-    color: var(--dark-text);
-    border-radius: 8px;
+    color: var(--text-secondary);
+    border-radius: 6px;
     margin: 0.25rem 1rem;
     padding: 0.75rem 1rem;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
 }
 
 .sidebar-nav .nav-link:hover, .sidebar-nav .nav-link.active {
-    background: rgba(67, 97, 238, 0.1);
+    background: rgba(255, 255, 255, 0.1);
     color: var(--primary-color);
-    transform: translateX(3px);
 }
 
 .sidebar-nav .nav-link.active {
-    background: rgba(67, 97, 238, 0.15);
+    background: rgba(255, 255, 255, 0.15);
     border-left: 3px solid var(--primary-color);
+    margin-left: 0.75rem;
+    padding-left: 1.25rem;
 }
 
 .sidebar-nav .nav-link i {
+    color: var(--text-muted);
+    transition: all 0.2s ease;
+}
+
+.sidebar-nav .nav-link:hover i,
+.sidebar-nav .nav-link.active i {
     color: var(--primary-color);
-    opacity: 0.8;
 }
 
 /* Progress bar styling */
 .progress {
-    background: rgba(255, 255, 255, 0.3);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    border: 1px solid var(--glass-border);
-    border-radius: 8px;
+    background: #2a2a2a;
+    border-radius: 4px;
     height: 8px;
     overflow: hidden;
 }
 
 .progress-bar {
-    background: var(--primary-gradient);
+    background: #ffffff;
+    transition: width 0.6s ease;
 }
 
-/* Tables styling */
+/* Tables styling - clean and minimal like the screenshots */
 .table {
+    background: var(--glass-bg);
+    color: var(--dark-text);
     border-collapse: separate;
     border-spacing: 0;
-    width: 100%;
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(var(--glass-blur));
-    -webkit-backdrop-filter: blur(var(--glass-blur));
-}
-
-.table-striped > tbody > tr:nth-of-type(odd) {
-    background: rgba(255, 255, 255, 0.3);
-}
-
-.table-bordered th, .table-bordered td {
+    border-radius: 8px;
+    overflow: hidden;
     border: 1px solid var(--glass-border);
 }
 
 .table thead th {
-    background: var(--primary-color);
-    border-bottom: 2px solid var(--glass-border);
-    color: white;
+    background: #2a2a2a;
+    border: none;
+    border-bottom: 1px solid #3a3a3a;
+    color: var(--dark-text);
     font-weight: 600;
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.table tbody td {
+    padding: 0.75rem 1rem;
+    border: none;
+    border-bottom: 1px solid #333;
+    background: var(--glass-bg);
+    color: var(--dark-text);
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.table tbody tr:hover {
+    background: #2a2a2a;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.table-striped > tbody > tr:nth-of-type(odd):hover {
+    background: #2a2a2a;
+}
+
+.table-bordered th, .table-bordered td {
+    border: none;
+}
+
+.table-bordered {
+    border: 1px solid var(--glass-border);
 }
 /* Override Bootstrap's text-primary with more specificity */
 .text-primary,
@@ -231,181 +309,295 @@ button.text-primary,
     font-weight: 600;
 }
 
-/* DataTables specific styling */
+/* DataTables styling */
 .dataTables_wrapper {
     background: var(--glass-bg);
-    backdrop-filter: blur(var(--glass-blur));
-    -webkit-backdrop-filter: blur(var(--glass-blur));
     border-radius: var(--card-radius);
-    padding: 0.5rem;
+    padding: 0.75rem;
     border: 1px solid var(--glass-border);
-    box-shadow: 0 8px 32px 0 var(--glass-shadow);
 }
 
 .dataTables_wrapper .dataTables_length,
 .dataTables_wrapper .dataTables_filter,
 .dataTables_wrapper .dataTables_info,
 .dataTables_wrapper .dataTables_paginate {
-    padding: 0.5rem;
     color: var(--dark-text);
 }
 
+.dataTables_wrapper .dataTables_length select,
+.dataTables_wrapper .dataTables_filter input {
+    background: #2a2a2a;
+    border: 1px solid #3a3a3a;
+    color: var(--dark-text);
+    border-radius: 4px;
+    padding: 0.25rem 0.5rem;
+}
+
 .dataTables_wrapper .dataTables_paginate .paginate_button {
-    background: rgba(255, 255, 255, 0.3);
-    border: 1px solid var(--glass-border) !important;
-    border-radius: 8px;
-    transition: all 0.3s ease;
+    background: transparent;
+    border: 1px solid var(--glass-border);
+    border-radius: 4px;
+    color: var(--text-secondary);
+    margin: 0 2px;
+    padding: 0.375rem 0.75rem;
 }
 
 .dataTables_wrapper .dataTables_paginate .paginate_button:hover:not(.disabled) {
-    background: rgba(67, 97, 238, 0.1) !important;
-    color: var(--primary-color) !important;
-    border: 1px solid var(--primary-color) !important;
+    background: #2a2a2a;
+    color: var(--dark-text);
+    border-color: #3a3a3a;
 }
 
 .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-    background: var(--primary-gradient) !important;
-    color: white !important;
-    border: none !important;
+    background: #ffffff;
+    color: #1f1f1f;
+    border-color: #ffffff;
 }
 
+/* Remove unnecessary hover background */
 table.dataTable tbody tr {
     background: transparent;
-    transition: all 0.3s ease;
 }
 
 table.dataTable tbody tr:hover {
-    background: rgba(255, 255, 255, 0.4);
+    background: #2a2a2a;
 }
 
 /* Nav tabs styling */
 .nav-tabs {
-    border-bottom: none;
+    border-bottom: 1px solid var(--glass-border);
 }
 
 .nav-tabs .nav-link {
     border: none;
-    color: var(--dark-text);
-    border-radius: var(--card-radius) var(--card-radius) 0 0;
-    padding: 0.75rem 1.25rem;
-    transition: all 0.3s ease;
+    color: var(--text-secondary);
+    border-radius: 0;
+    padding: 1rem 1.5rem;
+    background: transparent;
+    border-bottom: 3px solid transparent;
 }
 
 .nav-tabs .nav-link:hover {
-    background: rgba(67, 97, 238, 0.05);
-    color: var(--primary-color);
+    background: transparent;
+    color: var(--dark-text);
+    border-bottom-color: rgba(255, 255, 255, 0.3);
 }
 
 .nav-tabs .nav-link.active {
-    background: rgba(67, 97, 238, 0.1);
-    color: var(--primary-color);
-    border-bottom: 2px solid var(--primary-color);
+    background: transparent;
+    color: var(--dark-text);
+    border-bottom-color: #ffffff;
 }
 
-/* Dropdown menu with glassmorphism */
+/* Dropdown menu styling */
 .dropdown-menu {
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(var(--glass-blur));
-    -webkit-backdrop-filter: blur(var(--glass-blur));
+    background: var(--glass-bg);
     border: 1px solid var(--glass-border);
-    border-radius: 10px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    padding: 0.5rem;
+    border-radius: 6px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    padding: 0.5rem 0;
 }
 
 .dropdown-item {
-    border-radius: 6px;
-    padding: 0.6rem 1rem;
-    transition: all 0.3s ease;
+    padding: 0.5rem 1rem;
+    color: var(--text-secondary);
+    background: transparent;
 }
 
 .dropdown-item:hover {
-    background: rgba(67, 97, 238, 0.08);
-    color: var(--primary-color);
+    background: #2a2a2a;
+    color: var(--dark-text);
 }
 
-/* Code blocks with glassmorphism */
+/* Code blocks styling */
 pre {
-    background: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    border-radius: 10px;
+    background: #1a1a1a;
     border: 1px solid var(--glass-border);
+    border-radius: 6px;
     padding: 1rem;
+    color: var(--dark-text);
 }
 
 /* Table badge styling */
 .table-badge {
-    background: rgba(67, 97, 238, 0.1);
-    color: var(--primary-color);
-    border: 1px solid rgba(67, 97, 238, 0.2);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    background: #2a2a2a;
+    color: #ffffff;
+    border: 1px solid #3a3a3a;
+    border-radius: 4px;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
 }
 
-/* Query container with glassmorphism */
+.table-badge:hover {
+    background: #3a3a3a;
+    border-color: #4a4a4a;
+}
+
+/* Query container styling */
 .query-container {
-    background: rgba(255, 255, 255, 0.5);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: var(--glass-bg);
     border-radius: var(--card-radius);
-    padding: 0.5rem;
+    padding: 1rem;
     border: 1px solid var(--glass-border);
 }
 
 /* Input group styling */
 .input-group {
-    background: rgba(255, 255, 255, 0.7);
-    border-radius: 8px;
-    padding: 0.25rem;
-    border: 1px solid var(--glass-border);
+    background: transparent;
 }
 
 /* Custom styling for dynamically created elements */
 .step-card {
-    background: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    border-radius: 10px;
+    background: var(--glass-bg);
+    border-radius: 6px;
     border: 1px solid var(--glass-border);
     padding: 1rem;
     margin-bottom: 1rem;
-    transition: all 0.3s ease;
 }
 
 .feedback-controls button {
-    background: rgba(255, 255, 255, 0.7);
+    background: transparent;
     border: 1px solid var(--glass-border);
-    border-radius: 50%;
+    border-radius: 6px;
     width: 40px;
     height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.3s ease;
+    color: var(--text-secondary);
 }
 
 .feedback-controls button:hover {
-    transform: scale(1.1);
+    background: #2a2a2a;
+    color: var(--dark-text);
 }
 
-/* Custom scrollbar for the glassmorphism theme */
+/* Grok-style Chat Interface Components */
+.chat-container {
+    background: #212121;
+    border: none;
+    border-radius: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.chat-header {
+    background: #212121;
+    border-bottom: 1px solid #3a3a3a;
+    padding: 1rem 1.5rem;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+    background: #212121;
+}
+
+.chat-input-container {
+    background: #212121;
+    border-top: 1px solid #3a3a3a;
+    padding: 1rem 1.5rem;
+}
+
+.chat-input-container .input-group {
+    background: #3a3a3a;
+    border-radius: 8px;
+    overflow: hidden;
+    border: none;
+}
+
+.chat-input-container .form-control {
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+}
+
+.chat-input-container .form-control:focus {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    color: #ffffff;
+}
+
+.chat-input-container .form-control::placeholder {
+    color: #888888;
+}
+
+.chat-input-container .btn {
+    border-radius: 0 8px 8px 0;
+    padding: 0.75rem 1rem;
+    border: none;
+    background: transparent;
+    color: #ffffff;
+    font-size: 0.9rem;
+}
+
+.chat-input-container .btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Message status indicators */
+.message-status {
+    font-size: 0.7rem;
+    color: #808080;
+    margin-top: 0.25rem;
+}
+
+.message-status.delivered::after {
+    content: ' ✓';
+    color: #b0b0b0;
+}
+
+.message-status.read::after {
+    content: ' ✓✓';
+    color: #ffffff;
+}
+
+/* Chat scroll improvements */
+.chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background: #3a3a4a;
+    border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+    background: #4a4a4a;
+}
+
+/* Custom scrollbar */
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
+    background: #2a2a2a;
+    border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: var(--secondary-color);
-    border-radius: 10px;
+    background: #4a4a4a;
+    border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--secondary-color);
+    background: #5a5a5a;
 }

@@ -17,42 +17,69 @@
 <!-- Chat interface -->
 <div class="knowledge-chat-container">
     <!-- Compact search mode buttons -->
-    <div class="text-end mb-1">
-        <span class="text-muted small me-1">Search mode:</span>
-        <div class="btn-group btn-group-sm" role="group" aria-label="Search mode">
-            <input type="radio" class="btn-check" name="search-type" id="search-knowledge" value="knowledge" checked>
-            <label class="btn btn-sm glass-secondary" for="search-knowledge">Knowledge Base</label>
-            
-            <input type="radio" class="btn-check" name="search-type" id="search-metadata" value="metadata">
-            <label class="btn btn-sm glass-secondary" for="search-metadata">Database Metadata</label>
+    <div class="search-mode-container mb-1">
+        <div class="d-flex justify-content-between align-items-center">
+            <span class="text-muted small"></span>
+            <div class="btn-group btn-group-sm" role="group" aria-label="Search mode">
+                <input type="radio" class="btn-check" name="search-type" id="search-knowledge" value="knowledge"
+                    checked>
+                <label class="btn btn-sm glass-secondary" for="search-knowledge">Knowledge Base</label>
+
+                <input type="radio" class="btn-check" name="search-type" id="search-metadata" value="metadata">
+                <label class="btn btn-sm glass-secondary" for="search-metadata">Database Metadata</label>
+                
+            </div>
+            <div class="tag-filter-container mb-2">
+                    <div class="dropdown">
+                        <button class="btn btn-sm glass-secondary dropdown-toggle" type="button" id="tagFilterDropdown"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-filter me-1"></i>
+                            <span id="tagFilterText">KB Filter</span>
+                            <span class="badge bg-info ms-1 d-none" id="tagCountBadge">0</span>
+                        </button>
+                        <div class="dropdown-menu tag-filter-menu" aria-labelledby="tagFilterDropdown">
+                            <div class="px-3 py-2">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <small class="text-muted fw-semibold">KB Filter</small>
+                                    <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none"
+                                        id="clearAllTags" title="Clear all">
+                                        <i class="fas fa-times text-muted"></i>
+                                    </button>
+                                </div>
+                                <div class="mb-2">
+                                    <input type="text" class="form-control form-control-sm" id="tagSearchInput"
+                                        placeholder="Search tags..." autocomplete="off">
+                                </div>
+                                <div class="tag-options-container" id="tagOptionsContainer">
+                                    <div class="text-center text-muted py-2">
+                                        <small><i class="fas fa-spinner fa-spin me-1"></i>Loading tags...</small>
+                                    </div>
+                                </div>
+                                <div class="selected-tags-preview mt-2 pt-2 border-top" id="selectedTagsPreview"
+                                    style="display: none;">
+                                    <small class="text-muted d-block mb-1">Selected:</small>
+                                    <div class="selected-tags-list" id="selectedTagsList"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
         </div>
     </div>
 
     <!-- Input area (now at the top) -->
     <div class="knowledge-input-container">
-        <div class="tag-selection-container mb-2">
-            <div class="d-flex align-items-center">
-                <div class="me-2"><small class="text-muted">Filter by tags:</small></div>
-                <div class="tag-display" id="selectedTags"></div>
-                <div class="ms-auto">
-                    <button class="btn btn-sm glass-secondary" type="button" id="clearTagsBtn">
-                        <i class="fas fa-times"></i> Clear
-                    </button>
-                </div>
-            </div>
-            <div class="tag-search" id="tagSearch">
-                <input type="text" class="form-control form-control-sm glass" id="tagSearchInput" placeholder="Type @ to search for tags...">
-                <div class="tag-dropdown d-none" id="tagDropdown"></div>
-            </div>
-        </div>
+        <!-- Compact tag filter dropdown -->
+
         <div class="input-group">
-            <textarea class="form-control glass" id="knowledgeQuery" rows="2" placeholder="Ask a question about the documents..."></textarea>
+            <textarea class="form-control glass" id="knowledgeQuery" rows="2"
+                placeholder="Ask a question about the documents..."></textarea>
             <button class="btn btn-primary" type="button" id="sendQueryBtn">
                 <i class="fas fa-paper-plane"></i> Send
             </button>
         </div>
     </div>
-    
+
     <!-- Messages container (now below the input) -->
     <div class="knowledge-messages" id="knowledgeMessages">
         <div class="message system-message">

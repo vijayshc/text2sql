@@ -690,9 +690,13 @@ class KnowledgeManager:
             # Search for similar chunks in vector database
             filter_expr = None
             if filtered_document_ids:
-                # Create a filter expression like "document_id in ['id1', 'id2', ...]"
-                doc_ids_str = "', '".join(filtered_document_ids)
-                filter_expr = f"document_id in ['{doc_ids_str}']" if doc_ids_str else None
+                # Create ChromaDB filter expression using proper dictionary format
+                if len(filtered_document_ids) == 1:
+                    # Single document ID filter
+                    filter_expr = {"document_id": filtered_document_ids[0]}
+                else:
+                    # Multiple document IDs filter using $in operator
+                    filter_expr = {"document_id": {"$in": filtered_document_ids}}
             
             
             top_chunks = self.vector_store.search_similar(
