@@ -13,3 +13,5 @@ openai
 requests
 chromadb>=0.4.0
 sentence-transformers
+rank-bm25
+nltk

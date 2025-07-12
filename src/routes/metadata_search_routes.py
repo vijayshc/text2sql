@@ -207,7 +207,7 @@ def search_metadata_stream():
         # Get initialized components
         schema_vectorizer_instance, _ = get_metadata_components()
             
-        # Filter results with LLM to extract schema entities
+        # Filter results with LLM to extract schema entities (now always using enhanced search with BM25)
         results, filter_expr = schema_vectorizer_instance.filter_with_llm(query, limit=limit)
         
         # Simple logic: if filter was applied, skip reranking (direct hit optimization)

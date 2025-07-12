@@ -13,6 +13,7 @@ import numpy as np
 from src.utils.vector_store import VectorStore
 from src.utils.schema_manager import SchemaManager
 from src.utils.llm_engine import LLMEngine
+from src.utils.metadata_search_enhancer import MetadataSearchEnhancer
 
 logger = logging.getLogger('text2sql.schema_vectorizer')
 
@@ -35,6 +36,9 @@ class SchemaVectorizer:
         
         # Initialize LLM engine for embeddings
         self.llm_engine = LLMEngine()
+        
+        # Initialize metadata search enhancer
+        self.search_enhancer = MetadataSearchEnhancer()
         
         # Track processed metadata
         self.processed_count = 0
@@ -206,8 +210,8 @@ Description: {column_description}
         return embedding
     
     def search_schema_metadata(self, query: str, limit: int = 10, 
-                              filter_workspace: Optional[str] = None) -> List[Dict[str, Any]]:
-        """Search for schema metadata matching the query
+                              filter_workspace: Optional[str] = None) -> Tuple[List[Dict[str, Any]], str]:
+        """Search for schema metadata with enhanced accuracy using query reformatting and BM25
         
         Args:
             query: Search query
@@ -215,30 +219,43 @@ Description: {column_description}
             filter_workspace: Optional workspace to filter results by
             
         Returns:
-            List[Dict]: List of matching schema metadata
+            Tuple[List[Dict], str]: Enhanced search results and reformatted query
         """
         try:
-            # Get embedding for query
-            query_embedding = self._get_embedding(query)
+            # Step 1: Reformat query for better vector search accuracy
+            reformatted_query = self.search_enhancer.get_reformatted_query_for_vector_search(query)
             
-            # Create filter expression if workspace is specified
+            # Step 2: Get embedding for reformatted query
+            query_embedding = self._get_embedding(reformatted_query)
+            
+            # Step 3: Create filter expression if workspace is specified
             filter_expr = None
             if filter_workspace:
                 filter_expr = {"workspace": filter_workspace}
             
-            # Search for similar vectors
+            # Step 4: Search for similar vectors using reformatted query
+            # Use higher limit for BM25 reranking to have more candidates
+            search_limit = limit * 3
+            
             results = self.vector_store.search_similar(
                 'schema_metadata',
                 query_embedding,
-                limit=limit,
+                limit=search_limit,
                 filter_expr=filter_expr
             )
             
-            return results
+            # Step 5: Apply BM25 reranking (mandatory)
+            if results:
+                # Use original query for BM25 to match user intent, but skip query reformatting since we already did it
+                enhanced_results = self.search_enhancer.apply_bm25_reranking(query, results, top_k=limit)
+                results = enhanced_results
+            
+            self.logger.info(f"Enhanced metadata search completed: {len(results)} results")
+            return results, reformatted_query
             
         except Exception as e:
-            self.logger.error(f"Error searching schema metadata: {str(e)}", exc_info=True)
-            return []
+            self.logger.error(f"Error in enhanced schema metadata search: {str(e)}", exc_info=True)
+            return [], query
 
     def get_stats(self) -> Dict[str, Any]:
         """Get statistics about schema metadata in the vector database
@@ -396,43 +413,25 @@ Return only the JSON filter object, nothing else.
                     output_fields=["id", "text", "metadata"]
                 )
                 
-                # If no results with filter, fall back to vector search
+                # If no results with filter, fall back to enhanced vector search
                 if not results:
-                    self.logger.info(f"No results found with filter. Falling back to vector search.")
-                    results = self.vector_store.search_similar(
-                        'schema_metadata',
-                        self._get_embedding(query),
-                        limit=limit,
-                        filter_expr=None,
-                        output_fields=["id", "text", "metadata"]
-                    )
-                    filter_description = "Filter removed (no results), using vector search"
+                    self.logger.info(f"No results found with filter. Falling back to enhanced vector search.")
+                    results, _ = self.search_schema_metadata(query, limit=limit)
+                    filter_description = "Filter removed (no results), using enhanced vector search"
             else:
-                # No filter - use vector search
-                self.logger.info("No filter detected. Using vector search.")
-                results = self.vector_store.search_similar(
-                    'schema_metadata',
-                    self._get_embedding(query),
-                    limit=limit,
-                    filter_expr=None,
-                    output_fields=["id", "text", "metadata"]
-                )
+                # No filter - use enhanced vector search
+                self.logger.info("No filter detected. Using enhanced vector search with BM25.")
+                results, _ = self.search_schema_metadata(query, limit=limit)
             
             return results, filter_description
             
         except Exception as e:
             self.logger.error(f"Error in LLM filtering: {str(e)}", exc_info=True)
-            # Fallback to unfiltered search
+            # Fallback to enhanced unfiltered search
             try:
-                self.logger.info("Performing fallback unfiltered search due to error.")
-                results = self.vector_store.search_similar(
-                    'schema_metadata',
-                    self._get_embedding(query),
-                    limit=limit,
-                    filter_expr=None,
-                    output_fields=["id", "text", "metadata"]
-                )
-                return results, "Error in filtering, using unfiltered search"
+                self.logger.info("Performing fallback enhanced unfiltered search due to error.")
+                results, _ = self.search_schema_metadata(query, limit=limit)
+                return results, "Error in filtering, using enhanced unfiltered search"
             except Exception as fallback_e:
-                self.logger.error(f"Fallback search also failed: {str(fallback_e)}", exc_info=True)
-                return [], "Search failed"
+                self.logger.error(f"Enhanced fallback search also failed: {str(fallback_e)}", exc_info=True)
+                return [], "All search methods failed"

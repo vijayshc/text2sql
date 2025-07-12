@@ -133,7 +133,7 @@ Set `MESSAGE_FORMAT=llama` in your `.env` file to use Llama format, or `MESSAGE_
 *   **Database Interaction:** Executes SQL and shows results.
 *   **Schema Awareness:** Uses database schema details for better query generation.
 *   **Knowledge Base Q&A:** Answers questions based on uploaded documents or directly pasted text using vector search with conversational support.
-*   **Database Metadata Search:** Search and explore database schema with conversational context.
+*   **Database Metadata Search:** Search and explore database schema with conversational context and enhanced accuracy using query reformatting and BM25 reranking.
 *   **Conversational Support:** Both knowledge base and metadata search now support follow-up questions with configurable conversation history limits.
 *   **User Feedback:** Collects feedback to refine query generation.
 *   **Sample Management:** Uses curated and successful past queries as examples for the AI.
@@ -198,6 +198,42 @@ CHROMADB_PERSIST_DIR = "../chroma_data"  # Data directory
 EMBEDDING_MODEL = "all-MiniLM-L6-v2"    # Sentence transformer model
 EMBEDDING_DIMENSION = 384               # Embedding dimension
 ```
+
+## Enhanced Metadata Search
+
+The metadata search functionality has been significantly improved for better accuracy:
+
+### Key Improvements:
+
+**1. Query Reformatting:** 
+- User queries are automatically reformatted to match the schema vectorization format
+- Converts natural language to structured format (e.g., "customer table" → "Table: customer")
+- Improves vector search accuracy by aligning query format with stored schema data
+
+**2. BM25 Reranking:**
+- All vector search results are automatically reranked using BM25 algorithm
+- Combines semantic similarity (vector search) with lexical relevance (BM25)
+- Weighted scoring: 60% vector similarity + 40% BM25 relevance
+- Significantly improves result accuracy and relevance
+
+**3. Schema Format:**
+Database schema is vectorized in this standardized format:
+```
+Database: [database_name]
+Table: [table_name]
+Table Description: [description]
+Column: [column_name]
+Datatype: [datatype]
+primary key
+Description: [column_description]
+```
+
+**4. Query Processing:**
+- Synonym conversion: "field" → "column", "schema/db" → "database"
+- Automatic prefix addition: "Table:", "Column:", "Database:", etc.
+- Enhanced semantic understanding of database terminology
+
+This ensures more accurate and relevant search results when exploring database metadata.
 
 ## Conversational Search Configuration
 

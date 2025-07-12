@@ -134,3 +134,34 @@
 2025-07-12 11:43:20,412 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:43:20] "GET /collections HTTP/1.1" 200 -
 2025-07-12 11:43:20,419 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:43:20] "GET /collections/schema_metadata/documents?limit=20 HTTP/1.1" 200 -
 2025-07-12 11:43:20,425 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:43:20] "GET /collections/schema_metadata HTTP/1.1" 200 -
+2025-07-12 11:55:31,058 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:55:31] "GET /health HTTP/1.1" 200 -
+2025-07-12 11:55:31,062 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:55:31] "GET /collections/knowledge_chunks HTTP/1.1" 200 -
+2025-07-12 11:55:43,460 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:55:43] "GET /health HTTP/1.1" 200 -
+2025-07-12 11:55:43,470 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:55:43] "GET /collections/schema_metadata HTTP/1.1" 200 -
+2025-07-12 11:59:00,896 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:59:00] "GET /health HTTP/1.1" 200 -
+2025-07-12 11:59:00,901 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:59:00] "GET /collections/knowledge_chunks HTTP/1.1" 200 -
+2025-07-12 11:59:02,662 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:59:02] "GET /health HTTP/1.1" 200 -
+2025-07-12 11:59:02,671 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:59:02] "GET /collections/schema_metadata HTTP/1.1" 200 -
+2025-07-12 11:59:05,004 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:59:05] "GET /collections/schema_metadata/documents?limit=100&where={"column":+"phone+number"} HTTP/1.1" 200 -
+2025-07-12 11:59:08,738 - chromadb.segment.impl.vector.local_persistent_hnsw - WARNING - Number of requested results 300 is greater than number of elements in index 34, updating n_results = 34
+2025-07-12 11:59:08,744 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:59:08] "POST /collections/schema_metadata/search HTTP/1.1" 200 -
+2025-07-12 12:02:58,240 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 12:02:58] "GET /health HTTP/1.1" 200 -
+2025-07-12 12:02:58,244 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 12:02:58] "GET /collections/knowledge_chunks HTTP/1.1" 200 -
+2025-07-12 12:03:00,522 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 12:03:00] "GET /health HTTP/1.1" 200 -
+2025-07-12 12:03:00,532 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 12:03:00] "GET /collections/schema_metadata HTTP/1.1" 200 -
+2025-07-12 12:03:01,781 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 12:03:01] "GET /collections/schema_metadata/documents?limit=100&where={"column":+"phone+number"} HTTP/1.1" 200 -
+2025-07-12 12:03:05,306 - chromadb.segment.impl.vector.local_persistent_hnsw - WARNING - Number of requested results 300 is greater than number of elements in index 34, updating n_results = 34
+2025-07-12 12:03:05,309 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 12:03:05] "POST /collections/schema_metadata/search HTTP/1.1" 200 -
+2025-07-12 12:06:28,162 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 12:06:28] "GET /collections/schema_metadata/documents?limit=100&where={"column":+"phone+number"} HTTP/1.1" 200 -
+2025-07-12 12:06:29,189 - chromadb.segment.impl.vector.local_persistent_hnsw - WARNING - Number of requested results 300 is greater than number of elements in index 34, updating n_results = 34
+2025-07-12 12:06:29,195 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 12:06:29] "POST /collections/schema_metadata/search HTTP/1.1" 200 -
+2025-07-12 12:07:59,191 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 12:07:59] "GET /health HTTP/1.1" 200 -
+2025-07-12 12:07:59,200 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 12:07:59] "GET /collections/knowledge_chunks HTTP/1.1" 200 -
+2025-07-12 12:08:01,120 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 12:08:01] "GET /health HTTP/1.1" 200 -
+2025-07-12 12:08:01,131 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 12:08:01] "GET /collections/schema_metadata HTTP/1.1" 200 -
+2025-07-12 12:08:02,393 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 12:08:02] "GET /collections/schema_metadata/documents?limit=100&where={"column":+"phone+number"} HTTP/1.1" 200 -
+2025-07-12 12:08:06,550 - chromadb.segment.impl.vector.local_persistent_hnsw - WARNING - Number of requested results 300 is greater than number of elements in index 34, updating n_results = 34
+2025-07-12 12:08:06,555 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 12:08:06] "POST /collections/schema_metadata/search HTTP/1.1" 200 -
+2025-07-12 12:08:57,779 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 12:08:57] "GET /collections/schema_metadata/documents?limit=100&where={"table":+"this+table"} HTTP/1.1" 200 -
+2025-07-12 12:08:58,031 - chromadb.segment.impl.vector.local_persistent_hnsw - WARNING - Number of requested results 300 is greater than number of elements in index 34, updating n_results = 34
+2025-07-12 12:08:58,035 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 12:08:58] "POST /collections/schema_metadata/search HTTP/1.1" 200 -
