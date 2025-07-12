@@ -6,4 +6,4 @@ rm -rf chroma_data
 rm -rf backup_milvus
 rm -rf tmp
 find . -type f -name "*.pyc" | xargs rm
-
+rm -rf chromadb_service/chroma_data
