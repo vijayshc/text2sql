@@ -1,5 +1,136 @@
-Traceback (most recent call last):
-  File "/home/vijay/text2sql_react/chromadb_service/app.py", line 78, in <module>
-    @app.before_first_request
-     ^^^^^^^^^^^^^^^^^^^^^^^^
-AttributeError: 'Flask' object has no attribute 'before_first_request'. Did you mean: '_got_first_request'?
+2025-07-12 10:47:38,808 - chromadb_service - INFO - Connecting to ChromaDB at ./chroma_data
+2025-07-12 10:47:38,865 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-07-12 10:47:41,668 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-07-12 10:47:44,294 - chromadb_service - INFO - ChromaDB connection established in 5.49s
+2025-07-12 10:47:44,301 - chromadb_service - INFO - Starting ChromaDB Service on 0.0.0.0:8001
+ * Serving Flask app 'app'
+ * Debug mode: off
+2025-07-12 10:47:44,311 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8001
+ * Running on http://172.27.251.157:8001
+2025-07-12 10:47:44,311 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-07-12 10:47:48,500 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 10:47:48] "POST /collections/knowledge_chunks/search HTTP/1.1" 200 -
+2025-07-12 11:29:52,034 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:29:52] "GET /health HTTP/1.1" 200 -
+2025-07-12 11:29:52,042 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:29:52] "GET /collections/knowledge_chunks HTTP/1.1" 200 -
+2025-07-12 11:29:55,985 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:29:55] "POST /collections/knowledge_chunks/search HTTP/1.1" 200 -
+2025-07-12 11:31:01,884 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:31:01] "GET /health HTTP/1.1" 200 -
+2025-07-12 11:31:01,888 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:31:01] "GET /collections/knowledge_chunks HTTP/1.1" 200 -
+2025-07-12 11:31:05,497 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:31:05] "POST /collections/knowledge_chunks/search HTTP/1.1" 200 -
+2025-07-12 11:32:23,130 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:32:23] "GET /health HTTP/1.1" 200 -
+2025-07-12 11:32:23,138 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:32:23] "GET /collections/knowledge_chunks HTTP/1.1" 200 -
+2025-07-12 11:32:27,044 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:32:27] "POST /collections/knowledge_chunks/search HTTP/1.1" 200 -
+2025-07-12 11:34:06,204 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:34:06] "GET /collections HTTP/1.1" 200 -
+2025-07-12 11:34:06,545 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:34:06] "GET /collections HTTP/1.1" 200 -
+2025-07-12 11:34:06,550 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:34:06] "GET /collections/knowledge_chunks HTTP/1.1" 200 -
+2025-07-12 11:34:09,374 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:34:09] "GET /collections HTTP/1.1" 200 -
+2025-07-12 11:34:09,380 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:34:09] "GET /collections/knowledge_chunks HTTP/1.1" 200 -
+2025-07-12 11:34:09,693 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:34:09] "GET /collections HTTP/1.1" 200 -
+2025-07-12 11:34:09,702 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:34:09] "GET /collections/knowledge_chunks/documents?limit=20 HTTP/1.1" 200 -
+2025-07-12 11:34:09,707 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:34:09] "GET /collections/knowledge_chunks HTTP/1.1" 200 -
+2025-07-12 11:34:22,054 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:34:22] "GET /collections/knowledge_chunks/documents?where={"chunk_id":+"bf1bc343-8f1b-417c-b061-47b5ed7ad60b"} HTTP/1.1" 200 -
+2025-07-12 11:34:22,068 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:34:22] "GET /collections/knowledge_chunks/documents?where={"chunk_id":+"1cc9298b-6d44-4e80-b005-014310cdacee"} HTTP/1.1" 200 -
+2025-07-12 11:34:22,075 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:34:22] "GET /collections/knowledge_chunks/documents?where={"chunk_id":+"2ae5825c-f115-4ef8-9918-4c72193b14bb"} HTTP/1.1" 200 -
+2025-07-12 11:34:22,085 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:34:22] "GET /collections/knowledge_chunks/documents?where={"chunk_id":+"79e058f6-8d3d-481c-bcb1-a7cbc5ef937d"} HTTP/1.1" 200 -
+2025-07-12 11:34:22,100 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:34:22] "GET /collections/knowledge_chunks/documents?where={"chunk_id":+"e332e07a-10c3-4526-b3e0-5ec655ea3c65"} HTTP/1.1" 200 -
+2025-07-12 11:34:22,115 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:34:22] "GET /collections/knowledge_chunks/documents?where={"chunk_id":+"b4abcb29-abcd-419d-b4a3-9149638752d0"} HTTP/1.1" 200 -
+2025-07-12 11:34:22,124 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:34:22] "GET /collections/knowledge_chunks/documents?where={"chunk_id":+"f5171462-368c-477c-a398-205b79fd58b9"} HTTP/1.1" 200 -
+2025-07-12 11:34:22,133 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:34:22] "GET /collections/knowledge_chunks/documents?where={"chunk_id":+"1be39209-2a15-408c-bcf5-b126b644e99e"} HTTP/1.1" 200 -
+2025-07-12 11:34:22,140 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:34:22] "GET /collections/knowledge_chunks/documents?where={"chunk_id":+"fb0e0f4a-9d54-4e72-bfca-9cdf8edf4747"} HTTP/1.1" 200 -
+2025-07-12 11:34:22,148 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:34:22] "GET /collections/knowledge_chunks/documents?where={"chunk_id":+"a493b677-ce63-4cd5-810e-c2c7b3bf6405"} HTTP/1.1" 200 -
+2025-07-12 11:34:42,587 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:34:42] "POST /collections/knowledge_chunks/documents HTTP/1.1" 200 -
+2025-07-12 11:34:42,666 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:34:42] "POST /collections/knowledge_chunks/documents HTTP/1.1" 200 -
+2025-07-12 11:34:42,755 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:34:42] "POST /collections/knowledge_chunks/documents HTTP/1.1" 200 -
+2025-07-12 11:34:42,836 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:34:42] "POST /collections/knowledge_chunks/documents HTTP/1.1" 200 -
+2025-07-12 11:34:42,920 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:34:42] "POST /collections/knowledge_chunks/documents HTTP/1.1" 200 -
+2025-07-12 11:34:43,001 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:34:43] "POST /collections/knowledge_chunks/documents HTTP/1.1" 200 -
+2025-07-12 11:34:43,121 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:34:43] "POST /collections/knowledge_chunks/documents HTTP/1.1" 200 -
+2025-07-12 11:34:43,226 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:34:43] "POST /collections/knowledge_chunks/documents HTTP/1.1" 200 -
+2025-07-12 11:34:43,377 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:34:43] "POST /collections/knowledge_chunks/documents HTTP/1.1" 200 -
+2025-07-12 11:34:43,524 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:34:43] "POST /collections/knowledge_chunks/documents HTTP/1.1" 200 -
+2025-07-12 11:34:56,745 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:34:56] "GET /collections HTTP/1.1" 200 -
+2025-07-12 11:34:56,930 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:34:56] "GET /collections HTTP/1.1" 200 -
+2025-07-12 11:34:56,940 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:34:56] "GET /collections/knowledge_chunks HTTP/1.1" 200 -
+2025-07-12 11:34:58,142 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:34:58] "GET /collections HTTP/1.1" 200 -
+2025-07-12 11:34:58,152 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:34:58] "GET /collections/knowledge_chunks HTTP/1.1" 200 -
+2025-07-12 11:34:58,573 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:34:58] "GET /collections HTTP/1.1" 200 -
+2025-07-12 11:34:58,603 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:34:58] "GET /collections/knowledge_chunks/documents?limit=20 HTTP/1.1" 200 -
+2025-07-12 11:34:58,631 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:34:58] "GET /collections/knowledge_chunks HTTP/1.1" 200 -
+2025-07-12 11:35:08,594 - chromadb.segment.impl.vector.local_persistent_hnsw - WARNING - Number of requested results 50 is greater than number of elements in index 10, updating n_results = 10
+2025-07-12 11:35:08,620 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:35:08] "POST /collections/knowledge_chunks/search HTTP/1.1" 200 -
+2025-07-12 11:35:41,370 - chromadb.segment.impl.vector.local_persistent_hnsw - WARNING - Number of requested results 50 is greater than number of elements in index 10, updating n_results = 10
+2025-07-12 11:35:41,374 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:35:41] "POST /collections/knowledge_chunks/search HTTP/1.1" 200 -
+2025-07-12 11:37:52,741 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:37:52] "GET /health HTTP/1.1" 200 -
+2025-07-12 11:37:52,745 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:37:52] "GET /collections/knowledge_chunks HTTP/1.1" 200 -
+2025-07-12 11:37:55,353 - chromadb.segment.impl.vector.local_persistent_hnsw - WARNING - Number of requested results 50 is greater than number of elements in index 10, updating n_results = 10
+2025-07-12 11:37:55,354 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:37:55] "POST /collections/knowledge_chunks/search HTTP/1.1" 200 -
+2025-07-12 11:38:44,618 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:38:44] "GET /health HTTP/1.1" 200 -
+2025-07-12 11:38:44,629 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:38:44] "GET /collections/knowledge_chunks HTTP/1.1" 200 -
+2025-07-12 11:38:47,386 - chromadb.segment.impl.vector.local_persistent_hnsw - WARNING - Number of requested results 50 is greater than number of elements in index 10, updating n_results = 10
+2025-07-12 11:38:47,388 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:38:47] "POST /collections/knowledge_chunks/search HTTP/1.1" 200 -
+2025-07-12 11:39:15,659 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:39:15] "GET /health HTTP/1.1" 200 -
+2025-07-12 11:39:15,667 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:39:15] "[33mGET /collections/schema_metadata HTTP/1.1[0m" 404 -
+2025-07-12 11:39:15,697 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:39:15] "POST /collections/schema_metadata HTTP/1.1" 200 -
+2025-07-12 11:39:17,125 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:39:17] "GET /collections/schema_metadata/documents?limit=100&where={"$and":+[{"table":+"customer"},+{"column":+"columns"}]} HTTP/1.1" 200 -
+2025-07-12 11:39:19,618 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:39:19] "POST /collections/schema_metadata/search HTTP/1.1" 200 -
+2025-07-12 11:39:42,904 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:39:42] "GET /collections HTTP/1.1" 200 -
+2025-07-12 11:39:43,086 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:39:43] "GET /collections HTTP/1.1" 200 -
+2025-07-12 11:39:43,090 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:39:43] "GET /collections/knowledge_chunks HTTP/1.1" 200 -
+2025-07-12 11:39:43,256 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:39:43] "GET /collections HTTP/1.1" 200 -
+2025-07-12 11:39:43,261 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:39:43] "GET /collections/schema_metadata HTTP/1.1" 200 -
+2025-07-12 11:39:57,809 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:39:57] "GET /collections/schema_metadata HTTP/1.1" 200 -
+2025-07-12 11:39:59,428 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:39:59] "POST /collections/schema_metadata/documents HTTP/1.1" 200 -
+2025-07-12 11:39:59,549 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:39:59] "POST /collections/schema_metadata/documents HTTP/1.1" 200 -
+2025-07-12 11:39:59,644 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:39:59] "POST /collections/schema_metadata/documents HTTP/1.1" 200 -
+2025-07-12 11:39:59,749 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:39:59] "POST /collections/schema_metadata/documents HTTP/1.1" 200 -
+2025-07-12 11:39:59,873 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:39:59] "POST /collections/schema_metadata/documents HTTP/1.1" 200 -
+2025-07-12 11:40:00,007 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:40:00] "POST /collections/schema_metadata/documents HTTP/1.1" 200 -
+2025-07-12 11:40:00,116 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:40:00] "POST /collections/schema_metadata/documents HTTP/1.1" 200 -
+2025-07-12 11:40:00,233 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:40:00] "POST /collections/schema_metadata/documents HTTP/1.1" 200 -
+2025-07-12 11:40:00,358 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:40:00] "POST /collections/schema_metadata/documents HTTP/1.1" 200 -
+2025-07-12 11:40:00,523 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:40:00] "POST /collections/schema_metadata/documents HTTP/1.1" 200 -
+2025-07-12 11:39:59,935 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:39:59] "POST /collections/schema_metadata/documents HTTP/1.1" 200 -
+2025-07-12 11:40:00,097 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:40:00] "POST /collections/schema_metadata/documents HTTP/1.1" 200 -
+2025-07-12 11:40:00,218 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:40:00] "POST /collections/schema_metadata/documents HTTP/1.1" 200 -
+2025-07-12 11:40:00,361 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:40:00] "POST /collections/schema_metadata/documents HTTP/1.1" 200 -
+2025-07-12 11:40:00,487 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:40:00] "POST /collections/schema_metadata/documents HTTP/1.1" 200 -
+2025-07-12 11:40:00,623 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:40:00] "POST /collections/schema_metadata/documents HTTP/1.1" 200 -
+2025-07-12 11:40:00,799 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:40:00] "POST /collections/schema_metadata/documents HTTP/1.1" 200 -
+2025-07-12 11:40:00,964 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:40:00] "POST /collections/schema_metadata/documents HTTP/1.1" 200 -
+2025-07-12 11:40:01,111 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:40:01] "POST /collections/schema_metadata/documents HTTP/1.1" 200 -
+2025-07-12 11:40:01,226 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:40:01] "POST /collections/schema_metadata/documents HTTP/1.1" 200 -
+2025-07-12 11:40:01,346 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:40:01] "POST /collections/schema_metadata/documents HTTP/1.1" 200 -
+2025-07-12 11:40:01,485 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:40:01] "POST /collections/schema_metadata/documents HTTP/1.1" 200 -
+2025-07-12 11:40:01,606 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:40:01] "POST /collections/schema_metadata/documents HTTP/1.1" 200 -
+2025-07-12 11:40:01,736 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:40:01] "POST /collections/schema_metadata/documents HTTP/1.1" 200 -
+2025-07-12 11:40:01,876 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:40:01] "POST /collections/schema_metadata/documents HTTP/1.1" 200 -
+2025-07-12 11:40:02,000 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:40:02] "POST /collections/schema_metadata/documents HTTP/1.1" 200 -
+2025-07-12 11:40:02,135 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:40:02] "POST /collections/schema_metadata/documents HTTP/1.1" 200 -
+2025-07-12 11:40:02,263 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:40:02] "POST /collections/schema_metadata/documents HTTP/1.1" 200 -
+2025-07-12 11:40:02,391 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:40:02] "POST /collections/schema_metadata/documents HTTP/1.1" 200 -
+2025-07-12 11:40:02,506 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:40:02] "POST /collections/schema_metadata/documents HTTP/1.1" 200 -
+2025-07-12 11:40:02,643 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:40:02] "POST /collections/schema_metadata/documents HTTP/1.1" 200 -
+2025-07-12 11:40:02,753 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:40:02] "POST /collections/schema_metadata/documents HTTP/1.1" 200 -
+2025-07-12 11:40:02,896 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:40:02] "POST /collections/schema_metadata/documents HTTP/1.1" 200 -
+2025-07-12 11:40:03,021 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:40:03] "POST /collections/schema_metadata/documents HTTP/1.1" 200 -
+2025-07-12 11:40:03,392 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:40:03] "GET /collections/schema_metadata HTTP/1.1" 200 -
+2025-07-12 11:40:03,417 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:40:03] "GET /collections/schema_metadata/documents?limit=1000 HTTP/1.1" 200 -
+2025-07-12 11:40:18,593 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:40:18] "GET /collections/schema_metadata/documents?limit=100&where={"$and":+[{"table":+"customer"},+{"column":+"columns"}]} HTTP/1.1" 200 -
+2025-07-12 11:40:18,620 - chromadb.segment.impl.vector.local_persistent_hnsw - WARNING - Number of requested results 100 is greater than number of elements in index 34, updating n_results = 34
+2025-07-12 11:40:18,625 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:40:18] "POST /collections/schema_metadata/search HTTP/1.1" 200 -
+2025-07-12 11:40:41,535 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:40:41] "GET /collections/schema_metadata/documents?limit=100&where={"column":+"phone"} HTTP/1.1" 200 -
+2025-07-12 11:41:26,174 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:41:26] "GET /collections/schema_metadata/documents?limit=100&where={"table":+"customers"} HTTP/1.1" 200 -
+2025-07-12 11:41:48,310 - chromadb.segment.impl.vector.local_persistent_hnsw - WARNING - Number of requested results 100 is greater than number of elements in index 34, updating n_results = 34
+2025-07-12 11:41:48,313 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:41:48] "POST /collections/schema_metadata/search HTTP/1.1" 200 -
+2025-07-12 11:42:24,664 - chromadb.segment.impl.vector.local_persistent_hnsw - WARNING - Number of requested results 100 is greater than number of elements in index 34, updating n_results = 34
+2025-07-12 11:42:24,667 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:42:24] "POST /collections/schema_metadata/search HTTP/1.1" 200 -
+2025-07-12 11:43:18,079 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:43:18] "GET /collections HTTP/1.1" 200 -
+2025-07-12 11:43:18,176 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:43:18] "GET /collections HTTP/1.1" 200 -
+2025-07-12 11:43:18,181 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:43:18] "GET /collections/knowledge_chunks HTTP/1.1" 200 -
+2025-07-12 11:43:18,413 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:43:18] "GET /collections HTTP/1.1" 200 -
+2025-07-12 11:43:18,418 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:43:18] "GET /collections/schema_metadata HTTP/1.1" 200 -
+2025-07-12 11:43:20,105 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:43:20] "GET /collections HTTP/1.1" 200 -
+2025-07-12 11:43:20,112 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:43:20] "GET /collections/schema_metadata HTTP/1.1" 200 -
+2025-07-12 11:43:20,412 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:43:20] "GET /collections HTTP/1.1" 200 -
+2025-07-12 11:43:20,419 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:43:20] "GET /collections/schema_metadata/documents?limit=20 HTTP/1.1" 200 -
+2025-07-12 11:43:20,425 - werkzeug - INFO - 127.0.0.1 - - [12/Jul/2025 11:43:20] "GET /collections/schema_metadata HTTP/1.1" 200 -

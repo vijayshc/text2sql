@@ -44,6 +44,10 @@ os.makedirs(UPLOADS_DIR, exist_ok=True)
 CHUNK_SIZE = int(os.getenv('CHUNK_SIZE', '1000'))
 CHUNK_OVERLAP = int(os.getenv('CHUNK_OVERLAP', '200'))
 
+# Conversation history configuration
+KNOWLEDGE_CONVERSATION_HISTORY_LIMIT = int(os.getenv('KNOWLEDGE_CONVERSATION_HISTORY_LIMIT', '10'))
+METADATA_CONVERSATION_HISTORY_LIMIT = int(os.getenv('METADATA_CONVERSATION_HISTORY_LIMIT', '10'))
+
 # ChromaDB Service configuration
 CHROMADB_SERVICE_URL = os.getenv('CHROMADB_SERVICE_URL', 'http://localhost:8001')
 CHROMADB_SERVICE_TIMEOUT = int(os.getenv('CHROMADB_SERVICE_TIMEOUT', '30'))

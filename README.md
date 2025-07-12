@@ -50,6 +50,49 @@ The application now supports managing multiple Model Context Protocol (MCP) serv
 * **Tool Discovery:** View available tools for each MCP server through the admin interface
 * **Unified LLM Integration:** All MCP servers now use the common LLM engine for consistent behavior and configuration
 
+## AI Data Mapping Analyst
+
+The AI Data Mapping Analyst is an advanced enterprise-grade system that replicates expert data architect workflows for data warehousing and data mart development:
+
+### Core Capabilities:
+* **Intelligent Column Mapping:** AI-powered analysis to map source columns to target warehouse/mart structures
+* **Granularity Analysis:** Automated assessment of data granularity compatibility between source and target
+* **Join Path Discovery:** Graph-based algorithms to find optimal join paths between tables using NetworkX
+* **Semantic Column Matching:** Advanced semantic analysis to identify similar columns across different naming conventions
+* **Transformation Logic Generation:** Auto-generation of ETL transformation logic including aggregations and calculations
+* **New Table Proposals:** AI recommendations for new dimension/fact table structures when mapping is not feasible
+
+### Architecture:
+* **MCP Server Integration:** Dedicated MCP server (`mcp_data_mapping_server.py`) with 8 specialized tools
+* **Cognitive Agent Workflow:** Master workflow orchestrating tool calls to replicate expert decision-making
+* **Metadata Management:** JSON-based data catalog with comprehensive table/column definitions and business context
+* **Web Interface:** Comprehensive UI with single/bulk analysis, mapping repository, and detailed result views
+* **Vector Storage Support:** Integration with ChromaDB for semantic search and similarity matching
+
+### Available Tools:
+1. **get_column_mapping:** Retrieve existing mappings from the repository
+2. **analyze_unmapped_column:** Deep analysis of unmapped columns with business context
+3. **find_candidate_tables:** Identify potential target tables using semantic and structural analysis
+4. **analyze_granularity_fit:** Assess data granularity compatibility between source and targets
+5. **find_join_path:** Calculate optimal join paths using graph algorithms
+6. **find_semantic_column_matches:** Identify semantically similar columns across schemas
+7. **generate_etl_logic:** Generate complete ETL transformation expressions with business rules
+8. **propose_new_table_structure:** AI-powered proposals for new warehouse structures
+
+### Usage Scenarios:
+* **Enterprise Data Warehouse Design:** Map operational data to dimensional model structures
+* **Data Mart Development:** Create subject-specific data marts with appropriate granularity
+* **Legacy System Migration:** Map legacy schemas to modern data warehouse architectures
+* **Data Lineage Documentation:** Maintain comprehensive data lineage and transformation documentation
+* **ETL Development:** Generate ETL logic for complex transformations and aggregations
+
+### Technical Features:
+* **Async Operations:** Full async/await support for handling complex analysis workflows
+* **Progress Tracking:** Real-time progress updates for long-running analysis operations
+* **Bulk Analysis:** Process multiple columns simultaneously with detailed status reporting
+* **Mapping Repository:** Version-controlled repository for approved mappings with search and filtering
+* **Export Capabilities:** Generate DDL scripts and ETL code from analysis results
+
 ## Code Architecture Improvements
 
 Recent updates have improved the codebase architecture:
@@ -89,7 +132,9 @@ Set `MESSAGE_FORMAT=llama` in your `.env` file to use Llama format, or `MESSAGE_
 *   **Natural Language to SQL:** Converts English questions to SQL.
 *   **Database Interaction:** Executes SQL and shows results.
 *   **Schema Awareness:** Uses database schema details for better query generation.
-*   **Knowledge Base Q&A:** Answers questions based on uploaded documents or directly pasted text using vector search.
+*   **Knowledge Base Q&A:** Answers questions based on uploaded documents or directly pasted text using vector search with conversational support.
+*   **Database Metadata Search:** Search and explore database schema with conversational context.
+*   **Conversational Support:** Both knowledge base and metadata search now support follow-up questions with configurable conversation history limits.
 *   **User Feedback:** Collects feedback to refine query generation.
 *   **Sample Management:** Uses curated and successful past queries as examples for the AI.
 *   **User Management & RBAC:** Secure login, user roles, and permissions.
@@ -102,6 +147,7 @@ Set `MESSAGE_FORMAT=llama` in your `.env` file to use Llama format, or `MESSAGE_
 *   **Vector DB Management UI:** Interface for admins to manage the vector database.
 *   **MCP Server Management:** Admin interface to manage multiple MCP servers of both stdio and HTTP types.
 *   **Multi-Server Agent:** Agent capable of working with multiple MCP servers and selecting the best server for each task.
+*   **AI Data Mapping Analyst:** Advanced data mapping and lineage analysis using AI-powered MCP server and cognitive agent workflows.
 *   **Security:** Includes features like CSRF protection, secure headers, and rate limiting.
 *   **Sensitive Tool Confirmation:** Requires user approval before executing potentially sensitive operations like shell commands.
   
@@ -152,6 +198,23 @@ CHROMADB_PERSIST_DIR = "../chroma_data"  # Data directory
 EMBEDDING_MODEL = "all-MiniLM-L6-v2"    # Sentence transformer model
 EMBEDDING_DIMENSION = 384               # Embedding dimension
 ```
+
+## Conversational Search Configuration
+
+The knowledge base and metadata search now support follow-up questions with configurable conversation history limits. You can configure these in your `.env` file:
+
+```bash
+# Conversation history limits (number of message pairs to remember)
+KNOWLEDGE_CONVERSATION_HISTORY_LIMIT=10   # For knowledge base search (default: 10)
+METADATA_CONVERSATION_HISTORY_LIMIT=10    # For metadata search (default: 10)
+```
+
+**Features:**
+- **Context Retention:** Both knowledge base and metadata search maintain conversation context for follow-up questions
+- **Configurable Limits:** Control how many previous message pairs to remember for each search type
+- **Automatic Cleanup:** History is automatically trimmed when limits are exceeded
+- **Clear History:** Users can manually clear conversation history via the UI
+- **Search Type Isolation:** Knowledge base and metadata search maintain separate conversation histories
 
 ### Migration from Direct ChromaDB
 
@@ -524,3 +587,6 @@ Contributions are welcome! Please follow standard fork/branch/pull request workf
 ## License
 
 [MIT License]
+
+
+/home/vijay/anaconda3/bin/python3 -m src.services.mcp_data_mapping_server --host 0.0.0.0 --port 8003

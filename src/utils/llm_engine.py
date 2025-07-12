@@ -82,7 +82,7 @@ class LLMEngine:
             # Generate embedding vector
             embedding = model.encode(text)
             
-            self.logger.debug(f"Generated embedding in {time.time() - start_time:.2f}s " +
+            self.logger.info(f"Generated embedding in {time.time() - start_time:.2f}s " +
                              f"with shape {embedding.shape}")
             return embedding
             
@@ -190,11 +190,11 @@ class LLMEngine:
             prompt_str = str(request_messages)
             
             if len(prompt_str) > 500:
-                self.logger.debug(f"[{log_prefix}] Prompt: {prompt_str[:500]}... (truncated)")
+                self.logger.info(f"[{log_prefix}] Prompt: {prompt_str[:500]}... (truncated)")
             else:
-                self.logger.debug(f"[{log_prefix}] Prompt: {prompt_str}")
+                self.logger.info(f"[{log_prefix}] Prompt: {prompt_str}")
             
-            self.logger.debug(f"[{log_prefix}] Sending request to {self.model_name} with max_tokens={max_tokens}, temperature={temperature}, stream={stream}")
+            self.logger.info(f"[{log_prefix}] Sending request to {self.model_name} with max_tokens={max_tokens}, temperature={temperature}, stream={stream}")
             call_start = time.time()
             
             # Handle streaming case
@@ -220,11 +220,11 @@ class LLMEngine:
                     # Log at the end of streaming
                     call_duration = time.time() - call_start
                     full_response = "".join(collected_content)
-                    self.logger.debug(f"[{log_prefix}] Model streaming completed in {call_duration:.2f}s")
+                    self.logger.info(f"[{log_prefix}] Model streaming completed in {call_duration:.2f}s")
                     if len(full_response) > 500:
-                        self.logger.debug(f"[{log_prefix}] Raw model response: '{full_response[:500]}...' (truncated)")
+                        self.logger.info(f"[{log_prefix}] Raw model response: '{full_response[:500]}...' (truncated)")
                     else:
-                        self.logger.debug(f"[{log_prefix}] Raw model response: '{full_response}'")
+                        self.logger.info(f"[{log_prefix}] Raw model response: '{full_response}'")
                     
                     processing_time = time.time() - start_time
                     self.logger.info(f"[{log_prefix}] Completion generation completed in {processing_time:.2f}s")
@@ -242,16 +242,16 @@ class LLMEngine:
                 )
                 
                 call_duration = time.time() - call_start
-                self.logger.debug(f"[{log_prefix}] Model response received in {call_duration:.2f}s")
+                self.logger.info(f"[{log_prefix}] Model response received in {call_duration:.2f}s")
                 
                 # Extract response text
                 completion_text = response.choices[0].message.content
                 
                 # Log truncated response if large
                 if len(completion_text) > 500:
-                    self.logger.debug(f"[{log_prefix}] Raw model response: '{completion_text[:500]}...' (truncated)")
+                    self.logger.info(f"[{log_prefix}] Raw model response: '{completion_text[:500]}...' (truncated)")
                 else:
-                    self.logger.debug(f"[{log_prefix}] Raw model response: '{completion_text}'")
+                    self.logger.info(f"[{log_prefix}] Raw model response: '{completion_text}'")
                     
                 processing_time = time.time() - start_time
                 self.logger.info(f"[{log_prefix}] Completion generation completed in {processing_time:.2f}s")
@@ -346,9 +346,9 @@ class LLMEngine:
         prompt_str = str(openai_messages)
         
         if len(prompt_str) > 500:
-            self.logger.debug(f"[{log_prefix}] Prompt: {prompt_str[:500]}... (truncated)")
+            self.logger.info(f"[{log_prefix}] Prompt: {prompt_str[:500]}... (truncated)")
         else:
-            self.logger.debug(f"[{log_prefix}] Prompt: {prompt_str}")
+            self.logger.info(f"[{log_prefix}] Prompt: {prompt_str}")
         
         # Prepare request parameters
         request_params = {
@@ -362,27 +362,27 @@ class LLMEngine:
         if tools:
             request_params["tools"] = tools
             request_params["tool_choice"] = tool_choice
-            self.logger.debug(f"[{log_prefix}] Including {len(tools)} tools with choice: {tool_choice}")
+            self.logger.info(f"[{log_prefix}] Including {len(tools)} tools with choice: {tool_choice}")
         
-        self.logger.debug(f"[{log_prefix}] Sending request to {self.model_name} with max_tokens={max_tokens}, temperature={temperature}")
+        self.logger.info(f"[{log_prefix}] Sending request to {self.model_name} with max_tokens={max_tokens}, temperature={temperature}")
         call_start = time.time()
         
         response = self.client.chat.completions.create(**request_params)
         
         call_duration = time.time() - call_start
-        self.logger.debug(f"[{log_prefix}] Model response received in {call_duration:.2f}s")
+        self.logger.info(f"[{log_prefix}] Model response received in {call_duration:.2f}s")
         
         message = response.choices[0].message
         
         # Log response details
         if message.content:
             if len(message.content) > 500:
-                self.logger.debug(f"[{log_prefix}] Raw model response: '{message.content[:500]}...' (truncated)")
+                self.logger.info(f"[{log_prefix}] Raw model response: '{message.content[:500]}...' (truncated)")
             else:
-                self.logger.debug(f"[{log_prefix}] Raw model response: '{message.content}'")
+                self.logger.info(f"[{log_prefix}] Raw model response: '{message.content}'")
         
         if hasattr(message, 'tool_calls') and message.tool_calls:
-            self.logger.debug(f"[{log_prefix}] Model requested {len(message.tool_calls)} tool calls")
+            self.logger.info(f"[{log_prefix}] Model requested {len(message.tool_calls)} tool calls")
             
         processing_time = time.time() - start_time
         self.logger.info(f"[{log_prefix}] Tool-enabled completion generation completed in {processing_time:.2f}s")
@@ -396,9 +396,9 @@ class LLMEngine:
         formatted_prompt = MessageFormatter.format_messages(openai_messages, tools, 'llama')
         
         if len(formatted_prompt) > 500:
-            self.logger.debug(f"[{log_prefix}] Llama prompt: {formatted_prompt[:500]}... (truncated)")
+            self.logger.info(f"[{log_prefix}] Llama prompt: {formatted_prompt[:500]}... (truncated)")
         else:
-            self.logger.debug(f"[{log_prefix}] Llama prompt: {formatted_prompt}")
+            self.logger.info(f"[{log_prefix}] Llama prompt: {formatted_prompt}")
         
         # Prepare request for Llama (no tools in request params, they're in the prompt)
         request_params = {
@@ -409,9 +409,9 @@ class LLMEngine:
         }
         
         if tools:
-            self.logger.debug(f"[{log_prefix}] Including {len(tools)} tools in Llama prompt")
+            self.logger.info(f"[{log_prefix}] Including {len(tools)} tools in Llama prompt")
         
-        self.logger.debug(f"[{log_prefix}] Sending Llama request to {self.model_name} with max_tokens={max_tokens}, temperature={temperature}")
+        self.logger.info(f"[{log_prefix}] Sending Llama request to {self.model_name} with max_tokens={max_tokens}, temperature={temperature}")
         call_start = time.time()
 
         self.logger.info(f"message {request_params}")
@@ -419,16 +419,16 @@ class LLMEngine:
         response = self.client.chat.completions.create(**request_params)
         
         call_duration = time.time() - call_start
-        self.logger.debug(f"[{log_prefix}] Llama model response received in {call_duration:.2f}s")
+        self.logger.info(f"[{log_prefix}] Llama model response received in {call_duration:.2f}s")
         
         # Parse Llama response and convert to OpenAI format
         raw_content = response.choices[0].message.content
         
         if raw_content:
             if len(raw_content) > 500:
-                self.logger.debug(f"[{log_prefix}] Raw Llama response: '{raw_content[:500]}...' (truncated)")
+                self.logger.info(f"[{log_prefix}] Raw Llama response: '{raw_content[:500]}...' (truncated)")
             else:
-                self.logger.debug(f"[{log_prefix}] Raw Llama response: '{raw_content}'")
+                self.logger.info(f"[{log_prefix}] Raw Llama response: '{raw_content}'")
         
         # Parse the response to extract tool calls or regular content
         parsed_message = MessageFormatter.parse_llama_response(raw_content, tools)
@@ -437,9 +437,9 @@ class LLMEngine:
         if 'tool_calls' in parsed_message and parsed_message['tool_calls']:
             self.logger.info(f"[{log_prefix}] Parsed {len(parsed_message['tool_calls'])} tool calls from LLaMA response")
             for i, tool_call in enumerate(parsed_message['tool_calls']):
-                self.logger.debug(f"[{log_prefix}] Tool call {i+1}: {tool_call['function']['name']}({tool_call['function']['arguments']})")
+                self.logger.info(f"[{log_prefix}] Tool call {i+1}: {tool_call['function']['name']}({tool_call['function']['arguments']})")
         else:
-            self.logger.debug(f"[{log_prefix}] No tool calls found in LLaMA response, treating as regular content")
+            self.logger.info(f"[{log_prefix}] No tool calls found in LLaMA response, treating as regular content")
         
         # Create a mock response object similar to OpenAI's structure
         class LlamaResponse:
@@ -473,7 +473,7 @@ class LLMEngine:
         llama_response = LlamaResponse(parsed_message)
         
         if llama_response.choices[0].message.tool_calls:
-            self.logger.debug(f"[{log_prefix}] Llama model requested {len(llama_response.choices[0].message.tool_calls)} tool calls")
+            self.logger.info(f"[{log_prefix}] Llama model requested {len(llama_response.choices[0].message.tool_calls)} tool calls")
         
         processing_time = time.time() - start_time
         self.logger.info(f"[{log_prefix}] Llama tool-enabled completion generation completed in {processing_time:.2f}s")
@@ -483,5 +483,5 @@ class LLMEngine:
 
     def close(self):
         """Close the LLM Engine client connection"""
-        self.logger.debug("Closing LLM Engine client connection")
+        self.logger.info("Closing LLM Engine client connection")
         # No explicit close method needed for OpenAI client

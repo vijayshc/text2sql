@@ -219,7 +219,7 @@ class KnowledgeManager:
             self.logger.info(f"Document {document_id} processing completed successfully")
             
         except Exception as e:
-            self.logger.error(f"Error processing document {document_id}: {str(e)}", exc_info=True)
+            self.logger.info(f"Error processing document {document_id}: {str(e)}", exc_info=True)
             
             # Update document status to error
             now = datetime.now().isoformat()
@@ -384,7 +384,7 @@ class KnowledgeManager:
             self.logger.info(f"Document {document_id} processing completed successfully")
             
         except Exception as e:
-            self.logger.error(f"Error processing text content {document_id}: {str(e)}", exc_info=True)
+            self.logger.info(f"Error processing text content {document_id}: {str(e)}", exc_info=True)
             
             # Update document status to error
             now = datetime.now().isoformat()
@@ -448,7 +448,7 @@ class KnowledgeManager:
                 )
                 
             except Exception as e:
-                self.logger.error(f"Error creating embedding for chunk {i} of document {document_id}: {str(e)}", exc_info=True)
+                self.logger.info(f"Error creating embedding for chunk {i} of document {document_id}: {str(e)}", exc_info=True)
         
         self.conn.commit()
     
@@ -627,7 +627,7 @@ class KnowledgeManager:
             self.conn.commit()
             return True
         except Exception as e:
-            self.logger.error(f"Error adding tag to document {document_id}: {str(e)}", exc_info=True)
+            self.logger.info(f"Error adding tag to document {document_id}: {str(e)}", exc_info=True)
             return False
             
     def remove_document_tag(self, document_id: str, tag: str) -> bool:
@@ -647,10 +647,10 @@ class KnowledgeManager:
             self.conn.commit()
             return True
         except Exception as e:
-            self.logger.error(f"Error removing tag from document {document_id}: {str(e)}", exc_info=True)
+            self.logger.info(f"Error removing tag from document {document_id}: {str(e)}", exc_info=True)
             return False
     
-    def get_answer(self, query: str, user_id: int, stream: bool = False, tags: List[str] = None):
+    def get_answer(self, query: str, user_id: int, stream: bool = False, tags: List[str] = None, conversation_history: List[Dict[str, str]] = None):
         """Get an answer to a query using the knowledge base
         
         Args:
@@ -658,6 +658,7 @@ class KnowledgeManager:
             user_id: User ID
             stream: Whether to stream the response
             tags: Optional list of tags to filter documents by
+            conversation_history: Previous conversation messages for context
             
         Returns:
             If stream=False: Dictionary with answer and supporting information
@@ -734,7 +735,7 @@ class KnowledgeManager:
             # Handle streaming case
             if stream:
                 # Generate streaming answer
-                stream_generator = self._generate_answer(query, context_chunks, stream=True)
+                stream_generator = self._generate_answer(query, context_chunks, conversation_history, stream=True)
                 
                 # Create a new generator that saves the complete answer when done
                 def save_and_stream():
@@ -748,7 +749,7 @@ class KnowledgeManager:
                         full_answer = "".join(collected_answer)
                         self._save_query(query, full_answer, user_id)
                     except Exception as e:
-                        self.logger.error(f"Error in streaming answer: {str(e)}", exc_info=True)
+                        self.logger.info(f"Error in streaming answer: {str(e)}", exc_info=True)
                         yield "\nError occurred during streaming."
                 
                 # Return exactly two values as a tuple
@@ -757,7 +758,7 @@ class KnowledgeManager:
             # Handle non-streaming case (original behavior)
             else:
                 # Generate answer using LLM
-                answer = self._generate_answer(query, context_chunks)
+                answer = self._generate_answer(query, context_chunks, conversation_history)
                 
                 # Save the query and answer to database
                 self._save_query(query, answer, user_id)
@@ -769,7 +770,12 @@ class KnowledgeManager:
                 }
             
         except Exception as e:
-            self.logger.info(f"Error answering query '{query}': {str(e)}", exc_info=True)
+            import traceback
+            error_traceback = traceback.format_exc()
+            self.logger.info(f"Error answering query '{query}': {str(e)}")
+            self.logger.info(f"Full traceback:\n{error_traceback}")
+            print(f"KNOWLEDGE MANAGER ERROR: {str(e)}")
+            print(f"TRACEBACK:\n{error_traceback}")
             return {
                 'success': False,
                 'error': str(e),
@@ -789,7 +795,7 @@ class KnowledgeManager:
             llm_engine = LLMEngine()
             return llm_engine.get_reranking_model()
         except Exception as e:
-            self.logger.error(f"Failed to get reranking model from LLMEngine: {str(e)}", exc_info=True)
+            self.logger.info(f"Failed to get reranking model from LLMEngine: {str(e)}", exc_info=True)
             return None
             
     def _rerank_chunks(self, query: str, chunk_ids: List[str]) -> List[str]:
@@ -851,7 +857,7 @@ class KnowledgeManager:
             return reranked_ids
             
         except Exception as e:
-            self.logger.error(f"Error during chunk reranking: {str(e)}", exc_info=True)
+            self.logger.info(f"Error during chunk reranking: {str(e)}", exc_info=True)
             # If reranking fails, return original order (top 3)
             return chunk_ids[:3]
     
@@ -923,12 +929,13 @@ class KnowledgeManager:
         
         return chunks
     
-    def _generate_answer(self, query: str, context_chunks: List[Dict[str, Any]], stream: bool = False):
+    def _generate_answer(self, query: str, context_chunks: List[Dict[str, Any]], conversation_history: List[Dict[str, str]] = None, stream: bool = False):
         """Generate an answer to the query using LLM and context chunks
         
         Args:
             query: User query
             context_chunks: Context chunks with their content
+            conversation_history: Previous conversation messages for context
             stream: Whether to stream the response
             
         Returns:
@@ -949,12 +956,28 @@ class KnowledgeManager:
             if 'successor' in chunk:
                 context += chunk['successor']['content']
         
-        # Create prompt for LLM
+        # Build conversation context if history is provided
+        conversation_context = ""
+        if conversation_history:
+            conversation_context = "\n\nPrevious conversation context:\n"
+            # Include only the last few messages to avoid token limits
+            recent_history = conversation_history[-6:]  # Last 6 messages (3 exchanges)
+            for msg in recent_history:
+                role = msg.get('role', '')
+                content = msg.get('content', '')
+                if role == 'user':
+                    conversation_context += f"User: {content}\n"
+                elif role == 'assistant':
+                    conversation_context += f"Assistant: {content}\n"
+        
+        # Create prompt for LLM with conversation context
+        system_content = f"""You are a helpful AI assistant that provides accurate answers based on the given context. 
+        If the answer cannot be found in the context, acknowledge that you don't know instead of making up information.
+        Provide clear, concise answers and use markdown formatting in your response to improve readability.
+        When referring to information from the context, cite the document name.{conversation_context}"""
+        
         prompt = [
-            {"role": "system", "content": """You are a helpful AI assistant that provides accurate answers based on the given context. 
-            If the answer cannot be found in the context, acknowledge that you don't know instead of making up information.
-            Provide clear, concise answers and use markdown formatting in your response to improve readability.
-            When referring to information from the context, cite the document name."""},
+            {"role": "system", "content": system_content},
             {"role": "user", "content": f"Context information:\n{context}\n\nQuestion: {query}\n\nProvide a detailed answer to the question based only on the context provided. Use markdown formatting for better readability."}
         ]
         
@@ -962,7 +985,12 @@ class KnowledgeManager:
             # Generate answer using LLM engine
             return self.llm_engine.generate_completion(prompt, log_prefix="Knowledge QA", stream=stream)
         except Exception as e:
-            self.logger.error(f"Error generating answer: {str(e)}", exc_info=True)
+            import traceback
+            error_traceback = traceback.format_exc()
+            self.logger.info(f"Error generating answer: {str(e)}")
+            self.logger.info(f"Full traceback:\n{error_traceback}")
+            print(f"GENERATE ANSWER ERROR: {str(e)}")
+            print(f"TRACEBACK:\n{error_traceback}")
             if stream:
                 def error_generator():
                     yield "I'm sorry, I couldn't generate an answer based on the available information."
@@ -1101,7 +1129,7 @@ class KnowledgeManager:
                                     filter_expr=filter_expr
                                 )
                             except Exception as chunk_err:
-                                self.logger.error(f"Error deleting chunk {chunk_id}: {str(chunk_err)}")
+                                self.logger.info(f"Error deleting chunk {chunk_id}: {str(chunk_err)}")
                         
                         # Flush after each batch
                         # self.vector_store.client.flush('knowledge_chunks')
@@ -1110,10 +1138,10 @@ class KnowledgeManager:
                     # self.vector_store.client.load_collection('knowledge_chunks')
                     self.logger.info(f"Successfully deleted chunks from vector store for document {document_id}")
                 except Exception as e:
-                    self.logger.error(f"Error deleting chunks from vector store: {str(e)}", exc_info=True)
+                    self.logger.info(f"Error deleting chunks from vector store: {str(e)}", exc_info=True)
                     # Continue despite vector store errors - document is already removed from DB
             
             return True
         except Exception as e:
-            self.logger.error(f"Error deleting document {document_id}: {str(e)}", exc_info=True)
+            self.logger.info(f"Error deleting document {document_id}: {str(e)}", exc_info=True)
             return False

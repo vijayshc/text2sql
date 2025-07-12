@@ -3,6 +3,15 @@
  */
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Conversation history for follow-up questions
+    // Separate history for knowledge base and metadata search
+    let knowledgeConversationHistory = [];
+    let metadataConversationHistory = [];
+    
+    // Configuration for conversation history limits (can be made configurable via API)
+    const KNOWLEDGE_HISTORY_LIMIT = 10;
+    const METADATA_HISTORY_LIMIT = 10;
+    
     // Tags handling with new compact UI
     const selectedTags = [];
     let availableTags = [];
@@ -260,6 +269,34 @@ document.addEventListener('DOMContentLoaded', function() {
             messagesContainer.appendChild(messageDiv);
         }
         messagesContainer.scrollTop = 0; // Scroll to the top where new messages appear
+        
+        // Add to conversation history based on current search mode
+        const isMetadataSearch = document.getElementById('search-metadata') && 
+                                document.getElementById('search-metadata').checked;
+        
+        if (isMetadataSearch) {
+            // Add to metadata conversation history
+            metadataConversationHistory.push({
+                role: 'user',
+                content: text
+            });
+            // Limit history size
+            if (metadataConversationHistory.length > METADATA_HISTORY_LIMIT * 2) {
+                metadataConversationHistory = metadataConversationHistory.slice(-METADATA_HISTORY_LIMIT * 2);
+            }
+        } else {
+            // Add to knowledge base conversation history
+            knowledgeConversationHistory.push({
+                role: 'user',
+                content: text
+            });
+            // Limit history size
+            if (knowledgeConversationHistory.length > KNOWLEDGE_HISTORY_LIMIT * 2) {
+                knowledgeConversationHistory = knowledgeConversationHistory.slice(-KNOWLEDGE_HISTORY_LIMIT * 2);
+            }
+        }
+        
+        console.log('Updated conversation history:', isMetadataSearch ? metadataConversationHistory : knowledgeConversationHistory);
     }
     
     // Function to add a system/AI message to the chat
@@ -334,7 +371,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: JSON.stringify({
                     query: query,
-                    limit: 100
+                    limit: 100,
+                    conversation_history: metadataConversationHistory.slice(0, -1) // Exclude the current user message
                 })
             })
             .then(response => {
@@ -393,9 +431,22 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     // Listen for done event
                     eventSource.addEventListener('done', function() {
-                        eventSource.close();
+                        // Add assistant response to metadata conversation history
+                        if (accumulatedText.trim()) {
+                            metadataConversationHistory.push({
+                                role: 'assistant',
+                                content: accumulatedText.trim()
+                            });
+                            
+                            // Limit history size
+                            if (metadataConversationHistory.length > METADATA_HISTORY_LIMIT * 2) {
+                                metadataConversationHistory = metadataConversationHistory.slice(-METADATA_HISTORY_LIMIT * 2);
+                            }
+                            
+                            console.log('Updated metadata conversation history:', metadataConversationHistory);
+                        }
                         
-                      
+                        eventSource.close();
                     });
                     
                     // Listen for error event
@@ -443,7 +494,8 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             body: JSON.stringify({ 
                 query: query,
-                tags: selectedTags 
+                tags: selectedTags,
+                conversation_history: knowledgeConversationHistory.slice(0, -1) // Exclude the current user message
             })
         }).then(response => {
             if (!response.ok) {
@@ -481,6 +533,21 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Handle completion
             eventSource.addEventListener('done', function(e) {
+                // Add assistant response to conversation history
+                if (accumulatedText.trim()) {
+                    knowledgeConversationHistory.push({
+                        role: 'assistant',
+                        content: accumulatedText.trim()
+                    });
+                    
+                    // Limit history size
+                    if (knowledgeConversationHistory.length > KNOWLEDGE_HISTORY_LIMIT * 2) {
+                        knowledgeConversationHistory = knowledgeConversationHistory.slice(-KNOWLEDGE_HISTORY_LIMIT * 2);
+                    }
+                    
+                    console.log('Updated knowledge conversation history:', knowledgeConversationHistory);
+                }
+                
                 // Add sources information
                 let sourcesHtml = '';
                 if (sources && sources.length > 0) {
@@ -542,4 +609,30 @@ document.addEventListener('DOMContentLoaded', function() {
             sendQuery();
         }
     });
+    
+    // Clear conversation history functionality
+    const clearConversationBtn = document.getElementById('clearConversationBtn');
+    if (clearConversationBtn) {
+        clearConversationBtn.addEventListener('click', function() {
+            // Ask for confirmation
+            if (confirm('Are you sure you want to clear the conversation history? This cannot be undone.')) {
+                // Clear both conversation histories
+                knowledgeConversationHistory = [];
+                metadataConversationHistory = [];
+                
+                // Show success message
+                console.log('Conversation history cleared');
+                
+                // Optionally show a brief notification
+                const originalText = clearConversationBtn.innerHTML;
+                clearConversationBtn.innerHTML = '<i class="fas fa-check"></i> Cleared';
+                clearConversationBtn.disabled = true;
+                
+                setTimeout(() => {
+                    clearConversationBtn.innerHTML = originalText;
+                    clearConversationBtn.disabled = false;
+                }, 2000);
+            }
+        });
+    }
 });

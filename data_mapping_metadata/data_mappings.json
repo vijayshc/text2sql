@@ -1,0 +1,136 @@
+{
+  "mappings": [
+    {
+      "mappingId": "550e8400-e29b-41d4-a716-446655440001",
+      "targetTable": "FACT_SALES",
+      "targetColumn": "CUSTOMER_KEY",
+      "status": "ACTIVE",
+      "version": 1,
+      "transformationLogic": "DIM_CUSTOMER.CUSTOMER_KEY WHERE DIM_CUSTOMER.CUSTOMER_ID = STG_ORDERS.CUSTOMER_ID AND DIM_CUSTOMER.IS_CURRENT = 'Y'",
+      "businessRule": "Map to current customer dimension record using business key",
+      "lineage": [
+        {
+          "sourceSystem": "CRM",
+          "sourceTable": "STG_ORDERS",
+          "sourceColumn": "CUSTOMER_ID",
+          "joinPath": "FROM STG_ORDERS o JOIN DIM_CUSTOMER c ON o.CUSTOMER_ID = c.CUSTOMER_ID AND c.IS_CURRENT = 'Y'"
+        }
+      ],
+      "createdBy": "data_engineer_001",
+      "validatedBy": "data_architect_001",
+      "createdAt": "2024-01-15T10:30:00Z",
+      "updatedAt": "2024-01-15T10:30:00Z"
+    },
+    {
+      "mappingId": "550e8400-e29b-41d4-a716-446655440002",
+      "targetTable": "FACT_SALES",
+      "targetColumn": "PRODUCT_KEY",
+      "status": "ACTIVE",
+      "version": 1,
+      "transformationLogic": "DIM_PRODUCT.PRODUCT_KEY WHERE DIM_PRODUCT.PRODUCT_ID = STG_ORDERS.PRODUCT_ID",
+      "businessRule": "Map to product dimension using business key",
+      "lineage": [
+        {
+          "sourceSystem": "Inventory",
+          "sourceTable": "STG_ORDERS",
+          "sourceColumn": "PRODUCT_ID",
+          "joinPath": "FROM STG_ORDERS o JOIN DIM_PRODUCT p ON o.PRODUCT_ID = p.PRODUCT_ID"
+        }
+      ],
+      "createdBy": "data_engineer_001",
+      "validatedBy": "data_architect_001",
+      "createdAt": "2024-01-15T10:31:00Z",
+      "updatedAt": "2024-01-15T10:31:00Z"
+    },
+    {
+      "mappingId": "550e8400-e29b-41d4-a716-446655440003",
+      "targetTable": "FACT_SALES",
+      "targetColumn": "DATE_KEY",
+      "status": "ACTIVE",
+      "version": 1,
+      "transformationLogic": "TO_NUMBER(TO_CHAR(STG_ORDERS.ORDER_DATE, 'YYYYMMDD'))",
+      "businessRule": "Convert order date to date dimension key format (YYYYMMDD)",
+      "lineage": [
+        {
+          "sourceSystem": "Orders",
+          "sourceTable": "STG_ORDERS",
+          "sourceColumn": "ORDER_DATE",
+          "joinPath": "FROM STG_ORDERS o"
+        }
+      ],
+      "createdBy": "data_engineer_001",
+      "validatedBy": "data_architect_001",
+      "createdAt": "2024-01-15T10:32:00Z",
+      "updatedAt": "2024-01-15T10:32:00Z"
+    },
+    {
+      "mappingId": "550e8400-e29b-41d4-a716-446655440004",
+      "targetTable": "FACT_SALES",
+      "targetColumn": "SALES_AMOUNT",
+      "status": "ACTIVE",
+      "version": 1,
+      "transformationLogic": "STG_ORDERS.QUANTITY * STG_ORDERS.UNIT_PRICE",
+      "businessRule": "Calculate total sales amount by multiplying quantity and unit price",
+      "lineage": [
+        {
+          "sourceSystem": "Orders",
+          "sourceTable": "STG_ORDERS",
+          "sourceColumn": "QUANTITY",
+          "joinPath": "FROM STG_ORDERS o"
+        },
+        {
+          "sourceSystem": "Orders",
+          "sourceTable": "STG_ORDERS",
+          "sourceColumn": "UNIT_PRICE",
+          "joinPath": "FROM STG_ORDERS o"
+        }
+      ],
+      "createdBy": "data_engineer_001",
+      "validatedBy": "data_architect_001",
+      "createdAt": "2024-01-15T10:33:00Z",
+      "updatedAt": "2024-01-15T10:33:00Z"
+    },
+    {
+      "mappingId": "550e8400-e29b-41d4-a716-446655440005",
+      "targetTable": "DIM_CUSTOMER",
+      "targetColumn": "CUSTOMER_NAME",
+      "status": "ACTIVE",
+      "version": 1,
+      "transformationLogic": "UPPER(TRIM(STG_CUSTOMERS.CUSTOMER_NAME))",
+      "businessRule": "Standardize customer name to uppercase and remove leading/trailing spaces",
+      "lineage": [
+        {
+          "sourceSystem": "CRM",
+          "sourceTable": "STG_CUSTOMERS",
+          "sourceColumn": "CUSTOMER_NAME",
+          "joinPath": "FROM STG_CUSTOMERS c"
+        }
+      ],
+      "createdBy": "data_engineer_001",
+      "validatedBy": "data_architect_001",
+      "createdAt": "2024-01-15T10:34:00Z",
+      "updatedAt": "2024-01-15T10:34:00Z"
+    },
+    {
+      "mappingId": "550e8400-e29b-41d4-a716-446655440006",
+      "targetTable": "DIM_PRODUCT",
+      "targetColumn": "CATEGORY_NAME",
+      "status": "ACTIVE",
+      "version": 1,
+      "transformationLogic": "CASE WHEN STG_PRODUCTS.CATEGORY_CODE = 'ELEC' THEN 'Electronics' WHEN STG_PRODUCTS.CATEGORY_CODE = 'CLOTH' THEN 'Clothing' WHEN STG_PRODUCTS.CATEGORY_CODE = 'BOOK' THEN 'Books' WHEN STG_PRODUCTS.CATEGORY_CODE = 'HOME' THEN 'Home & Garden' ELSE 'Other' END",
+      "businessRule": "Map category codes to descriptive category names using lookup logic",
+      "lineage": [
+        {
+          "sourceSystem": "Inventory",
+          "sourceTable": "STG_PRODUCTS",
+          "sourceColumn": "CATEGORY_CODE",
+          "joinPath": "FROM STG_PRODUCTS p"
+        }
+      ],
+      "createdBy": "data_engineer_001",
+      "validatedBy": "data_architect_001",
+      "createdAt": "2024-01-15T10:35:00Z",
+      "updatedAt": "2024-01-15T10:35:00Z"
+    }
+  ]
+}

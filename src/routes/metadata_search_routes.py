@@ -94,12 +94,13 @@ def get_metadata_stats():
         logger.error(f"Error getting metadata stats: {str(e)}", exc_info=True)
         return jsonify({'success': False, 'error': str(e)}), 500
 
-def generate_metadata_response(query: str, sources: List[Dict[str, Any]], stream: bool = False):
+def generate_metadata_response(query: str, sources: List[Dict[str, Any]], conversation_history: List[Dict[str, str]] = None, stream: bool = False):
     """Generate a response based on the metadata search results
     
     Args:
         query: User query
         sources: List of metadata search results
+        conversation_history: Previous conversation messages for context
         stream: Whether to stream the response
         
     Returns:
@@ -113,11 +114,25 @@ def generate_metadata_response(query: str, sources: List[Dict[str, Any]], stream
         # Create a prompt with the sources
         source_text = "\n\n".join([src.get('text', '') for src in sources[:5]])
         
+        # Build conversation context if history is provided
+        conversation_context = ""
+        if conversation_history:
+            conversation_context = "\n\nPrevious conversation context:\n"
+            # Include only the last few messages to avoid token limits
+            recent_history = conversation_history[-6:]  # Last 6 messages (3 exchanges)
+            for msg in recent_history:
+                role = msg.get('role', '')
+                content = msg.get('content', '')
+                if role == 'user':
+                    conversation_context += f"User: {content}\n"
+                elif role == 'assistant':
+                    conversation_context += f"Assistant: {content}\n"
+        
         # Format prompt as a list of messages for the LLM
         messages = [
             {
                 "role": "system", 
-                "content": "You are a database expert that helps users understand database schema."
+                "content": f"You are a database expert that helps users understand database schema.{conversation_context}"
             },
             {
                 "role": "user", 
@@ -165,10 +180,12 @@ def search_metadata_stream():
             
         query = data.get('query')
         limit = int(data.get('limit', 100))
+        conversation_history = data.get('conversation_history', [])
         
-        # Store the query in session for the subsequent GET request
+        # Store the query, limit, and conversation history in session for the subsequent GET request
         session['current_metadata_query'] = query
         session['current_metadata_limit'] = limit
+        session['current_metadata_conversation_history'] = conversation_history
         
         return jsonify({"success": True, "message": "Query received"})
     
@@ -176,6 +193,7 @@ def search_metadata_stream():
     elif request.method == 'GET':
         query = request.args.get('query') or session.get('current_metadata_query')
         limit = session.get('current_metadata_limit', 10)
+        conversation_history = session.get('current_metadata_conversation_history', [])
         
         if not query:
             return jsonify({"error": "No query found"}), 400
@@ -281,7 +299,7 @@ def search_metadata_stream():
         
         # Get streaming answer
         # logger.info(f"input {sources}")
-        stream_generator = generate_metadata_response(query, sources, stream=True)
+        stream_generator = generate_metadata_response(query, sources, conversation_history, stream=True)
         
         # Create a generator that yields server-sent events
         def generate_sse():
@@ -312,8 +330,16 @@ def search_metadata_stream():
         return response
         
     except Exception as e:
-        logger.error(f"Error in streaming metadata search: {str(e)}", exc_info=True)
+        import traceback
+        error_traceback = traceback.format_exc()
+        logger.error(f"Error in streaming metadata search: {str(e)}")
+        logger.error(f"Full traceback:\n{error_traceback}")
+        
+        # For debugging, also print to console
+        print(f"METADATA SEARCH ERROR: {str(e)}")
+        print(f"FULL TRACEBACK:\n{error_traceback}")
+        
         return jsonify({
             'success': False,
-            'error': str(e)
+            'error': f"Metadata search error: {str(e)}"
         }), 500

@@ -154,9 +154,11 @@ def query_knowledge():
     user_id = session.get('user_id')
     # Get tags for filtering if provided
     tags = data.get('tags', [])
+    # Get conversation history for follow-up questions
+    conversation_history = data.get('conversation_history', [])
     
     # Get the answer using the knowledge manager
-    result = get_knowledge_manager().get_answer(query, user_id, stream=False, tags=tags)
+    result = get_knowledge_manager().get_answer(query, user_id, stream=False, tags=tags, conversation_history=conversation_history)
     
     return jsonify(result)
 
@@ -179,28 +181,36 @@ def query_knowledge_stream():
             
         query = data.get('query')
         tags = data.get('tags', [])
+        conversation_history = data.get('conversation_history', [])
         
-        # Store the query and tags in session for the subsequent GET request
+        # Store the query, tags, and conversation history in session for the subsequent GET request
         session['current_knowledge_query'] = query
         session['current_knowledge_tags'] = tags
+        session['current_knowledge_conversation_history'] = conversation_history
         return jsonify({"success": True, "message": "Query received"})
     
     # Handle GET request (SSE streaming)
     elif request.method == 'GET':
         query = request.args.get('query') or session.get('current_knowledge_query')
         tags = session.get('current_knowledge_tags', [])
+        conversation_history = session.get('current_knowledge_conversation_history', [])
         
         if not query:
             return jsonify({"error": "No query found"}), 400
     
     try:
         # Get the streaming answer using the knowledge manager
-        result = get_knowledge_manager().get_answer(query, user_id, stream=True, tags=tags)
+        result = get_knowledge_manager().get_answer(query, user_id, stream=True, tags=tags, conversation_history=conversation_history)
         
         # Check if result is a tuple with two values (stream_generator, sources)
         if isinstance(result, tuple) and len(result) == 2:
             stream_generator, sources = result
         else:
+            import traceback
+            error_msg = f"Invalid response from knowledge manager. Result type: {type(result)}, value: {str(result)}"
+            current_app.logger.error(error_msg)
+            current_app.logger.error(f"Full traceback:\n{traceback.format_exc()}")
+            print(f"KNOWLEDGE ROUTE ERROR: {error_msg}")
             # If it's not a tuple with two values, handle the error case
             return jsonify({"error": "Invalid response from knowledge manager"}), 500
         
@@ -233,10 +243,18 @@ def query_knowledge_stream():
         return response
     
     except Exception as e:
-        current_app.logger.error(f"Error in streaming knowledge query: {str(e)}", exc_info=True)
+        import traceback
+        error_traceback = traceback.format_exc()
+        current_app.logger.error(f"Error in streaming knowledge query: {str(e)}")
+        current_app.logger.error(f"Full traceback:\n{error_traceback}")
+        
+        # For debugging, also print to console
+        print(f"KNOWLEDGE QUERY ERROR: {str(e)}")
+        print(f"FULL TRACEBACK:\n{error_traceback}")
+        
         return jsonify({
             "success": False,
-            "error": "An error occurred while processing your question."
+            "error": f"An error occurred while processing your question: {str(e)}"
         }), 500
 
 # Route to get all available tags
