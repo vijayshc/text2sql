@@ -20,11 +20,15 @@ from src.agents.data_mapping_agent import DataMappingAgent, MappingStatus
 from src.utils.auth_utils import login_required
 from src.routes.auth_routes import admin_required
 from src.utils.mcp_client_manager import MCPClientManager
+from src.utils.user_manager import UserManager
 
 logger = logging.getLogger('text2sql.data_mapping_routes')
 
 # Create blueprint
 data_mapping_bp = Blueprint('data_mapping', __name__, url_prefix='/data-mapping')
+
+# Initialize user manager for audit logging
+user_manager = UserManager()
 
 # Global agent instance (will be initialized with MCP client)
 _data_mapping_agent = None
@@ -135,11 +139,27 @@ def get_data_mapping_agent():
 def data_mapping_page():
     """Main data mapping analysis page"""
     try:
+        # Audit log the data mapping page access
+        user_manager.log_audit_event(
+            user_id=session.get('user_id'),
+            action='access_data_mapping',
+            details="Accessed data mapping analysis page",
+            ip_address=request.remote_addr
+        )
+        
         return render_template('data_mapping/index.html',
                              page_title="AI Data Mapping Analyst",
                              active_nav="data_mapping")
     except Exception as e:
         logger.error(f"Error loading data mapping page: {str(e)}")
+        
+        # Audit log the error
+        user_manager.log_audit_event(
+            user_id=session.get('user_id'),
+            action='access_data_mapping_error',
+            details=f"Error loading data mapping page: {str(e)}",
+            ip_address=request.remote_addr
+        )
         return render_template('500.html'), 500
 
 
@@ -151,6 +171,14 @@ def get_server_status():
         agent = get_data_mapping_agent()
         
         if not agent.mcp_client:
+            # Audit log server status check
+            user_manager.log_audit_event(
+                user_id=session.get('user_id'),
+                action='check_data_mapping_server_status',
+                details="Data mapping server status: disconnected",
+                ip_address=request.remote_addr
+            )
+            
             return jsonify({
                 "status": "disconnected",
                 "message": "Data Mapping MCP server not available",
@@ -161,6 +189,14 @@ def get_server_status():
         test_result = run_async_safely(agent.test_connection())
         
         if test_result.get("status") == "success":
+            # Audit log successful server status check
+            user_manager.log_audit_event(
+                user_id=session.get('user_id'),
+                action='check_data_mapping_server_status',
+                details="Data mapping server status: connected and operational",
+                ip_address=request.remote_addr
+            )
+            
             return jsonify({
                 "status": "connected",
                 "message": "Data Mapping MCP server is running and connected",
@@ -168,6 +204,14 @@ def get_server_status():
                 "test_result": test_result
             })
         else:
+            # Audit log failed server status check
+            user_manager.log_audit_event(
+                user_id=session.get('user_id'),
+                action='check_data_mapping_server_status',
+                details=f"Data mapping server status: connection test failed - {test_result.get('message', 'Unknown error')}",
+                ip_address=request.remote_addr
+            )
+            
             return jsonify({
                 "status": "error",
                 "message": f"Server connection test failed: {test_result.get('message', 'Unknown error')}",
@@ -177,6 +221,15 @@ def get_server_status():
         
     except Exception as e:
         logger.error(f"Error checking server status: {str(e)}")
+        
+        # Audit log the exception
+        user_manager.log_audit_event(
+            user_id=session.get('user_id'),
+            action='check_data_mapping_server_status_error',
+            details=f"Error checking data mapping server status: {str(e)}",
+            ip_address=request.remote_addr
+        )
+        
         return jsonify({
             "status": "error",
             "message": f"Failed to check server status: {str(e)}",
@@ -253,6 +306,14 @@ def analyze_column():
         data = request.get_json()
         
         if not data:
+            # Audit log validation error
+            user_manager.log_audit_event(
+                user_id=session.get('user_id'),
+                action='analyze_column_error',
+                details="Column analysis failed: No data provided",
+                ip_address=request.remote_addr
+            )
+            
             return jsonify({
                 "status": "error",
                 "message": "No data provided"

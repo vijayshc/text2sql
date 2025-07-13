@@ -1,8 +1,9 @@
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, render_template, request, jsonify, session
 import logging
 import json
 import os
 from src.utils.schema_manager import SchemaManager
+from src.utils.user_manager import UserManager
 import time
 
 # Configure logger
@@ -11,13 +12,23 @@ logger = logging.getLogger('text2sql.routes.schema')
 # Create a Blueprint for schema routes
 schema_bp = Blueprint('schema', __name__, url_prefix='/admin')
 
-# Initialize schema manager
+# Initialize schema manager and user manager
 schema_manager = SchemaManager()
+user_manager = UserManager()
 
 @schema_bp.route('/schema')
 def schema_page():
     """Render the schema management page"""
     logger.debug("Schema management page requested")
+    
+    # Audit log the schema page access
+    user_manager.log_audit_event(
+        user_id=session.get('user_id'),
+        action='access_schema_management',
+        details="Accessed schema management page",
+        ip_address=request.remote_addr
+    )
+    
     # Get workspaces for the dropdown
     workspaces = schema_manager.get_workspaces()
     return render_template('admin/schema.html', workspaces=workspaces)
@@ -27,9 +38,26 @@ def get_all_workspaces():
     """Get all workspaces defined in the schema"""
     try:
         workspaces = schema_manager.get_workspaces()
+        
+        # Audit log the workspace retrieval
+        user_manager.log_audit_event(
+            user_id=session.get('user_id'),
+            action='view_workspaces',
+            details=f"Retrieved {len(workspaces)} workspaces",
+            ip_address=request.remote_addr
+        )
+        
         return jsonify({"success": True, "workspaces": workspaces})
     except Exception as e:
         logger.exception(f"Error retrieving workspaces: {str(e)}")
+        
+        # Audit log the error
+        user_manager.log_audit_event(
+            user_id=session.get('user_id'),
+            action='view_workspaces_error',
+            details=f"Error retrieving workspaces: {str(e)}",
+            ip_address=request.remote_addr
+        )
         return jsonify({"success": False, "error": str(e)}), 500
 
 @schema_bp.route('/api/schema/workspaces/<workspace_name>', methods=['GET'])
@@ -38,11 +66,33 @@ def get_workspace_details(workspace_name):
     try:
         workspace = schema_manager.get_workspace_by_name(workspace_name)
         if workspace:
+            # Audit log the workspace details retrieval
+            user_manager.log_audit_event(
+                user_id=session.get('user_id'),
+                action='view_workspace_details',
+                details=f"Retrieved details for workspace: {workspace_name}",
+                ip_address=request.remote_addr
+            )
             return jsonify({"success": True, "workspace": workspace})
         else:
+            # Audit log the workspace not found
+            user_manager.log_audit_event(
+                user_id=session.get('user_id'),
+                action='view_workspace_details_error',
+                details=f"Workspace not found: {workspace_name}",
+                ip_address=request.remote_addr
+            )
             return jsonify({"success": False, "error": f"Workspace '{workspace_name}' not found"}), 404
     except Exception as e:
         logger.exception(f"Error retrieving workspace details: {str(e)}")
+        
+        # Audit log the error
+        user_manager.log_audit_event(
+            user_id=session.get('user_id'),
+            action='view_workspace_details_error',
+            details=f"Error retrieving workspace details for {workspace_name}: {str(e)}",
+            ip_address=request.remote_addr
+        )
         return jsonify({"success": False, "error": str(e)}), 500
 
 @schema_bp.route('/api/schema/workspaces', methods=['POST'])
@@ -53,11 +103,25 @@ def create_workspace():
         
         # Basic validation
         if not data or 'name' not in data:
+            # Audit log validation error
+            user_manager.log_audit_event(
+                user_id=session.get('user_id'),
+                action='create_workspace_error',
+                details="Workspace creation failed: Workspace name is required",
+                ip_address=request.remote_addr
+            )
             return jsonify({"success": False, "error": "Workspace name is required"}), 400
         
         # Check if workspace already exists
         existing = schema_manager.get_workspace_by_name(data['name'])
         if existing:
+            # Audit log duplicate workspace error
+            user_manager.log_audit_event(
+                user_id=session.get('user_id'),
+                action='create_workspace_error',
+                details=f"Workspace creation failed: Workspace '{data['name']}' already exists",
+                ip_address=request.remote_addr
+            )
             return jsonify({"success": False, "error": f"Workspace '{data['name']}' already exists"}), 409
         
         # Add new workspace to schema data
@@ -76,12 +140,36 @@ def create_workspace():
         if success:
             # Reload schema data
             schema_manager.load_schema()
+            
+            # Audit log successful workspace creation
+            user_manager.log_audit_event(
+                user_id=session.get('user_id'),
+                action='create_workspace',
+                details=f"Created workspace: {data['name']} - {data.get('description', '')}",
+                ip_address=request.remote_addr
+            )
+            
             return jsonify({"success": True, "workspace": new_workspace})
         else:
+            # Audit log save error
+            user_manager.log_audit_event(
+                user_id=session.get('user_id'),
+                action='create_workspace_error',
+                details=f"Workspace creation failed: Failed to save schema data for {data['name']}",
+                ip_address=request.remote_addr
+            )
             return jsonify({"success": False, "error": "Failed to save schema data"}), 500
             
     except Exception as e:
         logger.exception(f"Error creating workspace: {str(e)}")
+        
+        # Audit log exception
+        user_manager.log_audit_event(
+            user_id=session.get('user_id'),
+            action='create_workspace_error',
+            details=f"Workspace creation exception: {str(e)}",
+            ip_address=request.remote_addr
+        )
         return jsonify({"success": False, "error": str(e)}), 500
 
 @schema_bp.route('/api/schema/workspaces/<workspace_name>', methods=['PUT'])
@@ -92,14 +180,23 @@ def update_workspace(workspace_name):
         
         # Basic validation
         if not data:
+            # Audit log validation error
+            user_manager.log_audit_event(
+                user_id=session.get('user_id'),
+                action='update_workspace_error',
+                details=f"Workspace update failed for {workspace_name}: No update data provided",
+                ip_address=request.remote_addr
+            )
             return jsonify({"success": False, "error": "No update data provided"}), 400
         
         schema_data = schema_manager.schema_data
         
         # Find and update the workspace
         workspace_updated = False
+        old_name = workspace_name
         for i, workspace in enumerate(schema_data['workspaces']):
             if workspace['name'] == workspace_name:
+                old_description = workspace.get('description', '')
                 workspace['description'] = data.get('description', workspace.get('description', ''))
                 
                 # If name is changing, make sure it doesn't conflict
@@ -107,6 +204,13 @@ def update_workspace(workspace_name):
                     # Check if new name already exists
                     exists = any(w['name'] == data['name'] for w in schema_data['workspaces'])
                     if exists:
+                        # Audit log name conflict error
+                        user_manager.log_audit_event(
+                            user_id=session.get('user_id'),
+                            action='update_workspace_error',
+                            details=f"Workspace update failed: Cannot rename '{workspace_name}' to '{data['name']}' - already exists",
+                            ip_address=request.remote_addr
+                        )
                         return jsonify({
                             "success": False, 
                             "error": f"Cannot rename - workspace '{data['name']}' already exists"
@@ -118,6 +222,13 @@ def update_workspace(workspace_name):
                 break
         
         if not workspace_updated:
+            # Audit log workspace not found
+            user_manager.log_audit_event(
+                user_id=session.get('user_id'),
+                action='update_workspace_error',
+                details=f"Workspace update failed: Workspace '{workspace_name}' not found",
+                ip_address=request.remote_addr
+            )
             return jsonify({"success": False, "error": f"Workspace '{workspace_name}' not found"}), 404
             
         # Save updated schema data
@@ -126,12 +237,42 @@ def update_workspace(workspace_name):
         if success:
             # Reload schema data
             schema_manager.load_schema()
+            
+            # Audit log successful workspace update
+            changes = []
+            if 'name' in data and data['name'] != old_name:
+                changes.append(f"name: {old_name} -> {data['name']}")
+            if 'description' in data:
+                changes.append(f"description updated")
+            
+            user_manager.log_audit_event(
+                user_id=session.get('user_id'),
+                action='update_workspace',
+                details=f"Updated workspace '{old_name}': {', '.join(changes)}",
+                ip_address=request.remote_addr
+            )
+            
             return jsonify({"success": True})
         else:
+            # Audit log save error
+            user_manager.log_audit_event(
+                user_id=session.get('user_id'),
+                action='update_workspace_error',
+                details=f"Workspace update failed: Failed to save schema data for {workspace_name}",
+                ip_address=request.remote_addr
+            )
             return jsonify({"success": False, "error": "Failed to save schema data"}), 500
             
     except Exception as e:
         logger.exception(f"Error updating workspace: {str(e)}")
+        
+        # Audit log exception
+        user_manager.log_audit_event(
+            user_id=session.get('user_id'),
+            action='update_workspace_error',
+            details=f"Workspace update exception for {workspace_name}: {str(e)}",
+            ip_address=request.remote_addr
+        )
         return jsonify({"success": False, "error": str(e)}), 500
 
 @schema_bp.route('/api/schema/workspaces/<workspace_name>', methods=['DELETE'])
@@ -142,12 +283,21 @@ def delete_workspace(workspace_name):
         
         # Find the workspace
         workspace_index = None
+        workspace_tables_count = 0
         for i, workspace in enumerate(schema_data['workspaces']):
             if workspace['name'] == workspace_name:
                 workspace_index = i
+                workspace_tables_count = len(workspace.get('tables', []))
                 break
         
         if workspace_index is None:
+            # Audit log workspace not found
+            user_manager.log_audit_event(
+                user_id=session.get('user_id'),
+                action='delete_workspace_error',
+                details=f"Workspace deletion failed: Workspace '{workspace_name}' not found",
+                ip_address=request.remote_addr
+            )
             return jsonify({"success": False, "error": f"Workspace '{workspace_name}' not found"}), 404
             
         # Remove the workspace
@@ -159,12 +309,36 @@ def delete_workspace(workspace_name):
         if success:
             # Reload schema data
             schema_manager.load_schema()
+            
+            # Audit log successful workspace deletion
+            user_manager.log_audit_event(
+                user_id=session.get('user_id'),
+                action='delete_workspace',
+                details=f"Deleted workspace '{workspace_name}' with {workspace_tables_count} tables",
+                ip_address=request.remote_addr
+            )
+            
             return jsonify({"success": True})
         else:
+            # Audit log save error
+            user_manager.log_audit_event(
+                user_id=session.get('user_id'),
+                action='delete_workspace_error',
+                details=f"Workspace deletion failed: Failed to save schema data for {workspace_name}",
+                ip_address=request.remote_addr
+            )
             return jsonify({"success": False, "error": "Failed to save schema data"}), 500
             
     except Exception as e:
         logger.exception(f"Error deleting workspace: {str(e)}")
+        
+        # Audit log exception
+        user_manager.log_audit_event(
+            user_id=session.get('user_id'),
+            action='delete_workspace_error',
+            details=f"Workspace deletion exception for {workspace_name}: {str(e)}",
+            ip_address=request.remote_addr
+        )
         return jsonify({"success": False, "error": str(e)}), 500
 
 @schema_bp.route('/api/schema/tables', methods=['GET'])
@@ -173,9 +347,26 @@ def get_tables():
     try:
         workspace_name = request.args.get('workspace')
         tables = schema_manager.get_tables(workspace_name)
+        
+        # Audit log the table retrieval
+        user_manager.log_audit_event(
+            user_id=session.get('user_id'),
+            action='view_tables',
+            details=f"Retrieved {len(tables)} tables" + (f" for workspace: {workspace_name}" if workspace_name else ""),
+            ip_address=request.remote_addr
+        )
+        
         return jsonify({"success": True, "tables": tables})
     except Exception as e:
         logger.exception(f"Error retrieving tables: {str(e)}")
+        
+        # Audit log the error
+        user_manager.log_audit_event(
+            user_id=session.get('user_id'),
+            action='view_tables_error',
+            details=f"Error retrieving tables: {str(e)}",
+            ip_address=request.remote_addr
+        )
         return jsonify({"success": False, "error": str(e)}), 500
 
 @schema_bp.route('/api/schema/tables/<table_name>', methods=['GET'])
@@ -202,6 +393,13 @@ def create_table():
         
         # Basic validation
         if not data or 'name' not in data or 'workspace' not in data:
+            # Audit log validation error
+            user_manager.log_audit_event(
+                user_id=session.get('user_id'),
+                action='create_table_error',
+                details="Table creation failed: Table name and workspace are required",
+                ip_address=request.remote_addr
+            )
             return jsonify({
                 "success": False, 
                 "error": "Table name and workspace are required"
@@ -213,6 +411,13 @@ def create_table():
         # Check if workspace exists
         workspace = schema_manager.get_workspace_by_name(workspace_name)
         if not workspace:
+            # Audit log workspace not found
+            user_manager.log_audit_event(
+                user_id=session.get('user_id'),
+                action='create_table_error',
+                details=f"Table creation failed: Workspace '{workspace_name}' not found",
+                ip_address=request.remote_addr
+            )
             return jsonify({
                 "success": False, 
                 "error": f"Workspace '{workspace_name}' not found"
@@ -221,6 +426,13 @@ def create_table():
         # Check if table already exists in this workspace
         existing_table = schema_manager.get_table_by_name(table_name, workspace_name)
         if existing_table:
+            # Audit log duplicate table error
+            user_manager.log_audit_event(
+                user_id=session.get('user_id'),
+                action='create_table_error',
+                details=f"Table creation failed: Table '{table_name}' already exists in workspace '{workspace_name}'",
+                ip_address=request.remote_addr
+            )
             return jsonify({
                 "success": False, 
                 "error": f"Table '{table_name}' already exists in workspace '{workspace_name}'"
@@ -248,12 +460,36 @@ def create_table():
         if success:
             # Reload schema data
             schema_manager.load_schema()
+            
+            # Audit log successful table creation
+            user_manager.log_audit_event(
+                user_id=session.get('user_id'),
+                action='create_table',
+                details=f"Created table '{table_name}' in workspace '{workspace_name}' with {len(new_table['columns'])} columns",
+                ip_address=request.remote_addr
+            )
+            
             return jsonify({"success": True, "table": new_table})
         else:
+            # Audit log save error
+            user_manager.log_audit_event(
+                user_id=session.get('user_id'),
+                action='create_table_error',
+                details=f"Table creation failed: Failed to save schema data for table '{table_name}'",
+                ip_address=request.remote_addr
+            )
             return jsonify({"success": False, "error": "Failed to save schema data"}), 500
             
     except Exception as e:
         logger.exception(f"Error creating table: {str(e)}")
+        
+        # Audit log exception
+        user_manager.log_audit_event(
+            user_id=session.get('user_id'),
+            action='create_table_error',
+            details=f"Table creation exception: {str(e)}",
+            ip_address=request.remote_addr
+        )
         return jsonify({"success": False, "error": str(e)}), 500
 
 @schema_bp.route('/api/schema/tables/<table_name>', methods=['PUT'])

@@ -8,6 +8,8 @@
 <!-- DataTables CSS -->
 <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
 <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
+<!-- Glassmorphism styles -->
+<link href="{{ url_for('static', filename='css/glassmorphism.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -69,6 +71,9 @@
                         <td>{{ doc.chunk_count }}</td>
                         <td>
                             <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-sm btn-outline-primary view-document" title="View Document" data-document-id="{{ doc.id }}" data-filename="{{ doc.filename }}">
+                                    <i class="fas fa-eye"></i>
+                                </button>
                                 <button type="button" class="btn btn-sm btn-outline-danger delete-document" title="Delete Document">
                                     <i class="fas fa-trash"></i>
                                 </button>
@@ -190,6 +195,81 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Document Viewer Modal -->
+<div class="modal fade" id="documentViewerModal" tabindex="-1" aria-labelledby="documentViewerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <h5 class="modal-title" id="documentViewerModalLabel">Document Viewer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Document Info -->
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-body py-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-0" id="documentTitle">Loading...</h6>
+                                        <small class="text-muted" id="documentMeta">Document information</small>
+                                    </div>
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-outline-primary btn-sm" id="viewOriginalBtn">
+                                            <i class="fas fa-file me-1"></i> Original
+                                        </button>
+                                        <button type="button" class="btn btn-outline-success btn-sm" id="viewMarkdownBtn">
+                                            <i class="fas fa-markdown me-1"></i> Processed
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Content Area -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-body" style="max-height: 70vh; overflow-y: auto;">
+                                <!-- Loading State -->
+                                <div id="documentLoading" class="text-center py-5">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <p class="mt-2 text-muted">Loading document...</p>
+                                </div>
+                                
+                                <!-- Original Document Container -->
+                                <div id="originalDocumentContainer" class="d-none">
+                                    <div id="originalDocumentContent"></div>
+                                </div>
+                                
+                                <!-- Markdown Document Container -->
+                                <div id="markdownDocumentContainer" class="d-none">
+                                    <div id="markdownDocumentContent" class="markdown-content"></div>
+                                </div>
+                                
+                                <!-- Error State -->
+                                <div id="documentError" class="d-none">
+                                    <div class="alert alert-danger" role="alert">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                        <span id="documentErrorMessage">Failed to load document</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>

@@ -2,7 +2,7 @@
 Routes for metadata search functionality.
 """
 
-from flask import Blueprint, request, jsonify, current_app, render_template
+from flask import Blueprint, request, jsonify, current_app, render_template, session
 import logging
 import json
 import time
@@ -10,6 +10,7 @@ from typing import Dict, Any, List, Optional
 from src.utils.schema_vectorizer import SchemaVectorizer
 from src.utils.llm_engine import LLMEngine
 from src.utils.auth_utils import login_required
+from src.utils.user_manager import UserManager
 
 # Create Blueprint
 metadata_search_bp = Blueprint('metadata_search', __name__)
@@ -21,6 +22,7 @@ logger = logging.getLogger('text2sql.metadata_search')
 schema_vectorizer = None
 llm_engine = None
 reranking_model = None
+user_manager = UserManager()
 
 def get_metadata_components():
     """Get metadata search components with lazy initialization"""
@@ -200,6 +202,7 @@ def search_metadata_stream():
     
     try:
         logger.info(f"Metadata search streaming request: {query}")
+        
         rerank = request.args.get('rerank', session.get('current_metadata_rerank', True))
         if isinstance(rerank, str) and rerank.lower() == 'false':
             rerank = False
@@ -261,6 +264,16 @@ def search_metadata_stream():
                 logger.info("Falling back to vector search results")
 
         if not results:
+            # Audit log for empty results
+            user_manager.log_audit_event(
+                user_id=session.get('user_id'),
+                action='metadata_search_stream',
+                details=f"Metadata search streaming query completed with no results",
+                ip_address=request.remote_addr,
+                query_text=query,
+                response="No schema metadata found matching the query"
+            )
+            
             # Create a simple generator for empty results
             def empty_generator():
                 yield "I couldn't find any schema metadata matching your query."
@@ -301,25 +314,44 @@ def search_metadata_stream():
         # logger.info(f"input {sources}")
         stream_generator = generate_metadata_response(query, sources, conversation_history, stream=True)
         
-        # Create a generator that yields server-sent events
+        # Create a generator that yields server-sent events and captures response for audit
         def generate_sse():
-            # Set the appropriate headers for SSE
-            yield "Content-Type: text/event-stream\n"
-            yield "Cache-Control: no-cache\n"
-            yield "Connection: keep-alive\n\n"
+            collected_response = []
             
-            # First event with sources information
-            sources_json = json.dumps(sources)
-            yield f"event: sources\ndata: {sources_json}\n\n"
-            
-            # Stream the actual answer chunks
-            for chunk in stream_generator:
-                if chunk:
-                    chunk_json = json.dumps({"text": chunk})
-                    yield f"data: {chunk_json}\n\n"
-            
-            # Signal completion
-            yield "event: done\ndata: {}\n\n"
+            try:
+                # Set the appropriate headers for SSE
+                yield "Content-Type: text/event-stream\n"
+                yield "Cache-Control: no-cache\n"
+                yield "Connection: keep-alive\n\n"
+                
+                # First event with sources information
+                sources_json = json.dumps(sources)
+                yield f"event: sources\ndata: {sources_json}\n\n"
+                
+                # Stream the actual answer chunks and collect them
+                for chunk in stream_generator:
+                    if chunk:
+                        collected_response.append(chunk)
+                        chunk_json = json.dumps({"text": chunk})
+                        yield f"data: {chunk_json}\n\n"
+                
+                # Signal completion
+                yield "event: done\ndata: {}\n\n"
+                
+            finally:
+                # Log the complete response for audit after streaming is done
+                full_response = ''.join(collected_response)
+                try:
+                    user_manager.log_audit_event(
+                        user_id=session.get('user_id'),
+                        action='metadata_search_stream',
+                        details=f"Metadata search streaming query completed. Sources: {len(sources)}, Response length: {len(full_response)} chars",
+                        ip_address=request.remote_addr,
+                        query_text=query,
+                        response=full_response[:1000] if full_response else None  # Limit response to 1000 chars for audit
+                    )
+                except Exception as audit_error:
+                    logger.error(f"Error logging audit event for streaming metadata search: {str(audit_error)}")
         
         # Return a streaming response
         response = Response(stream_with_context(generate_sse()), 
@@ -343,3 +375,21 @@ def search_metadata_stream():
             'success': False,
             'error': f"Metadata search error: {str(e)}"
         }), 500
+
+def audit_metadata_search(query, user_id, success, message=''):
+    """Audit metadata search operations"""
+    try:
+        # Log the metadata search operation
+        logger.info(f"Metadata search audit - User: {user_id}, Query: {query}, Success: {success}, Message: {message}")
+        
+        # Store audit logs using UserManager
+        user_manager.log_audit_event(
+            user_id=user_id,
+            action='metadata_search_audit',
+            details=f"Metadata search - Success: {success}, Message: {message}",
+            query_text=query,
+            response=message if success else None
+        )
+        
+    except Exception as e:
+        logger.error(f"Error auditing metadata search: {str(e)}", exc_info=True)

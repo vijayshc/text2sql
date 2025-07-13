@@ -1034,41 +1034,6 @@ class KnowledgeManager:
             
         return sources
     
-    def _get_document_ids_by_tags(self, tags: List[str]) -> List[str]:
-        """Get document IDs that have all the specified tags
-        
-        Args:
-            tags: List of tags to filter by
-            
-        Returns:
-            List of document IDs
-        """
-        if not tags:
-            return None
-            
-        # Normalize tags
-        normalized_tags = [tag.strip().lower() for tag in tags if tag.strip()]
-        if not normalized_tags:
-            return None
-            
-        # Construct SQL query to find documents that have ALL the specified tags
-        # This uses a GROUP BY and HAVING COUNT to ensure documents have all tags
-        cursor = self.conn.cursor()
-        placeholders = ','.join(['?' for _ in normalized_tags])
-        
-        query = f"""
-            SELECT document_id FROM knowledge_document_tags
-            WHERE tag IN ({placeholders})
-            GROUP BY document_id
-            HAVING COUNT(DISTINCT tag) = ?
-        """
-        
-        # The params include all tags plus the count of tags
-        params = normalized_tags + [len(normalized_tags)]
-        
-        cursor.execute(query, params)
-        return [row[0] for row in cursor.fetchall()]
-
     def delete_document(self, document_id: str) -> bool:
         """Delete a document and its chunks from the system
         
@@ -1145,3 +1110,93 @@ class KnowledgeManager:
         except Exception as e:
             self.logger.info(f"Error deleting document {document_id}: {str(e)}", exc_info=True)
             return False
+
+    def get_document_info(self, document_id: str) -> Dict[str, Any]:
+        """Get detailed information about a document
+        
+        Args:
+            document_id: Document ID
+            
+        Returns:
+            Dictionary with document information or None if not found
+        """
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute(
+                '''SELECT id, original_filename, file_path, content_type, status, 
+                   created_at, updated_at, processed_at, error 
+                   FROM knowledge_documents WHERE id = ?''',
+                (document_id,)
+            )
+            row = cursor.fetchone()
+            
+            if not row:
+                return None
+            
+            doc_id, filename, file_path, content_type, status, created_at, updated_at, processed_at, error = row
+            
+            # Get chunk count
+            cursor.execute('SELECT COUNT(*) FROM knowledge_chunks WHERE document_id = ?', (doc_id,))
+            chunk_count = cursor.fetchone()[0]
+            
+            # Get tags
+            tags = self.get_document_tags(doc_id)
+            
+            return {
+                'id': doc_id,
+                'original_filename': filename,
+                'file_path': file_path,
+                'content_type': content_type,
+                'status': status,
+                'created_at': created_at,
+                'updated_at': updated_at,
+                'processed_at': processed_at,
+                'error': error,
+                'chunk_count': chunk_count,
+                'tags': tags
+            }
+        except Exception as e:
+            self.logger.error(f"Error getting document info {document_id}: {str(e)}", exc_info=True)
+            return None
+
+    def get_document_markdown(self, document_id: str) -> str:
+        """Get the markdown content of a processed document
+        
+        Args:
+            document_id: Document ID
+            
+        Returns:
+            Markdown content string or None if not found/not processed
+        """
+        try:
+            document_info = self.get_document_info(document_id)
+            if not document_info:
+                return None
+            
+            # If document is not completed, return None
+            if document_info['status'] != 'completed':
+                return None
+            
+            file_path = document_info['file_path']
+            content_type = document_info['content_type']
+            
+            # Check if file exists
+            if not os.path.exists(file_path):
+                return None
+            
+            # For text content, read directly
+            if content_type == 'txt':
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    return f.read()
+            
+            # For other file types, convert using markitdown
+            try:
+                result = self.md_converter.convert(file_path)
+                return result.text_content
+            except Exception as e:
+                self.logger.error(f"Error converting document to markdown: {str(e)}", exc_info=True)
+                return None
+            
+        except Exception as e:
+            self.logger.error(f"Error getting document markdown {document_id}: {str(e)}", exc_info=True)
+            return None

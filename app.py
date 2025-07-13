@@ -252,9 +252,25 @@ def get_table_suggestions():
         # Sort alphabetically by name
         table_info.sort(key=lambda x: x["name"])
         
+        # Audit log the table suggestions request
+        user_manager.log_audit_event(
+            user_id=session.get('user_id'),
+            action='get_table_suggestions',
+            details=f"Retrieved {len(table_info)} table suggestions for workspace: {workspace_name}" + (f", filtered by: '{query}'" if query else ""),
+            ip_address=request.remote_addr
+        )
+        
         return jsonify({"suggestions": table_info})
     except Exception as e:
         logger.exception(f"Error retrieving table suggestions: {str(e)}")
+        
+        # Audit log the error
+        user_manager.log_audit_event(
+            user_id=session.get('user_id'),
+            action='get_table_suggestions_error',
+            details=f"Error retrieving table suggestions for workspace {workspace_name}: {str(e)}",
+            ip_address=request.remote_addr
+        )
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/query/progress/<query_id>', methods=['GET'])
@@ -605,8 +621,30 @@ def samples_page():
 def get_workspaces():
     """Get the list of available workspaces"""
     logger.debug("Workspaces list requested")
-    workspaces = sql_manager.schema_manager.get_workspaces()
-    return jsonify({"workspaces": workspaces})
+    
+    try:
+        workspaces = sql_manager.schema_manager.get_workspaces()
+        
+        # Audit log the workspaces request
+        user_manager.log_audit_event(
+            user_id=session.get('user_id'),
+            action='get_workspaces',
+            details=f"Retrieved {len(workspaces)} workspaces",
+            ip_address=request.remote_addr
+        )
+        
+        return jsonify({"workspaces": workspaces})
+    except Exception as e:
+        logger.exception(f"Error retrieving workspaces: {str(e)}")
+        
+        # Audit log the error
+        user_manager.log_audit_event(
+            user_id=session.get('user_id'),
+            action='get_workspaces_error',
+            details=f"Error retrieving workspaces: {str(e)}",
+            ip_address=request.remote_addr
+        )
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/api/tables', methods=['GET'])
 @login_required
@@ -618,9 +656,26 @@ def get_tables_for_workspace():
     try:
         # Get tables from schema manager
         tables = sql_manager.schema_manager.get_table_names(workspace_name)
+        
+        # Audit log the tables request
+        user_manager.log_audit_event(
+            user_id=session.get('user_id'),
+            action='get_tables',
+            details=f"Retrieved {len(tables)} tables for workspace: {workspace_name}",
+            ip_address=request.remote_addr
+        )
+        
         return jsonify({"tables": tables})
     except Exception as e:
         logger.exception(f"Error retrieving tables: {str(e)}")
+        
+        # Audit log the error
+        user_manager.log_audit_event(
+            user_id=session.get('user_id'),
+            action='get_tables_error',
+            details=f"Error retrieving tables for workspace {workspace_name}: {str(e)}",
+            ip_address=request.remote_addr
+        )
         return jsonify({"error": str(e)}), 500
 
 # Context processor to add user information to templates

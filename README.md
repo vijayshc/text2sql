@@ -1,6 +1,73 @@
 # Text2SQL Assistant
 
-A## Sensitive Tool Confirmation:** Requires user approval before executing potentially sensitive operations like shell commands.
+A comprehensive AI-powered database query assistant with advanced features for enterprise environments.
+
+## Comprehensive Audit Logging
+
+The application now features comprehensive audit logging across all backend operations to support performance reviews and compliance requirements:
+
+### Audit Events Captured:
+* **Knowledge Base Operations:**
+  - Document uploads and processing
+  - Text content additions
+  - Document deletions and tag management
+  - Knowledge queries (both regular and streaming) with full input/output capture
+  - Knowledge base search operations
+
+* **Metadata Search Operations:**
+  - Schema metadata processing and statistics
+  - Metadata search queries (streaming and non-streaming) with complete response capture
+  - Admin metadata management activities
+
+* **Query Editor Events:**
+  - Query editor page access
+  - SQL query executions with full query text and results
+  - AI-powered query completions
+  - Query saves and management operations
+
+* **Agent Mode Operations:**
+  - Agent chat interactions with streaming response capture
+  - MCP server selections and connections
+  - Tool execution confirmations and results
+  - Server status checks and configurations
+
+* **Database Administration:**
+  - Database query editor access
+  - Direct SQL query executions in admin interface
+  - Database schema retrieval operations
+
+* **Schema Management:**
+  - Workspace creation, updates, and deletions
+  - Table creation, modifications, and removals
+  - Schema import/export operations
+  - Join condition management
+
+* **Data Mapping Operations:**
+  - Data mapping page access and server status checks
+  - Column analysis and bulk analysis operations
+  - Mapping saves and repository searches
+
+* **System Operations:**
+  - User authentication and authorization events
+  - Table suggestions and workspace retrievals
+  - Sample management (create, update, delete)
+  - Feedback submissions and statistics
+
+### Audit Log Features:
+* **Complete Input/Output Capture:** All queries and responses are logged, including streaming responses
+* **User Context:** User ID, IP address, and timestamp for all operations
+* **Performance Metrics:** Response lengths and processing details for performance analysis
+* **Error Tracking:** Failed operations with detailed error messages
+* **Streaming Support:** Special handling for streaming operations to capture complete responses
+* **Response Limiting:** Audit responses are limited to 1000 characters to prevent log bloat while maintaining useful information
+
+### Security and Compliance:
+* **Data Privacy:** Sensitive information is handled appropriately in audit logs
+* **Retention Policies:** Audit logs support filtering and export for compliance requirements
+* **Access Control:** Audit log viewing requires appropriate permissions
+* **Export Capabilities:** Audit logs can be exported as CSV for external analysis
+
+## Sensitive Tool Confirmation:** Requires user approval before executing potentially sensitive operations like shell commands.
   
   This feature adds an intermediate confirmation dialog whenever the agent attempts to run sensitive tools (e.g., `run_bash_shell`). Users will receive a popup showing the tool name and arguments, and must confirm or cancel execution. If canceled, the operation is aborted and the agent stops processing further.
 

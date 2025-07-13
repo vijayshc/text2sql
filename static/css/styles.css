@@ -409,6 +409,107 @@ strong{
     color: var(--text-muted);
 }
 
+/* General form control styling for all input types */
+.form-control {
+    background-color: var(--hover-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    transition: all 0.2s ease;
+    font-size: 0.95rem;
+    box-shadow: none;
+}
+
+.form-control:focus {
+    background-color: var(--hover-bg);
+    border-color: var(--primary-color);
+    color: var(--text-primary);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+    outline: none;
+}
+
+.form-control::placeholder {
+    color: var(--text-muted);
+}
+
+/* Specific input field styling */
+input.form-control {
+    background-color: var(--hover-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    transition: all 0.2s ease;
+    font-size: 0.95rem;
+    box-shadow: none;
+}
+
+input.form-control:focus {
+    background-color: var(--hover-bg);
+    border-color: var(--primary-color);
+    color: var(--text-primary) !important;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+    outline: none;
+}
+
+input.form-control::placeholder {
+    color: var(--text-muted);
+}
+
+/* Select dropdown styling */
+select.form-control,
+.form-select {
+    background-color: var(--hover-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    transition: all 0.2s ease;
+    font-size: 0.95rem;
+    box-shadow: none;
+}
+
+select.form-control:focus,
+.form-select:focus {
+    background-color: var(--hover-bg);
+    border-color: var(--primary-color);
+    color: var(--text-primary) !important;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+    outline: none;
+}
+
+/* Override any Bootstrap default styles that might conflict */
+.form-control,
+.form-select,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="search"],
+input[type="tel"],
+input[type="url"] {
+    background-color: var(--hover-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+.form-control:focus,
+.form-select:focus,
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+input[type="search"]:focus,
+input[type="tel"]:focus,
+input[type="url"]:focus {
+    background-color: var(--hover-bg) !important;
+    border-color: var(--primary-color) !important;
+    color: var(--text-primary) !important;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1) !important;
+    outline: none !important;
+}
+
 .input-group .btn-primary {
     border-top-left-radius: 0 !important;
     border-bottom-left-radius: 0 !important;
@@ -1117,6 +1218,12 @@ table.dataTable tbody tr:hover td {
     border: 1px solid #3a3a3a;
 }
 
+.bg-light {
+    background-color: #2a2a2a !important;
+    color: #e5e5e5 !important;
+    border: 1px solid #3a3a3a;
+}
+
 .badge.bg-dark {
     background-color: #0f0f0f !important;
     color: #ffffff !important;
@@ -1511,4 +1618,180 @@ html {
 
 .table-hover .table-dark:hover {
     background-color: #1a1a1a !important;
+}
+
+/* Dashboard Chart Styling for Dark Theme */
+.dashboard-container {
+    padding: 1rem;
+}
+
+.dashboard-container .card {
+    background: var(--card-gradient);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--card-shadow);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.dashboard-container .card:hover {
+    box-shadow: var(--card-shadow-hover);
+    transform: translateY(-1px);
+}
+
+.dashboard-container .card-header {
+    background: rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-primary);
+    font-weight: 600;
+    padding: 0.75rem 1rem;
+}
+
+.dashboard-container .card-body {
+    padding: 1rem;
+    background: transparent;
+}
+
+.chart-builder-form {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+/* Chart container styling */
+#dashboardChart {
+    min-height: 400px;
+    max-height: 500px;
+    width: 100%;
+    background: transparent;
+}
+
+#noChartMessage {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#noChartMessage i {
+    color: var(--accent-color);
+    opacity: 0.6;
+    margin-bottom: 1rem;
+}
+
+/* Chart form controls */
+.chart-builder-form .form-label {
+    color: var(--text-primary);
+    font-weight: 500;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.chart-builder-form .form-select,
+.chart-builder-form .form-control {
+    background-color: var(--hover-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.chart-builder-form .form-select:focus,
+.chart-builder-form .form-control:focus {
+    background-color: var(--hover-bg);
+    border-color: var(--primary-color);
+    color: var(--text-primary);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+    outline: none;
+}
+
+.chart-builder-form .form-select option {
+    background-color: var(--card-bg);
+    color: var(--text-primary);
+}
+
+#generateChartBtn {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: #1f1f1f;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    width: 100%;
+}
+
+#generateChartBtn:hover {
+    background: #e5e5e5;
+    border-color: #e5e5e5;
+    color: #1f1f1f;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+}
+
+/* Dashboard responsive adjustments */
+@media (max-width: 768px) {
+    .dashboard-container .row {
+        flex-direction: column;
+    }
+    
+    .dashboard-container .col-md-5,
+    .dashboard-container .col-md-7 {
+        flex: 0 0 100%;
+        max-width: 100%;
+        margin-bottom: 1rem;
+    }
+    
+    #dashboardChart {
+        min-height: 300px;
+        max-height: 400px;
+    }
+    
+    #noChartMessage {
+        min-height: 300px;
+    }
+}
+
+/* Chart animation enhancements */
+.dashboard-container .card {
+    animation: cardFadeIn 0.5s ease-out;
+}
+
+@keyframes cardFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Chart generation loading state */
+#generateChartBtn.loading {
+    position: relative;
+    color: transparent;
+}
+
+#generateChartBtn.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 16px;
+    height: 16px;
+    border: 2px solid #1f1f1f;
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
 }
