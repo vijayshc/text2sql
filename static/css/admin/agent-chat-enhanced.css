@@ -1,7 +1,7 @@
-/* Enhanced styling for agent chat with conversation history support */
+/* Enhanced styling for agent chat with conversation history support - Theme-aware */
 
 /* Style for intermediate steps - collapsed and faded by default */
-.message.agent-message.intermediate-step {
+.message.system-message.intermediate-step {
     opacity: 0.65;
     max-height: 200px;
     overflow: hidden;
@@ -9,7 +9,7 @@
     position: relative;
 }
 
-.message.agent-message.intermediate-step::after {
+.message.system-message.intermediate-step::after {
     content: "Show more...";
     position: absolute;
     bottom: 0;
@@ -17,37 +17,37 @@
     right: 0;
     text-align: center;
     padding: 10px;
-    background: linear-gradient(transparent, rgba(255,255,255,0.3));
+    background: linear-gradient(transparent, var(--card-bg));
     cursor: pointer;
     font-size: 0.8rem;
-    color: #333;
+    color: var(--text-secondary);
 }
 
-.message.agent-message.intermediate-step.expanded {
+.message.system-message.intermediate-step.expanded {
     max-height: none;
     opacity: 0.9;
 }
 
-.message.agent-message.intermediate-step.expanded::after {
+.message.system-message.intermediate-step.expanded::after {
     content: "Show less";
     background: transparent;
 }
 
 /* Style for final answers - highlighted */
-.message.agent-message.final-answer {
+.message.system-message.final-answer {
     opacity: 1;
-    border-left: 4px solid #4CAF50; /* Green border to indicate final answer */
-    background: rgba(255, 255, 255, 0.1); /* Slightly brighter background */
+    border-left: 4px solid var(--success-color); /* Green border to indicate final answer */
+    background: var(--card-bg); /* Use theme background */
 }
 
 /* Add a small badge to final answers */
-.message.agent-message.final-answer::before {
+.message.system-message.final-answer::before {
     content: "Final Answer";
     position: absolute;
     top: 5px;
     right: 10px;
-    background-color: rgba(76, 175, 80, 0.7); /* Green with glassmorphism */
-    color: white;
+    background-color: var(--success-color); /* Use theme success color */
+    color: #ffffff;
     border-radius: 10px;
     padding: 2px 8px;
     font-size: 0.7rem;
@@ -65,6 +65,6 @@
 }
 
 /* Add a slight hover effect to make intermediate steps more readable when needed */
-.message.agent-message.intermediate-step:hover {
+.message.system-message.intermediate-step:hover {
     opacity: 1;
 }

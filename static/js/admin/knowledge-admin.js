@@ -3,14 +3,41 @@
  */
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize DataTable
-    const documentsTable = $('#documentsTable').DataTable({
-        responsive: true,
-        order: [[4, 'desc']], // Sort by upload date by default
-        language: {
-            emptyTable: "No documents available in the knowledge base"
+    // Initialize DataTable for documents table with proper error handling
+    const tableEl = $('#documentsTable');
+    let documentsTable;
+    
+    // Safely initialize DataTable
+    try {
+        // Ensure proper table classes for styling
+        tableEl.addClass('table table-hover table-bordered');
+        
+        if ($.fn.DataTable.isDataTable(tableEl)) {
+            documentsTable = tableEl.DataTable();
+        } else {
+            documentsTable = tableEl.DataTable({
+                responsive: true,
+                autoWidth: false,
+                order: [[4, 'desc']], // Sort by upload date by default
+                pageLength: 10,
+                dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+                     '<"row"<"col-sm-12"tr>>' +
+                     '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+                language: {
+                    search: 'Filter documents:',
+                    lengthMenu: 'Show _MENU_ documents per page',
+                    emptyTable: "No documents available in the knowledge base"
+                },
+                columnDefs: [
+                    { targets: -1, orderable: false, searchable: false } // Actions column
+                ]
+            });
         }
-    });
+    } catch (e) {
+        console.warn('Error initializing documents DataTable:', e);
+        // Fallback: use the table without DataTable functionality
+        documentsTable = null;
+    }
     
     // Document viewer elements
     const documentViewerModal = document.getElementById('documentViewerModal');
@@ -430,7 +457,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 bootstrap.Modal.getInstance(deleteConfirmModal).hide();
                 
                 // Remove row from table
-                documentsTable.row($(`tr[data-document-id="${documentToDelete}"]`)).remove().draw();
+                if (documentsTable) {
+                    documentsTable.row($(`tr[data-document-id="${documentToDelete}"]`)).remove().draw();
+                } else {
+                    // Fallback: remove row manually if DataTable is not available
+                    $(`tr[data-document-id="${documentToDelete}"]`).remove();
+                }
                 
                 // Show success toast
                 alert('Document deleted successfully');

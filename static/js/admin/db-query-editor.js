@@ -275,6 +275,8 @@ class DatabaseQueryEditor {
             ordering: true,
             order: [[0, 'asc']], // Default sort on first column
             responsive: false, // Disable responsive mode to show horizontal scrollbar
+            scrollX: true,
+            scrollCollapse: false,
             pageLength: 10,
             lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
             //scrollX: true, // Enable horizontal scrolling

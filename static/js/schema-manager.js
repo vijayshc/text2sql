@@ -98,8 +98,8 @@ const schemaManager = {
                     <h4>${table.name}</h4>
                     ${table.description ? `<p class="text-muted mb-3">${table.description}</p>` : ''}
                     <div class="table-responsive">
-                        <table class="table table-sm table-striped schema-table schema-datatable w-100" id="schemaTable_${index}">
-                            <thead>
+                        <table class="table table-sm table-striped table-bordered schema-table schema-datatable w-100" id="schemaTable_${index}" data-table-init="false">
+                            <thead class="table-light">
                                 <tr>
                                     <th>Column</th>
                                     <th>Type</th>
@@ -178,14 +178,14 @@ const schemaManager = {
             // Initialize DataTables for all schema tables
             $('.schema-datatable').each(function() {
                 $(this).DataTable({
-                    responsive: false, // Disable responsive to maintain fixed layout
+                    responsive: false, // Disable responsive for better alignment
                     pageLength: 10,
-                    lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
-                    autoWidth: false,
-                    scrollX: false,
+                    lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+                    autoWidth: false, // Disable auto width calculation
+                    scrollX: false,   // Disable horizontal scroll for alignment
                     language: {
-                        search: "Search columns:",
-                        searchPlaceholder: "Type to search...",
+                        search: "Filter results:",
+                        lengthMenu: "Show _MENU_ entries per page",
                         emptyTable: "No columns found",
                         info: "Showing _START_ to _END_ of _TOTAL_ columns",
                         infoEmpty: "Showing 0 to 0 of 0 columns",
@@ -194,29 +194,35 @@ const schemaManager = {
                     columnDefs: [
                         {
                             targets: 0, // Column name
-                            width: "25%",
-                            className: 'text-left'
+                            className: 'dt-left'
                         },
                         {
                             targets: 1, // Type
-                            width: "15%",
-                            className: 'text-left'
+                            className: 'dt-left'
                         },
                         {
                             targets: 2, // Description
-                            width: "50%",
-                            className: 'text-left'
+                            className: 'dt-left'
                         },
                         {
                             targets: 3, // Primary Key column
-                            width: "10%",
                             orderable: false,
                             searchable: false,
-                            className: 'text-center'
+                            className: 'dt-center'
                         }
                     ],
+                    drawCallback: function(settings) {
+                        // Force column width recalculation for alignment
+                        this.api().columns.adjust();
+                    },
+                    initComplete: function(settings, json) {
+                        // Ensure columns are properly aligned after initialization
+                        this.api().columns.adjust();
+                    },
                     order: [[0, 'asc']], // Sort by column name by default
-                    dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>t<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+                dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+                    '<"row"<"col-sm-12"tr>>' +
+                    '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
                     drawCallback: function() {
                         // Ensure proper table layout after draw
                         $(this).css('width', '100%');

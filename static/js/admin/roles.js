@@ -7,19 +7,19 @@
  */
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize DataTables
-    $('#rolesTable').DataTable({
-        order: [[0, 'asc']],
-        columnDefs: [
-            { orderable: false, targets: 4 } // Disable sorting on the actions column
-        ]
-    });
+    // Initialize or reuse DataTables with global defaults
+    const rolesTableEl = $('#rolesTable');
+    const permissionsTableEl = $('#permissionsTable');
 
-    $('#permissionsTable').DataTable({
-        order: [[0, 'asc']],
-        paging: false,
-        searching: false
-    });
+    const rolesDT = $.fn.DataTable.isDataTable(rolesTableEl)
+        ? rolesTableEl.DataTable()
+        : rolesTableEl.DataTable();
+    rolesDT.order([0, 'asc']).draw();
+
+    const permissionsDT = $.fn.DataTable.isDataTable(permissionsTableEl)
+        ? permissionsTableEl.DataTable()
+        : permissionsTableEl.DataTable();
+    permissionsDT.order([0, 'asc']).draw();
 
     // Add new role button handler
     document.getElementById('btnAddRole').addEventListener('click', function() {

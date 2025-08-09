@@ -18,11 +18,19 @@
     <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
     
-    <!-- Custom CSS -->
+    <!-- Unified Theme System CSS -->
+    <link href="{{ url_for('static', filename='css/themes.css') }}" rel="stylesheet">
+    <!-- Global app styles (load after themes.css) -->
     <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/knowledge-chat.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/glassmorphism.css') }}" rel="stylesheet">
     
+    <!-- DataTables alignment fixes -->
+    <link href="{{ url_for('static', filename='css/datatable-fixes.css') }}" rel="stylesheet">
+    
+    <!-- Component-specific CSS (only if needed for specific components) -->
+    <link href="{{ url_for('static', filename='css/knowledge-chat.css') }}" rel="stylesheet">
+    
+    <!-- Prevent theme flicker: shared early theme application -->
+    <script src="{{ url_for('static', filename='js/theme-preload.js') }}"></script>
 </head>
 <body>
     <div class="container-fluid">
@@ -184,16 +192,16 @@
                                     </span>
                                     <div class="theme-options mt-1 ms-3">
                                         <a class="dropdown-item theme-option" href="#" data-theme="dark">
-                                            <i class="fas fa-moon me-2"></i>Dark Theme
-                                            <i class="fas fa-check theme-check float-end"></i>
+                                            <span><i class="fas fa-moon me-2"></i>Dark Theme</span>
+                                            <i class="fas fa-check theme-check float-end" style="display: none;"></i>
                                         </a>
                                         <a class="dropdown-item theme-option" href="#" data-theme="light">
-                                            <i class="fas fa-sun me-2"></i>Light Theme
-                                            <i class="fas fa-check theme-check float-end"></i>
+                                            <span><i class="fas fa-sun me-2"></i>Light Theme</span>
+                                            <i class="fas fa-check theme-check float-end" style="display: none;"></i>
                                         </a>
                                         <a class="dropdown-item theme-option" href="#" data-theme="lightColored">
-                                            <i class="fas fa-palette me-2"></i>Light Colored
-                                            <i class="fas fa-check theme-check float-end"></i>
+                                            <span><i class="fas fa-palette me-2"></i>Light Colored</span>
+                                            <i class="fas fa-check theme-check float-end" style="display: none;"></i>
                                         </a>
                                     </div>
                                 </li>
@@ -281,8 +289,8 @@
                             <!-- Results Tab -->
                             <div class="tab-pane fade show active" id="results" role="tabpanel">
                                 <div class="scrollable-results">
-                                    <table id="resultsTable" class="table table-hover">
-                                        <thead>
+                                    <table id="resultsTable" class="table table-hover table-bordered" data-table-init="false">
+                                        <thead class="table-light">
                                             <tr></tr>
                                         </thead>
                                         <tbody></tbody>
@@ -448,8 +456,20 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
     
     {% block scripts %}
-    <!-- Theme Management - Load first to apply theme early -->
+    <!-- Theme Management - Load after preload to apply variables & listeners -->
     <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+    <script>
+        // Remove preload class once ThemeManager finishes applying styles
+        (function(){
+            if (document.body) {
+                document.body.classList.remove('theme-preload');
+            } else {
+                document.addEventListener('DOMContentLoaded', function(){
+                    document.body.classList.remove('theme-preload');
+                });
+            }
+        })();
+    </script>
     <!-- Custom JS Files - Load after all library dependencies -->
     <script src="{{ url_for('static', filename='js/ui-utils.js') }}"></script>
     <script src="{{ url_for('static', filename='js/core.js') }}"></script>
@@ -462,6 +482,8 @@
     <!-- Monaco Editor loader for SQL tab -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/loader.min.js"></script>
     <script src="{{ url_for('static', filename='js/sql-editor.js') }}"></script>
+    <!-- Global DataTables initializer for consistent behavior/themes -->
+    <script src="{{ url_for('static', filename='js/datatable-init.js') }}"></script>
     {% endblock %}
 </body>
 </html>

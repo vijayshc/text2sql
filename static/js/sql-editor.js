@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
             sqlEditor = monaco.editor.create(editorContainer, {
                 value: '',
                 language: 'sql',
-                theme: 'vs-dark',
+            theme: (window.themeManager && window.themeManager.getCurrentTheme && window.themeManager.getCurrentTheme() !== 'dark') ? 'vs' : 'vs-dark',
                 automaticLayout: true,
                 minimap: { enabled: false },
                 scrollBeyondLastLine: false,

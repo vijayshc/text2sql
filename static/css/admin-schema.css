@@ -1,157 +1,70 @@
-/* Admin Schema Management Styles */
+/* Admin Schema Management Styles (theme-aligned) */
+/* This file only contains schema-page specifics. Base theming lives in themes.css */
 
-/* Ensure primary buttons match the dark theme */
-.btn-primary {
-    background: var(--primary-color);
-    border-color: var(--primary-color);
-    color: #1f1f1f;
-}
-
-.btn-primary:hover, .btn-primary:focus, .btn-primary:active {
-    background: #e5e5e5;
-    border-color: #e5e5e5;
-    color: #1f1f1f;
-}
-
-/* Style the list group items to match the dark theme */
+/* List group active/hover states align with theme */
 .list-group-item.active {
-    background-color: #2a2a2a;
-    border-color: #3a3a3a;
+    background-color: var(--hover-bg);
+    border-color: var(--border-color);
     color: var(--text-primary);
 }
 
-/* Style the card headers to match dark theme */
-#workspacesList .list-group-item.active {
-    background-color: #2a2a2a;
-    border-color: #3a3a3a;
-    color: var(--text-primary);
+#workspacesList .list-group-item.active,
+#tablesList .list-group-item.active { 
+    background-color: var(--hover-bg); 
+    border-color: var(--border-color); 
+    color: var(--text-primary); 
 }
 
-/* Style the tables list active items */
-#tablesList .list-group-item.active {
-    background-color: #2a2a2a;
-    border-color: #3a3a3a;
-    color: var(--text-primary);
-}
+.list-group-item:hover { background-color: var(--hover-bg); color: var(--text-primary); }
 
-/* Style card headers to match the dark theme */
+/* Card headers: use table header palette for stronger visual hierarchy */
 .admin-card-header {
-    background-color: #2a2a2a;
-    color: var(--text-primary);
+    background-color: var(--table-header-bg);
+    color: var(--table-header-text, var(--text-primary));
     border-bottom: 1px solid var(--border-color);
     padding: 1rem 1.5rem;
 }
 
-/* Style outline buttons to match dark theme */
-.btn-outline-primary {
-    color: var(--text-primary);
-    border-color: var(--border-color);
-    background: transparent;
+/* Join table header follows theme */
+#joinsTable thead th, .table thead th {
+    background-color: var(--table-header-bg);
+    color: var(--table-header-text, var(--text-primary));
+    border: 1px solid var(--table-border);
 }
 
-.btn-outline-primary:hover, .btn-outline-primary:focus, .btn-outline-primary:active {
-    background-color: var(--hover-bg);
-    color: var(--text-primary);
-    border-color: #3a3a3a;
-}
+/* Smooth interactions */
+.list-group-item, .btn, .card, .table tr { transition: all 0.2s ease; }
 
-/* Add solid background to joins table header */
-#joinsTable thead th {
-    background-color: #2a2a2a;
-    color: var(--text-primary);
-    border: 1px solid var(--border-color);
-}
-
-/* Style tabs to match the dark theme */
-.nav-tabs .nav-link.active {
-    color: var(--text-primary);
-    border-color: var(--text-primary);
-    border-bottom-width: 2px;
-    background-color: transparent;
-}
-
-/* Add subtle hover effect to workspace and table items */
-.list-group-item:hover {
-    background-color: var(--hover-bg);
-    color: var(--text-primary);
-}
-
-/* Style buttons in edit/delete area */
-.btn-outline-secondary, .btn-outline-danger {
-    border-radius: 4px;
-}
-
-/* Add consistent border radius to all elements */
-.card, .modal-content, .form-control, .btn, .list-group-item {
-    border-radius: 6px;
-}
-
-/* Ensure form inputs have consistent styling */
-.form-control:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
-}
-
-/* Style modals to match the dark theme */
+/* Modal header theme alignment */
 .modal-header {
     background-color: var(--card-bg);
     color: var(--text-primary);
     border-bottom: 1px solid var(--border-color);
 }
 
-.modal-header .btn-close {
-    filter: invert(1);
-    opacity: 0.8;
+/* Form focus ring align with theme */
+.form-control:focus {
+    border-color: var(--input-focus-border);
+    box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
-/* Ensure consistent styling for detail section headers */
-#detailHeader {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--text-primary);
+/* Minor utilities */
+.action-btn-group .btn { margin-right: 0.25rem; }
+.btn-group-sm > .btn { padding: 0.25rem 0.5rem; }
+.modal-body .form-label { font-weight: 500; color: var(--text-primary); }
+
+/* Code/JSON areas */
+#importExportContent { 
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace; 
+    font-size: 0.9rem; 
+    background-color: var(--card-bg); 
+    color: var(--text-secondary); 
 }
 
-/* Style columns table headers */
-.table thead th {
-    background-color: #2a2a2a;
-    color: var(--text-primary);
-    border: 1px solid var(--border-color);
-}
-
-/* Make all action buttons more consistent */
-.action-btn-group .btn {
-    margin-right: 0.25rem;
-}
-
-/* Add transition effects for smoother interactions */
-.list-group-item, .btn, .card, .table tr {
-    transition: all 0.2s ease;
-}
-
-/* Ensure workspace and table action buttons are properly spaced */
-.btn-group-sm > .btn {
-    padding: 0.25rem 0.5rem;
-}
-
-/* Ensure consistent form styles in modals */
-.modal-body .form-label {
-    font-weight: 500;
-    color: var(--text-primary);
-}
-
-/* Import/Export elements styling */
-#importExportContent {
-    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-    font-size: 0.9rem;
-    background-color: var(--card-bg);
-    color: var(--text-secondary);
-}
-
-/* Join condition code styling */
-code {
-    color: var(--text-primary);
-    background-color: var(--hover-bg);
-    padding: 0.2rem 0.4rem;
-    border-radius: 4px;
-    border: 1px solid var(--border-color);
+code { 
+    color: var(--text-primary); 
+    background-color: var(--hover-bg); 
+    padding: 0.2rem 0.4rem; 
+    border-radius: 4px; 
+    border: 1px solid var(--border-color); 
 }
