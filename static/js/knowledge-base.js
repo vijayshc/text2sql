@@ -551,27 +551,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Add sources information
                 let sourcesHtml = '';
                 if (sources && sources.length > 0) {
-                    // Deduplicate the list of documents
-                    const uniqueDocuments = [];
-                    const documentSet = new Set();
-                    
-                    sources.forEach(source => {
-                        if (!documentSet.has(source.document)) {
-                            documentSet.add(source.document);
-                            uniqueDocuments.push(source.document);
-                        }
-                    });
-                    
-                    // Create HTML for unique documents list
+                    // Create HTML for sources list with document numbers
                     sourcesHtml = '<div class="sources mt-3">' +
                         '<small class="text-muted">Sources:</small>' +
-                        '<ul class="source-list">';
+                        '<ol class="source-list">';
                     
-                    uniqueDocuments.forEach(document => {
-                        sourcesHtml += `<li>${document}</li>`;
+                    sources.forEach(source => {
+                        // Use document_number if available, otherwise use index + 1
+                        const docNum = source.document_number || (sources.indexOf(source) + 1);
+                        sourcesHtml += `<li>[${docNum}] ${source.document}</li>`;
                     });
                     
-                    sourcesHtml += '</ul></div>';
+                    sourcesHtml += '</ol></div>';
                 }
                 
                 // Append sources to the message

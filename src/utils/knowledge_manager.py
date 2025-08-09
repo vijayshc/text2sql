@@ -550,13 +550,19 @@ class KnowledgeManager:
         return [row[0] for row in cursor.fetchall()]
         
     def get_all_tags(self) -> List[str]:
-        """Get a list of all unique tags in the system
+        """Get a list of all unique tags from active (completed) documents in the system
         
         Returns:
-            List of unique tags
+            List of unique tags from active documents only
         """
         cursor = self.conn.cursor()
-        cursor.execute('SELECT DISTINCT tag FROM knowledge_document_tags ORDER BY tag')
+        cursor.execute('''
+            SELECT DISTINCT kdt.tag 
+            FROM knowledge_document_tags kdt
+            INNER JOIN knowledge_documents kd ON kdt.document_id = kd.id
+            WHERE kd.status = 'completed'
+            ORDER BY kdt.tag
+        ''')
         return [row[0] for row in cursor.fetchall()]
         
     def _get_document_ids_by_tags(self, tags: List[str]) -> List[str]:
@@ -942,11 +948,22 @@ class KnowledgeManager:
             If stream=False: Generated answer as a string
             If stream=True: A generator yielding text chunks
         """
-        # Build the context string from the chunks
+        # Create a mapping of unique documents to numbered references
+        document_index = {}
+        document_counter = 1
+        
+        # Build the context string from the chunks with numbered references
         context = ""
         
         for i, chunk in enumerate(context_chunks):
-            context += f"\n\nDocument: {chunk['filename']}\n"
+            # Get or assign a document number
+            doc_filename = chunk['filename']
+            if doc_filename not in document_index:
+                document_index[doc_filename] = document_counter
+                document_counter += 1
+            
+            doc_num = document_index[doc_filename]
+            context += f"\n\nDocument [{doc_num}]:\n"
             
             if 'predecessor' in chunk:
                 context += chunk['predecessor']['content'] + "\n\n"
@@ -970,15 +987,27 @@ class KnowledgeManager:
                 elif role == 'assistant':
                     conversation_context += f"Assistant: {content}\n"
         
-        # Create prompt for LLM with conversation context
+        # Create a document reference list for the LLM
+        doc_reference_list = ""
+        if document_index:
+            doc_reference_list = "\n\nDocument References:\n"
+            for doc_name, doc_num in sorted(document_index.items(), key=lambda x: x[1]):
+                doc_reference_list += f"[{doc_num}] {doc_name}\n"
+        
+        # Create prompt for LLM with conversation context and numbered citation instructions
         system_content = f"""You are a helpful AI assistant that provides accurate answers based on the given context. 
         If the answer cannot be found in the context, acknowledge that you don't know instead of making up information.
         Provide clear, concise answers and use markdown formatting in your response to improve readability.
-        When referring to information from the context, cite the document name.{conversation_context}"""
+        
+        IMPORTANT CITATION RULES:
+        - When referencing information from the context, use numbered citations like [1], [2], etc.
+        - Do NOT repeat the full document names in your response
+        - Use citations sparingly - only at the end of sentences or paragraphs where you reference specific information
+        - The document references will be provided separately at the end, so you don't need to mention document names{conversation_context}"""
         
         prompt = [
             {"role": "system", "content": system_content},
-            {"role": "user", "content": f"Context information:\n{context}\n\nQuestion: {query}\n\nProvide a detailed answer to the question based only on the context provided. Use markdown formatting for better readability."}
+            {"role": "user", "content": f"Context information:\n{context}{doc_reference_list}\n\nQuestion: {query}\n\nProvide a detailed answer to the question based only on the context provided. Use markdown formatting for better readability and numbered citations [1], [2], etc. when referencing specific information."}
         ]
         
         try:
@@ -1016,21 +1045,28 @@ class KnowledgeManager:
         self.conn.commit()
     
     def _get_sources(self, context_chunks: List[Dict[str, Any]]) -> List[Dict[str, str]]:
-        """Get source information for citation
+        """Get source information for citation with numbered references
         
         Args:
             context_chunks: Context chunks with their metadata
             
         Returns:
-            List of sources
+            List of unique sources with document numbers
         """
         sources = []
+        seen_documents = set()
+        document_counter = 1
         
         for chunk in context_chunks:
-            sources.append({
-                'document': chunk['filename'],
-                'chunk_id': chunk['id']
-            })
+            doc_filename = chunk['filename']
+            if doc_filename not in seen_documents:
+                sources.append({
+                    'document': doc_filename,
+                    'document_number': document_counter,
+                    'chunk_id': chunk['id']
+                })
+                seen_documents.add(doc_filename)
+                document_counter += 1
             
         return sources
     
