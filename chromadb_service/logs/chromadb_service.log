@@ -1,29 +1,44 @@
-2025-08-09 10:09:23,688 - chromadb_service - INFO - Connecting to ChromaDB at ./chroma_data
-2025-08-09 10:09:24,064 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
-2025-08-09 10:09:32,299 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
-2025-08-09 10:09:35,543 - chromadb_service - INFO - ChromaDB connection established in 11.85s
-2025-08-09 10:09:35,555 - chromadb_service - INFO - Starting ChromaDB Service on 0.0.0.0:8001
+2025-08-09 12:04:28,404 - chromadb_service - INFO - Connecting to ChromaDB at ./chroma_data
+2025-08-09 12:04:28,452 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-08-09 12:04:31,122 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-08-09 12:04:33,638 - chromadb_service - INFO - ChromaDB connection established in 5.23s
+2025-08-09 12:04:33,646 - chromadb_service - INFO - Starting ChromaDB Service on 0.0.0.0:8001
  * Serving Flask app 'app'
  * Debug mode: off
-2025-08-09 10:09:35,568 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+2025-08-09 12:04:33,656 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
  * Running on all addresses (0.0.0.0)
  * Running on http://127.0.0.1:8001
  * Running on http://172.27.251.157:8001
-2025-08-09 10:09:35,568 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
-2025-08-09 10:13:14,076 - werkzeug - INFO - 127.0.0.1 - - [09/Aug/2025 10:13:14] "GET /health HTTP/1.1" 200 -
-2025-08-09 10:13:14,126 - werkzeug - INFO - 127.0.0.1 - - [09/Aug/2025 10:13:14] "GET /collections/knowledge_chunks HTTP/1.1" 200 -
-2025-08-09 10:14:33,141 - chromadb.segment.impl.vector.local_persistent_hnsw - WARNING - Add of existing embedding ID: 0
-2025-08-09 10:14:33,141 - chromadb.segment.impl.vector.local_persistent_hnsw - WARNING - Add of existing embedding ID: 1
-2025-08-09 10:14:33,141 - chromadb.segment.impl.vector.local_persistent_hnsw - WARNING - Add of existing embedding ID: 2
-2025-08-09 10:14:33,141 - chromadb.segment.impl.vector.local_persistent_hnsw - WARNING - Add of existing embedding ID: 3
-2025-08-09 10:14:33,141 - chromadb.segment.impl.vector.local_persistent_hnsw - WARNING - Add of existing embedding ID: 4
-2025-08-09 10:14:33,141 - chromadb.segment.impl.vector.local_persistent_hnsw - WARNING - Add of existing embedding ID: 5
-2025-08-09 10:14:33,142 - chromadb.segment.impl.vector.local_persistent_hnsw - WARNING - Add of existing embedding ID: 6
-2025-08-09 10:14:33,142 - chromadb.segment.impl.vector.local_persistent_hnsw - WARNING - Add of existing embedding ID: 7
-2025-08-09 10:14:33,142 - chromadb.segment.impl.vector.local_persistent_hnsw - WARNING - Add of existing embedding ID: 8
-2025-08-09 10:14:33,142 - chromadb.segment.impl.vector.local_persistent_hnsw - WARNING - Add of existing embedding ID: 9
-2025-08-09 10:14:33,177 - werkzeug - INFO - 127.0.0.1 - - [09/Aug/2025 10:14:33] "POST /collections/knowledge_chunks/search HTTP/1.1" 200 -
-2025-08-09 10:19:51,697 - werkzeug - INFO - 127.0.0.1 - - [09/Aug/2025 10:19:51] "GET /health HTTP/1.1" 200 -
-2025-08-09 10:19:51,706 - werkzeug - INFO - 127.0.0.1 - - [09/Aug/2025 10:19:51] "GET /collections/knowledge_chunks HTTP/1.1" 200 -
-2025-08-09 10:19:57,039 - werkzeug - INFO - 127.0.0.1 - - [09/Aug/2025 10:19:57] "POST /collections/knowledge_chunks/search HTTP/1.1" 200 -
-2025-08-09 10:20:42,974 - werkzeug - INFO - 127.0.0.1 - - [09/Aug/2025 10:20:42] "POST /collections/knowledge_chunks/search HTTP/1.1" 200 -
+2025-08-09 12:04:33,656 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-09 12:04:46,417 - werkzeug - INFO - 127.0.0.1 - - [09/Aug/2025 12:04:46] "[33mPOST /collections/query_embeddings/search HTTP/1.1[0m" 404 -
+2025-08-09 12:04:46,420 - werkzeug - INFO - 127.0.0.1 - - [09/Aug/2025 12:04:46] "GET /health HTTP/1.1" 200 -
+2025-08-09 12:06:46,544 - werkzeug - INFO - 127.0.0.1 - - [09/Aug/2025 12:06:46] "GET /health HTTP/1.1" 200 -
+2025-08-09 12:06:46,561 - werkzeug - INFO - 127.0.0.1 - - [09/Aug/2025 12:06:46] "GET /collections/knowledge_chunks HTTP/1.1" 200 -
+2025-08-09 12:06:58,486 - chromadb.segment.impl.vector.local_persistent_hnsw - WARNING - Add of existing embedding ID: 0
+2025-08-09 12:06:58,486 - chromadb.segment.impl.vector.local_persistent_hnsw - WARNING - Add of existing embedding ID: 1
+2025-08-09 12:06:58,486 - chromadb.segment.impl.vector.local_persistent_hnsw - WARNING - Add of existing embedding ID: 2
+2025-08-09 12:06:58,486 - chromadb.segment.impl.vector.local_persistent_hnsw - WARNING - Add of existing embedding ID: 3
+2025-08-09 12:06:58,486 - chromadb.segment.impl.vector.local_persistent_hnsw - WARNING - Add of existing embedding ID: 4
+2025-08-09 12:06:58,486 - chromadb.segment.impl.vector.local_persistent_hnsw - WARNING - Add of existing embedding ID: 5
+2025-08-09 12:06:58,487 - chromadb.segment.impl.vector.local_persistent_hnsw - WARNING - Add of existing embedding ID: 6
+2025-08-09 12:06:58,487 - chromadb.segment.impl.vector.local_persistent_hnsw - WARNING - Add of existing embedding ID: 7
+2025-08-09 12:06:58,487 - chromadb.segment.impl.vector.local_persistent_hnsw - WARNING - Add of existing embedding ID: 8
+2025-08-09 12:06:58,487 - chromadb.segment.impl.vector.local_persistent_hnsw - WARNING - Add of existing embedding ID: 9
+2025-08-09 12:06:58,508 - werkzeug - INFO - 127.0.0.1 - - [09/Aug/2025 12:06:58] "POST /collections/knowledge_chunks/search HTTP/1.1" 200 -
+2025-08-09 12:07:52,142 - werkzeug - INFO - 127.0.0.1 - - [09/Aug/2025 12:07:52] "GET /collections HTTP/1.1" 200 -
+2025-08-09 12:07:52,171 - werkzeug - INFO - 127.0.0.1 - - [09/Aug/2025 12:07:52] "GET /collections HTTP/1.1" 200 -
+2025-08-09 12:07:52,172 - werkzeug - INFO - 127.0.0.1 - - [09/Aug/2025 12:07:52] "GET /collections HTTP/1.1" 200 -
+2025-08-09 12:07:52,177 - werkzeug - INFO - 127.0.0.1 - - [09/Aug/2025 12:07:52] "GET /collections/knowledge_chunks HTTP/1.1" 200 -
+2025-08-09 12:07:52,177 - werkzeug - INFO - 127.0.0.1 - - [09/Aug/2025 12:07:52] "GET /collections/schema_metadata HTTP/1.1" 200 -
+2025-08-09 12:07:53,898 - werkzeug - INFO - 127.0.0.1 - - [09/Aug/2025 12:07:53] "GET /collections HTTP/1.1" 200 -
+2025-08-09 12:07:53,904 - werkzeug - INFO - 127.0.0.1 - - [09/Aug/2025 12:07:53] "GET /collections/schema_metadata HTTP/1.1" 200 -
+2025-08-09 12:07:53,907 - werkzeug - INFO - 127.0.0.1 - - [09/Aug/2025 12:07:53] "GET /collections HTTP/1.1" 200 -
+2025-08-09 12:07:53,914 - werkzeug - INFO - 127.0.0.1 - - [09/Aug/2025 12:07:53] "GET /collections/schema_metadata/documents?limit=20 HTTP/1.1" 200 -
+2025-08-09 12:07:53,918 - werkzeug - INFO - 127.0.0.1 - - [09/Aug/2025 12:07:53] "GET /collections/schema_metadata HTTP/1.1" 200 -
+2025-08-09 12:07:58,875 - werkzeug - INFO - 127.0.0.1 - - [09/Aug/2025 12:07:58] "GET /collections HTTP/1.1" 200 -
+2025-08-09 12:07:58,882 - werkzeug - INFO - 127.0.0.1 - - [09/Aug/2025 12:07:58] "GET /collections/schema_metadata/documents?limit=40 HTTP/1.1" 200 -
+2025-08-09 12:07:58,887 - werkzeug - INFO - 127.0.0.1 - - [09/Aug/2025 12:07:58] "GET /collections/schema_metadata HTTP/1.1" 200 -
+2025-08-09 12:12:31,413 - werkzeug - INFO - 127.0.0.1 - - [09/Aug/2025 12:12:31] "[33mPOST /collections/query_embeddings/search HTTP/1.1[0m" 404 -
+2025-08-09 12:12:31,417 - werkzeug - INFO - 127.0.0.1 - - [09/Aug/2025 12:12:31] "GET /health HTTP/1.1" 200 -
+2025-08-09 12:13:21,899 - werkzeug - INFO - 127.0.0.1 - - [09/Aug/2025 12:13:21] "GET /health HTTP/1.1" 200 -
+2025-08-09 12:13:21,902 - werkzeug - INFO - 127.0.0.1 - - [09/Aug/2025 12:13:21] "GET /collections/knowledge_chunks HTTP/1.1" 200 -

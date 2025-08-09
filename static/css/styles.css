@@ -2049,3 +2049,89 @@ html {
     background: #0d6efd !important;
     border-color: #0d6efd !important;
 }
+
+/* Theme Selection Styles */
+.theme-options {
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.theme-option {
+    padding: 0.5rem 0.75rem !important;
+    font-size: 0.9rem !important;
+    transition: all 0.2s ease;
+    position: relative;
+    cursor: pointer;
+}
+
+.theme-option:hover {
+    background-color: var(--hover-bg) !important;
+    color: var(--text-primary) !important;
+    padding-left: 1rem !important;
+}
+
+.theme-option i.theme-check {
+    display: none;
+    color: var(--success-color);
+    font-size: 0.8rem;
+}
+
+.theme-option.active i.theme-check {
+    display: inline !important;
+}
+
+.theme-option.active {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border-left: 3px solid var(--primary-color);
+}
+
+.dropdown-submenu {
+    position: relative;
+}
+
+.dropdown-item-text {
+    color: var(--text-secondary);
+    font-weight: 500;
+    padding: 0.5rem 0.75rem;
+    cursor: default;
+}
+
+/* Ensure proper theme transitions */
+* {
+    transition: background-color var(--transition-speed) ease, 
+                color var(--transition-speed) ease, 
+                border-color var(--transition-speed) ease;
+}
+
+/* Theme-specific adjustments for light themes */
+.theme-light {
+    /* Light theme specific overrides */
+}
+
+.theme-light .btn-primary {
+    background: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: white !important;
+}
+
+.theme-light .btn-primary:hover {
+    background: var(--secondary-color) !important;
+    border-color: var(--secondary-color) !important;
+    color: white !important;
+}
+
+.theme-lightColored {
+    /* Light colored theme specific overrides */
+}
+
+.theme-lightColored .btn-primary {
+    background: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: white !important;
+}
+
+.theme-lightColored .btn-primary:hover {
+    background: var(--secondary-color) !important;
+    border-color: var(--secondary-color) !important;
+    color: white !important;
+}

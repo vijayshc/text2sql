@@ -10,7 +10,7 @@ load_dotenv()
 # OpenRouter configuration
 OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY', '')
 OPENROUTER_BASE_URL = os.getenv('OPENROUTER_BASE_URL', 'https://generativelanguage.googleapis.com/v1beta/openai/')
-OPENROUTER_MODEL = os.getenv('OPENROUTER_MODEL', 'gemma-3-27b-it')
+OPENROUTER_MODEL = os.getenv('OPENROUTER_MODEL', 'gemini-2.0-flash-lite')
 
 # Azure OpenAI configuration (kept for backward compatibility)
 AZURE_ENDPOINT = os.getenv('AZURE_ENDPOINT', 'https://models.inference.ai.azure.com')
