@@ -1,58 +1,5 @@
 /* Custom styles for Text-to-SQL application */
-
-:root {
-    /* Default dark theme colors */
-    --primary-color: #ffffff;
-    --secondary-color: #e5e5e5;
-    --accent-color: #b0b0b0;
-    --success-color: #10b981;
-    --warning-color: #f59e0b;
-    --danger-color: #ef4444;
-    --info-color: #3b82f6;
-    --light-bg: #161616;
-    --dark-bg: #1a1a1a;
-    --card-bg: #1f1f1f;
-    --sidebar-bg: #1a1a1a;
-    --text-primary: #ffffff;
-    --text-secondary: #b0b0b0;
-    --text-muted: #808080;
-    --border-color: #2d2d2d;
-    --hover-bg: #2a2a2a;
-    --input-bg: #2a2a2a;
-    --input-border: #3a3a3a;
-    --input-focus-border: #4a4a4a;
-    --table-header-bg: #2a2a2a;
-    --table-row-bg: #1f1f1f;
-    --table-row-hover: #2a2a2a;
-    --table-border: #3a3a3a;
-    --button-primary-bg: #ffffff;
-    --button-primary-text: #1f1f1f;
-    --button-primary-hover: #e5e5e5;
-    --button-secondary-bg: #2a2a2a;
-    --button-secondary-text: #ffffff;
-    --button-secondary-hover: #3a3a3a;
-    
-    /* Gradients for clean design */
-    --primary-gradient: linear-gradient(135deg, #ffffff, #e5e5e5);
-    --card-gradient: linear-gradient(145deg, #1f1f1f, #252525);
-    --sidebar-gradient: #1a1a1a;
-    --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    --card-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.3);
-    --transition-speed: 0.2s;
-    
-    /* Additional utility colors */
-    --overlay-bg: rgba(0, 0, 0, 0.5);
-    --focus-ring: rgba(255, 255, 255, 0.1);
-    --scrollbar-track: #2a2a2a;
-    --scrollbar-thumb: #4a4a4a;
-    
-    /* Syntax highlighting colors for code */
-    --syntax-keyword: #c678dd;
-    --syntax-string: #98c379;
-    --syntax-number: #d19a66;
-    --syntax-function: #61afef;
-    --syntax-comment: #5c6370;
-}
+/* Theme variables are now defined in themes.css - imported first */
 
 /* General styles */
 body {
@@ -84,22 +31,21 @@ h4 {
 .scrollable-results {
     width: 100%;
     overflow-x: auto;
-    overflow-y: auto;
-    max-height: 400px;
+    overflow-y: visible;
+    /* Remove max-height to allow content-based expansion */
 }
 
 strong{
     color: var(--text-primary);
 }
 
-/* Container fixes to utilize full width */
+/* Container fixes to utilize full width (do not force flex here) */
 .container-fluid {
     padding-left: 0;
     padding-right: 0;
     width: 100%;
     max-width: 100%;
-    margin: 0;
-    display: flex;
+    margin: 0 auto;
 }
 
 .row {
@@ -247,15 +193,7 @@ strong{
     margin: 0.3rem 0;
 }
 
-/* Main content shift when sidebar is present */
-.main-content {
-    margin-left: 250px; /* Use margin instead of padding to avoid overlap */
-    width: calc(100% - 250px); /* Subtract sidebar width from total width */
-    transition: margin-left var(--transition-speed) ease;
-    min-height: 100vh; /* Ensure main content takes at least full viewport height */
-    display: flex;
-    flex-direction: column;
-}
+/* Main content layout is managed in themes.css to keep a single source of truth */
 
 /* For mobile view */
 @media (max-width: 768px) {
@@ -270,7 +208,7 @@ strong{
     }
     
     .main-content {
-        margin-left: 0;
+        padding-left: 0;
         width: 100%;
     }
     
@@ -281,6 +219,11 @@ strong{
     .container-fluid {
         padding-left: 15px;
         padding-right: 15px;
+    }
+    
+    /* Reduce table padding on mobile for better space utilization */
+    .dataTables_wrapper {
+        padding: 1rem !important;
     }
 }
 
@@ -395,7 +338,7 @@ strong{
 
 /* Navbar customization */
 .navbar {
-    background: var(--primary-gradient) !important;
+    background: var(--card-bg) !important;
     box-shadow: 0 2px 15px rgba(0, 0, 0, 0.3);
     transition: all var(--transition-speed) ease;
 }
@@ -737,7 +680,7 @@ input[type="url"]:focus {
 }
 
 .progress-bar {
-    background: var(--primary-gradient);
+    background: var(--primary-color);
     transition: width 0.6s ease;
     box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
 }
@@ -923,8 +866,6 @@ pre code {
     transition: all 0.3s ease;
     border: 1px solid var(--border-color);
 }
-    border: 1px solid var(--border-color);
-}
 
 pre code.sql {
     position: relative;
@@ -987,22 +928,26 @@ pre code.sql {
     box-shadow: 0 3px 10px rgba(231, 76, 60, 0.3);
 }
 
-/* DataTables styling improvements */
+/* DataTables styling improvements with better spacing */
 .dataTables_wrapper {
-    padding: 1rem 0;
+    padding: 1.5rem;
 }
 
 .dataTables_wrapper .row {
-    margin: 0.8rem 0;
+    margin: 0.5rem 0;
 }
 
+/* Fixed column alignment for DataTables with reduced vertical spacing */
 .dataTables_wrapper td, .dataTables_wrapper th {
-    white-space: normal !important;
-    word-wrap: break-word;
-    padding: 0.75rem 0.5rem !important;
+    padding: 0.5rem 0.75rem !important;
     transition: all 0.2s ease;
     text-align: left !important;
     vertical-align: middle !important;
+    box-sizing: border-box !important;
+    /* Remove white-space nowrap to allow proper column width calculation */
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    line-height: 1.3 !important;
 }
 
 /* Fix for the entries dropdown width */
@@ -1016,7 +961,10 @@ table.dataTable {
     border-collapse: separate !important;
     border-spacing: 0;
     width: 100% !important;
-    table-layout: fixed !important;
+    /* Use auto layout for proper column width calculation */
+    table-layout: auto !important;
+    /* Ensure proper box sizing */
+    box-sizing: border-box !important;
 }
 
 table.dataTable thead th {
@@ -1025,9 +973,10 @@ table.dataTable thead th {
     border-color: var(--table-border);
     border-bottom: 2px solid var(--table-border) !important;
     font-weight: 600;
-    position: sticky;
-    top: 0;
-    z-index: 10;
+    position: relative; /* Remove sticky positioning that can cause alignment issues */
+    box-sizing: border-box !important;
+    padding: 0.5rem 0.75rem !important;
+    line-height: 1.3 !important;
 }
 
 table.dataTable tbody tr {
@@ -1037,13 +986,15 @@ table.dataTable tbody tr {
     border: 1px solid var(--table-border);
 }
 
-/* Add compact row height */
+/* Add compact row height with proper alignment and reduced spacing */
 table.dataTable tbody td {
-    line-height: 1.4;
+    line-height: 1.3 !important;
     color: var(--text-secondary);
     border-color: var(--border-color);
     border-top: 1px solid var(--border-color);
     border-bottom: 1px solid var(--border-color);
+    box-sizing: border-box !important;
+    padding: 0.5rem 0.75rem !important;
 }
 
 /* General table styling for better theme support */
@@ -1055,11 +1006,18 @@ table.dataTable tbody td {
     --bs-table-color: var(--text-primary);
     color: var(--text-primary);
     background-color: var(--table-row-bg);
+    width: 100% !important;
+    table-layout: auto !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
 }
 
 .table > :not(caption) > * > * {
     border-bottom-color: var(--table-border);
     color: var(--text-primary);
+    padding: 0.5rem 0.75rem !important;
+    box-sizing: border-box !important;
+    line-height: 1.3 !important;
 }
 
 .table > thead {
@@ -1070,18 +1028,82 @@ table.dataTable tbody td {
     background-color: var(--table-header-bg);
     color: var(--text-primary);
     border-bottom: 2px solid var(--table-border);
+    padding: 0.5rem 0.75rem !important;
+    box-sizing: border-box !important;
+    position: relative;
+    line-height: 1.3 !important;
 }
 
 .table > tbody > tr > td {
     background-color: var(--table-row-bg);
     color: var(--text-primary);
     border-bottom: 1px solid var(--table-border);
+    padding: 0.5rem 0.75rem !important;
+    box-sizing: border-box !important;
+    line-height: 1.3 !important;
 }
 
 .table-hover > tbody > tr:hover > td,
 .table-hover > tbody > tr:hover > th {
-    background-color: var(--table-row-hover);
-    color: var(--text-primary);
+    background-color: var(--table-row-hover) !important;
+    color: var(--text-primary) !important;
+}
+
+/* DataTables column alignment fixes */
+.dataTables_wrapper table.dataTable {
+    margin: 0 !important;
+    clear: both !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+}
+
+/* Force consistent column alignment for all DataTables */
+.dataTables_wrapper table.dataTable thead th,
+.dataTables_wrapper table.dataTable thead td {
+    box-sizing: border-box !important;
+    padding: 0.75rem !important;
+    border-bottom: 2px solid var(--table-border) !important;
+    text-align: left !important;
+}
+
+.dataTables_wrapper table.dataTable tbody th,
+.dataTables_wrapper table.dataTable tbody td {
+    box-sizing: border-box !important;
+    padding: 0.75rem !important;
+    text-align: left !important;
+}
+
+/* Fix for DataTables header alignment */
+.dataTables_scrollHead {
+    overflow: visible !important;
+}
+
+.dataTables_scrollHeadInner {
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.dataTables_scrollHeadInner table {
+    width: 100% !important;
+    margin: 0 !important;
+}
+
+/* Ensure table-responsive doesn't break alignment */
+.table-responsive .dataTables_wrapper {
+    overflow-x: visible !important;
+}
+
+/* Left alignment utility classes for DataTables */
+.dt-left {
+    text-align: left !important;
+}
+
+.dt-center {
+    text-align: center !important;
+}
+
+.dt-right {
+    text-align: right !important;
 }
 
 /* DataTables specific styling */
@@ -1114,23 +1136,7 @@ table.dataTable tbody td {
     color: var(--text-secondary) !important;
 }
 
-.dataTables_paginate .paginate_button {
-    background-color: var(--button-secondary-bg) !important;
-    border: 1px solid var(--border-color) !important;
-    color: var(--text-primary) !important;
-}
-
-.dataTables_paginate .paginate_button:hover {
-    background-color: var(--button-secondary-hover) !important;
-    border-color: var(--border-color) !important;
-    color: var(--text-primary) !important;
-}
-
-.dataTables_paginate .paginate_button.current {
-    background-color: var(--button-primary-bg) !important;
-    border-color: var(--button-primary-bg) !important;
-    color: var(--button-primary-text) !important;
-}
+/* DataTables pagination styles moved to themes.css for unified theming */
 
 /* Schema table specific styling */
 .schema-datatable {
@@ -1203,13 +1209,29 @@ table.dataTable tbody tr:hover td {
     color: var(--text-primary) !important;
 }
 
-/* Fix for DataTable responsive wrapper */
+/* Ensure horizontal scrolling shows up when enabled (scrollX) */
 .dataTables_wrapper .dataTables_scroll {
-    overflow-x: visible !important;
+    overflow-x: auto !important;
 }
 
 .dataTables_wrapper .dataTables_scrollBody {
-    overflow-x: visible !important;
+    overflow-x: auto !important;
+}
+
+/* Prevent double header when DataTables uses scrollX: hide body thead clone */
+.dataTables_wrapper .dataTables_scrollBody table.dataTable thead {
+    display: none !important;
+}
+/* Also neutralize sticky positioning in scroll body to avoid layout glitches */
+.dataTables_wrapper .dataTables_scrollBody table.dataTable thead th {
+    position: static !important;
+}
+
+/* Utility: allow per-column/table wrapping where needed */
+.dt-wrap td, .dt-wrap th,
+table.dataTable td.dt-wrap, table.dataTable th.dt-wrap {
+    white-space: normal !important;
+    word-wrap: break-word !important;
 }
 .dataTables_filter input, .dataTables_length select {
     border-radius: 6px;
@@ -1584,38 +1606,20 @@ table.dataTable tbody tr:hover td {
     background-color: var(--card-bg);
 }
 
-.btn-close {
-    filter: invert(1);
-}
+/* Close button filter is handled in themes.css per-theme. Avoid overriding here. */
 
 /* Text colors */
-.text-primary {
-    color: var(--primary-color) !important;
-}
+/* Button styles derive from CSS variables in themes.css */
+.btn-primary { background-color: var(--button-primary-bg) !important; border-color: var(--button-primary-bg) !important; color: var(--button-primary-text) !important; }
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active { background-color: var(--button-primary-hover) !important; border-color: var(--button-primary-hover) !important; color: var(--button-primary-text) !important; }
 
-.text-secondary {
-    color: var(--text-secondary) !important;
-}
-
-.text-success {
-    color: var(--success-color) !important;
-}
-
-.text-danger {
-    color: var(--danger-color) !important;
-}
-
-.text-warning {
-    color: var(--warning-color) !important;
-}
-
-.text-info {
-    color: var(--accent-color) !important;
-}
-
-.text-muted {
-    color: var(--text-muted) !important;
-}
+.text-primary { color: var(--primary-color) !important; }
+.text-secondary { color: var(--text-secondary) !important; }
+.text-success { color: var(--success-color) !important; }
+.text-danger { color: var(--danger-color) !important; }
+.text-warning { color: var(--warning-color) !important; }
+.text-info { color: var(--accent-color) !important; }
+.text-muted { color: var(--text-muted) !important; }
 
 /* Pagination styling */
 .pagination .page-link {
@@ -1861,11 +1865,9 @@ html {
 }
 
 .dashboard-container .card {
-    background: var(--card-gradient);
+    background: var(--card-bg);
     border: 1px solid var(--border-color);
     box-shadow: var(--card-shadow);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
 }
 
 .dashboard-container .card:hover {
@@ -1874,7 +1876,7 @@ html {
 }
 
 .dashboard-container .card-header {
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--card-bg);
     border-bottom: 1px solid var(--border-color);
     color: var(--text-primary);
     font-weight: 600;
@@ -2037,8 +2039,8 @@ html {
     padding: 1.5rem;
     border: 1px solid var(--border-color);
     border-radius: 12px;
-    background: rgba(31, 31, 31, 0.95);
-    backdrop-filter: blur(10px);
+    /* Use themed card background so modal matches active theme */
+    background: var(--card-bg);
     box-shadow: var(--card-shadow);
 }
 
@@ -2125,7 +2127,8 @@ html {
 
 .schema-table-container .schema-datatable thead th {
     background: var(--table-header-bg);
-    color: var(--text-primary);
+    /* Use theme-provided header text color (e.g., white for Light Colored) with sensible fallback */
+    color: var(--table-header-text, var(--text-primary));
     border-top: none;
     border-bottom: 2px solid var(--table-border);
     font-weight: 600;
@@ -2195,9 +2198,9 @@ html {
 }
 
 .schema-table-container .dataTables_paginate .paginate_button.current {
-    color: #ffffff !important;
-    background: #0d6efd !important;
-    border-color: #0d6efd !important;
+    background-color: var(--button-primary-bg) !important;
+    border-color: var(--button-primary-bg) !important;
+    color: var(--button-primary-text) !important;
 }
 
 /* Theme Selection Styles */
@@ -2253,11 +2256,7 @@ html {
                 border-color var(--transition-speed) ease;
 }
 
-/* Theme-specific adjustments for light themes */
-.theme-light {
-    /* Light theme specific overrides */
-}
-
+/* Theme-specific button adjustments for light themes */
 .theme-light .btn-primary {
     background: var(--primary-color) !important;
     border-color: var(--primary-color) !important;
@@ -2268,10 +2267,6 @@ html {
     background: var(--secondary-color) !important;
     border-color: var(--secondary-color) !important;
     color: white !important;
-}
-
-.theme-lightColored {
-    /* Light colored theme specific overrides */
 }
 
 .theme-lightColored .btn-primary {

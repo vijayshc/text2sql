@@ -4,9 +4,6 @@
 
 {% block head %}
 {{ super() }}
-<!-- DataTables CSS -->
-<link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-<link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/admin/mcp-servers.css') }}">
 {% endblock %}
 
@@ -29,8 +26,8 @@
     </div>
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table table-striped table-hover" id="serversTable" width="100%" cellspacing="0">
-                <thead>
+            <table class="table table-hover table-bordered" id="serversTable" data-table-init="false">
+                <thead class="table-light">
                     <tr>
                         <th>Name</th>
                         <th>Type</th>

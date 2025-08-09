@@ -36,22 +36,45 @@ function displayServers(servers) {
     const tableBody = document.querySelector('#serversTable tbody');
     const noServersMsg = document.getElementById('noServers');
     
-    // Destroy existing DataTable if it exists
+    // Safely destroy existing DataTable if it exists
+    const serversTable = $('#serversTable');
     if ($.fn.DataTable.isDataTable('#serversTable')) {
-        $('#serversTable').DataTable().destroy();
+        try {
+            serversTable.DataTable().clear();
+            serversTable.DataTable().destroy();
+            serversTable.removeClass('dataTable');
+        } catch (e) {
+            console.warn('Error destroying servers DataTable:', e);
+        }
     }
+    
+    // Ensure proper table classes for styling
+    serversTable.addClass('table table-hover table-bordered');
     
     tableBody.innerHTML = '';
     
     if (servers.length === 0) {
         noServersMsg.classList.remove('d-none');
         // Initialize empty DataTable
-        $('#serversTable').DataTable({
-            responsive: true,
-            language: {
-                emptyTable: "No MCP servers have been configured"
-            }
-        });
+        try {
+            serversTable.DataTable({
+                responsive: true,
+                autoWidth: false,
+                dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+                     '<"row"<"col-sm-12"tr>>' +
+                     '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+                language: {
+                    search: 'Filter servers:',
+                    lengthMenu: 'Show _MENU_ servers per page',
+                    emptyTable: "No MCP servers have been configured"
+                },
+                columnDefs: [
+                    { targets: -1, orderable: false, searchable: false } // Actions column
+                ]
+            });
+        } catch (e) {
+            console.warn('Error initializing empty servers DataTable:', e);
+        }
         return;
     }
     
@@ -103,14 +126,27 @@ function displayServers(servers) {
         tableBody.appendChild(row);
     });
     
-    // Initialize DataTable
-    const dataTable = $('#serversTable').DataTable({
-        responsive: true,
-        order: [[0, 'asc']], // Sort by name by default
-        language: {
-            emptyTable: "No MCP servers have been configured"
-        }
-    });
+    // Initialize DataTable with proper error handling
+    try {
+        const dataTable = serversTable.DataTable({
+            responsive: true,
+            autoWidth: false,
+            order: [[0, 'asc']], // Sort by name by default
+            dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+                 '<"row"<"col-sm-12"tr>>' +
+                 '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+            language: {
+                search: 'Filter servers:',
+                lengthMenu: 'Show _MENU_ servers per page',
+                emptyTable: "No MCP servers have been configured"
+            },
+            columnDefs: [
+                { targets: -1, orderable: false, searchable: false } // Actions column
+            ]
+        });
+    } catch (e) {
+        console.warn('Error initializing servers DataTable:', e);
+    }
     
     // Add event listeners after DataTable initialization
     servers.forEach(server => {
@@ -515,13 +551,36 @@ function initMcpServerAdmin() {
     document.getElementById('confirmDeleteBtn').addEventListener('click', deleteServer);
     document.getElementById('serverType').addEventListener('change', toggleServerConfig);
     
-    // Initialize empty DataTable until data is loaded
-    $('#serversTable').DataTable({
-        responsive: true,
-        language: {
-            emptyTable: "Loading MCP servers..."
+    // Initialize empty DataTable until data is loaded (with safe initialization)
+    const serversTable = $('#serversTable');
+    if ($.fn.DataTable.isDataTable('#serversTable')) {
+        try {
+            serversTable.DataTable().clear().draw();
+        } catch (e) {
+            console.warn('Error clearing existing servers DataTable:', e);
         }
-    });
+    } else {
+        try {
+            serversTable.addClass('table table-hover table-bordered');
+            serversTable.DataTable({
+                responsive: true,
+                autoWidth: false,
+                dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+                     '<"row"<"col-sm-12"tr>>' +
+                     '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+                language: {
+                    search: 'Filter servers:',
+                    lengthMenu: 'Show _MENU_ servers per page',
+                    emptyTable: "Loading MCP servers..."
+                },
+                columnDefs: [
+                    { targets: -1, orderable: false, searchable: false } // Actions column
+                ]
+            });
+        } catch (e) {
+            console.warn('Error initializing initial servers DataTable:', e);
+        }
+    }
 }
 
 if (document.readyState === 'loading') {

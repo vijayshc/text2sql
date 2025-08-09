@@ -47,7 +47,7 @@ const resultsDisplay = {
         // Create tbody
         $('<tbody>').appendTo(table);
 
-        // Initialize DataTable with improved configuration
+        // Initialize DataTable with improved configuration for alignment
         text2sql.dataTable = table.DataTable({
             data: data,
             columns: columns.map(col => ({
@@ -60,31 +60,42 @@ const resultsDisplay = {
                             return '<span class="text-muted">NULL</span>';
                         }
                         
-                        // Handle long text content
-                        if (data && data.length > 50) {
-                            return `<span title="${data}">${data.substr(0, 50)}...</span>`;
+                        // Handle long text content with proper HTML escaping
+                        if (typeof data === 'string' && data.length > 100) {
+                            const escaped = $('<div>').text(data).html(); // Escape HTML
+                            const truncated = $('<div>').text(data.substr(0, 97) + '...').html();
+                            return `<span title="${escaped}">${truncated}</span>`;
                         }
                     }
                     return data;
                 }
             })),
             
-            autoWidth: false,
+            autoWidth: false, // Disable automatic width calculation
             dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
                  '<"row"<"col-sm-12"tr>>' +
                  '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
             pageLength: 10,
             lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
-            columnDefs: [{
-                targets: '_all',
-                className: 'text-wrap'
-            }],
+            // Disable responsive and scrollX for better alignment
+            responsive: false,
+            scrollX: false,    // Disable horizontal scroll to prevent alignment issues
+            scrollCollapse: false,
             language: {
                 search: "Filter results:",
                 lengthMenu: "Show _MENU_ entries per page",
                 emptyTable: "No results available"
             },
+            columnDefs: [
+                { 
+                    targets: '_all', 
+                    className: 'dt-left' // Left align all columns
+                }
+            ],
             drawCallback: function() {
+                // Force column width recalculation for alignment
+                this.api().columns.adjust();
+                
                 // Add animation to rows when drawing/redrawing
                 $(this).find('tbody tr').each(function(index) {
                     $(this).css('opacity', '0');
@@ -97,6 +108,10 @@ const resultsDisplay = {
                         $(this).css('transform', 'translateY(0)');
                     }, 50 * index);
                 });
+            },
+            initComplete: function(settings, json) {
+                // Ensure columns are properly aligned after initialization
+                this.api().columns.adjust();
             }
         });
     },

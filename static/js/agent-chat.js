@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let eventSource = null;
     
     // Variable to track the most recent agent response
-    let lastAgentResponse = "Hello! I'm your agent assistant. I'll help you solve tasks by using tools and accessing resources. You can ask follow-up questions, and I'll maintain context from our conversation. How can I help you today?";
+    let lastAgentResponse = "Hello! I'm your agent assistant. How can I help you today?";
     
     // Array to store conversation history for follow-up questions
     // This will only include the user questions and final answers, not intermediate steps
@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function addMessage(content, type, isFinal = false) {
         const messageElement = document.createElement('div');
         // Use knowledge-base chat message structure
-        messageElement.classList.add('message', type === 'user' ? 'user-message' : 'agent-message');
+        messageElement.classList.add('message', type === 'user' ? 'user-message' : 'system-message');
         
         // Keep track of the last agent response
         if (type === 'agent') {
@@ -89,10 +89,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const contentDiv = document.createElement('div');
         contentDiv.classList.add('message-content', 'glass');
         if (type === 'agent') {
-            contentDiv.innerHTML = md.render(content);
+            // Create a markdown content wrapper like knowledge base
+            const markdownWrapper = document.createElement('div');
+            markdownWrapper.classList.add('markdown-content');
+            markdownWrapper.innerHTML = md.render(content);
+            contentDiv.appendChild(markdownWrapper);
+            
+            // Highlight any code blocks after markdown rendering
+            contentDiv.querySelectorAll('pre code').forEach((block) => {
+                if (window.hljs) {
+                    hljs.highlightElement(block);
+                }
+            });
         } else {
             contentDiv.textContent = content;
         }
+        
         messageElement.appendChild(avatar);
         messageElement.appendChild(contentDiv);
 
