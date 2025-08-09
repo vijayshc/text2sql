@@ -109,7 +109,7 @@ class ThemeManager {
     applyTheme(themeName) {
         const theme = this.themes[themeName];
         if (!theme) {
-            console.warn(\`Theme '\${themeName}' not found, falling back to dark theme\`);
+            console.warn(`Theme '${themeName}' not found, falling back to dark theme`);
             themeName = 'dark';
             return this.applyTheme(themeName);
         }
@@ -123,7 +123,7 @@ class ThemeManager {
         
         // Update body class for theme-specific styling
         document.body.className = document.body.className.replace(/theme-\w+/g, '');
-        document.body.classList.add(\`theme-\${themeName}\`);
+        document.body.classList.add(`theme-${themeName}`);
         
         // Store the current theme
         this.currentTheme = themeName;
@@ -137,7 +137,7 @@ class ThemeManager {
             detail: { theme: themeName, colors: theme.colors }
         }));
         
-        console.log(\`Applied theme: \${theme.name}\`);
+        console.log(`Applied theme: ${theme.name}`);
     }
     
     switchTheme(themeName) {
@@ -188,7 +188,7 @@ class ThemeManager {
         const currentThemeIndicator = document.querySelector('#currentThemeIndicator');
         if (currentThemeIndicator) {
             const theme = this.themes[this.currentTheme];
-            currentThemeIndicator.innerHTML = \`<i class="\${theme.icon} me-2"></i>\${theme.name}\`;
+            currentThemeIndicator.innerHTML = `<i class="${theme.icon} me-2"></i>${theme.name}`;
         }
     }
     
