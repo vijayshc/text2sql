@@ -2285,3 +2285,56 @@ html {
     border-color: var(--secondary-color) !important;
     color: white !important;
 }
+
+/* Mobile responsive theme adjustments */
+@media (max-width: 768px) {
+    .table {
+        font-size: 0.875rem;
+    }
+    
+    .form-control,
+    .form-select {
+        font-size: 0.9rem;
+    }
+    
+    .btn {
+        font-size: 0.875rem;
+        padding: 0.375rem 0.75rem;
+    }
+    
+    .card {
+        box-shadow: var(--card-shadow);
+    }
+    
+    .component-section {
+        margin: 15px 0;
+        padding: 15px;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    :root {
+        --border-color: currentColor;
+        --input-border: currentColor;
+        --table-border: currentColor;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Focus indicators for accessibility */
+.form-control:focus,
+.form-select:focus,
+.btn:focus,
+.table tbody tr:focus-within {
+    outline: 2px solid var(--input-focus-border);
+    outline-offset: 2px;
+}
