@@ -19,6 +19,12 @@ import AdminUsersView from '@/views/AdminUsersView.vue'
 import AdminRolesView from '@/views/AdminRolesView.vue'
 import AdminMCPServersView from '@/views/AdminMCPServersView.vue'
 import AdminAuditView from '@/views/AdminAuditView.vue'
+import AdminSamplesView from '@/views/AdminSamplesView.vue'
+import AdminSkillLibraryView from '@/views/AdminSkillLibraryView.vue'
+import AdminKnowledgeView from '@/views/AdminKnowledgeView.vue'
+import AdminVectorDBView from '@/views/AdminVectorDBView.vue'
+import AdminDatabaseQueryView from '@/views/AdminDatabaseQueryView.vue'
+import AdminConfigView from '@/views/AdminConfigView.vue'
 
 import AppLayout from '@/layouts/AppLayout.vue'
 
@@ -203,6 +209,66 @@ const router = createRouter({
           beforeEnter: requiresAdmin,
           meta: {
             title: 'Audit Logs - Text2SQL Assistant',
+            requiresAdmin: true
+          }
+        },
+        {
+          path: '/admin/samples',
+          name: 'AdminSamples',
+          component: AdminSamplesView,
+          beforeEnter: requiresAdmin,
+          meta: {
+            title: 'Manage Samples - Text2SQL Assistant',
+            requiresAdmin: true
+          }
+        },
+        {
+          path: '/admin/skill-library',
+          name: 'AdminSkillLibrary',
+          component: AdminSkillLibraryView,
+          beforeEnter: requiresAdmin,
+          meta: {
+            title: 'Skill Library - Text2SQL Assistant',
+            requiresAdmin: true
+          }
+        },
+        {
+          path: '/admin/knowledge',
+          name: 'AdminKnowledge',
+          component: AdminKnowledgeView,
+          beforeEnter: requiresAdmin,
+          meta: {
+            title: 'Knowledge Management - Text2SQL Assistant',
+            requiresAdmin: true
+          }
+        },
+        {
+          path: '/admin/vector-db',
+          name: 'AdminVectorDB',
+          component: AdminVectorDBView,
+          beforeEnter: requiresAdmin,
+          meta: {
+            title: 'Vector Database - Text2SQL Assistant',
+            requiresAdmin: true
+          }
+        },
+        {
+          path: '/admin/database-query',
+          name: 'AdminDatabaseQuery',
+          component: AdminDatabaseQueryView,
+          beforeEnter: requiresAdmin,
+          meta: {
+            title: 'Database Query Editor - Text2SQL Assistant',
+            requiresAdmin: true
+          }
+        },
+        {
+          path: '/admin/config',
+          name: 'AdminConfig',
+          component: AdminConfigView,
+          beforeEnter: requiresAdmin,
+          meta: {
+            title: 'Configuration - Text2SQL Assistant',
             requiresAdmin: true
           }
         }

@@ -44,18 +44,20 @@ const menuSections = computed<MenuSection[]>(() => [
     ]
   },
   {
-    title: 'Management',
-    items: [
-      { name: 'Samples', path: '/samples', icon: 'fas fa-flask', permission: 'MANAGE_SAMPLES' },
-    ]
-  },
-  {
     title: 'Administration',
     items: [
       { name: 'Admin Dashboard', path: '/admin', icon: 'fas fa-tachometer-alt', permission: 'ADMIN_ACCESS' },
+      { name: 'Manage Samples', path: '/admin/samples', icon: 'fas fa-flask', permission: 'ADMIN_ACCESS' },
       { name: 'User Management', path: '/admin/users', icon: 'fas fa-users', permission: 'MANAGE_USERS' },
-      { name: 'Role Management', path: '/admin/roles', icon: 'fas fa-user-tag', permission: 'MANAGE_ROLES' },
+      { name: 'Roles & Permissions', path: '/admin/roles', icon: 'fas fa-user-tag', permission: 'MANAGE_ROLES' },
       { name: 'MCP Servers', path: '/admin/mcp-servers', icon: 'fas fa-server', permission: 'ADMIN_ACCESS' },
+      { name: 'Skill Library', path: '/admin/skill-library', icon: 'fas fa-brain', permission: 'ADMIN_ACCESS' },
+      { name: 'Schema Management', path: '/schema', icon: 'fas fa-database', permission: 'ADMIN_ACCESS' },
+      { name: 'Metadata Search', path: '/metadata-search', icon: 'fas fa-search', permission: 'ADMIN_ACCESS' },
+      { name: 'Knowledge Management', path: '/admin/knowledge', icon: 'fas fa-book', permission: 'ADMIN_ACCESS' },
+      { name: 'Vector Database', path: '/admin/vector-db', icon: 'fas fa-project-diagram', permission: 'ADMIN_ACCESS' },
+      { name: 'Database Query Editor', path: '/admin/database-query', icon: 'fas fa-terminal', permission: 'ADMIN_ACCESS' },
+      { name: 'Configuration', path: '/admin/config', icon: 'fas fa-cogs', permission: 'ADMIN_ACCESS' },
       { name: 'Audit Logs', path: '/admin/audit', icon: 'fas fa-history', permission: 'ADMIN_ACCESS' },
     ]
   }

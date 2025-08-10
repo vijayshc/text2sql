@@ -9,6 +9,7 @@ from src.utils.schema_manager import SchemaManager
 from src.utils.user_manager import UserManager
 from src.utils.background_tasks import BackgroundTaskManager
 from src.routes.security_routes import security_bp, generate_csrf_token
+from src.routes.admin_api_routes import admin_api_bp
 from src.models.user import Permissions
 from config.config import SECRET_KEY, DEBUG, MCP_SERVER_SCRIPT_PATH
 
@@ -140,6 +141,7 @@ app.config['UPLOAD_FOLDER'] = UPLOADS_DIR
 
 # Register API blueprints only
 app.register_blueprint(api_v1)
+app.register_blueprint(admin_api_bp)
 
 # Register security blueprint for CSRF (API compatibility)
 app.register_blueprint(security_bp)
