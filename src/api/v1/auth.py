@@ -212,3 +212,92 @@ def api_verify_token():
     except Exception as e:
         logger.exception(f"Error verifying token: {str(e)}")
         raise APIException('Token verification failed', 500)
+
+@auth_api.route('/reset-password-request', methods=['POST'])
+def api_reset_password_request():
+    """Request password reset via email/username"""
+    try:
+        data = request.get_json()
+        if not data:
+            raise APIException('Request body is required', 400)
+        
+        username = data.get('username')
+        if not username:
+            raise APIException('Username is required', 400)
+        
+        # Generate and send reset token
+        if user_manager.generate_reset_token(username):
+            # In a real application, we would send an email with the reset link
+            logger.info(f"Password reset requested for user: {username}")
+            
+            # For demonstration, we'll just log the token (NOT secure for production)
+            user = user_manager.get_user_by_username(username)
+            if user:
+                logger.info(f"RESET TOKEN for {username}: {user.get('reset_token', 'N/A')}")
+            
+            # Always return success to prevent username enumeration
+            return jsonify({
+                'message': 'If the username exists, password reset instructions have been sent.',
+                'success': True
+            }), 200
+        else:
+            # Still return success to prevent username enumeration
+            return jsonify({
+                'message': 'If the username exists, password reset instructions have been sent.',
+                'success': True
+            }), 200
+            
+    except APIException:
+        raise
+    except Exception as e:
+        logger.exception(f"Error in password reset request: {str(e)}")
+        raise APIException('Password reset request failed', 500)
+
+@auth_api.route('/reset-password', methods=['POST'])
+def api_reset_password():
+    """Reset password using token"""
+    try:
+        data = request.get_json()
+        if not data:
+            raise APIException('Request body is required', 400)
+        
+        token = data.get('token')
+        password = data.get('password')
+        password_confirm = data.get('password_confirm')
+        
+        if not token:
+            raise APIException('Reset token is required', 400)
+        
+        if not password or len(password) < 6:
+            raise APIException('Password must be at least 6 characters long', 400)
+        
+        if password != password_confirm:
+            raise APIException('Passwords do not match', 400)
+        
+        # Verify token
+        user_id = user_manager.verify_reset_token(token)
+        if not user_id:
+            raise APIException('Invalid or expired token', 400)
+        
+        # Update the password
+        if user_manager.reset_password(user_id, password):
+            # Log password reset
+            user_manager.log_audit_event(
+                user_id=user_id,
+                action='api_password_reset',
+                details="Password reset using token via API",
+                ip_address=request.remote_addr
+            )
+            
+            return jsonify({
+                'message': 'Password has been reset successfully',
+                'success': True
+            }), 200
+        else:
+            raise APIException('Failed to reset password', 500)
+            
+    except APIException:
+        raise
+    except Exception as e:
+        logger.exception(f"Error resetting password: {str(e)}")
+        raise APIException('Password reset failed', 500)

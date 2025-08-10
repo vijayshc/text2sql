@@ -159,6 +159,16 @@ onMounted(() => {
           </button>
         </form>
 
+        <!-- Forgot Password Link -->
+        <div class="mt-4 text-center">
+          <router-link 
+            to="/reset-password-request" 
+            class="text-sm font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300 transition-colors"
+          >
+            Forgot your password?
+          </router-link>
+        </div>
+
         <!-- Theme Toggle -->
         <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
           <button

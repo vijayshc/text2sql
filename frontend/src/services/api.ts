@@ -136,6 +136,14 @@ export class ApiService {
     return this.get('/auth/verify')
   }
 
+  static async resetPasswordRequest(data: { username: string }) {
+    return this.post('/auth/reset-password-request', data)
+  }
+
+  static async resetPassword(data: { token: string; password: string; password_confirm: string }) {
+    return this.post('/auth/reset-password', data)
+  }
+
   // Query endpoints
   static async submitQuery(query: string, workspace?: string, tables?: string[]): Promise<QuerySubmitResponse> {
     return this.post<QuerySubmitResponse>('/query/submit', { query, workspace, tables })
@@ -209,3 +217,4 @@ export default ApiService
 // Export a default instance for convenience
 export const api = ApiService
 export const apiService = ApiService
+export const authService = ApiService

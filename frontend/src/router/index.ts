@@ -12,6 +12,8 @@ import AgentView from '@/views/AgentView.vue'
 import DataMappingView from '@/views/DataMappingView.vue'
 import SchemaView from '@/views/SchemaView.vue'
 import MetadataSearchView from '@/views/MetadataSearchView.vue'
+import ResetPasswordRequestView from '@/views/ResetPasswordRequestView.vue'
+import ResetPasswordView from '@/views/ResetPasswordView.vue'
 
 // Admin Views
 import AdminDashboardView from '@/views/AdminDashboardView.vue'
@@ -79,6 +81,24 @@ const router = createRouter({
       beforeEnter: guestOnly,
       meta: {
         title: 'Login - Text2SQL Assistant'
+      }
+    },
+    {
+      path: '/reset-password-request',
+      name: 'ResetPasswordRequest',
+      component: ResetPasswordRequestView,
+      beforeEnter: guestOnly,
+      meta: {
+        title: 'Reset Password - Text2SQL Assistant'
+      }
+    },
+    {
+      path: '/reset-password/:token',
+      name: 'ResetPassword',
+      component: ResetPasswordView,
+      beforeEnter: guestOnly,
+      meta: {
+        title: 'Set New Password - Text2SQL Assistant'
       }
     },
     
