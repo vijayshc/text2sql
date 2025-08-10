@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-export default {
+module.exports = {
   content: [
     "./index.html",
     "./src/**/*.{vue,js,ts,jsx,tsx}",
@@ -40,8 +40,4 @@ export default {
   },
   plugins: [],
   darkMode: 'class', // Enable dark mode with class strategy
-  // For Tailwind v4 compatibility
-  experimental: {
-    optimizeUniversalDefaults: true
-  }
 }

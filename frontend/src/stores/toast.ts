@@ -61,3 +61,6 @@ export const useToastStore = defineStore('toast', () => {
     clear
   }
 })
+
+// Export alias for convenience
+export const useToast = useToastStore

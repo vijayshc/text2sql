@@ -218,3 +218,11 @@ export default ApiService
 export const api = ApiService
 export const apiService = ApiService
 export const authService = ApiService
+
+// Export commonly used methods for convenience
+export const apiRequest = {
+  get: <T>(url: string, params?: any) => ApiService.get<T>(url, params),
+  post: <T>(url: string, data?: any) => ApiService.post<T>(url, data),
+  put: <T>(url: string, data?: any) => ApiService.put<T>(url, data),
+  delete: <T>(url: string) => ApiService.delete<T>(url),
+}
