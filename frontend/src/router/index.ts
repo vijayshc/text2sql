@@ -8,6 +8,8 @@ import ChangePasswordView from '@/views/ChangePasswordView.vue'
 import QueryEditorView from '@/views/QueryEditorView.vue'
 import KnowledgeView from '@/views/KnowledgeView.vue'
 import ProfileView from '@/views/ProfileView.vue'
+import AgentView from '@/views/AgentView.vue'
+import DataMappingView from '@/views/DataMappingView.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 
 // Route guard for authentication
@@ -89,24 +91,24 @@ const router = createRouter({
           meta: {
             title: 'Knowledge Finder - Text2SQL Assistant'
           }
+        },
+        {
+          path: '/agent',
+          name: 'Agent',
+          component: AgentView,
+          meta: {
+            title: 'Agent Mode - Text2SQL Assistant'
+          }
+        },
+        {
+          path: '/data-mapping',
+          name: 'DataMapping',
+          component: DataMappingView,
+          meta: {
+            title: 'Data Mapping - Text2SQL Assistant'
+          }
         }
         // Additional authenticated routes will be added here
-        // {
-        //   path: '/agent',
-        //   name: 'Agent',
-        //   component: () => import('@/views/AgentView.vue'),
-        //   meta: {
-        //     title: 'Agent Mode - Text2SQL Assistant'
-        //   }
-        // },
-        // {
-        //   path: '/data-mapping',
-        //   name: 'DataMapping',
-        //   component: () => import('@/views/DataMappingView.vue'),
-        //   meta: {
-        //     title: 'Data Mapping - Text2SQL Assistant'
-        //   }
-        // },
         // ... more routes
       ]
     },
