@@ -59,7 +59,7 @@ class JWTManager:
                 return None
             
             # Check expiration
-            if datetime.fromtimestamp(payload['exp']) < datetime.utcnow():
+            if datetime.utcfromtimestamp(payload['exp']) < datetime.utcnow():
                 return None
             
             return payload
