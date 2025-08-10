@@ -40,4 +40,8 @@ export default {
   },
   plugins: [],
   darkMode: 'class', // Enable dark mode with class strategy
+  // For Tailwind v4 compatibility
+  experimental: {
+    optimizeUniversalDefaults: true
+  }
 }

@@ -205,3 +205,7 @@ export class ApiService {
 }
 
 export default ApiService
+
+// Export a default instance for convenience
+export const api = ApiService
+export const apiService = ApiService
