@@ -1,6 +1,119 @@
 # Text2SQL Assistant
 
-A comprehensive AI-powered database query assistant with advanced features for enterprise environments.
+A comprehensive AI-powered database query assistant built with modern Vue.js 3 Single Page Application (SPA) architecture and Flask API backend, featuring advanced enterprise capabilities including admin management, AI agents, and vector search.
+
+## 🏗️ Modern Architecture
+
+This application has been completely migrated to a **modern Vue.js 3 + Flask API architecture** with **zero backward compatibility** with the previous server-side rendering approach.
+
+### Architecture Overview
+
+**Frontend (Vue.js 3 SPA)**
+- 🎨 **Vue.js 3** with **TypeScript** for type safety and modern development
+- 🎯 **23 Responsive Views** covering all functionality (10 user + 13 admin views)
+- 🎪 **Pinia** for centralized state management (auth, queries, UI state)
+- 🎨 **Tailwind CSS** for modern, responsive design system
+- 📱 **Client-side routing** with Vue Router for seamless navigation
+- ⚡ **Vite** for lightning-fast development and optimized builds
+- 🧪 **Comprehensive testing** with Vitest (unit) and Playwright (e2e)
+
+**Backend (Flask API-Only)**
+- 🚀 **Pure RESTful API** under `/api/v1/` and `/api/v1/admin/`
+- 🔐 **JWT Authentication** with automatic token refresh and secure management
+- 📡 **Server-Sent Events (SSE)** for real-time streaming features
+- 🛡️ **CORS Configuration** for secure cross-origin requests
+- 📊 **Comprehensive error handling** with structured JSON responses
+- 🔄 **No HTML template rendering** - API-first architecture
+
+### Complete Feature Parity
+
+**All Original Functionality Preserved:**
+- ✅ Natural language to SQL conversion
+- ✅ Database interaction and query execution
+- ✅ Schema awareness and management
+- ✅ Knowledge base Q&A with document upload
+- ✅ Database metadata search with AI
+- ✅ User management and RBAC
+- ✅ **All 13 admin features** fully migrated
+- ✅ Agent mode with MCP server integration
+- ✅ Data mapping analysis
+- ✅ Vector database management
+- ✅ Audit logging and monitoring
+
+## 🎯 Vue.js Frontend Features
+
+The Vue.js 3 frontend provides a modern, responsive Single Page Application with **23 comprehensive views**:
+
+### User Views (10 Views)
+- 🏠 **HomeView** - Main dashboard with workspace management and query interface
+- 🔐 **LoginView** - Secure JWT-based authentication
+- 👤 **ProfileView** - User profile management and permissions display
+- 🔑 **ChangePasswordView** - Secure password change with real-time validation
+- 🔄 **ResetPasswordRequestView** - Email-based password reset initiation
+- 🔄 **ResetPasswordView** - Secure password reset completion
+- ✏️ **QueryEditorView** - Advanced SQL editor with syntax highlighting and AI assistance
+- 📚 **KnowledgeView** - Document upload, Q&A chat interface with AI
+- 🗄️ **SchemaView** - Database schema browser with workspace and table management
+- 🔍 **MetadataSearchView** - AI-powered semantic search with conversation history
+- 🤖 **AgentView** - Interactive AI agent with MCP server integration
+- 📊 **DataMappingView** - AI-powered data mapping analysis with streaming capabilities
+
+### Admin Views (13 Views) - Complete Migration
+- 📊 **AdminDashboardView** - System statistics, quick actions, and performance metrics
+- 📝 **AdminSamplesView** - SQL sample management with full CRUD operations
+- 👥 **AdminUsersView** - User management with role assignment and status control
+- 🛡️ **AdminRolesView** - Role creation, editing, and permission management
+- 🔧 **AdminMCPServersView** - MCP server management with start/stop and configuration
+- 🧠 **AdminSkillLibraryView** - AI skills/prompts management with vectorization and import/export
+- 📚 **AdminKnowledgeView** - Admin document upload and text content management
+- 🗄️ **AdminVectorDBView** - Vector database administration with collection and record management
+- 💾 **AdminDatabaseQueryView** - Direct SQL query interface with schema browser and execution
+- ⚙️ **AdminConfigView** - System configuration management with type validation and categories
+- 📋 **AdminAuditView** - Complete activity monitoring with CSV export and filtering
+
+### Modern Frontend Features
+- 🎨 **Responsive Design** - Mobile-first approach with Tailwind CSS
+- 🌙 **Dark/Light Theme** - User preference with persistent storage
+- 🔔 **Toast Notifications** - Real-time feedback with styled alerts
+- 📡 **Real-time Streaming** - Server-Sent Events for AI responses
+- 🔐 **JWT Token Management** - Automatic refresh and secure storage
+- 🧪 **Type Safety** - Full TypeScript integration with proper type definitions
+- ⚡ **Performance Optimized** - Code splitting, lazy loading, and optimized builds
+
+## 🚀 API Architecture
+
+The backend provides a comprehensive RESTful API that serves the Vue.js frontend with structured endpoints:
+
+### Core API Endpoints (`/api/v1/`)
+- **Authentication:** `/api/v1/auth/` - Login, logout, token refresh, password management
+- **Query Processing:** `/api/v1/query/` - Natural language to SQL conversion and execution
+- **Agent Mode:** `/api/v1/agent/` - AI agent interactions with MCP server integration
+- **Data Mapping:** `/api/v1/data-mapping/` - AI-powered data mapping analysis with streaming
+- **Schema Management:** `/api/v1/schema/` - Database schema operations and workspace management
+- **Metadata Search:** `/api/v1/metadata-search/` - AI semantic search with conversation history
+- **Knowledge Base:** `/api/v1/feedback/` - Document management and Q&A system
+- **Health Monitoring:** `/api/health` - Application health check and status
+
+### Admin API Endpoints (`/api/v1/admin/`)
+- **Dashboard:** Statistics, system metrics, and quick actions
+- **User Management:** User CRUD operations, role assignments, status management
+- **Role Management:** Role creation, permission assignment, RBAC administration
+- **Sample Management:** SQL sample CRUD with categorization and search
+- **Skill Library:** AI skills management with vectorization and import/export
+- **Knowledge Management:** Admin document upload and content management
+- **Vector Database:** Collection management, record operations, search administration
+- **Database Queries:** Direct SQL execution interface with schema browser
+- **Configuration:** System settings management with type validation
+- **MCP Servers:** Server management with start/stop, configuration, and monitoring
+- **Audit Logs:** Activity monitoring with filtering and CSV export
+
+### API Features
+- **JWT Authentication** - Stateless authentication with automatic token refresh
+- **CORS Support** - Configured for secure cross-origin requests
+- **Streaming Responses** - Server-Sent Events for real-time AI interactions
+- **Error Handling** - Comprehensive error responses with structured JSON
+- **Request Validation** - Input validation and sanitization across all endpoints
+- **Rate Limiting** - Protection against abuse on sensitive endpoints
 
 ## Comprehensive Audit Logging
 
@@ -241,14 +354,65 @@ Set `MESSAGE_FORMAT=llama` in your `.env` file to use Llama format, or `MESSAGE_
 
 For detailed technical information, see [MCP_CONNECTION_IMPROVEMENTS.md](MCP_CONNECTION_IMPROVEMENTS.md).
 
-## Tech Stack
+## 🛠️ Tech Stack
 
-*   **Backend:** Python, Flask, SQLAlchemy
-*   **AI:** Azure AI Inference Service, Sentence-Transformers, OpenRouter
-*   **Frontend:** HTML, CSS, JavaScript, Bootstrap 5, jQuery
-*   **Database:** SQLite (default)
-*   **Vector Database:** ChromaDB REST API Service (for embeddings and similarity search)
-*   **MCP Support:** Model Context Protocol support for both stdio and HTTP servers
+**Frontend**
+- **Vue.js 3** - Modern reactive framework with Composition API
+- **TypeScript** - Type safety and enhanced developer experience
+- **Tailwind CSS** - Utility-first CSS framework for responsive design
+- **Pinia** - State management for auth, queries, and UI state
+- **Vue Router** - Client-side routing for seamless navigation
+- **Vite** - Fast build tool with hot module replacement
+- **Axios** - HTTP client for API communication
+
+**Backend**
+- **Flask** - Lightweight Python web framework (API-only)
+- **SQLAlchemy** - Database ORM and query builder
+- **JWT** - JSON Web Tokens for stateless authentication
+- **CORS** - Cross-Origin Resource Sharing support
+
+**AI & Data**
+- **Azure AI Inference Service** - Large language model integration
+- **Sentence-Transformers** - Text embeddings for semantic search
+- **OpenRouter** - Multi-provider AI service access
+- **ChromaDB** - Vector database for similarity search
+- **BM25** - Lexical search and reranking algorithms
+
+**Infrastructure**
+- **SQLite** - Default relational database (production-ready alternatives supported)
+- **ChromaDB REST API Service** - Standalone vector database service
+- **MCP Protocol** - Model Context Protocol for AI agent tool integration
+- **Server-Sent Events (SSE)** - Real-time streaming for AI responses
+
+## ⭐ Key Features
+
+### Core Functionality
+- 🔤 **Natural Language to SQL** - Converts English questions to optimized SQL queries
+- 🗃️ **Database Interaction** - Execute SQL queries and display formatted results
+- 🧠 **Schema Awareness** - Uses database schema details for accurate query generation
+- 💡 **AI-Powered Assistance** - Intelligent query suggestions and completions
+- 📊 **Sample Management** - Curated successful queries as examples for AI learning
+
+### Advanced AI Features
+- 📚 **Knowledge Base Q&A** - Upload documents and ask questions using vector search
+- 🔍 **Metadata Search** - AI-powered database schema exploration with semantic search
+- 🤖 **Agent Mode** - Interactive AI assistant with tool integration via MCP protocol
+- 📊 **Data Mapping Analysis** - AI-powered data lineage and ETL logic generation
+- 🧪 **Conversational Support** - Follow-up questions with configurable history limits
+
+### Enterprise Features
+- 👥 **User Management & RBAC** - Secure authentication with role-based permissions
+- 📊 **Admin Dashboard** - Comprehensive management tools for all system components
+- 📝 **Audit Logging** - Complete activity tracking for compliance and monitoring
+- ⚙️ **Configuration Management** - System settings with validation and categorization
+- 🗄️ **Vector Database Management** - Admin interface for vector operations and collections
+
+### Development & Integration
+- 🔧 **MCP Server Management** - Support for multiple Model Context Protocol servers
+- 🔌 **Multi-Server Agent** - Intelligent server selection for optimal task execution
+- 📡 **Real-time Streaming** - Server-Sent Events for live AI response updates
+- 🛡️ **Security Features** - CSRF protection, secure headers, and rate limiting
+- 📈 **Performance Monitoring** - Health checks and comprehensive logging
 
 ## ChromaDB Service Configuration
 
@@ -441,52 +605,239 @@ Only essential filter functions remain:
 
 The refactoring eliminates all backward compatibility and filter conversion logic, providing optimal performance with direct ChromaDB JSON filters.
 
-## Setup and Installation
+## 🚀 Quick Start
 
-1.  **Clone:** `git clone <repository-url> && cd text2sql`
-2.  **Environment:** `python -m venv venv && source venv/bin/activate` (or `venv\Scripts\activate` on Windows)
-3.  **Install:** `pip install -r requirements.txt`
-4.  **Configure:** Create a `.env` file (copy `.env.example` if available) and fill in `AZURE_ENDPOINT`, `AZURE_MODEL_NAME`, `GITHUB_TOKEN` (for Azure auth), `DATABASE_URI`, and `SECRET_KEY`. See `config/config.py` for more options.
-5.  **Initialize DB:** `python src/utils/init_db.py` (Creates DB and default admin user: admin/admin123 - **change immediately!**)
-6.  **Setup ChromaDB Service:** 
-   - Navigate to `chromadb_service/` directory
-   - Install service dependencies: `pip install -r requirements.txt`
-   - Start the ChromaDB service: `chmod +x start_service.sh && ./start_service.sh`
-   - The service will run on `http://localhost:8001` by default
+### Prerequisites
 
-## Running the Application
+- **Node.js** 20.19.0+ or 22.12.0+ (for frontend development)
+- **Python** 3.8+ (for backend API)
+- **Git** for version control
 
-1.  **Start ChromaDB Service:** `cd chromadb_service && ./start_service.sh` (runs on port 8001)
-2.  **Start Main Application:** `python app.py` or `./restart.sh` (runs on port 5000)
-3.  **Access:** Open `http://127.0.0.1:5000` in your browser.
-4.  **Login:** Use the default admin credentials and change the password via the admin panel.
+### Installation
 
-**Important:** The ChromaDB service must be running before starting the main application, as all vector operations depend on it.
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd text2sql
+   ```
 
-## Project Structure Overview
+2. **Backend Setup**
+   ```bash
+   # Create Python virtual environment
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   
+   # Install Python dependencies
+   pip install -r requirements.txt
+   ```
+
+3. **Frontend Setup**
+   ```bash
+   cd frontend
+   
+   # Install Node.js dependencies
+   npm install
+   ```
+
+4. **Environment Configuration**
+   ```bash
+   # Copy and configure environment variables
+   cp .env.example .env
+   
+   # Edit .env with your settings:
+   # - AZURE_ENDPOINT, AZURE_MODEL_NAME, GITHUB_TOKEN (for Azure auth)
+   # - DATABASE_URI, SECRET_KEY
+   # - CHROMADB_SERVICE_URL (default: http://localhost:8001)
+   ```
+
+5. **Database Initialization**
+   ```bash
+   # Initialize database with default admin user
+   python src/utils/init_db.py
+   # Default admin credentials: admin/admin123 (change immediately!)
+   ```
+
+6. **ChromaDB Service Setup**
+   ```bash
+   cd chromadb_service
+   pip install -r requirements.txt
+   ```
+
+## 🏃 Running the Application
+
+### Development Mode (Recommended)
+
+**Option 1: Automatic Startup (All Services)**
+```bash
+# Start all services with one command
+./start_all_services.sh
+```
+This starts:
+- ChromaDB service on port 8001
+- Backend API server on port 5000
+- Serves built frontend from `frontend/dist`
+
+**Option 2: Manual Development Setup**
+
+1. **Start ChromaDB Service**
+   ```bash
+   cd chromadb_service
+   ./start_service.sh
+   # Runs on http://localhost:8001
+   ```
+
+2. **Start Backend API Server**
+   ```bash
+   # From project root
+   python app.py
+   # Runs on http://localhost:5000
+   ```
+
+3. **Start Frontend Development Server** (for development)
+   ```bash
+   cd frontend
+   npm run dev
+   # Runs on http://localhost:3000 with hot reload
+   # Automatically proxies API calls to http://localhost:5000
+   ```
+
+### Production Mode
+
+1. **Build Frontend**
+   ```bash
+   cd frontend
+   npm run build
+   # Creates optimized build in frontend/dist/
+   ```
+
+2. **Start Services**
+   ```bash
+   # Start ChromaDB service
+   cd chromadb_service && ./start_service.sh
+
+   # Start backend (serves built frontend)
+   python app.py
+   ```
+
+3. **Access Application**
+   - **Production:** http://localhost:5000
+   - **Development:** http://localhost:3000
+
+### Access Points
+
+| Service | Development | Production | Purpose |
+|---------|------------|------------|---------|
+| **Main Application** | http://localhost:3000 | http://localhost:5000 | Vue.js SPA with all features |
+| **Backend API** | http://localhost:5000 | http://localhost:5000 | RESTful API endpoints |
+| **ChromaDB Service** | http://localhost:8001 | http://localhost:8001 | Vector database operations |
+
+## 🔧 Development Commands
+
+### Frontend Commands
+
+```bash
+cd frontend
+
+# Development server with hot reload
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+
+# Run unit tests
+npm run test:unit
+
+# Run end-to-end tests
+npm run test:e2e
+
+# Lint and fix code
+npm run lint
+
+# Format code
+npm run format
+
+# Type checking
+npm run type-check
+```
+
+### Backend Commands
+
+```bash
+# Start development server
+python app.py
+
+# Run API tests
+python test_migration_comprehensive.py
+
+# Initialize database
+python src/utils/init_db.py
+
+# Start MCP servers
+./start_mcp_skill_server.sh
+./start_mcp_data_mapping_server.sh
+```
+
+## 🧪 Testing
+
+The application includes comprehensive testing suites:
+
+### Frontend Testing
+```bash
+cd frontend
+
+# Unit tests with Vitest
+npm run test:unit
+
+# E2E tests with Playwright
+npm run test:e2e
+```
+
+### Backend Testing
+```bash
+# Comprehensive migration validation
+python test_migration_comprehensive.py
+
+# API endpoint testing
+python test_basic_api.py
+```
+
+## 📁 Project Structure
 
 ```
 text2sql/
-├── app.py              # Main Flask application
-├── requirements.txt    # Dependencies
-├── .env                # Environment variables (DO NOT COMMIT)
-├── config/             # Configuration files (app settings, schema)
-├── src/                # Core source code
-│   ├── agents/         # AI agents for sub-tasks
-│   ├── models/         # Business logic (SQL generation, User model)
-│   ├── routes/         # Flask Blueprints for different features
-│   ├── static/         # CSS, JavaScript files
-│   ├── templates/      # HTML templates
-│   └── utils/          # Helper modules (DB, AI client, auth, etc.)
-├── chromadb_service/   # Standalone ChromaDB REST API service
-│   ├── app.py          # ChromaDB service Flask application
-│   ├── requirements.txt # Service-specific dependencies
-│   ├── config.py       # Service configuration
-│   ├── start_service.sh # Service startup script
-│   └── README.md       # Service documentation
-├── logs/               # Log files
-├── uploads/            # Uploaded knowledge base documents
-└── text2sql.db         # Default SQLite database
+├── 🎨 frontend/                 # Vue.js 3 SPA
+│   ├── src/
+│   │   ├── views/              # 23 Vue.js views (10 user + 13 admin)
+│   │   ├── components/         # Reusable Vue components
+│   │   ├── stores/             # Pinia state management
+│   │   ├── services/           # API service layer
+│   │   ├── router/             # Vue Router configuration
+│   │   └── types/              # TypeScript type definitions
+│   ├── dist/                   # Built frontend (production)
+│   ├── package.json            # Node.js dependencies
+│   ├── vite.config.ts          # Vite build configuration
+│   └── tailwind.config.js      # Tailwind CSS configuration
+├── 🚀 src/                     # Backend API source
+│   ├── api/                    # API v1 endpoints (/api/v1/)
+│   ├── routes/                 # Admin API routes (/api/v1/admin/)
+│   ├── models/                 # Business logic and data models
+│   ├── utils/                  # Helper modules (DB, AI client, auth)
+│   ├── middleware/             # CORS, error handling, JWT auth
+│   └── services/               # Background services (MCP servers)
+├── 📊 chromadb_service/        # Standalone ChromaDB REST API
+│   ├── app.py                  # ChromaDB service Flask app
+│   ├── requirements.txt        # Service dependencies
+│   └── start_service.sh        # Service startup script
+├── 📝 config/                  # Configuration files
+├── 📋 logs/                    # Application logs
+├── 📄 uploads/                 # Knowledge base documents
+├── 🗄️ *.db                     # SQLite databases
+├── app.py                      # Main Flask API application
+├── requirements.txt            # Python dependencies
+└── start_all_services.sh       # Complete application startup
 ```
 
 ## Service Management & Troubleshooting
@@ -674,14 +1025,34 @@ The MCP Skill Server provides a REST API for external integration:
 - Test vector operations using the admin interface before implementing new features
 - Use the migration test script to verify functionality after changes
 
-## Security Highlights
+## 🔒 Security Highlights
 
-*   Secure password hashing (bcrypt) and reset mechanism.
-*   Role-Based Access Control (RBAC) for authorization.
-*   CSRF protection and standard security headers (CSP, X-Frame-Options, etc.).
-*   Rate limiting on sensitive endpoints.
-*   Audit logging for tracking actions.
-*   **Important:** Set `DEBUG=False` and use HTTPS in production.
+The modern Vue.js + Flask API architecture includes comprehensive security measures:
+
+### Authentication & Authorization
+- **JWT Authentication** - Stateless token-based authentication with automatic refresh
+- **Role-Based Access Control (RBAC)** - Granular permissions for user and admin operations
+- **Secure Password Management** - bcrypt hashing with password reset via email tokens
+- **Session Security** - Secure cookie settings with HttpOnly and SameSite attributes
+
+### API Security
+- **CORS Configuration** - Proper cross-origin resource sharing setup for secure API access
+- **Request Validation** - Input sanitization and validation across all endpoints
+- **Rate Limiting** - Protection against abuse on sensitive endpoints
+- **Error Handling** - Structured error responses without sensitive information exposure
+
+### Application Security
+- **CSRF Protection** - Cross-Site Request Forgery protection for state-changing operations
+- **Security Headers** - CSP, X-Frame-Options, X-Content-Type-Options for client protection
+- **Audit Logging** - Comprehensive activity tracking for compliance and monitoring
+- **Environment Configuration** - Secure handling of secrets and configuration management
+
+### Production Recommendations
+- **HTTPS Required** - Use HTTPS in production for encrypted communication
+- **Environment Variables** - Store sensitive configuration in environment variables
+- **Debug Mode** - Set `DEBUG=False` in production environments
+- **Database Security** - Use production-grade databases with proper access controls
+- **Regular Updates** - Keep dependencies updated and monitor security advisories
 
 ## Contributing
 
@@ -690,6 +1061,3 @@ Contributions are welcome! Please follow standard fork/branch/pull request workf
 ## License
 
 [MIT License]
-
-
-/home/vijay/anaconda3/bin/python3 -m src.services.mcp_data_mapping_server --host 0.0.0.0 --port 8003
