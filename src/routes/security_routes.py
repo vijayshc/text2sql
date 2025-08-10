@@ -7,7 +7,7 @@ Implements advanced security features including:
 - Password policy enforcement
 """
 
-from flask import Blueprint, request, session, redirect, url_for, jsonify, abort, render_template
+from flask import Blueprint, request, session, redirect, url_for, jsonify, abort
 import functools
 import time
 import re
@@ -283,8 +283,12 @@ def reauthenticate():
                     f"Failed reauthentication attempt for user {username}"
                 )
     
-    # For GET request or failed POST
-    return render_template('security/reauthenticate.html', error=error)
+    # For API-only architecture, return JSON response
+    return jsonify({
+        'success': False,
+        'error': error or 'Reauthentication required',
+        'requires_reauthentication': True
+    }), 401
 
 
 @security_bp.route('/rotate-session', methods=['POST'])

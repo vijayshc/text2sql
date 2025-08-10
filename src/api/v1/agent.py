@@ -17,6 +17,9 @@ from src.utils.user_manager import UserManager
 # Get the logger
 logger = logging.getLogger('text2sql')
 
+# Store confirmation flags for tool calls: None = pending, True/False = user decision  
+confirm_flags = {}
+
 # Create Blueprint
 agent_api = Blueprint('agent_api', __name__)
 
@@ -223,7 +226,6 @@ def confirm_tool_execution():
     
     try:
         # Store the confirmation result
-        from src.routes.agent_routes import confirm_flags
         confirm_flags[confirmation_id] = confirmed
         
         logger.info(f"Tool confirmation received: {confirmation_id} = {confirmed}")
