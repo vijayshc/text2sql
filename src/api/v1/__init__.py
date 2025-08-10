@@ -9,6 +9,7 @@ from .agent import agent_api
 from .data_mapping import data_mapping_api
 from .schema import schema_api
 from .metadata_search import metadata_search_api
+from .admin import admin_api
 
 # Create main API v1 blueprint
 api_v1 = Blueprint('api_v1', __name__, url_prefix='/api/v1')
@@ -21,5 +22,6 @@ api_v1.register_blueprint(agent_api, url_prefix='/agent')
 api_v1.register_blueprint(data_mapping_api, url_prefix='/data-mapping')
 api_v1.register_blueprint(schema_api, url_prefix='/schema')
 api_v1.register_blueprint(metadata_search_api, url_prefix='/metadata-search')
+api_v1.register_blueprint(admin_api, url_prefix='/admin')
 
 __all__ = ['api_v1']

@@ -52,15 +52,11 @@ const menuSections = computed<MenuSection[]>(() => [
   {
     title: 'Administration',
     items: [
-      { name: 'Dashboard', path: '/admin', icon: 'fas fa-tachometer-alt', permission: 'ADMIN_ACCESS' },
-      { name: 'Users', path: '/admin/users', icon: 'fas fa-users', permission: 'MANAGE_USERS' },
-      { name: 'Roles', path: '/admin/roles', icon: 'fas fa-user-tag', permission: 'MANAGE_ROLES' },
-      { name: 'Schema', path: '/admin/schema', icon: 'fas fa-database', permission: 'MANAGE_SCHEMA' },
-      { name: 'Vector DB', path: '/admin/vector-db', icon: 'fas fa-vector-square', permission: 'ADMIN_ACCESS' },
+      { name: 'Admin Dashboard', path: '/admin', icon: 'fas fa-tachometer-alt', permission: 'ADMIN_ACCESS' },
+      { name: 'User Management', path: '/admin/users', icon: 'fas fa-users', permission: 'MANAGE_USERS' },
+      { name: 'Role Management', path: '/admin/roles', icon: 'fas fa-user-tag', permission: 'MANAGE_ROLES' },
       { name: 'MCP Servers', path: '/admin/mcp-servers', icon: 'fas fa-server', permission: 'ADMIN_ACCESS' },
-      { name: 'Skills', path: '/admin/skills', icon: 'fas fa-brain', permission: 'ADMIN_ACCESS' },
-      { name: 'Audit Logs', path: '/admin/audit', icon: 'fas fa-history', permission: 'VIEW_AUDIT_LOGS' },
-      { name: 'Config', path: '/admin/config', icon: 'fas fa-cog', permission: 'ADMIN_ACCESS' },
+      { name: 'Audit Logs', path: '/admin/audit', icon: 'fas fa-history', permission: 'ADMIN_ACCESS' },
     ]
   }
 ])
@@ -68,9 +64,23 @@ const menuSections = computed<MenuSection[]>(() => [
 const filteredMenuSections = computed(() => {
   return menuSections.value.map(section => ({
     ...section,
-    items: section.items.filter(item => 
-      !item.permission || authStore.hasPermission(item.permission)
-    )
+    items: section.items.filter(item => {
+      // If no permission required, show item
+      if (!item.permission) return true
+      
+      // Check if user has the specific permission
+      if (authStore.hasPermission(item.permission)) return true
+      
+      // For admin items, also check if user has admin role or is admin
+      if (item.permission.includes('ADMIN') || item.permission.includes('MANAGE')) {
+        return authStore.isAdmin || authStore.hasRole('admin') || 
+               authStore.user?.roles?.some((role: any) => 
+                 typeof role === 'string' ? role === 'admin' : role.name === 'admin'
+               )
+      }
+      
+      return false
+    })
   })).filter(section => section.items.length > 0)
 })
 

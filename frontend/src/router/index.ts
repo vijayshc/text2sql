@@ -12,6 +12,14 @@ import AgentView from '@/views/AgentView.vue'
 import DataMappingView from '@/views/DataMappingView.vue'
 import SchemaView from '@/views/SchemaView.vue'
 import MetadataSearchView from '@/views/MetadataSearchView.vue'
+
+// Admin Views
+import AdminDashboardView from '@/views/AdminDashboardView.vue'
+import AdminUsersView from '@/views/AdminUsersView.vue'
+import AdminRolesView from '@/views/AdminRolesView.vue'
+import AdminMCPServersView from '@/views/AdminMCPServersView.vue'
+import AdminAuditView from '@/views/AdminAuditView.vue'
+
 import AppLayout from '@/layouts/AppLayout.vue'
 
 // Route guard for authentication
@@ -19,6 +27,26 @@ const requiresAuth = (to: any, from: any, next: any) => {
   const authStore = useAuthStore()
   if (authStore.isAuthenticated) {
     next()
+  } else {
+    next('/login')
+  }
+}
+
+// Route guard for admin access
+const requiresAdmin = (to: any, from: any, next: any) => {
+  const authStore = useAuthStore()
+  if (authStore.isAuthenticated) {
+    // Check if user has admin permissions
+    const user = authStore.user
+    const isAdmin = user?.roles?.some((role: any) => role.name === 'admin') || 
+                   user?.permissions?.includes('admin') ||
+                   user?.is_admin === true
+    
+    if (isAdmin) {
+      next()
+    } else {
+      next('/') // Redirect to home if not admin
+    }
   } else {
     next('/login')
   }
@@ -124,6 +152,58 @@ const router = createRouter({
           component: MetadataSearchView,
           meta: {
             title: 'Metadata Search - Text2SQL Assistant'
+          }
+        },
+        
+        // Admin routes (require admin permissions)
+        {
+          path: '/admin',
+          name: 'AdminDashboard',
+          component: AdminDashboardView,
+          beforeEnter: requiresAdmin,
+          meta: {
+            title: 'Admin Dashboard - Text2SQL Assistant',
+            requiresAdmin: true
+          }
+        },
+        {
+          path: '/admin/users',
+          name: 'AdminUsers',
+          component: AdminUsersView,
+          beforeEnter: requiresAdmin,
+          meta: {
+            title: 'User Management - Text2SQL Assistant',
+            requiresAdmin: true
+          }
+        },
+        {
+          path: '/admin/roles',
+          name: 'AdminRoles',
+          component: AdminRolesView,
+          beforeEnter: requiresAdmin,
+          meta: {
+            title: 'Role Management - Text2SQL Assistant',
+            requiresAdmin: true
+          }
+        },
+        {
+          path: '/admin/mcp-servers',
+          name: 'AdminMCPServers',
+          component: AdminMCPServersView,
+          beforeEnter: requiresAdmin,
+          meta: {
+            title: 'MCP Server Management - Text2SQL Assistant',
+            requiresAdmin: true
+          }
+        },
+        {
+          path: '/admin/audit',
+          name: 'AdminAudit',
+          component: AdminAuditView,
+          beforeEnter: requiresAdmin,
+          meta: {
+            title: 'Audit Logs - Text2SQL Assistant',
+            requiresAdmin: true
           }
         }
         // Additional authenticated routes will be added here
