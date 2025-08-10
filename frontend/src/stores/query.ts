@@ -1,6 +1,13 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import ApiService from '@/services/api'
+import type { 
+  QuerySubmitResponse, 
+  QueryProgressResponse, 
+  WorkspacesResponse, 
+  SchemaResponse,
+  SuggestionsResponse 
+} from '@/types/api'
 
 export interface QueryProgress {
   status: string
@@ -65,7 +72,7 @@ export const useQueryStore = defineStore('query', () => {
       isSubmitting.value = true
       error.value = null
 
-      const response = await ApiService.submitQuery(
+      const response: QuerySubmitResponse = await ApiService.submitQuery(
         currentQuery.value,
         selectedWorkspace.value,
         selectedTables.value.length > 0 ? selectedTables.value : undefined,
@@ -94,7 +101,7 @@ export const useQueryStore = defineStore('query', () => {
     if (!currentQueryId.value) return
 
     try {
-      const progress = await ApiService.getQueryProgress(currentQueryId.value)
+      const progress: QueryProgressResponse = await ApiService.getQueryProgress(currentQueryId.value)
       queryProgress.value = progress
 
       if (progress.status === 'completed') {
@@ -119,7 +126,7 @@ export const useQueryStore = defineStore('query', () => {
 
   async function loadWorkspaces() {
     try {
-      const response = await ApiService.getWorkspaces()
+      const response: WorkspacesResponse = await ApiService.getWorkspaces()
       workspaces.value = response.workspaces
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to load workspaces'
@@ -129,7 +136,7 @@ export const useQueryStore = defineStore('query', () => {
   async function loadSchema(workspace?: string) {
     try {
       isLoadingSchema.value = true
-      const response = await ApiService.getSchema(workspace || selectedWorkspace.value)
+      const response: SchemaResponse = await ApiService.getSchema(workspace || selectedWorkspace.value)
       schema.value = response.schema
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to load schema'
@@ -138,9 +145,9 @@ export const useQueryStore = defineStore('query', () => {
     }
   }
 
-  async function getTableSuggestions(query?: string) {
+  async function getTableSuggestions(query?: string): Promise<string[]> {
     try {
-      const response = await ApiService.getTableSuggestions(selectedWorkspace.value, query)
+      const response: SuggestionsResponse = await ApiService.getTableSuggestions(selectedWorkspace.value, query)
       return response.suggestions
     } catch (err: any) {
       console.warn('Failed to get table suggestions:', err)

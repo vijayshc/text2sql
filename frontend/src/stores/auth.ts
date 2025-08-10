@@ -1,6 +1,7 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import ApiService from '@/services/api'
+import type { LoginResponse, RefreshResponse } from '@/types/api'
 
 export interface User {
   id: number
@@ -21,7 +22,7 @@ export const useAuthStore = defineStore('auth', () => {
   // State
   const user = ref<User | null>(null)
   const accessToken = ref<string | null>(localStorage.getItem('access_token'))
-  const refreshToken = ref<string | null>(localStorage.getItem('refresh_token'))
+  const refreshTokenValue = ref<string | null>(localStorage.getItem('refresh_token'))
   const isLoading = ref(false)
   const error = ref<string | null>(null)
 
@@ -52,11 +53,11 @@ export const useAuthStore = defineStore('auth', () => {
       isLoading.value = true
       error.value = null
 
-      const response = await ApiService.login(username, password)
+      const response: LoginResponse = await ApiService.login(username, password)
 
       // Store tokens
       accessToken.value = response.tokens.access_token
-      refreshToken.value = response.tokens.refresh_token
+      refreshTokenValue.value = response.tokens.refresh_token
       localStorage.setItem('access_token', response.tokens.access_token)
       localStorage.setItem('refresh_token', response.tokens.refresh_token)
 
@@ -84,20 +85,20 @@ export const useAuthStore = defineStore('auth', () => {
       // Clear local state regardless of API call result
       user.value = null
       accessToken.value = null
-      refreshToken.value = null
+      refreshTokenValue.value = null
       localStorage.removeItem('access_token')
       localStorage.removeItem('refresh_token')
       error.value = null
     }
   }
 
-  async function refreshTokens() {
+  async function refreshToken() {
     try {
-      if (!refreshToken.value) {
+      if (!refreshTokenValue.value) {
         throw new Error('No refresh token available')
       }
 
-      const response = await ApiService.refreshToken(refreshToken.value)
+      const response: RefreshResponse = await ApiService.refreshToken(refreshTokenValue.value)
 
       // Update tokens
       accessToken.value = response.access_token
@@ -117,7 +118,7 @@ export const useAuthStore = defineStore('auth', () => {
         throw new Error('No access token')
       }
 
-      const profile = await ApiService.getProfile()
+      const profile = await ApiService.getProfile() as User
       user.value = profile
 
       return profile
@@ -173,7 +174,7 @@ export const useAuthStore = defineStore('auth', () => {
     // State
     user,
     accessToken,
-    refreshToken,
+    refreshToken: refreshTokenValue,
     isLoading,
     error,
 
@@ -186,7 +187,7 @@ export const useAuthStore = defineStore('auth', () => {
     // Actions
     login,
     logout,
-    refreshToken: refreshTokens, // Rename to avoid conflict
+    refreshTokens: refreshToken, // Rename to avoid conflict
     fetchProfile,
     changePassword,
     verifyToken,

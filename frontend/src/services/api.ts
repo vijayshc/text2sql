@@ -1,5 +1,14 @@
 import axios, { type AxiosInstance, type AxiosResponse, type AxiosError } from 'axios'
 import { useAuthStore } from '@/stores/auth'
+import type { 
+  LoginResponse, 
+  RefreshResponse, 
+  QuerySubmitResponse, 
+  QueryProgressResponse,
+  WorkspacesResponse,
+  SchemaResponse,
+  SuggestionsResponse
+} from '@/types/api'
 
 // API configuration
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'
@@ -38,15 +47,16 @@ apiClient.interceptors.response.use(
     const originalRequest = error.config
 
     // Handle 401 errors (unauthorized)
-    if (error.response?.status === 401 && !originalRequest?._retry) {
+    if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
       originalRequest._retry = true
 
       try {
         // Try to refresh the token
-        await authStore.refreshToken()
+        await authStore.refreshTokens()
 
         // Retry the original request with the new token
-        if (originalRequest && authStore.accessToken) {
+        if (authStore.accessToken) {
+          originalRequest.headers = originalRequest.headers || {}
           originalRequest.headers.Authorization = `Bearer ${authStore.accessToken}`
           return apiClient(originalRequest)
         }
@@ -99,16 +109,16 @@ export class ApiService {
   }
 
   // Authentication endpoints
-  static async login(username: string, password: string) {
-    return this.post('/auth/login', { username, password })
+  static async login(username: string, password: string): Promise<LoginResponse> {
+    return this.post<LoginResponse>('/auth/login', { username, password })
   }
 
   static async logout() {
     return this.post('/auth/logout')
   }
 
-  static async refreshToken(refreshToken: string) {
-    return this.post('/auth/refresh', { refresh_token: refreshToken })
+  static async refreshToken(refreshToken: string): Promise<RefreshResponse> {
+    return this.post<RefreshResponse>('/auth/refresh', { refresh_token: refreshToken })
   }
 
   static async changePassword(currentPassword: string, newPassword: string) {
@@ -127,28 +137,28 @@ export class ApiService {
   }
 
   // Query endpoints
-  static async submitQuery(query: string, workspace?: string, tables?: string[]) {
-    return this.post('/query/submit', { query, workspace, tables })
+  static async submitQuery(query: string, workspace?: string, tables?: string[]): Promise<QuerySubmitResponse> {
+    return this.post<QuerySubmitResponse>('/query/submit', { query, workspace, tables })
   }
 
-  static async getQueryProgress(queryId: string) {
-    return this.get(`/query/progress/${queryId}`)
+  static async getQueryProgress(queryId: string): Promise<QueryProgressResponse> {
+    return this.get<QueryProgressResponse>(`/query/progress/${queryId}`)
   }
 
-  static async getSchema(workspace?: string) {
-    return this.get('/query/schema', { workspace })
+  static async getSchema(workspace?: string): Promise<SchemaResponse> {
+    return this.get<SchemaResponse>('/query/schema', { workspace })
   }
 
-  static async getWorkspaces() {
-    return this.get('/query/workspaces')
+  static async getWorkspaces(): Promise<WorkspacesResponse> {
+    return this.get<WorkspacesResponse>('/query/workspaces')
   }
 
   static async getTables(workspace?: string) {
     return this.get('/query/tables', { workspace })
   }
 
-  static async getTableSuggestions(workspace?: string, query?: string) {
-    return this.get('/query/suggestions', { workspace, query })
+  static async getTableSuggestions(workspace?: string, query?: string): Promise<SuggestionsResponse> {
+    return this.get<SuggestionsResponse>('/query/suggestions', { workspace, query })
   }
 
   // Feedback endpoints
