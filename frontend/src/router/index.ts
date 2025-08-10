@@ -4,6 +4,10 @@ import { useAuthStore } from '@/stores/auth'
 // Views
 import LoginView from '@/views/LoginView.vue'
 import HomeView from '@/views/HomeView.vue'
+import ChangePasswordView from '@/views/ChangePasswordView.vue'
+import QueryEditorView from '@/views/QueryEditorView.vue'
+import KnowledgeView from '@/views/KnowledgeView.vue'
+import ProfileView from '@/views/ProfileView.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 
 // Route guard for authentication
@@ -54,21 +58,53 @@ const router = createRouter({
             title: 'Home - Text2SQL Assistant'
           }
         },
+        {
+          path: '/profile',
+          name: 'Profile',
+          component: ProfileView,
+          meta: {
+            title: 'Profile - Text2SQL Assistant'
+          }
+        },
+        {
+          path: '/change-password',
+          name: 'ChangePassword',
+          component: ChangePasswordView,
+          meta: {
+            title: 'Change Password - Text2SQL Assistant'
+          }
+        },
+        {
+          path: '/query-editor',
+          name: 'QueryEditor',
+          component: QueryEditorView,
+          meta: {
+            title: 'Query Editor - Text2SQL Assistant'
+          }
+        },
+        {
+          path: '/knowledge',
+          name: 'Knowledge',
+          component: KnowledgeView,
+          meta: {
+            title: 'Knowledge Finder - Text2SQL Assistant'
+          }
+        }
         // Additional authenticated routes will be added here
         // {
-        //   path: '/query-editor',
-        //   name: 'QueryEditor',
-        //   component: () => import('@/views/QueryEditorView.vue'),
+        //   path: '/agent',
+        //   name: 'Agent',
+        //   component: () => import('@/views/AgentView.vue'),
         //   meta: {
-        //     title: 'Query Editor - Text2SQL Assistant'
+        //     title: 'Agent Mode - Text2SQL Assistant'
         //   }
         // },
         // {
-        //   path: '/knowledge',
-        //   name: 'Knowledge',
-        //   component: () => import('@/views/KnowledgeView.vue'),
+        //   path: '/data-mapping',
+        //   name: 'DataMapping',
+        //   component: () => import('@/views/DataMappingView.vue'),
         //   meta: {
-        //     title: 'Knowledge Finder - Text2SQL Assistant'
+        //     title: 'Data Mapping - Text2SQL Assistant'
         //   }
         // },
         // ... more routes
