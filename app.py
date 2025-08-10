@@ -20,6 +20,10 @@ from src.routes.skill_routes import skill_bp  # Import skill routes
 from src.routes.data_mapping_routes import data_mapping_bp  # Import data mapping routes
 from src.models.user import Permissions
 from config.config import SECRET_KEY, DEBUG, MCP_SERVER_SCRIPT_PATH
+
+# API imports
+from src.api import api_v1
+from src.middleware import configure_cors, configure_error_handlers, handle_api_exception
 import logging
 import os
 import sys
@@ -94,6 +98,11 @@ app.jinja_env.auto_reload = DEBUG  # Only auto-reload Jinja in debug mode
 # Agent mode MCP server script path
 app.config['MCP_SERVER_SCRIPT_PATH'] = MCP_SERVER_SCRIPT_PATH
 
+# Configure API middleware
+configure_cors(app)
+configure_error_handlers(app)
+handle_api_exception(app)
+
 # Set secure cookie settings
 app.config['SESSION_COOKIE_SECURE'] = not DEBUG  # Secure in production
 app.config['SESSION_COOKIE_HTTPONLY'] = True  # HttpOnly flag
@@ -120,7 +129,7 @@ setup_knowledge_permissions()
 from config.config import UPLOADS_DIR
 app.config['UPLOAD_FOLDER'] = UPLOADS_DIR
 
-# Register blueprints
+# Register blueprints - Web UI routes
 app.register_blueprint(schema_bp)
 app.register_blueprint(auth_bp)
 app.register_blueprint(admin_bp)
@@ -143,6 +152,9 @@ app.register_blueprint(mcp_admin_bp)
 app.register_blueprint(skill_bp)
 # Register data mapping blueprint
 app.register_blueprint(data_mapping_bp)
+
+# Register API blueprints
+app.register_blueprint(api_v1)
 
 # Make CSRF token available in templates
 @app.context_processor

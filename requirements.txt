@@ -5,6 +5,7 @@ Flask-SQLAlchemy
 Flask-Migrate
 Flask-Mail
 Flask-CORS>=4.0.0
+PyJWT>=2.8.0
 python-dotenv # Added for .env file support
 aiosqlite
 pandas
