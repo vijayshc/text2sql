@@ -10,6 +10,8 @@ import KnowledgeView from '@/views/KnowledgeView.vue'
 import ProfileView from '@/views/ProfileView.vue'
 import AgentView from '@/views/AgentView.vue'
 import DataMappingView from '@/views/DataMappingView.vue'
+import SchemaView from '@/views/SchemaView.vue'
+import MetadataSearchView from '@/views/MetadataSearchView.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 
 // Route guard for authentication
@@ -106,6 +108,22 @@ const router = createRouter({
           component: DataMappingView,
           meta: {
             title: 'Data Mapping - Text2SQL Assistant'
+          }
+        },
+        {
+          path: '/schema',
+          name: 'Schema',
+          component: SchemaView,
+          meta: {
+            title: 'Schema Browser - Text2SQL Assistant'
+          }
+        },
+        {
+          path: '/metadata-search',
+          name: 'MetadataSearch',
+          component: MetadataSearchView,
+          meta: {
+            title: 'Metadata Search - Text2SQL Assistant'
           }
         }
         // Additional authenticated routes will be added here

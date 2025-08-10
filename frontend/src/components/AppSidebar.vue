@@ -40,6 +40,7 @@ const menuSections = computed<MenuSection[]>(() => [
       { name: 'Agent Mode', path: '/agent', icon: 'fas fa-robot' },
       { name: 'Data Mapping', path: '/data-mapping', icon: 'fas fa-project-diagram' },
       { name: 'Schema Viewer', path: '/schema', icon: 'fas fa-table' },
+      { name: 'Metadata Search', path: '/metadata-search', icon: 'fas fa-search' },
     ]
   },
   {
