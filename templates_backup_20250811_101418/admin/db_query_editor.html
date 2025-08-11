@@ -1,0 +1,119 @@
+{% extends "base.html" if 'base.html' in available_templates else "index.html" %}
+
+{% block title %}Database Query Editor - Text2SQL Assistant{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/db-query-editor.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Database Query Editor</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <button id="executeBtn" class="btn btn-sm btn-primary">
+            <i class="fas fa-play"></i> Execute Query
+        </button>
+        <button id="clearBtn" class="btn btn-sm btn-outline-secondary ms-2">
+            <i class="fas fa-eraser"></i> Clear
+        </button>
+    </div>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<div class="row">
+    <!-- Schema Browser Card -->
+    <div class="col-xl-3 col-lg-4">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Database Objects</h6>
+                <div class="dropdown no-arrow">
+                    <a class="dropdown-toggle" href="#" role="button" id="schemaOptions" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="schemaOptions">
+                        <li><a class="dropdown-item" href="#" id="refreshSchemaBtn"><i class="fas fa-sync fa-sm fa-fw me-2 text-gray-400"></i>Refresh Schema</a></li>
+                        <li><a class="dropdown-item" href="#" id="expandAllBtn"><i class="fas fa-plus-square fa-sm fa-fw me-2 text-gray-400"></i>Expand All</a></li>
+                        <li><a class="dropdown-item" href="#" id="collapseAllBtn"><i class="fas fa-minus-square fa-sm fa-fw me-2 text-gray-400"></i>Collapse All</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="px-3 py-2 bg-light border-bottom">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-transparent border-0"><i class="fas fa-search"></i></span>
+                        <input type="text" class="form-control form-control-sm border-0 bg-transparent" id="schemaSearch" placeholder="Search objects...">
+                    </div>
+                </div>
+                <div id="schemaTree" class="db-schema-tree">
+                    <div class="p-3 text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Loading schema...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-9 col-lg-8">
+        <!-- SQL Editor Card -->
+        <div class="card shadow mb-1">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">SQL Editor</h6>
+                <div class="dropdown no-arrow">
+                    <a class="dropdown-toggle" href="#" role="button" id="editorOptions" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="editorOptions">
+                        <li><a class="dropdown-item" href="#" id="formatSqlBtn"><i class="fas fa-indent fa-sm fa-fw me-2 text-gray-400"></i>Format SQL</a></li>
+                        <li><a class="dropdown-item" href="#" id="copyToClipboardBtn"><i class="fas fa-copy fa-sm fa-fw me-2 text-gray-400"></i>Copy to Clipboard</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div id="sqlEditor" class="border-bottom" style="height: 250px;"></div>
+                <div class="px-3 py-2 bg-light d-flex justify-content-between small">
+                    <span class="text-muted">Press Ctrl+Enter to execute query</span>
+                    <span id="editorStatus" class="text-muted"></span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Results Card -->
+        <div class="card shadow mb-1">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Results</h6>
+                <div id="resultStats" class="text-muted small"></div>
+            </div>
+            <div class="card-body">
+                <div id="resultsContainer">
+                    <div class="p-4 text-center text-muted">
+                        <i class="fas fa-database fa-3x mb-3"></i>
+                        <p>Execute a query to see results.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<!-- Monaco Editor -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.40.0/min/vs/loader.min.js"></script>
+<script src="{{ url_for('static', filename='js/admin/db-schema-browser.js') }}"></script>
+<script src="{{ url_for('static', filename='js/admin/db-query-editor.js') }}"></script>
+{% endblock %}

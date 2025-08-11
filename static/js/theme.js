@@ -259,7 +259,7 @@ class ThemeManager {
             };
             
             const highlightTheme = highlightThemes[themeName] || 'github-dark';
-            const newHref = `https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/${highlightTheme}.min.css`;
+            const newHref = `/static/vendor/highlight/styles/${highlightTheme}.min.css`;
             
             // Only update if the theme is different
             if (highlightLink.href !== newHref) {

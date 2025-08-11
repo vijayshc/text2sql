@@ -1,0 +1,651 @@
+{% extends "base.html" if 'base.html' in available_templates else "index.html" %}
+
+{% block title %}Skill Library Management - Text2SQL Assistant{% endblock %}
+
+{% block head %}
+{{ super() }}
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="fas fa-brain me-2"></i>
+        Skill Library Management
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group ms-2" role="group">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createSkillModal">
+                <i class="fas fa-plus me-1"></i>Add Skill
+            </button>
+            <button type="button" class="btn btn-info" onclick="vectorizeSkills()">
+                <i class="fas fa-sync me-1"></i>Reprocess Vector Store
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#importSkillsModal">
+                <i class="fas fa-upload me-1"></i>Import Skills
+            </button>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Filters and Search -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Skills</h6>
+    </div>
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="searchQuery" placeholder="Search skills...">
+                    <button class="btn btn-outline-primary" type="button" onclick="searchSkills()">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" id="categoryFilter" onchange="loadSkills()">
+                    <option value="">All Categories</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" id="statusFilter" onchange="loadSkills()">
+                    <option value="active">Active</option>
+                    <option value="draft">Draft</option>
+                    <option value="deprecated">Deprecated</option>
+                    <option value="">All Status</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-outline-secondary" onclick="loadSkills()">
+                    <i class="fas fa-refresh me-1"></i>Refresh
+                </button>
+            </div>
+        </div>
+
+        <!-- Skills Table -->
+        <div class="table-responsive">
+            <table class="table table-hover" id="skillsTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Description</th>
+                        <th>Tags</th>
+                        <th>Status</th>
+                        <th>Version</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="skillsTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Create/Edit Skill Modal -->
+<div class="modal fade" id="createSkillModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content glassmorphism-card">
+            <div class="modal-header">
+                <h5 class="modal-title" id="skillModalTitle">Add New Skill</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="skillForm">
+                    <input type="hidden" id="editSkillId">
+                    
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="skillName" class="form-label">Skill Name *</label>
+                                <input type="text" class="form-control" id="skillName" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="skillVersion" class="form-label">Version</label>
+                                <input type="text" class="form-control" id="skillVersion" value="1.0">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="skillCategory" class="form-label">Category *</label>
+                                <select class="form-select" id="skillCategory" required>
+                                    <option value="">Select Category</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="skillStatus" class="form-label">Status</label>
+                                <select class="form-select" id="skillStatus">
+                                    <option value="active">Active</option>
+                                    <option value="draft">Draft</option>
+                                    <option value="deprecated">Deprecated</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="skillDescription" class="form-label">Description *</label>
+                        <textarea class="form-control" id="skillDescription" rows="3" required></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="skillTags" class="form-label">Tags (comma-separated)</label>
+                        <input type="text" class="form-control" id="skillTags" placeholder="tag1, tag2, tag3">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="skillPrerequisites" class="form-label">Prerequisites</label>
+                        <textarea class="form-control" id="skillPrerequisites" rows="2" placeholder="Enter prerequisites, one per line"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="skillSteps" class="form-label">Technical Steps *</label>
+                        <textarea class="form-control" id="skillSteps" rows="6" required placeholder="Enter detailed technical steps, one per line"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="skillExamples" class="form-label">Usage Examples</label>
+                        <textarea class="form-control" id="skillExamples" rows="3" placeholder="Enter usage examples, one per line"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveSkill()">Save Skill</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Import Skills Modal -->
+<div class="modal fade" id="importSkillsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content glassmorphism-card">
+            <div class="modal-header">
+                <h5 class="modal-title">Import Skills</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="skillsJson" class="form-label">Skills JSON Data</label>
+                    <textarea class="form-control" id="skillsJson" rows="15" placeholder="Paste your skills JSON data here..."></textarea>
+                    <div class="form-text">
+                        Expected format: {"skills": [{"name": "...", "description": "...", "category": "...", "steps": [...], ...}]}
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="importSkills()">Import Skills</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Skill Details Modal -->
+<div class="modal fade" id="skillDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content glassmorphism-card">
+            <div class="modal-header">
+                <h5 class="modal-title" id="skillDetailsTitle">Skill Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="skillDetailsBody">
+                <!-- Skill details will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.badge-category {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+}
+
+.badge-active { background-color: #28a745; }
+.badge-draft { background-color: #ffc107; color: #212529; }
+.badge-deprecated { background-color: #dc3545; }
+</style>
+
+<script>
+let skills = [];
+let categories = [];
+
+// Initialize page
+$(document).ready(function() {
+    loadCategories();
+    loadSkills();
+    
+    // Set up search on enter key
+    $('#searchQuery').keypress(function(e) {
+        if (e.which == 13) {
+            searchSkills();
+        }
+    });
+});
+
+// Load categories
+function loadCategories() {
+    $.get('/api/skills/categories')
+        .done(function(response) {
+            if (response.success) {
+                categories = response.categories;
+                
+                // Populate category filters
+                const categoryFilter = $('#categoryFilter');
+                const skillCategory = $('#skillCategory');
+                
+                categoryFilter.find('option:not(:first)').remove();
+                skillCategory.find('option:not(:first)').remove();
+                
+                categories.forEach(function(category) {
+                    const option = `<option value="${category.value}">${category.label} (${category.count})</option>`;
+                    categoryFilter.append(option);
+                    skillCategory.append(`<option value="${category.value}">${category.label}</option>`);
+                });
+            }
+        })
+        .fail(function(xhr) {
+            showAlert('Error loading categories: ' + getErrorMessage(xhr), 'danger');
+        });
+}
+
+// Load skills
+function loadSkills() {
+    const category = $('#categoryFilter').val();
+    const status = $('#statusFilter').val();
+    
+    let url = '/api/skills';
+    const params = [];
+    if (category) params.push(`category=${encodeURIComponent(category)}`);
+    if (status) params.push(`status=${encodeURIComponent(status)}`);
+    if (params.length > 0) url += '?' + params.join('&');
+    
+    $.get(url)
+        .done(function(response) {
+            if (response.success) {
+                skills = response.skills;
+                renderSkillsTable(skills);
+            } else {
+                showAlert('Error loading skills: ' + response.error, 'danger');
+            }
+        })
+        .fail(function(xhr) {
+            showAlert('Error loading skills: ' + getErrorMessage(xhr), 'danger');
+        });
+}
+
+// Render skills table via DataTables for search/pagination consistency
+function renderSkillsTable(skillsData) {
+    const table = $('#skillsTable');
+    // Build row arrays matching the thead order
+    const rows = skillsData.map(function(skill) {
+        const statusClass = skill.status === 'active' ? 'badge-active' :
+                           skill.status === 'draft' ? 'badge-draft' : 'badge-deprecated';
+        const tags = skill.tags && skill.tags.length > 0 ?
+            skill.tags.slice(0, 3).map(tag => `<span class="badge bg-secondary me-1">${tag}</span>`).join('') :
+            '<span class="text-muted">No tags</span>';
+        return [
+            `<strong>${escapeHtml(skill.name)}</strong><br><small class="text-muted">v${skill.version}</small>`,
+            `<span class="badge badge-category bg-primary">${skill.category.replace('_', ' ')}</span>`,
+            `<div class="text-truncate" style="max-width: 300px;" title="${escapeHtml(skill.description)}">${escapeHtml(skill.description)}</div>`,
+            tags,
+            `<span class="badge ${statusClass}">${skill.status}</span>`,
+            `${skill.version}`,
+            `<div class="btn-group btn-group-sm">
+                <button class="btn btn-outline-info" onclick="viewSkill('${skill.skill_id}')" title="View Details">
+                    <i class="fas fa-eye"></i>
+                </button>
+                <button class="btn btn-outline-primary" onclick="editSkill('${skill.skill_id}')" title="Edit">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-outline-danger" onclick="deleteSkill('${skill.skill_id}', '${escapeHtml(skill.name)}')" title="Delete">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>`
+        ];
+    });
+
+    // Initialize or update DataTable uniformly
+    if ($.fn.DataTable.isDataTable(table)) {
+        const dt = table.DataTable();
+        dt.clear();
+        dt.rows.add(rows);
+        dt.draw();
+    } else {
+        table.DataTable({
+            data: rows,
+            columns: [
+                { title: 'Name' },
+                { title: 'Category' },
+                { title: 'Description' },
+                { title: 'Tags' },
+                { title: 'Status' },
+                { title: 'Version' },
+                { title: 'Actions', orderable: false, searchable: false }
+            ],
+            responsive: false,
+            autoWidth: false,
+            scrollX: false,
+            columnDefs: [
+                { 
+                    targets: '_all', 
+                    className: 'dt-left'
+                },
+                { 
+                    targets: -1, 
+                    orderable: false, 
+                    searchable: false 
+                }
+            ],
+            drawCallback: function(settings) {
+                this.api().columns.adjust();
+            },
+            initComplete: function(settings, json) {
+                this.api().columns.adjust();
+            }
+        });
+    }
+}
+
+// Search skills
+function searchSkills() {
+    const query = $('#searchQuery').val().trim();
+    if (query.length === 0) {
+        loadSkills();
+        return;
+    }
+    
+    const category = $('#categoryFilter').val();
+    const limit = 50;
+    
+    $.post('/api/skills/search', {
+        query: query,
+        category: category,
+        limit: limit
+    })
+    .done(function(response) {
+        if (response.success) {
+            renderSkillsTable(response.results);
+            showAlert(`Found ${response.total} skills. Filter: ${response.filter_description}`, 'info');
+        } else {
+            showAlert('Search failed: ' + response.error, 'danger');
+        }
+    })
+    .fail(function(xhr) {
+        showAlert('Search error: ' + getErrorMessage(xhr), 'danger');
+    });
+}
+
+// Create new skill
+function createSkill() {
+    $('#editSkillId').val('');
+    $('#skillModalTitle').text('Add New Skill');
+    $('#skillForm').trigger('reset');
+    $('#skillStatus').val('active');
+    $('#skillVersion').val('1.0');
+    $('#createSkillModal').modal('show');
+}
+
+// Edit skill
+function editSkill(skillId) {
+    const skill = skills.find(s => s.skill_id === skillId);
+    if (!skill) {
+        showAlert('Skill not found', 'danger');
+        return;
+    }
+    
+    $('#editSkillId').val(skill.skill_id);
+    $('#skillModalTitle').text('Edit Skill');
+    $('#skillName').val(skill.name);
+    $('#skillDescription').val(skill.description);
+    $('#skillCategory').val(skill.category);
+    $('#skillStatus').val(skill.status);
+    $('#skillVersion').val(skill.version);
+    $('#skillTags').val(skill.tags ? skill.tags.join(', ') : '');
+    $('#skillPrerequisites').val(skill.prerequisites ? skill.prerequisites.join('\n') : '');
+    $('#skillSteps').val(skill.steps ? skill.steps.join('\n') : '');
+    $('#skillExamples').val(skill.examples ? skill.examples.join('\n') : '');
+    
+    $('#createSkillModal').modal('show');
+}
+
+// Save skill
+function saveSkill() {
+    const skillId = $('#editSkillId').val();
+    const isEdit = skillId !== '';
+    
+    const skillData = {
+        name: $('#skillName').val().trim(),
+        description: $('#skillDescription').val().trim(),
+        category: $('#skillCategory').val(),
+        status: $('#skillStatus').val(),
+        version: $('#skillVersion').val().trim(),
+        tags: $('#skillTags').val().split(',').map(t => t.trim()).filter(t => t.length > 0),
+        prerequisites: $('#skillPrerequisites').val().split('\n').map(p => p.trim()).filter(p => p.length > 0),
+        steps: $('#skillSteps').val().split('\n').map(s => s.trim()).filter(s => s.length > 0),
+        examples: $('#skillExamples').val().split('\n').map(e => e.trim()).filter(e => e.length > 0)
+    };
+    
+    // Validation
+    if (!skillData.name || !skillData.description || !skillData.category || skillData.steps.length === 0) {
+        showAlert('Please fill in all required fields', 'danger');
+        return;
+    }
+    
+    const url = isEdit ? `/api/skills/${skillId}` : '/api/skills';
+    const method = isEdit ? 'PUT' : 'POST';
+    
+    $.ajax({
+        url: url,
+        method: method,
+        contentType: 'application/json',
+        data: JSON.stringify(skillData)
+    })
+    .done(function(response) {
+        if (response.success) {
+            $('#createSkillModal').modal('hide');
+            showAlert(response.message, 'success');
+            loadSkills();
+        } else {
+            showAlert('Error: ' + response.error, 'danger');
+        }
+    })
+    .fail(function(xhr) {
+        showAlert('Error saving skill: ' + getErrorMessage(xhr), 'danger');
+    });
+}
+
+// View skill details
+function viewSkill(skillId) {
+    $.get(`/api/skills/${skillId}`)
+        .done(function(response) {
+            if (response.success) {
+                const skill = response.skill;
+                
+                $('#skillDetailsTitle').text(skill.name);
+                
+                const detailsHtml = `
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h5>Description</h5>
+                            <p>${escapeHtml(skill.description)}</p>
+                            
+                            <h5>Technical Steps</h5>
+                            <ol>
+                                ${skill.steps.map(step => `<li>${escapeHtml(step)}</li>`).join('')}
+                            </ol>
+                            
+                            ${skill.prerequisites && skill.prerequisites.length > 0 ? `
+                                <h5>Prerequisites</h5>
+                                <ul>
+                                    ${skill.prerequisites.map(prereq => `<li>${escapeHtml(prereq)}</li>`).join('')}
+                                </ul>
+                            ` : ''}
+                            
+                            ${skill.examples && skill.examples.length > 0 ? `
+                                <h5>Examples</h5>
+                                <ul>
+                                    ${skill.examples.map(example => `<li>${escapeHtml(example)}</li>`).join('')}
+                                </ul>
+                            ` : ''}
+                        </div>
+                        <div class="col-md-4">
+                            <h5>Metadata</h5>
+                            <table class="table table-sm">
+                                <tr><td><strong>ID:</strong></td><td><code>${skill.skill_id}</code></td></tr>
+                                <tr><td><strong>Category:</strong></td><td><span class="badge bg-primary">${skill.category.replace('_', ' ')}</span></td></tr>
+                                <tr><td><strong>Status:</strong></td><td><span class="badge ${skill.status === 'active' ? 'bg-success' : skill.status === 'draft' ? 'bg-warning' : 'bg-danger'}">${skill.status}</span></td></tr>
+                                <tr><td><strong>Version:</strong></td><td>${skill.version}</td></tr>
+                                <tr><td><strong>Created:</strong></td><td>${new Date(skill.created_at).toLocaleDateString()}</td></tr>
+                                <tr><td><strong>Updated:</strong></td><td>${new Date(skill.updated_at).toLocaleDateString()}</td></tr>
+                            </table>
+                            
+                            ${skill.tags && skill.tags.length > 0 ? `
+                                <h5>Tags</h5>
+                                <div>
+                                    ${skill.tags.map(tag => `<span class="badge bg-secondary me-1">${tag}</span>`).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+                
+                $('#skillDetailsBody').html(detailsHtml);
+                $('#skillDetailsModal').modal('show');
+            } else {
+                showAlert('Error loading skill details: ' + response.error, 'danger');
+            }
+        })
+        .fail(function(xhr) {
+            showAlert('Error loading skill details: ' + getErrorMessage(xhr), 'danger');
+        });
+}
+
+// Delete skill
+function deleteSkill(skillId, skillName) {
+    if (!confirm(`Are you sure you want to delete the skill "${skillName}"? This action cannot be undone.`)) {
+        return;
+    }
+    
+    $.ajax({
+        url: `/api/skills/${skillId}`,
+        method: 'DELETE'
+    })
+    .done(function(response) {
+        if (response.success) {
+            showAlert(response.message, 'success');
+            loadSkills();
+        } else {
+            showAlert('Error: ' + response.error, 'danger');
+        }
+    })
+    .fail(function(xhr) {
+        showAlert('Error deleting skill: ' + getErrorMessage(xhr), 'danger');
+    });
+}
+
+// Vectorize skills
+function vectorizeSkills() {
+    if (!confirm('This will reprocess all skills into the vector store. This may take a few minutes. Continue?')) {
+        return;
+    }
+    
+    showAlert('Processing skills... This may take a few minutes.', 'info');
+    
+    $.post('/api/skills/vectorize')
+        .done(function(response) {
+            if (response.success) {
+                showAlert(response.message, 'success');
+            } else {
+                showAlert('Error: ' + response.error, 'danger');
+            }
+        })
+        .fail(function(xhr) {
+            showAlert('Error vectorizing skills: ' + getErrorMessage(xhr), 'danger');
+        });
+}
+
+// Import skills
+function importSkills() {
+    const jsonData = $('#skillsJson').val().trim();
+    if (!jsonData) {
+        showAlert('Please enter JSON data', 'danger');
+        return;
+    }
+    
+    try {
+        const data = JSON.parse(jsonData);
+        if (!data.skills || !Array.isArray(data.skills)) {
+            throw new Error('Invalid format: expected {"skills": [...]}');
+        }
+        
+        $.post('/api/skills/import', JSON.stringify(data), 'application/json')
+            .done(function(response) {
+                if (response.success) {
+                    $('#importSkillsModal').modal('hide');
+                    $('#skillsJson').val('');
+                    
+                    let message = response.message;
+                    if (response.errors && response.errors.length > 0) {
+                        message += `\n\nErrors:\n${response.errors.join('\n')}`;
+                    }
+                    
+                    showAlert(message, response.errors && response.errors.length > 0 ? 'warning' : 'success');
+                    loadSkills();
+                } else {
+                    showAlert('Import failed: ' + response.error, 'danger');
+                }
+            })
+            .fail(function(xhr) {
+                showAlert('Import error: ' + getErrorMessage(xhr), 'danger');
+            });
+            
+    } catch (e) {
+        showAlert('Invalid JSON format: ' + e.message, 'danger');
+    }
+}
+
+// Utility functions
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function showAlert(message, type) {
+    const alertHtml = `
+        <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+            ${escapeHtml(message)}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    
+    $('.container-fluid').prepend(alertHtml);
+    
+    // Auto-dismiss after 5 seconds for success/info messages
+    if (type === 'success' || type === 'info') {
+        setTimeout(function() {
+            $('.alert').first().alert('close');
+        }, 5000);
+    }
+}
+
+function getErrorMessage(xhr) {
+    if (xhr.responseJSON) {
+        return xhr.responseJSON.error || xhr.responseJSON.message || 'Unknown error';
+    }
+    return xhr.statusText || 'Network error';
+}
+</script>
+{% endblock %}

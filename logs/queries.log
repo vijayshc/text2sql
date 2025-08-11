@@ -1,3 +1,16 @@
 2025-08-09 12:12:32,177 - QUERY: 'table customers  count' → SQL: SELECT 
     COUNT(customer_id) AS total_customers
 FROM customers;
+2025-08-10 23:48:31,378 - QUERY: 'table customers count' → SQL: SELECT 
+    COUNT(customer_id) AS total_customers
+FROM customers;
+2025-08-10 23:48:48,313 - QUERY: 'table customers all records' → SQL: SELECT 
+    *
+FROM customers;
+2025-08-11 10:24:46,953 - QUERY: 'get me all customers' → SQL: SELECT 
+    *
+FROM customers;
+2025-08-11 10:27:39,148 - QUERY: 'get me all customers who lives in state NY' → SQL: SELECT 
+    *
+FROM customers
+WHERE state = 'NY';

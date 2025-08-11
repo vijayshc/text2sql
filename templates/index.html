@@ -9,14 +9,14 @@
     <title>Text2SQL Assistant</title>
     
     <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='vendor/bootstrap/bootstrap-5.3.0.min.css') }}" rel="stylesheet">
     
     <!-- Font Awesome for icons -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='vendor/fontawesome/all.min.css') }}" rel="stylesheet">
     
     <!-- DataTables CSS -->
-    <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-    <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='vendor/datatables/dataTables.bootstrap5.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='vendor/datatables/responsive.bootstrap5.min.css') }}" rel="stylesheet">
     
     <!-- Unified Theme System CSS -->
     <link href="{{ url_for('static', filename='css/themes.css') }}" rel="stylesheet">
@@ -441,19 +441,19 @@
     </button>
     
     <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+    <script src="{{ url_for('static', filename='vendor/bootstrap/bootstrap-5.3.0.bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/jquery/jquery-3.7.0.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/datatables/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/datatables/dataTables.bootstrap5.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/datatables/dataTables.responsive.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/datatables/responsive.bootstrap5.min.js') }}"></script>
     
     <!-- Chart.js - Load this before our custom scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="{{ url_for('static', filename='vendor/chartjs/chart-3.9.1.min.js') }}"></script>
     
     <!-- Markdown-it for knowledge base -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/13.0.1/markdown-it.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script src="{{ url_for('static', filename='vendor/markdown-it/markdown-it-13.0.1.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/highlight/highlight-11.7.0.min.js') }}"></script>
     
     {% block scripts %}
     <!-- Theme Management - Load after preload to apply variables & listeners -->
@@ -480,7 +480,7 @@
     <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
     <script src="{{ url_for('static', filename='js/query-handler.js') }}"></script>
     <!-- Monaco Editor loader for SQL tab -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/loader.min.js"></script>
+    <script src="{{ url_for('static', filename='vendor/monaco-editor/0.36.1/min/vs/loader.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/sql-editor.js') }}"></script>
     <!-- Global DataTables initializer for consistent behavior/themes -->
     <script src="{{ url_for('static', filename='js/datatable-init.js') }}"></script>

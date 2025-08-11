@@ -4,9 +4,9 @@
 {% block head %}
 {{ super() }}
 <!-- Highlight.js for code highlighting -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css" rel="stylesheet" id="highlight-theme">
+<link href="{{ url_for('static', filename='vendor/highlight/styles/github-dark.min.css') }}" rel="stylesheet" id="highlight-theme">
 <!-- Markdown-it for markdown rendering -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/13.0.1/markdown-it.min.js"></script>
+<script src="{{ url_for('static', filename='vendor/markdown-it/markdown-it-13.0.1.min.js') }}"></script>
 {% endblock %}
 
 {% block content %}
@@ -110,7 +110,7 @@
 {% block scripts %}
 {{ super() }}
 <!-- Highlight.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+<script src="{{ url_for('static', filename='vendor/highlight/highlight-11.7.0.min.js') }}"></script>
 <!-- Knowledge Base JS -->
 <script src="{{ url_for('static', filename='js/knowledge-base.js') }}"></script>
 {% endblock %}

@@ -1,0 +1,183 @@
+{% extends "admin/index.html" %}
+
+{% block title %}Schema Metadata Management{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Schema Metadata Management</h1>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Process Schema Metadata</h5>
+            </div>
+            <div class="card-body">
+                <p>
+                    This tool processes your database schema (tables, columns, descriptions, datatypes) and 
+                    loads them into the vector database for semantic search capabilities.
+                </p>
+                <p>
+                    <strong>What this does:</strong>
+                </p>
+                <ul>
+                    <li>Extracts metadata from your configured database schema</li>
+                    <li>Embeds each column with its table, description, and datatype</li>
+                    <li>Stores these embeddings in the vector database</li>
+                    <li>Partitions data by database name for efficient querying</li>
+                </ul>
+                <p>
+                    <strong>When to use:</strong>
+                </p>
+                <ul>
+                    <li>After updating your database schema</li>
+                    <li>When adding new tables or columns</li>
+                    <li>If you update table or column descriptions</li>
+                </ul>
+                
+                <div class="mt-4">
+                    <button id="processSchemaBtn" class="btn btn-primary">
+                        <i class="fas fa-database"></i> Process Schema Metadata
+                    </button>
+                    <div id="processStatus" class="mt-3 d-none">
+                        <div class="alert" role="alert"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Metadata Stats</h5>
+            </div>
+            <div class="card-body">
+                <div id="metadataStats">
+                    <div class="d-flex justify-content-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const processBtn = document.getElementById('processSchemaBtn');
+    const processStatus = document.getElementById('processStatus');
+    const statusAlert = processStatus.querySelector('.alert');
+    
+    // Handle process button click
+    processBtn.addEventListener('click', function() {
+        // Show processing status
+        processBtn.disabled = true;
+        processBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
+        processStatus.classList.remove('d-none');
+        statusAlert.classList.remove('alert-success', 'alert-danger');
+        statusAlert.classList.add('alert-info');
+        statusAlert.innerHTML = 'Processing schema metadata. This may take a few minutes...';
+        
+        // Call the process API
+        fetch('/api/metadata/process', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': '{{ csrf_token() }}'
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => response.json())
+        .then(data => {
+            processBtn.disabled = false;
+            processBtn.innerHTML = '<i class="fas fa-database"></i> Process Schema Metadata';
+            
+            if (data.success) {
+                statusAlert.classList.remove('alert-info', 'alert-danger');
+                statusAlert.classList.add('alert-success');
+                statusAlert.innerHTML = '<i class="fas fa-check-circle"></i> ' + data.message;
+                
+                // Refresh stats
+                loadMetadataStats();
+            } else {
+                statusAlert.classList.remove('alert-info', 'alert-success');
+                statusAlert.classList.add('alert-danger');
+                statusAlert.innerHTML = '<i class="fas fa-exclamation-circle"></i> Error: ' + data.error;
+            }
+        })
+        .catch(error => {
+            processBtn.disabled = false;
+            processBtn.innerHTML = '<i class="fas fa-database"></i> Process Schema Metadata';
+            statusAlert.classList.remove('alert-info', 'alert-success');
+            statusAlert.classList.add('alert-danger');
+            statusAlert.innerHTML = '<i class="fas fa-exclamation-circle"></i> Error: ' + error.message;
+            console.error('Error:', error);
+        });
+    });
+    
+    // Load metadata stats
+    function loadMetadataStats() {
+        const statsContainer = document.getElementById('metadataStats');
+        
+        fetch('/api/metadata/stats', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                statsContainer.innerHTML = `
+                    <div class="row g-0">
+                        <div class="col-6 border-end border-bottom p-3">
+                            <h3 class="h5 mb-0">${data.stats.total_databases}</h3>
+                            <small class="text-muted">Databases</small>
+                        </div>
+                        <div class="col-6 border-bottom p-3">
+                            <h3 class="h5 mb-0">${data.stats.total_tables}</h3>
+                            <small class="text-muted">Tables</small>
+                        </div>
+                        <div class="col-6 border-end p-3">
+                            <h3 class="h5 mb-0">${data.stats.total_columns}</h3>
+                            <small class="text-muted">Columns</small>
+                        </div>
+                        <div class="col-6 p-3">
+                            <h3 class="h5 mb-0">${data.stats.last_updated}</h3>
+                            <small class="text-muted">Last Updated</small>
+                        </div>
+                    </div>
+                `;
+            } else {
+                statsContainer.innerHTML = `
+                    <div class="alert alert-warning" role="alert">
+                        <i class="fas fa-exclamation-triangle"></i> No metadata statistics available
+                    </div>
+                    <p class="small text-muted">Process the schema metadata to generate statistics.</p>
+                `;
+            }
+        })
+        .catch(error => {
+            statsContainer.innerHTML = `
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-circle"></i> Error loading statistics
+                </div>
+                <p class="small text-muted">${error.message}</p>
+            `;
+            console.error('Error:', error);
+        });
+    }
+    
+    // Load stats on page load
+    loadMetadataStats();
+});
+</script>
+{% endblock %}
