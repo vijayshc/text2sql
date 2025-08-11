@@ -1,0 +1,181 @@
+{% extends "index.html" %}
+
+{% block head %}
+{{ super() }}
+<!-- Monaco Editor CSS -->
+<style>
+    #monaco-editor-container {
+        height: 500px;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 20px;
+        box-shadow: var(--card-shadow);
+        border: 1px solid var(--border-color);
+    }
+    
+    .query-editor-card {
+        background: var(--card-bg);
+        border-radius: 8px;
+        box-shadow: var(--card-shadow);
+        border: 1px solid var(--border-color);
+        padding: 20px;
+        transition: all var(--transition-speed) ease;
+    }
+
+    .monaco-editor{
+        height: 200px;
+    }
+
+    .query-editor-card:hover {
+        box-shadow: var(--card-shadow-hover);
+        transform: translateY(-1px);
+    }
+
+    .query-toolbar {
+        margin-bottom: 15px;
+    }
+
+    .query-toolbar .btn {
+        margin-right: 5px;
+        backdrop-filter: blur(4px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .results-card {
+        margin-top: 20px;
+        /* Remove fixed height constraints to allow content-based expansion */
+    }
+    
+    .scrollable-results {
+        width: 100%;
+        overflow-x: auto;
+        overflow-y: visible;
+        /* Allow content-based height expansion */
+    }
+
+    .modal-content {
+        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.7);
+        border-radius: 15px;
+    }
+
+    .btn-group > .btn {
+        border-radius: 20px !important;
+    }
+    
+    .alert-glassmorphism {
+        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    .me {
+    position:absolute; left:0; top:0;
+    width:100%; height:100%; max-height:100% !important;
+    margin:0; padding:0;
+    overflow:hidden;
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0"><i class="fas fa-code"></i> Query Editor</h2>
+            </div>
+
+            <div class="query-editor-card mb-4">
+                <div class="query-toolbar d-flex flex-wrap justify-content-between">
+                    <div class="btn-group">
+                        <button class="btn btn-primary btn-sm" id="executeQueryBtn">
+                            <i class="fas fa-play"></i> Execute Query
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" id="completeQueryBtn">
+                            <i class="fas fa-magic"></i> Complete Query
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" id="saveQueryBtn">
+                            <i class="fas fa-save"></i> Save Query
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="monaco-editor-container" style="height: 300px; width: 100%; border: 1px solid #ced4da; border-radius: 0.25rem;"></div>
+                
+                <div id="queryStatusArea" class="mt-2" style="display: none;">
+                    <div class="alert alert-glassmorphism" role="alert" id="queryStatusMessage">
+                        <div class="d-flex align-items-center">
+                            <div class="spinner-border spinner-border-sm me-2" role="status" id="querySpinner"></div>
+                            <span id="queryStatusText">Processing query...</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="queryErrorArea" class="mt-2" style="display: none;">
+                    <div class="alert alert-glassmorphism alert-danger" role="alert" id="queryErrorMessage">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <span id="queryErrorText">Error executing query</span>
+                            <button type="button" class="btn-close ms-auto" aria-label="Close" id="queryErrorCloseBtn"></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="query-editor-card results-card" id="resultsCard" style="display: none;">
+                <h5 class="mb-3">Query Results</h5>
+                <div class="scrollable-results">
+                    <table class="table table-hover" id="queryEditorResultsTable" data-table-init="false">
+                        <thead id="queryEditorResultsTableHead"></thead>
+                        <tbody id="queryEditorResultsTableBody"></tbody>
+                    </table>
+                </div>
+                <div id="noResultsMessage" class="alert alert-info mt-3" style="display: none;">
+                    Query executed successfully but returned no results.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Save Query Modal -->
+<div class="modal fade" id="saveQueryModal" tabindex="-1" aria-labelledby="saveQueryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="saveQueryModalLabel">Save Query</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="saveQueryForm">
+                    <div class="mb-3">
+                        <label for="queryName" class="form-label">Query Name</label>
+                        <input type="text" class="form-control" id="queryName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="queryDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="queryDescription" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveQueryConfirmBtn">Save Query</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<!-- Monaco Editor -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/loader.min.js"></script>
+<!-- Query Editor JS -->
+<script src="{{ url_for('static', filename='js/query-editor.js') }}"></script>
+{% endblock %}

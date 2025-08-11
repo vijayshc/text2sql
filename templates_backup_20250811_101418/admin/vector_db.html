@@ -1,0 +1,276 @@
+{% extends "base.html" if 'base.html' in available_templates else "index.html" %}
+
+{% block title %}Vector Database Management - Text2SQL Assistant{% endblock %}
+
+{% block head %}
+{{ super() }}
+<link href="{{ url_for('static', filename='css/admin/vector_db.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/admin/toast-notifications.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Vector Database Management</h1>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">Vector Collections</h6>
+                <button class="btn btn-sm btn-primary" id="btn-create-collection">
+                    Create Collection
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered" id="collections-table" data-table-init="false">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Collection Name</th>
+                                <th>Vector Dimension</th>
+                                <th>Record Count</th>
+                                <th>Description</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="collections-list">
+                            <tr>
+                                <td colspan="5" class="text-center">Loading collections...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4" id="collection-detail-section" style="display: none;">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">Collection: <span id="current-collection-name"></span></h6>
+                <div>
+                    <button class="btn btn-outline-secondary" id="btn-refresh-data">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                    <button class="btn btn-outline-danger" id="btn-delete-collection">
+                        <i class="fas fa-trash"></i> Delete Collection
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h6 class="mb-0">Collection Details</h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="collection-info">
+                                    Loading...
+                                </div>
+                                <h6 class="mb-2">Upload Data</h6>
+                                    <form id="upload-data-form" enctype="multipart/form-data">
+                                        <div class="mb-3">
+                                            <label for="upload-file" class="form-label">CSV/JSON File</label>
+                                            <input type="file" class="form-control" id="upload-file" 
+                                                   accept=".csv,.json" required>
+                                            <small class="form-text text-muted">
+                                                Upload CSV or JSON file with data to add to this collection.
+                                            </small>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="text-field-name" class="form-label">Text Field Name</label>
+                                            <input type="text" class="form-control" id="text-field-name" 
+                                                   placeholder="Field name for generating embeddings" required>
+                                            <small class="form-text text-muted">
+                                                Specify which field contains text for generating vector embeddings.
+                                            </small>
+                                        </div>
+                                        <button type="submit" id="btn-upload-data" class="btn btn-sm btn-success">
+                                            <i class="fas fa-upload"></i> Upload & Generate Embeddings
+                                        </button>
+                                    </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h6 class="mb-0">Vector Search</h6>
+                            </div>
+                            <div class="card-body">
+                                <form id="search-form">
+                                    <div class="mb-3">
+                                        <label for="search-text" class="form-label">Search Text</label>
+                                        <input type="text" class="form-control" id="search-text" 
+                                               placeholder="Enter text to search for similar records">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="search-limit" class="form-label">Result Limit</label>
+                                        <input type="number" class="form-control" id="search-limit" 
+                                               value="50" min="1" max="1000">
+                                    </div>
+                                    <button type="submit" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-search"></i> Search
+                                    </button>
+                                </form>
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0">Collection Records</h6>
+                                    <div class="input-group" style="max-width: 450px;">
+                                        <input type="text" class="form-control" id="filter-expr" 
+                                            placeholder="Filter expression (e.g. id > 100)">
+                                        <button class="btn btn-primary" id="btn-apply-filter">
+                                            <i class="fas fa-filter"></i> Apply Filter
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-bordered" id="records-table" data-table-init="false">
+                                        <thead class="table-light" id="records-header">
+                                            <tr>
+                                                <th>ID</th>
+                                                <th class="text-center">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="records-list">
+                                            <tr>
+                                                <td colspan="2" class="text-center">No records to display</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-3" id="custom-pagination" style="display:none;">
+                                    <div>
+                                        Showing <span id="showing-records" class="text-primary fw-bold">0</span> of <span id="total-records" class="text-primary fw-bold">0</span> records
+                                    </div>
+                                    <div>
+                                        <button class="btn btn-sm btn-outline-secondary" id="prev-page" disabled>
+                                            <i class="fas fa-chevron-left"></i> Previous
+                                        </button>
+                                        <span id="current-page" class="mx-2">1</span>
+                                        <button class="btn btn-sm btn-outline-secondary" id="next-page" disabled>
+                                            Next <i class="fas fa-chevron-right"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Collection Modal -->
+<div class="modal fade" id="createCollectionModal" tabindex="-1" aria-labelledby="createCollectionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createCollectionModalLabel">Create New Collection</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="create-collection-form">
+                    <div class="mb-3">
+                        <label for="collection-name" class="form-label">Collection Name</label>
+                        <input type="text" class="form-control" id="collection-name" 
+                               placeholder="Enter collection name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="vector-dimension" class="form-label">Vector Dimension</label>
+                        <input type="number" class="form-control" id="vector-dimension" 
+                               value="384" min="1" required>
+                        <small class="form-text text-muted">
+                            Dimension of vector embeddings (typically 384 for all-MiniLM-L6-v2)
+                        </small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="collection-description" class="form-label">Description (optional)</label>
+                        <textarea class="form-control" id="collection-description" 
+                                  rows="3" placeholder="Enter description"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="btn-submit-collection">Create</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Record Detail Modal -->
+<div class="modal fade" id="recordDetailModal" tabindex="-1" aria-labelledby="recordDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="recordDetailModalLabel">Record Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="record-detail-content">
+                    Loading...
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteConfirmModalLabel">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="delete-confirm-message">Are you sure you want to delete this item?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="btn-confirm-delete">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notifications Container -->
+<div class="toast-container" id="toast-container"></div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    // Set active menu item
+    document.addEventListener('DOMContentLoaded', function() {
+        const adminMenuItems = document.querySelectorAll('.sidebar-nav .nav-link');
+        adminMenuItems.forEach(item => {
+            item.classList.remove('active');
+            if (item.getAttribute('href').includes('vector-db')) {
+                item.classList.add('active');
+            }
+        });
+    });
+</script>
+<script src="{{ url_for('static', filename='js/admin/vector_db.js') }}"></script>
+{% endblock %}

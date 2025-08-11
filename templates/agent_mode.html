@@ -3,9 +3,9 @@
 {% block head %}
 {{ super() }}
 <!-- Highlight.js for code highlighting -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css" rel="stylesheet" id="highlight-theme">
+<link href="{{ url_for('static', filename='vendor/highlight/styles/github-dark.min.css') }}" rel="stylesheet" id="highlight-theme">
 <!-- Markdown-it for markdown rendering -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/13.0.1/markdown-it.min.js"></script>
+<script src="{{ url_for('static', filename='vendor/markdown-it/markdown-it-13.0.1.min.js') }}"></script>
 <!-- Enhanced Agent Chat Styling -->
 <link href="{{ url_for('static', filename='css/admin/agent-chat-enhanced.css') }}" rel="stylesheet">
 {% endblock %}
