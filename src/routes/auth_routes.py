@@ -6,6 +6,7 @@ Handles login, logout, password reset, and related functionality.
 from flask import Blueprint, render_template, flash, redirect, url_for, request, session, abort
 from functools import wraps
 from src.utils.user_manager import UserManager
+from config.config import AUTH_PROVIDER
 from src.models.user import Permissions
 
 auth_bp = Blueprint('auth', __name__)
@@ -56,10 +57,8 @@ def login():
             flash('Username and password are required.', 'danger')
             return render_template('auth/login.html', error='Username and password are required.')
         
-        # Authenticate user
-        print(username, password)
+        # Authenticate user (local or LDAP based on config)
         user_id = user_manager.authenticate(username, password)
-        print(user_id)
         if not user_id:
             # Log failed login attempt
             user_manager.log_audit_event(
@@ -68,7 +67,10 @@ def login():
                 details=f"Failed login attempt for user: {username}",
                 ip_address=request.remote_addr
             )
-            flash('Invalid username or password.', 'danger')
+            if AUTH_PROVIDER == 'ldap':
+                flash('Login failed: invalid credentials or not a member of the allowed group.', 'danger')
+            else:
+                flash('Invalid username or password.', 'danger')
             return render_template('auth/login.html', error='Invalid username or password.')
         
         # Check if user is active
@@ -121,6 +123,9 @@ def logout():
 @auth_bp.route('/reset-password-request', methods=['GET', 'POST'])
 def reset_password_request():
     """Handle password reset requests"""
+    if AUTH_PROVIDER == 'ldap':
+        flash('Password reset is managed by your identity provider (LDAP).', 'info')
+        return redirect(url_for('auth.login'))
     if request.method == 'POST':
         username = request.form.get('username')
         
@@ -147,6 +152,9 @@ def reset_password_request():
 @auth_bp.route('/reset-password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
     """Handle password reset with token"""
+    if AUTH_PROVIDER == 'ldap':
+        flash('Password reset is managed by your identity provider (LDAP).', 'info')
+        return redirect(url_for('auth.login'))
     # Verify token
     user_id = user_manager.verify_reset_token(token)
     
@@ -191,6 +199,9 @@ def change_password():
         return redirect(url_for('auth.login', next=request.url))
     
     user_id = session.get('user_id')
+    if AUTH_PROVIDER == 'ldap':
+        flash('Password changes are managed by your identity provider (LDAP).', 'info')
+        return redirect(url_for('index'))
     
     if request.method == 'POST':
         current_password = request.form.get('current_password')

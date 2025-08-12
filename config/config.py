@@ -24,6 +24,32 @@ DATABASE_URI = os.getenv('DATABASE_URI', 'sqlite:///text2sql.db')
 DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
 SECRET_KEY = os.environ.get("SECRET_KEY", "default-dev-key-change-in-production")
 
+# Authentication settings
+# Options: 'local' (password in DB) or 'ldap'
+AUTH_PROVIDER = os.getenv('AUTH_PROVIDER', 'local').lower()
+
+# LDAP configuration (used when AUTH_PROVIDER='ldap')
+LDAP_SERVER_URI = os.getenv('LDAP_SERVER_URI', '')  # e.g., ldap://ad.example.com or ldaps://ad.example.com
+LDAP_USE_SSL = os.getenv('LDAP_USE_SSL', 'true').lower() == 'true'
+LDAP_START_TLS = os.getenv('LDAP_START_TLS', 'false').lower() == 'true'
+
+# How to bind with the end-user credentials. Examples:
+#   '{username}@example.com' (userPrincipalName) or 'EXAMPLE\\{username}' (DOMAIN\\user)
+LDAP_BIND_DN_TEMPLATE = os.getenv('LDAP_BIND_DN_TEMPLATE', '{username}')
+
+# Where and how to search the user entry after bind
+LDAP_USER_SEARCH_BASE = os.getenv('LDAP_USER_SEARCH_BASE', '')  # e.g., 'DC=example,DC=com'
+# Example filters: '(sAMAccountName={username})' or '(userPrincipalName={username}@example.com)'
+LDAP_USER_FILTER_TEMPLATE = os.getenv('LDAP_USER_FILTER_TEMPLATE', '(sAMAccountName={username})')
+
+# Allowed AD group (full DN) for access control. Example:
+# 'CN=Text2SQL Users,OU=Groups,DC=example,DC=com'
+LDAP_ALLOWED_GROUP_DN = os.getenv('LDAP_ALLOWED_GROUP_DN', '')
+
+# Optional attribute mappings to fetch from LDAP
+LDAP_ATTRIBUTE_MAIL = os.getenv('LDAP_ATTRIBUTE_MAIL', 'mail')
+LDAP_ATTRIBUTE_DISPLAY_NAME = os.getenv('LDAP_ATTRIBUTE_DISPLAY_NAME', 'displayName')
+
 # Model configuration
 MAX_TOKENS = int(os.getenv('MAX_TOKENS', '2000'))
 TEMPERATURE = float(os.getenv('TEMPERATURE', '0.7'))

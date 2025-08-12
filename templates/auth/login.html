@@ -34,7 +34,9 @@
                 <input type="password" id="password" name="password" required>
             </div>
             <div class="form-footer">
+                {% if not is_ldap %}
                 <a href="{{ url_for('auth.reset_password_request') }}">Forgot password?</a>
+                {% endif %}
                 <button type="submit" class="btn">Login</button>
             </div>
         </form>

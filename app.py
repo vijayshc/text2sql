@@ -20,7 +20,7 @@ from src.routes.tool_confirmation_routes import tool_confirmation_bp  # new impo
 from src.routes.skill_routes import skill_bp  # Import skill routes
 from src.routes.data_mapping_routes import data_mapping_bp  # Import data mapping routes
 from src.models.user import Permissions
-from config.config import SECRET_KEY, DEBUG, MCP_SERVER_SCRIPT_PATH
+from config.config import SECRET_KEY, DEBUG, MCP_SERVER_SCRIPT_PATH, AUTH_PROVIDER
 import logging
 import os
 import sys
@@ -705,7 +705,9 @@ def inject_user():
         is_admin=is_admin,
         user_manager=user_manager,
         has_permission=lambda permission: user_manager.has_permission(session.get('user_id'), permission) if session.get('user_id') else False,
-        permissions=Permissions
+    permissions=Permissions,
+    auth_provider=AUTH_PROVIDER,
+    is_ldap=(AUTH_PROVIDER == 'ldap')
     )
 
 @app.errorhandler(404)

@@ -463,6 +463,26 @@ The refactoring eliminates all backward compatibility and filter conversion logi
 
 **Important:** The ChromaDB service must be running before starting the main application, as all vector operations depend on it.
 
+## LDAP Authentication (Optional)
+
+You can switch from local (database) authentication to LDAP/Active Directory by setting environment variables:
+
+```
+AUTH_PROVIDER=ldap
+LDAP_SERVER_URI=ldaps://ad.example.com
+LDAP_USE_SSL=true
+LDAP_START_TLS=false
+LDAP_BIND_DN_TEMPLATE={username}@example.com    # or EXAMPLE\\{username}
+LDAP_USER_SEARCH_BASE=DC=example,DC=com
+LDAP_USER_FILTER_TEMPLATE=(sAMAccountName={username})
+LDAP_ALLOWED_GROUP_DN=CN=Text2SQL Users,OU=Groups,DC=example,DC=com
+```
+
+Notes:
+- The app binds to LDAP using the login user's username/password.
+- Access is granted only if the user is a member of `LDAP_ALLOWED_GROUP_DN` (if set).
+- When `AUTH_PROVIDER=ldap`, password reset/change is handled by your IdP and disabled in the UI.
+
 ## Project Structure Overview
 
 ```
