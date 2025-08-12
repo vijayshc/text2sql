@@ -26,6 +26,18 @@ def mcp_servers():
     """MCP Server management page"""
     return render_template('admin/mcp_servers.html', available_templates=['admin/mcp_servers.html'])
 
+@admin_bp.route('/agent-teams')
+@admin_required
+def agent_teams():
+    """Agent Teams & Workflows page"""
+    return render_template('admin/agent_teams.html')
+
+@admin_bp.route('/agent-runs')
+@admin_required
+def agent_runs():
+    """Agent Runs monitoring page"""
+    return render_template('admin/agent_runs.html', available_templates=['admin/agent_runs.html'])
+
 @admin_bp.route('/users')
 @admin_required
 @permission_required(Permissions.MANAGE_USERS)

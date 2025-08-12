@@ -9,9 +9,14 @@ python-dotenv # Added for .env file support
 aiosqlite
 pandas
 openpyxl
-openai
+openai>=1.35,<1.50
 requests
 chromadb>=0.4.0
 sentence-transformers
 rank-bm25
 nltk
+autogen-core==0.7.2
+autogen-agentchat==0.7.2
+autogen-ext==0.7.2
+mcp[http]>=1.2.0
+mcp>=1.2.0

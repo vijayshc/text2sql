@@ -1,0 +1,253 @@
+{% extends "base.html" if 'base.html' in available_templates else "index.html" %}
+
+{% block title %}Agent Runs - Text2SQL Assistant{% endblock %}
+
+{% block head %}
+{{ super() }}
+<!-- Highlight.js for code highlighting -->
+<link href="{{ url_for('static', filename='vendor/highlight/styles/github-dark.min.css') }}" rel="stylesheet" id="highlight-theme">
+<!-- Markdown-it for markdown rendering -->
+<script src="{{ url_for('static', filename='vendor/markdown-it/markdown-it-13.0.1.min.js') }}"></script>
+<style>
+  /* Result modal specific styles */
+  #resultModal .markdown-content {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  
+  #resultModal .markdown-content h1,
+  #resultModal .markdown-content h2,
+  #resultModal .markdown-content h3,
+  #resultModal .markdown-content h4,
+  #resultModal .markdown-content h5,
+  #resultModal .markdown-content h6 {
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+  }
+  
+  #resultModal .markdown-content h1 { font-size: 1.5rem; }
+  #resultModal .markdown-content h2 { font-size: 1.35rem; }
+  #resultModal .markdown-content h3 { font-size: 1.2rem; }
+  #resultModal .markdown-content h4 { font-size: 1.1rem; }
+  #resultModal .markdown-content h5 { font-size: 1rem; }
+  #resultModal .markdown-content h6 { font-size: 0.9rem; }
+  
+  #resultModal .markdown-content p {
+    margin-bottom: 1rem;
+  }
+  
+  #resultModal .markdown-content ul,
+  #resultModal .markdown-content ol {
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+  }
+  
+  #resultModal .markdown-content li {
+    margin-bottom: 0.25rem;
+  }
+  
+  #resultModal .markdown-content blockquote {
+    border-left: 4px solid var(--bs-primary);
+    margin: 1rem 0;
+    padding: 0.5rem 1rem;
+    background-color: var(--bs-light);
+  }
+  
+  #resultModal .markdown-content code {
+    background-color: var(--bs-light);
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+    font-size: 0.875em;
+  }
+  
+  #resultModal .markdown-content pre {
+    background-color: var(--bs-dark);
+    color: var(--bs-light);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+  
+  #resultModal .markdown-content pre code {
+    background: none;
+    padding: 0;
+    color: inherit;
+  }
+  
+  #resultModal .markdown-content table {
+    width: 100%;
+    margin: 1rem 0;
+    border-collapse: collapse;
+  }
+  
+  #resultModal .markdown-content th,
+  #resultModal .markdown-content td {
+    border: 1px solid var(--bs-border-color);
+    padding: 0.5rem;
+    text-align: left;
+  }
+  
+  #resultModal .markdown-content th {
+    background-color: var(--bs-light);
+    font-weight: 600;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+  <h1 class="h2">Agent Runs</h1>
+  <div class="btn-toolbar mb-2 mb-md-0">
+    <div class="btn-group ms-2" role="group">
+      <button id="refreshRunsBtn" type="button" class="btn btn-sm btn-outline-secondary">
+        <i class="fas fa-sync"></i> Refresh
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Tabs -->
+<ul class="nav nav-tabs" id="agentRunsTabs" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button class="nav-link active" id="tab-runs-tab" data-bs-toggle="tab" data-bs-target="#tab-runs" type="button" role="tab" aria-controls="tab-runs" aria-selected="true">
+      <i class="fas fa-list me-1"></i> Recent Runs
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="tab-details-tab" data-bs-toggle="tab" data-bs-target="#tab-details" type="button" role="tab" aria-controls="tab-details" aria-selected="false">
+      <i class="fas fa-info-circle me-1"></i> Run Details
+    </button>
+  </li>
+  <li class="ms-auto small d-flex align-items-center">
+    <span class="text-muted ms-2">Use the eye icon to view details</span>
+  </li>
+</ul>
+
+<div class="tab-content mt-3" id="agentRunsTabContent">
+  <div class="tab-pane fade show active" id="tab-runs" role="tabpanel" aria-labelledby="tab-runs-tab">
+    <div class="card shadow mb-4">
+      <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">Recent Runs</h6>
+        <div class="d-flex align-items-center">
+          <label for="runsLimit" class="form-label me-2 mb-0 small">Limit</label>
+          <select id="runsLimit" class="form-select form-select-sm" style="width: auto;">
+            <option value="25">25</option>
+            <option value="50" selected>50</option>
+            <option value="100">100</option>
+          </select>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover" id="runsTable">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Type</th>
+                <th>Entity</th>
+                <th>Task</th>
+                <th>Status</th>
+                <th>Started</th>
+                <th>Finished</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane fade" id="tab-details" role="tabpanel" aria-labelledby="tab-details-tab">
+    <div class="card shadow mb-4">
+      <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">Run Details</h6>
+        <span class="small text-muted" id="selectedRunLabel">No run selected</span>
+      </div>
+      <div class="card-body">
+        <div id="runMeta" class="mb-3"></div>
+        <div class="table-responsive" style="max-height: 60vh; overflow-y: auto;">
+          <table class="table table-sm table-striped" id="eventsTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Time</th>
+                <th>Type</th>
+                <th>Source</th>
+                <th>Agent</th>
+                <th>Server</th>
+                <th>Tool</th>
+                <th>Detail</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Detail Modal for long payloads -->
+<div class="modal fade" id="payloadModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Event Detail</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <pre class="bg-light p-3 rounded" id="payloadPre" style="white-space: pre-wrap; word-break: break-word;"></pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Full Result Modal with Markdown -->
+<div class="modal fade" id="resultModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Full Result</h5>
+        <div class="btn-group btn-group-sm ms-3" role="group">
+          <input type="radio" class="btn-check" name="resultViewMode" id="resultViewFormatted" autocomplete="off" checked>
+          <label class="btn btn-outline-primary" for="resultViewFormatted">Formatted</label>
+          
+          <input type="radio" class="btn-check" name="resultViewMode" id="resultViewRaw" autocomplete="off">
+          <label class="btn btn-outline-primary" for="resultViewRaw">Raw</label>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+        <div id="resultFormatted" class="markdown-content"></div>
+        <pre class="bg-light p-3 rounded" id="resultRaw" style="white-space: pre-wrap; word-break: break-word; display: none;"></pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/admin/agent-runs.js') }}"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // highlight nav
+    document.querySelectorAll('.sidebar-nav .nav-link').forEach(a => {
+      a.classList.remove('active');
+      if (a.getAttribute('href') && a.getAttribute('href').includes('/admin/agent-runs')) {
+        a.classList.add('active');
+      }
+    });
+  });
+</script>
+{% endblock %}

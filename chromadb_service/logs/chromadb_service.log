@@ -1,16 +1,16 @@
-2025-08-11 10:24:28,095 - chromadb_service - INFO - Connecting to ChromaDB at ./chroma_data
-2025-08-11 10:24:28,144 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
-2025-08-11 10:24:32,138 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
-2025-08-11 10:24:36,523 - chromadb_service - INFO - ChromaDB connection established in 8.43s
-2025-08-11 10:24:36,533 - chromadb_service - INFO - Starting ChromaDB Service on 0.0.0.0:8001
+2025-08-12 05:52:22,507 - chromadb_service - INFO - Connecting to ChromaDB at ./chroma_data
+2025-08-12 05:52:22,696 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-08-12 05:52:27,752 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-08-12 05:52:31,274 - chromadb_service - INFO - ChromaDB connection established in 8.77s
+2025-08-12 05:52:31,278 - chromadb_service - INFO - Starting ChromaDB Service on 0.0.0.0:8001
  * Serving Flask app 'app'
  * Debug mode: off
-2025-08-11 10:24:36,539 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+2025-08-12 05:52:31,284 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
  * Running on all addresses (0.0.0.0)
  * Running on http://127.0.0.1:8001
  * Running on http://172.27.251.157:8001
-2025-08-11 10:24:36,539 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
-2025-08-11 10:24:46,188 - chromadb.segment.impl.vector.local_persistent_hnsw - WARNING - Number of requested results 10 is greater than number of elements in index 1, updating n_results = 1
-2025-08-11 10:24:46,203 - werkzeug - INFO - 127.0.0.1 - - [11/Aug/2025 10:24:46] "POST /collections/query_embeddings/search HTTP/1.1" 200 -
-2025-08-11 10:27:38,356 - chromadb.segment.impl.vector.local_persistent_hnsw - WARNING - Number of requested results 10 is greater than number of elements in index 1, updating n_results = 1
-2025-08-11 10:27:38,358 - werkzeug - INFO - 127.0.0.1 - - [11/Aug/2025 10:27:38] "POST /collections/query_embeddings/search HTTP/1.1" 200 -
+2025-08-12 05:52:31,284 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-12 06:10:35,642 - werkzeug - INFO - 127.0.0.1 - - [12/Aug/2025 06:10:35] "GET /health HTTP/1.1" 200 -
+2025-08-12 06:10:35,720 - werkzeug - INFO - 127.0.0.1 - - [12/Aug/2025 06:10:35] "GET /collections/knowledge_chunks HTTP/1.1" 200 -
+2025-08-12 06:16:44,726 - werkzeug - INFO - 127.0.0.1 - - [12/Aug/2025 06:16:44] "GET /health HTTP/1.1" 200 -
+2025-08-12 06:16:44,733 - werkzeug - INFO - 127.0.0.1 - - [12/Aug/2025 06:16:44] "GET /collections/knowledge_chunks HTTP/1.1" 200 -

@@ -24,7 +24,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const sendButton = document.getElementById('sendButton');
     const agentProgress = document.getElementById('agentProgress');
     const progressStatus = agentProgress.querySelector('.progress-status');
+    const teamSelect = document.getElementById('teamSelect');
+    const workflowSelect = document.getElementById('workflowSelect');
+    const modeSelect = document.getElementById('modeSelect');
     const serverSelect = document.getElementById('serverSelect');
+    const autogenTeamCol = document.getElementById('autogenTeamCol');
+    const autogenWorkflowCol = document.getElementById('autogenWorkflowCol');
+    const mcpServerCol = document.getElementById('mcpServerCol');
 
     let eventSource = null;
     
@@ -131,19 +137,25 @@ document.addEventListener('DOMContentLoaded', () => {
     function showProgress(message) {
         agentProgress.style.display = 'block';
         progressStatus.textContent = message || 'Processing...';
-        // Ensure server select stays enabled even when showing progress
-        serverSelect.disabled = false;
+        // Ensure server/team/workflow selects stay enabled even when showing progress
+        if (serverSelect) serverSelect.disabled = false;
+        if (teamSelect) teamSelect.disabled = false;
+        if (workflowSelect) workflowSelect.disabled = false;
     }
 
     function hideProgress() {
         agentProgress.style.display = 'none';
         progressStatus.textContent = '';
-        // Ensure server select stays enabled when hiding progress
-        serverSelect.disabled = false;
+        // Ensure server/team/workflow selects stay enabled when hiding progress
+        if (serverSelect) serverSelect.disabled = false;
+        if (teamSelect) teamSelect.disabled = false;
+        if (workflowSelect) workflowSelect.disabled = false;
     }
 
     // Load available MCP servers
     function loadAvailableServers() {
+        if (!serverSelect) return;
+        
         fetch('/api/agent/servers')
             .then(response => response.json())
             .then(data => {
@@ -173,12 +185,65 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             .catch(error => {
                 console.error('Error loading MCP servers:', error);
-                serverSelect.disabled = true;
+                if (serverSelect) serverSelect.disabled = true;
             });
     }
+
+    // Load AutoGen teams/workflows
+    function loadTeams() {
+        if (!teamSelect) return;
+        
+        fetch('/api/agent/teams')
+            .then(r=>r.json())
+            .then(d=>{
+                // reset, keep first None option
+                while (teamSelect.options.length > 1) teamSelect.remove(1);
+                (d.teams||[]).forEach(t=>{
+                    const opt = document.createElement('option');
+                    opt.value = t.id; opt.textContent = t.name; teamSelect.appendChild(opt);
+                })
+            }).catch(()=>{});
+    }
     
-    // Load servers on page load
-    loadAvailableServers();
+    function loadWorkflows() {
+        if (!workflowSelect) return;
+        
+        fetch('/api/agent/workflows')
+            .then(r=>r.json())
+            .then(d=>{
+                while (workflowSelect.options.length > 1) workflowSelect.remove(1);
+                (d.workflows||[]).forEach(w=>{
+                    const opt = document.createElement('option');
+                    opt.value = w.id; opt.textContent = w.name; workflowSelect.appendChild(opt);
+                })
+            }).catch(()=>{});
+    }
+
+    // Handle mode selection change
+    function handleModeChange() {
+        const mode = modeSelect.value;
+        
+        if (mode === 'mcp') {
+            // Show MCP options, hide AutoGen options
+            if (mcpServerCol) mcpServerCol.style.display = 'block';
+            if (autogenTeamCol) autogenTeamCol.style.display = 'none';
+            if (autogenWorkflowCol) autogenWorkflowCol.style.display = 'none';
+            loadAvailableServers();
+        } else {
+            // Show AutoGen options, hide MCP options
+            if (autogenTeamCol) autogenTeamCol.style.display = 'block';
+            if (autogenWorkflowCol) autogenWorkflowCol.style.display = 'block';
+            if (mcpServerCol) mcpServerCol.style.display = 'none';
+            loadTeams();
+            loadWorkflows();
+        }
+    }
+
+    // Initialize mode selection
+    if (modeSelect) {
+        modeSelect.addEventListener('change', handleModeChange);
+        handleModeChange(); // Initialize based on default value
+    }
 
     function sendMessage() {
         const query = chatInput.value.trim();
@@ -188,11 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chatInput.value = '';
         sendButton.disabled = true;
         chatInput.disabled = true;
-        // Keep serverSelect enabled to allow switching between MCP servers during chat
         showProgress('Sending query to agent...');
-        
-        // Get selected server ID (if any)
-        const serverId = serverSelect.value;
         
         // Clone the conversationHistory for this request to include context
         // Exclude the current query which was just added to the history
@@ -210,17 +271,46 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Send POST to agent/chat and stream updates
-        fetch('/api/agent/chat', {
+        // Determine endpoint and payload based on mode
+        const mode = modeSelect ? modeSelect.value : 'autogen';
+        let endpoint, payload;
+        
+        if (mode === 'mcp') {
+            // Use legacy MCP server endpoint
+            endpoint = '/api/agent/chat';
+            const serverId = serverSelect ? serverSelect.value : '';
+            payload = {
+                query: query,
+                server_id: serverId || undefined,
+                conversation_history: previousHistory
+            };
+        } else {
+            // Use AutoGen endpoint
+            const useAutogen = (teamSelect && teamSelect.value) || (workflowSelect && workflowSelect.value);
+            if (!useAutogen) {
+                hideProgress();
+                sendButton.disabled = false;
+                chatInput.disabled = false;
+                addMessage('Select a Team or Workflow before sending.', 'agent');
+                return;
+            }
+            
+            endpoint = '/api/agent/autogen/chat';
+            payload = {
+                query,
+                team_id: teamSelect && teamSelect.value ? parseInt(teamSelect.value, 10) : undefined,
+                workflow_id: workflowSelect && workflowSelect.value ? parseInt(workflowSelect.value, 10) : undefined,
+                conversation_history: previousHistory
+            };
+        }
+
+        // Send POST to endpoint and stream updates
+        fetch(endpoint, {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ 
-                query: query,
-                server_id: serverId || undefined,  // Only include if a server is selected
-                conversation_history: previousHistory // Include conversation history for context
-            })
+            body: JSON.stringify(payload)
         })
         .then(async response => {
             if (!response.ok) throw new Error(`Server responded ${response.status}`);
@@ -255,8 +345,6 @@ document.addEventListener('DOMContentLoaded', () => {
             hideProgress();
             sendButton.disabled = false;
             chatInput.disabled = false;
-            // Make sure serverSelect stays enabled
-            serverSelect.disabled = false;
         });
     }
 
@@ -264,8 +352,6 @@ document.addEventListener('DOMContentLoaded', () => {
         switch (update.type) {
             case 'status':
                 showProgress(update.message);
-                // Ensure server selection remains enabled during status updates
-                serverSelect.disabled = false;
                 break;
             case 'llm_response':
                 hideProgress();
@@ -289,37 +375,50 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.log("Adding intermediate response:", update.content);
                     addMessage(update.content, 'agent', false); // intermediate response
                 }
-                // Ensure server selection remains enabled when receiving LLM responses
-                serverSelect.disabled = false;
                 break;
             case 'tool_call':
                 hideProgress();
                 // Tool calls are always intermediate steps
                 addMessage(`Calling ${update.tool_name} with args ${JSON.stringify(update.arguments)}`, 'agent', false);
-                // Ensure server selection remains enabled during tool calls
-                serverSelect.disabled = false;
+                break;
+            case 'tool_confirmation_request':
+                hideProgress();
+                // Prompt user for confirmation (for MCP mode)
+                if (window.showConfirmationDialog) {
+                    window.showConfirmationDialog(update.tool_name, update.arguments)
+                        .then(decision => {
+                            // Send decision to server
+                            fetch('/api/agent/tool-confirmation', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ call_id: update.call_id, confirmed: decision })
+                            });
+                            // Optionally notify user
+                            addMessage(`User ${decision ? 'confirmed' : 'cancelled'} execution of ${update.tool_name}`, 'agent', false);
+                        });
+                }
                 break;
             case 'confirm_request':
                 hideProgress();
-                // Prompt user for confirmation
-                window.showConfirmationDialog(update.tool_name, update.arguments)
-                    .then(decision => {
-                        // Send decision to server
-                        fetch('/agent/confirm_tool', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ call_id: update.call_id, confirm: decision })
+                // Prompt user for confirmation (for AutoGen mode)
+                if (window.showConfirmationDialog) {
+                    window.showConfirmationDialog(update.tool_name, update.arguments)
+                        .then(decision => {
+                            // Send decision to server
+                            fetch('/agent/confirm_tool', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ call_id: update.call_id, confirm: decision })
+                            });
+                            // Optionally notify user
+                            addMessage(`User ${decision ? 'confirmed' : 'cancelled'} execution of ${update.tool_name}`, 'agent', false);
                         });
-                        // Optionally notify user
-                        addMessage(`User ${decision ? 'confirmed' : 'cancelled'} execution of ${update.tool_name}`, 'agent', false);
-                    });
+                }
                 break;
             case 'tool_result':
                 hideProgress();
                 // Tool results are intermediate steps
-                addMessage(update.result, 'agent', false);
-                // Ensure server selection remains enabled when receiving tool results
-                serverSelect.disabled = false;
+                addMessage(update.result || update.content, 'agent', false);
                 break;
             case 'done':
                 hideProgress();
@@ -333,7 +432,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const hasNoFinalAnswer = !conversationHistory.some(
                         msg => msg.role === 'assistant' && 
                         conversationHistory.indexOf(msg) > conversationHistory.findIndex(
-                            m => m.role === 'user' && m.content === chatInput.value.trim()
+                            m => m.role === 'user' && m.content === query
                         )
                     );
                     
@@ -345,20 +444,13 @@ document.addEventListener('DOMContentLoaded', () => {
                             content: lastAgentResponse
                         });
                         console.log("Updated conversation history with last response:", conversationHistory);
-                    } else {
-                        // Just inform that processing is done
-                        addMessage('Agent finished processing.', 'agent', false);
                     }
                 }
-                // Ensure server selection remains enabled when agent is done
-                serverSelect.disabled = false;
                 break;
             case 'error':
                 hideProgress();
                 // Errors are considered final answers in a conversation
                 addMessage(update.message, 'agent', true);
-                // Ensure server selection remains enabled even after errors
-                serverSelect.disabled = false;
                 break;
             default:
                 console.warn('Unknown update type:', update.type);

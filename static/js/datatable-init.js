@@ -81,7 +81,8 @@
       'samplesTable', // Samples page with custom pagination
       'documentsTable', // Knowledge management with custom initialization
       'serversTable',
-      'skillsTable'
+      'skillsTable',
+      'recentActivitiesTable' // Admin dashboard table with dynamic content
     ];
     
     if (customManagedTables.includes(id)) return true;

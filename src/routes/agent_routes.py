@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, current_app, Response, stream_with_context, session
+from flask import Blueprint, request, jsonify, current_app, session, Response, stream_with_context
 import asyncio
 import json
 import logging
@@ -245,7 +245,6 @@ def agent_chat():
             # Log audit event with collected response after streaming is complete
             try:
                 full_response = ' | '.join(collected_responses) if collected_responses else "No response content captured"
-                
                 # Debug logging to see what we captured
                 logger.info(f"Agent audit - Collected {len(collected_responses)} response parts")
                 logger.debug(f"Agent audit - Full response preview: {full_response[:500]}...")

@@ -21,11 +21,39 @@
             </button>
         </div>
         <div class="server-selection mt-2">
-            <label for="serverSelect" class="form-label small">MCP Server (optional):</label>
-            <select class="form-select form-select-sm glass" id="serverSelect">
-                <option value="">Auto-select best server</option>
-                <!-- Servers will be loaded here -->
-            </select>
+            <div class="row g-2">
+                <!-- Mode Selection -->
+                <div class="col-4">
+                    <label for="modeSelect" class="form-label small">Agent Mode:</label>
+                    <select class="form-select form-select-sm glass" id="modeSelect">
+                        <option value="autogen">AutoGen</option>
+                        <option value="mcp">MCP Server</option>
+                    </select>
+                </div>
+                
+                <!-- AutoGen Mode Options -->
+                <div class="col-4" id="autogenTeamCol">
+                    <label for="teamSelect" class="form-label small">Team (optional):</label>
+                    <select class="form-select form-select-sm glass" id="teamSelect">
+                        <option value="">None</option>
+                    </select>
+                </div>
+                <div class="col-4" id="autogenWorkflowCol">
+                    <label for="workflowSelect" class="form-label small">Workflow (optional):</label>
+                    <select class="form-select form-select-sm glass" id="workflowSelect">
+                        <option value="">None</option>
+                    </select>
+                </div>
+                
+                <!-- MCP Server Mode Options (hidden by default) -->
+                <div class="col-8" id="mcpServerCol" style="display: none;">
+                    <label for="serverSelect" class="form-label small">MCP Server (optional):</label>
+                    <select class="form-select form-select-sm glass" id="serverSelect">
+                        <option value="">Auto-select best server</option>
+                        <!-- Servers will be loaded here -->
+                    </select>
+                </div>
+            </div>
         </div>
     </div>
     <!-- Progress indicator -->
@@ -42,8 +70,8 @@
                 <i class="fas fa-robot"></i>
             </div>
             <div class="message-content glass">
-                <p>Hello! I'm your agent assistant.</p>
-                <p>How can I help you today?</p>
+                <p>Hello! I'm your agent assistant. I support both AutoGen teams/workflows and legacy MCP servers.</p>
+                <p>Choose your preferred mode above and I'll help you with your tasks. How can I help you today?</p>
             </div>
         </div>
     </div>

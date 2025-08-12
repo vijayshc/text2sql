@@ -15,6 +15,7 @@ from src.routes.vector_db_routes import vector_db_bp
 from src.routes.knowledge_routes import knowledge_bp
 from src.routes.metadata_search_routes import metadata_search_bp
 from src.routes.agent_routes import agent_bp
+from src.routes.autogen_routes import autogen_bp
 from src.routes.tool_confirmation_routes import tool_confirmation_bp  # new import for confirmation endpoint
 from src.routes.skill_routes import skill_bp  # Import skill routes
 from src.routes.data_mapping_routes import data_mapping_bp  # Import data mapping routes
@@ -84,6 +85,13 @@ def cleanup_mcp_client():
     mcp_client = None
     mcp_event_loop = None
 
+# Provide missing shutdown function referenced in cleanup
+async def shutdown_mcp_client():
+    try:
+        await MCPClientManager.cleanup_all()
+    except Exception as e:
+        logger.warning(f"shutdown_mcp_client encountered an error: {e}")
+
 # Initialize Flask app
 app = Flask(__name__)
 app.config['SECRET_KEY'] = SECRET_KEY
@@ -132,6 +140,7 @@ app.register_blueprint(knowledge_bp)
 app.register_blueprint(metadata_search_bp)
 app.register_blueprint(agent_bp)  # Register the agent blueprint
 app.register_blueprint(tool_confirmation_bp)  # Register tool confirmation blueprint
+app.register_blueprint(autogen_bp)  # Register AutoGen orchestration endpoints
 from src.routes.config_routes import config_bp
 app.register_blueprint(config_bp)
 from src.routes.query_editor_routes import query_editor_bp
@@ -726,6 +735,15 @@ def init_app_with_context(app):
     with app.app_context():
         logger.info("Initializing application-wide components")
         initialize_mcp_servers()
+        # Ensure AutoGen persistence tables exist
+        try:
+            from src.models.agent_team import AgentTeam
+            from src.models.agent_workflow import AgentWorkflow
+            AgentTeam.create_table()
+            AgentWorkflow.create_table()
+            logger.info("AutoGen tables initialized")
+        except Exception as e:
+            logger.warning(f"Failed to initialize AutoGen tables: {e}")
         logger.info("Application-wide components initialization complete")
 
 # Register initialization function with the app

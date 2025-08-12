@@ -611,3 +611,501 @@ Traceback (most recent call last):
   File "/home/vijay/anaconda3/lib/python3.11/site-packages/requests/adapters.py", line 519, in send
     raise ConnectionError(e, request=request)
 requests.exceptions.ConnectionError: HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /health (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7d25d4235e90>: Failed to establish a new connection: [Errno 111] Connection refused'))
+2025-08-11 14:03:05,055 - ERROR - [user_manager.py:558] - Error logging audit event: (sqlite3.OperationalError) database is locked
+[SQL: INSERT INTO audit_logs (user_id, action, details, timestamp, ip_address, query_text, sql_query, response) VALUES (?, ?, ?, ?, ?, ?, ?, ?)]
+[parameters: (1, 'get_table_suggestions', 'Retrieved 5 table suggestions for workspace: ', '2025-08-11 06:02:45.005752', '127.0.0.1', None, None, None)]
+(Background on this error at: https://sqlalche.me/e/14/e3q8)
+2025-08-11 14:35:49,836 - ERROR - [autogen_orchestrator.py:219] - Team run failed: AutoGen AgentChat or model client missing
+Traceback (most recent call last):
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 199, in run_team
+    agents_with_wb, team_obj = await self._build_agents_team(team)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 177, in _build_agents_team
+    raise RuntimeError("AutoGen AgentChat or model client missing")
+RuntimeError: AutoGen AgentChat or model client missing
+
+2025-08-11 14:38:48,579 - ERROR - [autogen_orchestrator.py:152] - Failed to init OpenAIChatCompletionClient: model_info is required when model name is not a valid OpenAI model
+Traceback (most recent call last):
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 139, in _build_model_client
+    client = OpenAIChatCompletionClient(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 1474, in __init__
+    super().__init__(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 435, in __init__
+    self._model_info = _model_info.get_info(create_args["model"])
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_model_info.py", line 491, in get_info
+    raise ValueError("model_info is required when model name is not a valid OpenAI model")
+ValueError: model_info is required when model name is not a valid OpenAI model
+
+2025-08-11 14:38:48,672 - ERROR - [autogen_orchestrator.py:152] - Failed to init OpenAIChatCompletionClient: model_info is required when model name is not a valid OpenAI model
+Traceback (most recent call last):
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 139, in _build_model_client
+    client = OpenAIChatCompletionClient(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 1474, in __init__
+    super().__init__(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 435, in __init__
+    self._model_info = _model_info.get_info(create_args["model"])
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_model_info.py", line 491, in get_info
+    raise ValueError("model_info is required when model name is not a valid OpenAI model")
+ValueError: model_info is required when model name is not a valid OpenAI model
+
+2025-08-11 14:38:48,673 - ERROR - [autogen_orchestrator.py:255] - Team run failed: Model client init failed. Check OPENROUTER_MODEL, OPENROUTER_API_KEY, OPENROUTER_BASE_URL / OPENAI_* env.
+Traceback (most recent call last):
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 235, in run_team
+    agents_with_wb, team_obj = await self._build_agents_team(team)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 213, in _build_agents_team
+    raise RuntimeError("Model client init failed. Check OPENROUTER_MODEL, OPENROUTER_API_KEY, OPENROUTER_BASE_URL / OPENAI_* env.")
+RuntimeError: Model client init failed. Check OPENROUTER_MODEL, OPENROUTER_API_KEY, OPENROUTER_BASE_URL / OPENAI_* env.
+
+2025-08-11 14:56:00,298 - ERROR - [autogen_orchestrator.py:154] - Failed to init OpenAIChatCompletionClient: model_info is required when model name is not a valid OpenAI model
+Traceback (most recent call last):
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 140, in _build_model_client
+    client = OpenAIChatCompletionClient(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 1474, in __init__
+    super().__init__(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 435, in __init__
+    self._model_info = _model_info.get_info(create_args["model"])
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_model_info.py", line 491, in get_info
+    raise ValueError("model_info is required when model name is not a valid OpenAI model")
+ValueError: model_info is required when model name is not a valid OpenAI model
+
+2025-08-11 14:56:00,558 - ERROR - [autogen_orchestrator.py:154] - Failed to init OpenAIChatCompletionClient: model_info is required when model name is not a valid OpenAI model
+Traceback (most recent call last):
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 140, in _build_model_client
+    client = OpenAIChatCompletionClient(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 1474, in __init__
+    super().__init__(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 435, in __init__
+    self._model_info = _model_info.get_info(create_args["model"])
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_model_info.py", line 491, in get_info
+    raise ValueError("model_info is required when model name is not a valid OpenAI model")
+ValueError: model_info is required when model name is not a valid OpenAI model
+
+2025-08-11 14:56:03,013 - ERROR - [autogen_orchestrator.py:287] - Team run failed: ValueError: Invalid name: 1:get_mapping_details. Only letters, numbers, '_' and '-' are allowed.
+Traceback:
+Traceback (most recent call last):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_chat_agent_container.py", line 133, in handle_request
+    async for msg in self._agent.on_messages_stream(self._message_buffer, ctx.cancellation_token):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 953, in on_messages_stream
+    async for inference_output in self._call_llm(
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 1107, in _call_llm
+    model_result = await model_client.create(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 660, in create
+    create_params = self._process_create_args(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 618, in _process_create_args
+    converted_tools = convert_tools(tools)
+                      ^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 270, in convert_tools
+    assert_valid_name(tool_param["function"]["name"])
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_utils.py", line 11, in assert_valid_name
+    raise ValueError(f"Invalid name: {name}. Only letters, numbers, '_' and '-' are allowed.")
+
+ValueError: Invalid name: 1:get_mapping_details. Only letters, numbers, '_' and '-' are allowed.
+
+Traceback (most recent call last):
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 283, in run_team
+    result = await with_all_workbenches()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 274, in with_all_workbenches
+    result = await team_obj.run(task=task)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat.py", line 340, in run
+    async for message in self.run_stream(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat.py", line 554, in run_stream
+    raise RuntimeError(str(message.error))
+RuntimeError: ValueError: Invalid name: 1:get_mapping_details. Only letters, numbers, '_' and '-' are allowed.
+Traceback:
+Traceback (most recent call last):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_chat_agent_container.py", line 133, in handle_request
+    async for msg in self._agent.on_messages_stream(self._message_buffer, ctx.cancellation_token):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 953, in on_messages_stream
+    async for inference_output in self._call_llm(
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 1107, in _call_llm
+    model_result = await model_client.create(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 660, in create
+    create_params = self._process_create_args(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 618, in _process_create_args
+    converted_tools = convert_tools(tools)
+                      ^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 270, in convert_tools
+    assert_valid_name(tool_param["function"]["name"])
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_utils.py", line 11, in assert_valid_name
+    raise ValueError(f"Invalid name: {name}. Only letters, numbers, '_' and '-' are allowed.")
+
+ValueError: Invalid name: 1:get_mapping_details. Only letters, numbers, '_' and '-' are allowed.
+
+
+2025-08-11 15:01:01,956 - ERROR - [user_manager.py:558] - Error logging audit event: <built-in method commit of sqlite3.Connection object at 0x7fdf074c24d0> returned NULL without setting an exception
+2025-08-11 15:01:20,307 - ERROR - [autogen_orchestrator.py:185] - Failed to init OpenAIChatCompletionClient: model_info is required when model name is not a valid OpenAI model
+Traceback (most recent call last):
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 171, in _build_model_client
+    client = OpenAIChatCompletionClient(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 1474, in __init__
+    super().__init__(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 435, in __init__
+    self._model_info = _model_info.get_info(create_args["model"])
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_model_info.py", line 491, in get_info
+    raise ValueError("model_info is required when model name is not a valid OpenAI model")
+ValueError: model_info is required when model name is not a valid OpenAI model
+
+2025-08-11 15:01:20,675 - ERROR - [autogen_orchestrator.py:185] - Failed to init OpenAIChatCompletionClient: model_info is required when model name is not a valid OpenAI model
+Traceback (most recent call last):
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 171, in _build_model_client
+    client = OpenAIChatCompletionClient(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 1474, in __init__
+    super().__init__(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 435, in __init__
+    self._model_info = _model_info.get_info(create_args["model"])
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_model_info.py", line 491, in get_info
+    raise ValueError("model_info is required when model name is not a valid OpenAI model")
+ValueError: model_info is required when model name is not a valid OpenAI model
+
+2025-08-11 15:01:27,616 - ERROR - [autogen_orchestrator.py:318] - Team run failed: TypeError: Cannot instantiate typing.Union
+Traceback:
+Traceback (most recent call last):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_chat_agent_container.py", line 133, in handle_request
+    async for msg in self._agent.on_messages_stream(self._message_buffer, ctx.cancellation_token):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 953, in on_messages_stream
+    async for inference_output in self._call_llm(
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 1107, in _call_llm
+    model_result = await model_client.create(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 660, in create
+    create_params = self._process_create_args(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 602, in _process_create_args
+    oai_messages_nested = [
+                          ^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 603, in <listcomp>
+    to_oai_type(
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 184, in to_oai_type
+    result = transformer(message, context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_transformation/registry.py", line 64, in transformer
+    kwargs.update(func(message, context))
+                  ^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_message_transform.py", line 250, in _set_tool_calls
+    "tool_calls": [func_call_to_oai(x) for x in message.content],
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_message_transform.py", line 250, in <listcomp>
+    "tool_calls": [func_call_to_oai(x) for x in message.content],
+                   ^^^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_message_transform.py", line 176, in func_call_to_oai
+    return ChatCompletionMessageToolCallParam(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/typing.py", line 1275, in __call__
+    result = self.__origin__(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/typing.py", line 472, in __call__
+    raise TypeError(f"Cannot instantiate {self!r}")
+
+TypeError: Cannot instantiate typing.Union
+
+Traceback (most recent call last):
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 314, in run_team
+    result = await with_all_workbenches()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 305, in with_all_workbenches
+    result = await team_obj.run(task=task)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat.py", line 340, in run
+    async for message in self.run_stream(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat.py", line 554, in run_stream
+    raise RuntimeError(str(message.error))
+RuntimeError: TypeError: Cannot instantiate typing.Union
+Traceback:
+Traceback (most recent call last):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_chat_agent_container.py", line 133, in handle_request
+    async for msg in self._agent.on_messages_stream(self._message_buffer, ctx.cancellation_token):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 953, in on_messages_stream
+    async for inference_output in self._call_llm(
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 1107, in _call_llm
+    model_result = await model_client.create(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 660, in create
+    create_params = self._process_create_args(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 602, in _process_create_args
+    oai_messages_nested = [
+                          ^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 603, in <listcomp>
+    to_oai_type(
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 184, in to_oai_type
+    result = transformer(message, context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_transformation/registry.py", line 64, in transformer
+    kwargs.update(func(message, context))
+                  ^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_message_transform.py", line 250, in _set_tool_calls
+    "tool_calls": [func_call_to_oai(x) for x in message.content],
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_message_transform.py", line 250, in <listcomp>
+    "tool_calls": [func_call_to_oai(x) for x in message.content],
+                   ^^^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_message_transform.py", line 176, in func_call_to_oai
+    return ChatCompletionMessageToolCallParam(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/typing.py", line 1275, in __call__
+    result = self.__origin__(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/typing.py", line 472, in __call__
+    raise TypeError(f"Cannot instantiate {self!r}")
+
+TypeError: Cannot instantiate typing.Union
+
+
+2025-08-11 15:05:28,216 - ERROR - [autogen_orchestrator.py:185] - Failed to init OpenAIChatCompletionClient: model_info is required when model name is not a valid OpenAI model
+Traceback (most recent call last):
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 171, in _build_model_client
+    client = OpenAIChatCompletionClient(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 1474, in __init__
+    super().__init__(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 435, in __init__
+    self._model_info = _model_info.get_info(create_args["model"])
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_model_info.py", line 491, in get_info
+    raise ValueError("model_info is required when model name is not a valid OpenAI model")
+ValueError: model_info is required when model name is not a valid OpenAI model
+
+2025-08-11 15:05:28,275 - ERROR - [autogen_orchestrator.py:185] - Failed to init OpenAIChatCompletionClient: model_info is required when model name is not a valid OpenAI model
+Traceback (most recent call last):
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 171, in _build_model_client
+    client = OpenAIChatCompletionClient(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 1474, in __init__
+    super().__init__(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 435, in __init__
+    self._model_info = _model_info.get_info(create_args["model"])
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_model_info.py", line 491, in get_info
+    raise ValueError("model_info is required when model name is not a valid OpenAI model")
+ValueError: model_info is required when model name is not a valid OpenAI model
+
+2025-08-11 15:06:22,690 - ERROR - [autogen_orchestrator.py:185] - Failed to init OpenAIChatCompletionClient: model_info is required when model name is not a valid OpenAI model
+Traceback (most recent call last):
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 171, in _build_model_client
+    client = OpenAIChatCompletionClient(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 1474, in __init__
+    super().__init__(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 435, in __init__
+    self._model_info = _model_info.get_info(create_args["model"])
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_model_info.py", line 491, in get_info
+    raise ValueError("model_info is required when model name is not a valid OpenAI model")
+ValueError: model_info is required when model name is not a valid OpenAI model
+
+2025-08-11 15:06:22,754 - ERROR - [autogen_orchestrator.py:185] - Failed to init OpenAIChatCompletionClient: model_info is required when model name is not a valid OpenAI model
+Traceback (most recent call last):
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 171, in _build_model_client
+    client = OpenAIChatCompletionClient(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 1474, in __init__
+    super().__init__(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 435, in __init__
+    self._model_info = _model_info.get_info(create_args["model"])
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_model_info.py", line 491, in get_info
+    raise ValueError("model_info is required when model name is not a valid OpenAI model")
+ValueError: model_info is required when model name is not a valid OpenAI model
+
+2025-08-11 15:07:18,898 - ERROR - [autogen_orchestrator.py:185] - Failed to init OpenAIChatCompletionClient: model_info is required when model name is not a valid OpenAI model
+Traceback (most recent call last):
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 171, in _build_model_client
+    client = OpenAIChatCompletionClient(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 1474, in __init__
+    super().__init__(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 435, in __init__
+    self._model_info = _model_info.get_info(create_args["model"])
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_model_info.py", line 491, in get_info
+    raise ValueError("model_info is required when model name is not a valid OpenAI model")
+ValueError: model_info is required when model name is not a valid OpenAI model
+
+2025-08-11 15:07:18,962 - ERROR - [autogen_orchestrator.py:185] - Failed to init OpenAIChatCompletionClient: model_info is required when model name is not a valid OpenAI model
+Traceback (most recent call last):
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 171, in _build_model_client
+    client = OpenAIChatCompletionClient(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 1474, in __init__
+    super().__init__(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 435, in __init__
+    self._model_info = _model_info.get_info(create_args["model"])
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_model_info.py", line 491, in get_info
+    raise ValueError("model_info is required when model name is not a valid OpenAI model")
+ValueError: model_info is required when model name is not a valid OpenAI model
+
+2025-08-11 15:08:10,251 - ERROR - [autogen_orchestrator.py:185] - Failed to init OpenAIChatCompletionClient: model_info is required when model name is not a valid OpenAI model
+Traceback (most recent call last):
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 171, in _build_model_client
+    client = OpenAIChatCompletionClient(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 1474, in __init__
+    super().__init__(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 435, in __init__
+    self._model_info = _model_info.get_info(create_args["model"])
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_model_info.py", line 491, in get_info
+    raise ValueError("model_info is required when model name is not a valid OpenAI model")
+ValueError: model_info is required when model name is not a valid OpenAI model
+
+2025-08-11 15:08:10,310 - ERROR - [autogen_orchestrator.py:185] - Failed to init OpenAIChatCompletionClient: model_info is required when model name is not a valid OpenAI model
+Traceback (most recent call last):
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 171, in _build_model_client
+    client = OpenAIChatCompletionClient(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 1474, in __init__
+    super().__init__(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 435, in __init__
+    self._model_info = _model_info.get_info(create_args["model"])
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_model_info.py", line 491, in get_info
+    raise ValueError("model_info is required when model name is not a valid OpenAI model")
+ValueError: model_info is required when model name is not a valid OpenAI model
+
+2025-08-11 17:03:19,131 - ERROR - [autogen_orchestrator.py:582] - Team run failed: 'list' object has no attribute 'terminated'
+Traceback (most recent call last):
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 576, in run_team
+    result = await with_all_workbenches()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 503, in with_all_workbenches
+    result = await team_obj.run(task=task)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat.py", line 340, in run
+    async for message in self.run_stream(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat.py", line 534, in run_stream
+    await self._runtime.send_message(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_single_threaded_agent_runtime.py", line 385, in send_message
+    return await future
+           ^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_single_threaded_agent_runtime.py", line 508, in _process_send
+    response = await recipient_agent.on_message(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_base_agent.py", line 119, in on_message
+    return await self.on_message_impl(message, ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_sequential_routed_agent.py", line 67, in on_message_impl
+    return await super().on_message_impl(message, ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_routed_agent.py", line 485, in on_message_impl
+    return await h(self, message, ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_routed_agent.py", line 389, in wrapper
+    return_value = await func(self, message, ctx)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat_manager.py", line 91, in handle_start
+    if self._termination_condition is not None and self._termination_condition.terminated:
+                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'list' object has no attribute 'terminated'
+
+2025-08-11 17:51:20,637 - ERROR - [autogen_orchestrator.py:673] - Team run failed: TypeError: 'NoneType' object is not subscriptable
+Traceback:
+Traceback (most recent call last):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_chat_agent_container.py", line 133, in handle_request
+    async for msg in self._agent.on_messages_stream(self._message_buffer, ctx.cancellation_token):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 953, in on_messages_stream
+    async for inference_output in self._call_llm(
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 1107, in _call_llm
+    model_result = await model_client.create(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 723, in create
+    choice: Union[ParsedChoice[Any], ParsedChoice[BaseModel], Choice] = result.choices[0]
+                                                                        ~~~~~~~~~~~~~~^^^
+
+TypeError: 'NoneType' object is not subscriptable
+
+Traceback (most recent call last):
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 667, in run_team
+    result = await with_all_workbenches()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 594, in with_all_workbenches
+    result = await team_obj.run(task=task)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat.py", line 340, in run
+    async for message in self.run_stream(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat.py", line 554, in run_stream
+    raise RuntimeError(str(message.error))
+RuntimeError: TypeError: 'NoneType' object is not subscriptable
+Traceback:
+Traceback (most recent call last):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_chat_agent_container.py", line 133, in handle_request
+    async for msg in self._agent.on_messages_stream(self._message_buffer, ctx.cancellation_token):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 953, in on_messages_stream
+    async for inference_output in self._call_llm(
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 1107, in _call_llm
+    model_result = await model_client.create(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 723, in create
+    choice: Union[ParsedChoice[Any], ParsedChoice[BaseModel], Choice] = result.choices[0]
+                                                                        ~~~~~~~~~~~~~~^^^
+
+TypeError: 'NoneType' object is not subscriptable
+
+

@@ -1,0 +1,148 @@
+{% extends "admin/index.html" %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h5 class="mb-0">Agent Teams & Workflows</h5>
+    <div>
+      <button class="btn btn-sm btn-primary" id="btnNewTeam"><i class="fas fa-users me-1"></i>New Team</button>
+      <button class="btn btn-sm btn-secondary" id="btnNewWorkflow"><i class="fas fa-project-diagram me-1"></i>New Workflow</button>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="row g-3">
+      <div class="col-md-6">
+        <h6>Teams</h6>
+        <ul class="list-group" id="teamsList"></ul>
+      </div>
+      <div class="col-md-6">
+        <h6>Workflows</h6>
+        <ul class="list-group" id="workflowsList"></ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Error Details Modal -->
+<div class="modal fade" id="agentErrorModal" tabindex="-1" aria-labelledby="agentErrorModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="agentErrorModalLabel">Run Error</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-danger" role="alert">
+          <strong id="agentErrorMessage">An error occurred.</strong>
+        </div>
+        <label class="form-label">Traceback</label>
+        <pre class="bg-body-tertiary border rounded p-2" style="max-height: 350px; overflow:auto; white-space: pre-wrap;" id="agentErrorTrace"></pre>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+        <button class="btn btn-outline-primary" id="copyAgentErrorTrace">Copy Trace</button>
+      </div>
+    </div>
+  </div>
+ </div>
+
+<!-- Modal -->
+<div class="modal fade" id="teamModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Agent Team</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <div class="mb-2"><label class="form-label">Name</label><input id="teamName" class="form-control"></div>
+        <div class="mb-2"><label class="form-label">Description</label><textarea id="teamDesc" class="form-control" rows="2"></textarea></div>
+        <div class="mb-2">
+          <label class="form-label">Agents</label>
+          <div id="agentsBuilder" class="border rounded p-2 mb-2 bg-body-tertiary">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <div class="small text-muted">Build agents by selecting MCP tools; JSON updates automatically.</div>
+              <button class="btn btn-sm btn-outline-primary" id="addAgentBtn"><i class="fas fa-plus"></i> Add Agent</button>
+            </div>
+            <div id="agentsList"></div>
+          </div>
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <label class="form-label mb-0">Config (JSON)</label>
+            <button class="btn btn-sm btn-outline-secondary" id="syncFromJsonBtn">
+              <i class="fas fa-sync"></i> Sync from JSON
+            </button>
+          </div>
+          <textarea id="teamConfig" class="form-control" rows="10">{
+  "agents": [
+    {"name": "Planner", "role": "planner", "system_prompt": "Plan steps.", "tools": []},
+    {"name": "Executor", "role": "executor", "system_prompt": "Execute with tools.", "tools": []}
+  ],
+  "settings": {"max_rounds": 6}
+}</textarea></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button class="btn btn-primary" id="saveTeamBtn">Save</button>
+      </div>
+    </div>
+  </div>
+ </div>
+
+ <div class="modal fade" id="workflowModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Workflow</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <div class="mb-2"><label class="form-label">Name</label><input id="wfName" class="form-control"></div>
+        <div class="mb-2"><label class="form-label">Description</label><textarea id="wfDesc" class="form-control" rows="2"></textarea></div>
+        <div class="mb-2"><label class="form-label">Team</label><select id="wfTeam" class="form-select"></select></div>
+        <div class="mb-2">
+          <div class="d-flex justify-content-between align-items-center">
+            <label class="form-label">Workflow Builder</label>
+            <button type="button" class="btn btn-sm btn-outline-primary" id="addNodeBtn"><i class="fas fa-plus"></i> Add Node</button>
+          </div>
+          <div id="workflowBuilder" class="border rounded p-2 bg-body-tertiary">
+            <div class="row g-2 mb-2">
+              <div class="col-md-4">
+                <label class="form-label small">Nodes</label>
+                <select size="6" class="form-select" id="nodesList"></select>
+              </div>
+              <div class="col-md-8">
+                <div class="row g-2">
+                  <div class="col-md-6">
+                    <label class="form-label small">Node Name</label>
+                    <input id="nodeName" class="form-control form-control-sm" placeholder="e.g., Plan">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label small">Agent</label>
+                    <select id="nodeAgent" class="form-select form-select-sm"></select>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label small">Predecessor</label>
+                    <select id="nodePrev" class="form-select form-select-sm"></select>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label small">Successor</label>
+                    <select id="nodeNext" class="form-select form-select-sm"></select>
+                  </div>
+                </div>
+                <div class="mt-2 d-flex gap-2">
+                  <button class="btn btn-sm btn-outline-success" id="saveNodeBtn">Save Node</button>
+                  <button class="btn btn-sm btn-outline-danger" id="removeNodeBtn">Remove Node</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mb-2"><label class="form-label">Graph (JSON)</label><textarea id="wfGraph" class="form-control" rows="8">{"nodes":[],"edges":[]}</textarea></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button class="btn btn-primary" id="saveWorkflowBtn">Save</button>
+      </div>
+    </div>
+  </div>
+ </div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/admin/agent-teams.js') }}"></script>
+{% endblock %}

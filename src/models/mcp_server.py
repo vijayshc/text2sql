@@ -110,60 +110,109 @@ class MCPServer:
         return cls(**server_data) if server_data else None
 
     def save(self):
-        """Save this MCP server to the database."""
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        """Save this MCP server to the database with retry logic for lock errors."""
+        max_retries = 3
+        base_delay = 0.1
         
-        if self.id:
-            # Update existing record
-            self.updated_at = datetime.now()
-            cursor.execute('''
-            UPDATE mcp_servers 
-            SET name = ?, description = ?, server_type = ?, config = ?, 
-                status = ?, updated_at = ?
-            WHERE id = ?
-            ''', (
-                self.name, 
-                self.description, 
-                self.server_type, 
-                json.dumps(self.config), 
-                self.status, 
-                self.updated_at,
-                self.id
-            ))
-        else:
-            # Insert new record
-            cursor.execute('''
-            INSERT INTO mcp_servers (name, description, server_type, config, status)
-            VALUES (?, ?, ?, ?, ?)
-            ''', (
-                self.name, 
-                self.description, 
-                self.server_type, 
-                json.dumps(self.config), 
-                self.status
-            ))
-            self.id = cursor.lastrowid
-        
-        conn.commit()
-        conn.close()
-        
-        return self
+        for attempt in range(max_retries):
+            try:
+                conn = get_db_connection()
+                try:
+                    # Begin immediate transaction to acquire lock quickly
+                    conn.execute("BEGIN IMMEDIATE")
+                    
+                    cursor = conn.cursor()
+                    
+                    if self.id:
+                        # Update existing record
+                        self.updated_at = datetime.now()
+                        cursor.execute('''
+                        UPDATE mcp_servers 
+                        SET name = ?, description = ?, server_type = ?, config = ?, 
+                            status = ?, updated_at = ?
+                        WHERE id = ?
+                        ''', (
+                            self.name, 
+                            self.description, 
+                            self.server_type, 
+                            json.dumps(self.config), 
+                            self.status, 
+                            self.updated_at,
+                            self.id
+                        ))
+                    else:
+                        # Insert new record
+                        cursor.execute('''
+                        INSERT INTO mcp_servers (name, description, server_type, config, status)
+                        VALUES (?, ?, ?, ?, ?)
+                        ''', (
+                            self.name, 
+                            self.description, 
+                            self.server_type, 
+                            json.dumps(self.config), 
+                            self.status
+                        ))
+                        self.id = cursor.lastrowid
+                    
+                    conn.commit()
+                    return self
+                    
+                except Exception as e:
+                    conn.rollback()
+                    raise
+                finally:
+                    conn.close()
+                    
+            except Exception as e:
+                if "database is locked" in str(e).lower() and attempt < max_retries - 1:
+                    # Wait with exponential backoff before retrying
+                    import time
+                    delay = base_delay * (2 ** attempt)
+                    time.sleep(delay)
+                    continue
+                else:
+                    # Re-raise if not a lock error or max retries exceeded
+                    raise
 
     def delete(self):
-        """Delete this MCP server from the database."""
+        """Delete this MCP server from the database with retry logic for lock errors."""
         if not self.id:
             return False
             
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        max_retries = 3
+        base_delay = 0.1
         
-        cursor.execute('DELETE FROM mcp_servers WHERE id = ?', (self.id,))
-        
-        conn.commit()
-        conn.close()
-        
-        return True
+        for attempt in range(max_retries):
+            try:
+                conn = get_db_connection()
+                try:
+                    # Begin immediate transaction to acquire lock quickly
+                    conn.execute("BEGIN IMMEDIATE")
+                    
+                    cursor = conn.cursor()
+                    cursor.execute('DELETE FROM mcp_servers WHERE id = ?', (self.id,))
+                    
+                    conn.commit()
+                    return True
+                    
+                except Exception as e:
+                    conn.rollback()
+                    raise
+                finally:
+                    conn.close()
+                    
+            except Exception as e:
+                if "database is locked" in str(e).lower() and attempt < max_retries - 1:
+                    # Wait with exponential backoff before retrying
+                    import time
+                    delay = base_delay * (2 ** attempt)
+                    time.sleep(delay)
+                    continue
+                else:
+                    # Re-raise if not a lock error or max retries exceeded
+                    raise
+                    
+        return False
 
     def update_status(self, status):
         """Update the status of the MCP server."""
