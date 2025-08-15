@@ -11,9 +11,9 @@ mcp = FastMCP("data_engineer")
 
 
 async def get_available_tables() -> List[str]:
-    """Returns a list of available tables in the testdb.db database."""
+    """Returns a list of available tables in the text2sql.db database."""
     try:
-        db_path = os.path.join(os.path.dirname(__file__), 'testdb.db')
+        db_path = os.path.join(os.path.dirname(__file__), 'text2sql.db')
         async with aiosqlite.connect(db_path) as db:
             async with db.execute("SELECT name FROM sqlite_master WHERE type='table';") as cursor:
                 rows = await cursor.fetchall()
@@ -33,7 +33,7 @@ async def get_table_columns_json(table_name: str) -> List[str]:
         List of column names
     """
     try:
-        db_path = os.path.join(os.path.dirname(__file__), 'testdb.db')
+        db_path = os.path.join(os.path.dirname(__file__), 'text2sql.db')
         async with aiosqlite.connect(db_path) as db:
             async with db.execute(f"PRAGMA table_info({table_name})") as cursor:
                 columns = await cursor.fetchall()
@@ -315,7 +315,7 @@ async def get_table_data(table_name: str, limit: int = 10) -> Dict[str, Any]:
         - "errors": List of errors if any occurred
     """
     try:
-        db_path = os.path.join(os.path.dirname(__file__), 'testdb.db')
+        db_path = os.path.join(os.path.dirname(__file__), 'text2sql.db')
         async with aiosqlite.connect(db_path) as db:
             db.row_factory = aiosqlite.Row  # Return rows as dict-like objects
             # Sanitize table name (basic example, consider more robust validation)
@@ -350,7 +350,7 @@ async def get_table_row_count(table_name: str) -> Dict[str, Any]:
         - "errors": List of errors if any occurred
     """
     try:
-        db_path = os.path.join(os.path.dirname(__file__), 'testdb.db')
+        db_path = os.path.join(os.path.dirname(__file__), 'text2sql.db')
         async with aiosqlite.connect(db_path) as db:
              # Sanitize table name
             if not table_name.isalnum() and '_' not in table_name:
@@ -424,7 +424,7 @@ async def execute_sql_query(query: str) -> Dict[str, Any]:
         return {"success": False, "data": None, "columns": None, "errors": ["Only SELECT queries are allowed."]}
 
     try:
-        db_path = os.path.join(os.path.dirname(__file__), 'testdb.db')
+        db_path = os.path.join(os.path.dirname(__file__), 'text2sql.db')
         async with aiosqlite.connect(db_path) as db:
             db.row_factory = aiosqlite.Row
             async with db.execute(query) as cursor:
@@ -847,7 +847,7 @@ async def execute_sql_script(script_path: str, unsafe: bool = False) -> Dict[str
             }
             
         # Execute the script
-        db_path = os.path.join(os.path.dirname(__file__), 'testdb.db')
+        db_path = os.path.join(os.path.dirname(__file__), 'text2sql.db')
         async with aiosqlite.connect(db_path) as db:
             db.row_factory = aiosqlite.Row
             

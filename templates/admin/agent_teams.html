@@ -20,6 +20,12 @@
         <ul class="list-group" id="workflowsList"></ul>
       </div>
     </div>
+    <hr class="my-4" />
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h6 class="mb-0">Execution Methods</h6>
+      <button class="btn btn-sm btn-outline-primary" id="btnNewMethod"><i class="fas fa-plus me-1"></i>New Method</button>
+    </div>
+    <ul class="list-group" id="methodsList"></ul>
   </div>
 </div>
 
@@ -140,9 +146,49 @@
     </div>
   </div>
  </div>
+
+    <div class="modal fade" id="methodModal" tabindex="-1">
+     <div class="modal-dialog modal-lg">
+       <div class="modal-content">
+         <div class="modal-header"><h5 class="modal-title">Execution Method</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+         <div class="modal-body">
+           <div class="mb-2"><label class="form-label">Name</label><input id="methodName" class="form-control"></div>
+           <div class="mb-2"><label class="form-label">Description</label><textarea id="methodDesc" class="form-control" rows="2"></textarea></div>
+           <div class="row g-2">
+              <div class="col-md-6 mb-2">
+                <label class="form-label">Type</label>
+                <select id="methodType" class="form-select">
+                  <option value="mixture">Mixture</option>
+                  <option value="sequential">Sequential</option>
+                  <option value="concurrent">Concurrent</option>
+                  <option value="debate">Debate</option>
+                  <option value="group_chat">Group Chat</option>
+                  <option value="handoff">Handoffs</option>
+                  <option value="reflection">Reflection</option>
+                  <option value="code_exec_groupchat">Code Exec GroupChat</option>
+                </select>
+              </div>
+              <div class="col-md-6 mb-2">
+                <label class="form-label">Team</label>
+                <select id="methodTeam" class="form-select"></select>
+              </div>
+           </div>
+           <div class="mb-2">
+             <label class="form-label">Config (JSON)</label>
+             <textarea id="methodConfig" class="form-control" rows="8">{\n  "max_rounds": 4\n}</textarea>
+           </div>
+         </div>
+         <div class="modal-footer">
+           <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+           <button class="btn btn-primary" id="saveMethodBtn">Save</button>
+         </div>
+       </div>
+     </div>
+    </div>
 {% endblock %}
 
 {% block scripts %}
 {{ super() }}
 <script src="{{ url_for('static', filename='js/admin/agent-teams.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/admin/agent-methods.js') }}"></script>
 {% endblock %}

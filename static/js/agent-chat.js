@@ -30,6 +30,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const serverSelect = document.getElementById('serverSelect');
     const autogenTeamCol = document.getElementById('autogenTeamCol');
     const autogenWorkflowCol = document.getElementById('autogenWorkflowCol');
+    const autogenMethodCol = document.getElementById('autogenMethodCol');
+    const methodSelect = document.getElementById('methodSelect');
     const mcpServerCol = document.getElementById('mcpServerCol');
 
     let eventSource = null;
@@ -219,6 +221,19 @@ document.addEventListener('DOMContentLoaded', () => {
             }).catch(()=>{});
     }
 
+    function loadMethods() {
+        if (!methodSelect) return;
+        fetch('/api/agent/methods')
+            .then(r=>r.json())
+            .then(d=>{
+                while (methodSelect.options.length > 1) methodSelect.remove(1);
+                (d.methods||[]).forEach(m=>{
+                    const opt = document.createElement('option');
+                    opt.value = m.id; opt.textContent = `${m.name} (${m.type})`; methodSelect.appendChild(opt);
+                })
+            }).catch(()=>{});
+    }
+
     // Handle mode selection change
     function handleModeChange() {
         const mode = modeSelect.value;
@@ -228,14 +243,17 @@ document.addEventListener('DOMContentLoaded', () => {
             if (mcpServerCol) mcpServerCol.style.display = 'block';
             if (autogenTeamCol) autogenTeamCol.style.display = 'none';
             if (autogenWorkflowCol) autogenWorkflowCol.style.display = 'none';
+            if (autogenMethodCol) autogenMethodCol.style.display = 'none';
             loadAvailableServers();
         } else {
             // Show AutoGen options, hide MCP options
             if (autogenTeamCol) autogenTeamCol.style.display = 'block';
             if (autogenWorkflowCol) autogenWorkflowCol.style.display = 'block';
+            if (autogenMethodCol) autogenMethodCol.style.display = 'block';
             if (mcpServerCol) mcpServerCol.style.display = 'none';
             loadTeams();
             loadWorkflows();
+            loadMethods();
         }
     }
 
@@ -286,12 +304,12 @@ document.addEventListener('DOMContentLoaded', () => {
             };
         } else {
             // Use AutoGen endpoint
-            const useAutogen = (teamSelect && teamSelect.value) || (workflowSelect && workflowSelect.value);
+            const useAutogen = (teamSelect && teamSelect.value) || (workflowSelect && workflowSelect.value) || (methodSelect && methodSelect.value);
             if (!useAutogen) {
                 hideProgress();
                 sendButton.disabled = false;
                 chatInput.disabled = false;
-                addMessage('Select a Team or Workflow before sending.', 'agent');
+                addMessage('Select a Workflow, Method, or Team before sending.', 'agent');
                 return;
             }
             
@@ -300,6 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 query,
                 team_id: teamSelect && teamSelect.value ? parseInt(teamSelect.value, 10) : undefined,
                 workflow_id: workflowSelect && workflowSelect.value ? parseInt(workflowSelect.value, 10) : undefined,
+                method_id: methodSelect && methodSelect.value ? parseInt(methodSelect.value, 10) : undefined,
                 conversation_history: previousHistory
             };
         }

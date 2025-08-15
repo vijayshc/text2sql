@@ -9,6 +9,7 @@ from src.utils.auth_utils import login_required
 from src.models.agent_team import AgentTeam
 from src.models.agent_workflow import AgentWorkflow
 from src.services.autogen_orchestrator import AutoGenOrchestrator
+from src.models.execution_method import ExecutionMethod, ExecutionMethodType
 from src.services.run_monitor import RunMonitor
 from src.models.mcp_server import MCPServer, MCPServerStatus
 from src.utils.mcp_client_manager import MCPClientManager
@@ -148,12 +149,13 @@ def autogen_chat_stream():
     query = data.get('query') or data.get('task')
     team_id = data.get('team_id')
     workflow_id = data.get('workflow_id')
+    method_id = data.get('method_id')
     context = data.get('conversation_history')
 
     if not query:
         return jsonify({'error': 'Missing query'}), 400
-    if not team_id and not workflow_id:
-        return jsonify({'error': 'team_id or workflow_id required'}), 400
+    if not team_id and not workflow_id and not method_id:
+        return jsonify({'error': 'team_id or workflow_id or method_id required'}), 400
 
     def generate():
         collected = []
@@ -170,6 +172,13 @@ def autogen_chat_stream():
                     yield f"data: {json.dumps({'type':'done'})}\n\n"
                     return
                 entity = wf
+            elif method_id:
+                m = ExecutionMethod.get_by_id(int(method_id))
+                if not m:
+                    yield f"data: {json.dumps({'type':'error','message':'Method not found'})}\n\n"
+                    yield f"data: {json.dumps({'type':'done'})}\n\n"
+                    return
+                entity = m
             elif team_id:
                 tm = AgentTeam.get_by_id(int(team_id))
                 if not tm:
@@ -183,6 +192,8 @@ def autogen_chat_stream():
             try:
                 if isinstance(entity, AgentWorkflow):
                     res = loop.run_until_complete(orch.run_workflow(entity, query, context))
+                elif isinstance(entity, ExecutionMethod):
+                    res = loop.run_until_complete(orch.run_method(entity, query, context))
                 else:
                     res = loop.run_until_complete(orch.run_team(entity, query, context))
                 if res.get('success'):
@@ -208,6 +219,75 @@ def autogen_chat_stream():
                 pass
 
     return Response(stream_with_context(generate()), mimetype='text/event-stream')
+
+@autogen_bp.route('/api/agent/methods', methods=['GET','POST'])
+@login_required
+def methods():
+    if request.method == 'POST':
+        data = request.get_json() or {}
+        name = data.get('name')
+        if not name:
+            return jsonify({'error': 'Method name is required'}), 400
+        method = ExecutionMethod(
+            name=name,
+            description=data.get('description'),
+            type=data.get('type'),
+            team_id=data.get('team_id'),
+            config=data.get('config') or {}
+        )
+        method.save()
+        return jsonify({'success': True, 'method': {'id': method.id, 'name': method.name}})
+    else:
+        ExecutionMethod.create_table()
+        methods = ExecutionMethod.get_all()
+        return jsonify({'success': True, 'methods': [
+            {
+                'id': m.id,
+                'name': m.name,
+                'description': m.description,
+                'type': m.type,
+                'team_id': m.team_id,
+                'config': m.config
+            } for m in methods
+        ]})
+
+@autogen_bp.route('/api/agent/methods/<int:method_id>', methods=['GET','PUT','DELETE'])
+@login_required
+def method_detail(method_id):
+    method = ExecutionMethod.get_by_id(method_id)
+    if not method:
+        return jsonify({'error': 'Method not found'}), 404
+    if request.method == 'GET':
+        return jsonify({'id': method.id, 'name': method.name, 'description': method.description, 'type': method.type, 'team_id': method.team_id, 'config': method.config})
+    if request.method == 'PUT':
+        data = request.get_json() or {}
+        method.name = data.get('name', method.name)
+        method.description = data.get('description', method.description)
+        method.type = data.get('type', method.type)
+        method.team_id = data.get('team_id', method.team_id)
+        if 'config' in data:
+            method.config = data['config']
+        method.save()
+        return jsonify({'success': True})
+    if request.method == 'DELETE':
+        method.delete()
+        return jsonify({'success': True})
+
+@autogen_bp.route('/api/agent/run/method/<int:method_id>', methods=['POST'])
+@login_required
+def run_method(method_id):
+    method = ExecutionMethod.get_by_id(method_id)
+    if not method:
+        return jsonify({'error': 'Method not found'}), 404
+    data = request.get_json() or {}
+    task = data.get('task') or data.get('query') or ''
+    context = data.get('context')
+    orch = AutoGenOrchestrator()
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    result = loop.run_until_complete(orch.run_method(method, task, context))
+    loop.close()
+    return jsonify(result)
 
 @autogen_bp.route('/api/agent/runs', methods=['GET'])
 @login_required

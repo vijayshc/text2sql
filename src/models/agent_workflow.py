@@ -20,7 +20,8 @@ class AgentWorkflow:
 
     def __init__(self, id: Optional[int] = None, name: Optional[str] = None, description: Optional[str] = None,
                  team_id: Optional[int] = None, graph: Optional[Dict[str, Any]] = None,
-                 created_at: Optional[datetime] = None, updated_at: Optional[datetime] = None):
+                 created_at: Optional[datetime] = None, updated_at: Optional[datetime] = None,
+                 pattern_type: Optional[str] = None):
         if isinstance(created_at, str):
             created_at = datetime.fromisoformat(created_at)
         if isinstance(updated_at, str):
@@ -33,6 +34,7 @@ class AgentWorkflow:
         self.graph = graph if isinstance(graph, dict) else json.loads(graph) if graph else {}
         self.created_at = created_at or datetime.now()
         self.updated_at = updated_at or datetime.now()
+        self.pattern_type = pattern_type or "standard"
 
     @classmethod
     def create_table(cls):
@@ -93,10 +95,10 @@ class AgentWorkflow:
             cur.execute(
                 '''
                 UPDATE agent_workflows
-                SET name = ?, description = ?, team_id = ?, graph = ?, updated_at = ?
+                SET name = ?, description = ?, team_id = ?, graph = ?, updated_at = ?, pattern_type = ?
                 WHERE id = ?
                 ''',
-                (self.name, self.description, self.team_id, json.dumps(self.graph), self.updated_at, self.id)
+                (self.name, self.description, self.team_id, json.dumps(self.graph), self.updated_at, self.pattern_type, self.id)
             )
         else:
             # Check if a workflow with this name already exists
@@ -109,18 +111,18 @@ class AgentWorkflow:
                 cur.execute(
                     '''
                     UPDATE agent_workflows
-                    SET description = ?, team_id = ?, graph = ?, updated_at = ?
+                    SET description = ?, team_id = ?, graph = ?, updated_at = ?, pattern_type = ?
                     WHERE id = ?
                     ''',
-                    (self.description, self.team_id, json.dumps(self.graph), self.updated_at, self.id)
+                    (self.description, self.team_id, json.dumps(self.graph), self.updated_at, self.pattern_type, self.id)
                 )
             else:
                 cur.execute(
                     '''
-                    INSERT INTO agent_workflows (name, description, team_id, graph)
-                    VALUES (?, ?, ?, ?)
+                    INSERT INTO agent_workflows (name, description, team_id, graph, pattern_type)
+                    VALUES (?, ?, ?, ?, ?)
                     ''',
-                    (self.name, self.description, self.team_id, json.dumps(self.graph))
+                    (self.name, self.description, self.team_id, json.dumps(self.graph), self.pattern_type)
                 )
                 self.id = cur.lastrowid
         conn.commit()

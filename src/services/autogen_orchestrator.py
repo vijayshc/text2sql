@@ -6,6 +6,7 @@ from typing import List, Dict, Any, Optional, TYPE_CHECKING
 from src.models.agent_team import AgentTeam
 from src.models.agent_workflow import AgentWorkflow
 from src.models.mcp_server import MCPServer, MCPServerType
+from src.models.execution_method import ExecutionMethod, ExecutionMethodType
 from src.utils.common_llm import get_llm_engine
 from src.services.run_monitor import RunMonitor, _Timer
 
@@ -504,11 +505,48 @@ class AutoGenOrchestrator:
         return fallback
 
     async def run_team(self, team: AgentTeam, task: str, context: Optional[List[Dict[str, str]]] = None) -> Dict[str, Any]:
-        if not NEW_AUTOGEN_AVAILABLE:
-            return {"success": False, "error": "AutoGen AgentChat not installed", "trace": NEW_AUTOGEN_IMPORT_ERROR}
         monitor = RunMonitor()
         run_id = monitor.start_run('team', team.id or -1, task or '')
         try:
+            # If AgentChat is unavailable, attempt Core runtime directly
+            if not NEW_AUTOGEN_AVAILABLE:
+                try:
+                    from src.services.autogen_core_runtime import AutoGenCoreRuntimeOrchestrator as _Core
+                    core = _Core()
+                    monitor.log_event('status', 'orchestrator', {"message": "agentchat missing; attempt core runtime team"})
+                    core_res = await core.run_team(team, task, monitor)
+                    if core_res and core_res.get('success'):
+                        monitor.end_run('success', final_reply=core_res.get('reply') or '')
+                        core_res['run_id'] = run_id
+                        return core_res
+                    else:
+                        raise RuntimeError(core_res.get('error') or 'Core run failed')
+                except Exception as _core_err:
+                    tb = traceback.format_exc()
+                    logger.error(f"Core team run failed and AgentChat not available: {_core_err}\n{tb}")
+                    monitor.end_run('error', error=str(_core_err))
+                    return {"success": False, "error": f"AgentChat not available and Core failed: {_core_err}", "trace": tb, "run_id": run_id}
+
+            # If none of the agents have tools, prefer AutoGen Core runtime (lighter-weight)
+            team_cfg = team.config or {}
+            agents_cfg = team_cfg.get('agents', []) or []
+            has_any_tools = any((spec or {}).get('tools') for spec in agents_cfg)
+            
+            # Always try Core first for better performance, regardless of tools
+            try:
+                from src.services.autogen_core_runtime import AutoGenCoreRuntimeOrchestrator as _Core
+                core = _Core()
+                monitor.log_event('status', 'orchestrator', {"message": "attempt core runtime team", "has_tools": has_any_tools})
+                core_res = await core.run_team(team, task, monitor)
+                if core_res and core_res.get('success'):
+                    monitor.end_run('success', final_reply=core_res.get('reply') or '')
+                    core_res['run_id'] = run_id
+                    return core_res
+            except Exception as _core_err:
+                try:
+                    monitor.log_event('status', 'orchestrator', {"message": "core runtime fallback", "error": str(_core_err)})
+                except Exception:
+                    pass
             agents_with_wb, team_obj = await self._build_agents_team(team, monitor=monitor)
             # Start all workbenches via context managers
             async def with_all_workbenches():
@@ -667,13 +705,31 @@ class AutoGenOrchestrator:
 
     async def run_workflow(self, workflow: AgentWorkflow, input_text: str, context: Optional[List[Dict[str, str]]] = None) -> Dict[str, Any]:
         """Run a workflow using the graph structure for sequential execution."""
-        if not NEW_AUTOGEN_AVAILABLE:
-            return {"success": False, "error": "AutoGen AgentChat not installed", "trace": NEW_AUTOGEN_IMPORT_ERROR}
             
         monitor = RunMonitor()
         run_id = monitor.start_run('workflow', workflow.id or -1, input_text or '')
         
         try:
+            # AgentChat unavailable: attempt Core workflow first
+            if not NEW_AUTOGEN_AVAILABLE:
+                try:
+                    team = AgentTeam.get_by_id(workflow.team_id)
+                    from src.services.autogen_core_runtime import AutoGenCoreRuntimeOrchestrator as _Core
+                    core = _Core()
+                    monitor.log_event('status', 'orchestrator', {"message": "agentchat missing; attempt core runtime workflow"})
+                    core_res = await core.run_workflow(team, workflow.graph or {}, input_text, monitor)
+                    if core_res and core_res.get('success'):
+                        monitor.end_run('success', final_reply=core_res.get('reply') or '')
+                        core_res['run_id'] = run_id
+                        return core_res
+                    else:
+                        raise RuntimeError(core_res.get('error') or 'Core workflow failed')
+                except Exception as _core_err:
+                    tb = traceback.format_exc()
+                    logger.error(f"Core workflow failed and AgentChat not available: {_core_err}\n{tb}")
+                    monitor.end_run('error', error=str(_core_err))
+                    return {"success": False, "error": f"AgentChat not available and Core failed: {_core_err}", "trace": tb, "run_id": run_id}
+
             # Get the team for this workflow
             team = AgentTeam.get_by_id(workflow.team_id)
             if not team:
@@ -695,6 +751,29 @@ class AutoGenOrchestrator:
                 "edges_count": len(edges)
             })
             
+            # Always try Core runtime first for better performance
+            try:
+                team_cfg = team.config or {}
+                agents_cfg = team_cfg.get('agents', []) or []
+                has_any_tools = any((spec or {}).get('tools') for spec in agents_cfg)
+            except Exception:
+                has_any_tools = True
+
+            try:
+                from src.services.autogen_core_runtime import AutoGenCoreRuntimeOrchestrator as _Core
+                core = _Core()
+                monitor.log_event('status', 'orchestrator', {"message": "attempt core runtime workflow", "has_tools": has_any_tools})
+                core_res = await core.run_workflow(team, graph, input_text, monitor)
+                if core_res and core_res.get('success'):
+                    monitor.end_run('success', final_reply=core_res.get('reply') or '')
+                    core_res['run_id'] = run_id
+                    return core_res
+            except Exception as _core_err:
+                try:
+                    monitor.log_event('status', 'orchestrator', {"message": "core runtime fallback", "error": str(_core_err)})
+                except Exception:
+                    pass
+
             # Build agents for the team
             agents_with_wb, _ = await self._build_agents_team(team, monitor=monitor)
             
@@ -823,6 +902,223 @@ class AutoGenOrchestrator:
         except Exception as e:
             tb = traceback.format_exc()
             logger.error(f"Workflow run failed: {e}\n{tb}")
+            monitor.log_event('error', 'orchestrator', {"error": str(e), "trace": tb})
+            monitor.end_run('error', error=str(e))
+            return {"success": False, "error": str(e), "trace": tb, "run_id": run_id}
+
+    async def run_method(self, method: ExecutionMethod, task: str, context: Optional[List[Dict[str, str]]] = None) -> Dict[str, Any]:
+        """Run an execution method (design pattern). Initially supports 'reflection' using two agents.
+
+        Reflection pattern behavior:
+        - Use team referenced by method.team_id
+        - Identify two agents: a primary (coder/solver) and a reviewer (reflector). Heuristics:
+          prefer roles including 'executor'/'coder' for primary and 'reviewer'/'critic' for reviewer; otherwise first two agents.
+        - The primary produces an answer; the reviewer provides feedback; the primary revises and provides final answer with TERMINATE.
+        - Uses RoundRobinGroupChat with max_turns=3-4 and TextMentionTermination("TERMINATE").
+        """
+        if not method or not method.team_id:
+            return {"success": False, "error": "Execution method missing team reference"}
+
+        team = AgentTeam.get_by_id(method.team_id)
+        if not team:
+            return {"success": False, "error": "Team not found for method"}
+
+        mtype = (method.type or '').lower()
+        if mtype not in ExecutionMethodType.all():
+            return {"success": False, "error": f"Unsupported execution method type: {method.type}"}
+
+        monitor = RunMonitor()
+        run_id = monitor.start_run(f"method:{mtype}", method.id or -1, task or '')
+        try:
+            # AgentChat unavailable: attempt Core method directly
+            if not NEW_AUTOGEN_AVAILABLE:
+                try:
+                    from src.services.autogen_core_runtime import AutoGenCoreRuntime as _Core
+                    core = _Core()
+                    monitor.log_event('status', 'orchestrator', {"message": "agentchat missing; attempt core runtime method", "type": mtype})
+                    if mtype == ExecutionMethodType.REFLECTION:
+                        core_res = await core.run_reflection(team, method, task, monitor)
+                    elif mtype == ExecutionMethodType.SEQUENTIAL:
+                        core_res = await core.run_sequential(team, method, task, monitor)
+                    elif mtype == ExecutionMethodType.DEBATE:
+                        core_res = await core.run_debate(team, method, task, monitor)
+                    elif mtype == ExecutionMethodType.CONCURRENT:
+                        core_res = await core.run_concurrent(team, method, task, monitor)
+                    elif mtype == ExecutionMethodType.GROUP_CHAT:
+                        core_res = await core.run_group_chat(team, method, task, monitor)
+                    elif mtype == ExecutionMethodType.HANDOFF:
+                        core_res = await core.run_handoffs(team, method, task, monitor)
+                    elif mtype == ExecutionMethodType.MIXTURE:
+                        core_res = await core.run_mixture(team, method, task, monitor)
+                    elif mtype == ExecutionMethodType.CODE_EXEC_GROUPCHAT:
+                        core_res = await core.run_code_exec_groupchat(team, method, task, monitor)
+                    else:
+                        core_res = {"success": False, "error": f"Unsupported method type: {mtype}"}
+                    if core_res and core_res.get('success'):
+                        monitor.end_run('success', final_reply=core_res.get('reply') or '')
+                        core_res['run_id'] = run_id
+                        return core_res
+                    else:
+                        raise RuntimeError(core_res.get('error') or 'Core method failed')
+                except Exception as _core_err:
+                    tb = traceback.format_exc()
+                    logger.error(f"Core method failed and AgentChat not available: {_core_err}\n{tb}")
+                    monitor.end_run('error', error=str(_core_err))
+                    return {"success": False, "error": f"AgentChat not available and Core failed: {_core_err}", "trace": tb, "run_id": run_id}
+
+            # Always try Core runtime first for better performance  
+            try:
+                team_cfg = team.config or {}
+                agents_cfg = team_cfg.get('agents', []) or []
+                has_any_tools = any((spec or {}).get('tools') for spec in agents_cfg)
+            except Exception:
+                has_any_tools = True
+
+            try:
+                from src.services.autogen_core_runtime import AutoGenCoreRuntime as _Core
+                core = _Core()
+                if mtype == ExecutionMethodType.REFLECTION:
+                    monitor.log_event('status', 'orchestrator', {"message": "attempt core runtime reflection", "has_tools": has_any_tools})
+                    core_res = await core.run_reflection(team, method, task, monitor)
+                elif mtype == ExecutionMethodType.SEQUENTIAL:
+                    monitor.log_event('status', 'orchestrator', {"message": "attempt core runtime sequential", "has_tools": has_any_tools})
+                    core_res = await core.run_sequential(team, method, task, monitor)
+                elif mtype == ExecutionMethodType.DEBATE:
+                    monitor.log_event('status', 'orchestrator', {"message": "attempt core runtime debate", "has_tools": has_any_tools})
+                    core_res = await core.run_debate(team, method, task, monitor)
+                elif mtype == ExecutionMethodType.CONCURRENT:
+                    monitor.log_event('status', 'orchestrator', {"message": "attempt core runtime concurrent", "has_tools": has_any_tools})
+                    core_res = await core.run_concurrent(team, method, task, monitor)
+                elif mtype == ExecutionMethodType.GROUP_CHAT:
+                    monitor.log_event('status', 'orchestrator', {"message": "attempt core runtime group_chat", "has_tools": has_any_tools})
+                    core_res = await core.run_group_chat(team, method, task, monitor)
+                elif mtype == ExecutionMethodType.HANDOFF:
+                    monitor.log_event('status', 'orchestrator', {"message": "attempt core runtime handoffs", "has_tools": has_any_tools})
+                    core_res = await core.run_handoffs(team, method, task, monitor)
+                elif mtype == ExecutionMethodType.MIXTURE:
+                    monitor.log_event('status', 'orchestrator', {"message": "attempt core runtime mixture", "has_tools": has_any_tools})
+                    core_res = await core.run_mixture(team, method, task, monitor)
+                elif mtype == ExecutionMethodType.CODE_EXEC_GROUPCHAT:
+                    monitor.log_event('status', 'orchestrator', {"message": "attempt core runtime code_exec_groupchat", "has_tools": has_any_tools})
+                    core_res = await core.run_code_exec_groupchat(team, method, task, monitor)
+                else:
+                    core_res = {"success": False, "error": f"Unsupported method type: {mtype}"}
+                if core_res and core_res.get('success'):
+                    monitor.end_run('success', final_reply=core_res.get('reply') or '')
+                    core_res['run_id'] = run_id
+                    return core_res
+            except Exception as _core_err:
+                try:
+                    monitor.log_event('status', 'orchestrator', {"message": "core runtime fallback", "error": str(_core_err)})
+                except Exception:
+                    pass
+
+            # Build all agents from the team
+            agents_with_wb, _ = await self._build_agents_team(team, monitor=monitor)
+
+            # Map by role heuristics
+            team_cfg = team.config or {}
+            agents_cfg = team_cfg.get('agents', [])
+
+            def _role(a):
+                nm = getattr(a, 'name', '') or ''
+                # find spec by name to retrieve role field if any
+                role = ''
+                for spec in agents_cfg:
+                    if (spec.get('name') or '').strip() == nm:
+                        role = (spec.get('role') or '').lower()
+                        break
+                return role
+
+            # Select primary and reviewer
+            primary = None
+            reviewer = None
+            for a, wb in agents_with_wb:
+                role = _role(a)
+                if not primary and any(k in role for k in ('executor', 'coder', 'solver', 'writer')):
+                    primary = (a, wb)
+                elif not reviewer and any(k in role for k in ('review', 'critic', 'reviewer', 'qa', 'inspector')):
+                    reviewer = (a, wb)
+            # Fallback to first two agents
+            if not primary and agents_with_wb:
+                primary = agents_with_wb[0]
+            if not reviewer and len(agents_with_wb) > 1:
+                reviewer = agents_with_wb[1]
+
+            if not primary or not reviewer:
+                return {"success": False, "error": "Reflection pattern requires at least two agents in the team"}
+
+            # Adjust system prompts with reflection guidance
+            def _augment_prompt(agent, role_hint: str):
+                base = getattr(agent, 'system_message', '') or ''
+                guidance = ''
+                if role_hint == 'primary':
+                    guidance = (
+                        "\n\nYou are the primary solver. First produce a complete solution. "
+                        "Then consider reviewer feedback to improve your answer. "
+                        "When you are fully satisfied and the task is complete, end your final message with: TERMINATE"
+                    )
+                else:
+                    guidance = (
+                        "\n\nYou are the reviewer. Analyze the primary solution critically. "
+                        "Offer specific, actionable feedback and improvements. "
+                        "Do not terminate; leave the final decision to the primary."
+                    )
+                agent.system_message = base + guidance
+
+            _augment_prompt(primary[0], 'primary')
+            _augment_prompt(reviewer[0], 'reviewer')
+
+            # Lifecycle start for workbenches
+            async def run_reflection():
+                for _, wb in (primary, reviewer):
+                    await wb.__aenter__()
+                try:
+                    # GroupChat for back-and-forth up to N turns
+                    max_turns = int((method.config or {}).get('max_rounds') or 4)
+                    termination = TextMentionTermination("TERMINATE")
+                    team_obj = RoundRobinGroupChat([primary[0], reviewer[0]], max_turns=max_turns, termination_condition=termination)
+                    monitor.log_event('status', 'orchestrator', {"message": "reflection execution", "max_turns": max_turns, "agents": [getattr(primary[0],'name',None), getattr(reviewer[0],'name',None)]})
+                    result = await team_obj.run(task=task)
+                    return result
+                finally:
+                    for _, wb in (primary, reviewer):
+                        try:
+                            await wb.__aexit__(None, None, None)
+                        except Exception:
+                            pass
+
+            # If not reflection or Core failed, fallback to team execution with method-specific guidance
+            if mtype != ExecutionMethodType.REFLECTION:
+                augmented_task = task
+                if mtype == ExecutionMethodType.SEQUENTIAL:
+                    augmented_task = task + "\n\nSequential workflow: Process step by step through specialized agents. Final agent should end with TERMINATE."
+                elif mtype == ExecutionMethodType.DEBATE:
+                    augmented_task = task + "\n\nDebate format: Each agent presents short arguments. Conclude with a consensus and TERMINATE."
+                elif mtype == ExecutionMethodType.CONCURRENT:
+                    augmented_task = task + "\n\nWork concurrently on subparts; share findings succinctly; produce a final summary ending with TERMINATE."
+                elif mtype == ExecutionMethodType.GROUP_CHAT:
+                    augmented_task = task + "\n\nGroup chat format: Agents collaborate in discussion. Facilitator should summarize and end with TERMINATE."
+                elif mtype == ExecutionMethodType.HANDOFF:
+                    augmented_task = task + "\n\nPlanner should delegate tasks to appropriate agents. Receivers respond and pass back results. Final approver ends with TERMINATE."
+                elif mtype == ExecutionMethodType.MIXTURE:
+                    augmented_task = task + "\n\nOnly the most relevant specialist agent should respond each turn. Combine insights into a final result with TERMINATE."
+                elif mtype == ExecutionMethodType.CODE_EXEC_GROUPCHAT:
+                    augmented_task = task + "\n\nIf code is needed, present code blocks and reasoning clearly. Do NOT execute code; reason about the expected output. End with TERMINATE."
+                # Use multi-agent team execution
+                agents_with_wb_fb, team_obj_fb = await self._build_agents_team(team, monitor=monitor)
+                if team_obj_fb is None:
+                    result = await agents_with_wb_fb[0][0].run(task=augmented_task)
+                else:
+                    result = await team_obj_fb.run(task=augmented_task)
+            else:
+                result = await run_reflection()
+            final_text = self._extract_final_text(result)
+            monitor.end_run('success', final_reply=final_text)
+            return {"success": True, "reply": final_text, "run_id": run_id}
+        except Exception as e:
+            tb = traceback.format_exc()
+            logger.error(f"Method run failed: {e}\n{tb}")
             monitor.log_event('error', 'orchestrator', {"error": str(e), "trace": tb})
             monitor.end_run('error', error=str(e))
             return {"success": False, "error": str(e), "trace": tb, "run_id": run_id}
