@@ -54,6 +54,48 @@
       <div class="modal-body">
         <div class="mb-2"><label class="form-label">Name</label><input id="teamName" class="form-control"></div>
         <div class="mb-2"><label class="form-label">Description</label><textarea id="teamDesc" class="form-control" rows="2"></textarea></div>
+        
+        <!-- Execution Mode Selection -->
+        <div class="mb-2">
+          <label class="form-label">Execution Mode</label>
+          <select id="executionMode" class="form-select">
+            <option value="roundrobin">Round Robin Group Chat</option>
+            <option value="selector">Selector Group Chat</option>
+            <option value="swarm">Swarm</option>
+          </select>
+          <div class="form-text">Choose how agents interact: Round Robin (sequential), Selector (AI chooses next agent), or Swarm (intelligent handoff)</div>
+        </div>
+        
+        <!-- Selector-specific settings -->
+        <div id="selectorSettings" style="display: none;">
+          <div class="mb-2">
+            <label class="form-label">Selector Prompt</label>
+            <textarea id="selectorPrompt" class="form-control" rows="4" placeholder="Custom prompt for agent selection...">Select an agent to perform task.
+
+{roles}
+
+Current conversation context:
+{history}
+
+Read the above conversation, then select an agent from {participants} to perform the next task.
+When the task is complete, let the user approve or disapprove the task.</textarea>
+            <div class="form-text">Custom prompt template for agent selection. Use {roles}, {history}, and {participants} placeholders.</div>
+          </div>
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" id="allowRepeatedSpeaker" checked>
+            <label class="form-check-label" for="allowRepeatedSpeaker">
+              Allow Repeated Speaker
+            </label>
+            <div class="form-text">Allow the same agent to speak multiple times in a row</div>
+          </div>
+        </div>
+        
+        <div class="mb-2">
+          <label class="form-label">Max Rounds</label>
+          <input id="maxRounds" type="number" class="form-control" value="6" min="1" max="50">
+          <div class="form-text">Maximum number of conversation rounds</div>
+        </div>
+        
         <div class="mb-2">
           <label class="form-label">Agents</label>
           <div id="agentsBuilder" class="border rounded p-2 mb-2 bg-body-tertiary">
@@ -69,12 +111,31 @@
               <i class="fas fa-sync"></i> Sync from JSON
             </button>
           </div>
-          <textarea id="teamConfig" class="form-control" rows="10">{
+          <textarea id="teamConfig" class="form-control" rows="12">{
   "agents": [
-    {"name": "Planner", "role": "planner", "system_prompt": "Plan steps.", "tools": []},
-    {"name": "Executor", "role": "executor", "system_prompt": "Execute with tools.", "tools": []}
+    {
+      "name": "Planner", 
+      "role": "planner", 
+      "system_prompt": "Plan steps.", 
+      "description": "An agent for planning tasks and creating strategies.",
+      "agent_type": "worker",
+      "tools": []
+    },
+    {
+      "name": "Executor", 
+      "role": "executor", 
+      "system_prompt": "Execute with tools.", 
+      "description": "An agent for executing tasks using available tools.",
+      "agent_type": "worker",
+      "tools": []
+    }
   ],
-  "settings": {"max_rounds": 6}
+  "settings": {
+    "max_rounds": 6,
+    "execution_mode": "roundrobin",
+    "selector_prompt": "Select an agent to perform task.\n\n{roles}\n\nCurrent conversation context:\n{history}\n\nRead the above conversation, then select an agent from {participants} to perform the next task.\nWhen the task is complete, let the user approve or disapprove the task.",
+    "allow_repeated_speaker": true
+  }
 }</textarea></div>
       </div>
       <div class="modal-footer">

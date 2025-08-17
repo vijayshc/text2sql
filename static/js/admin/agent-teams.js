@@ -43,18 +43,88 @@ document.addEventListener('DOMContentLoaded', () => {
   btnNewTeam.addEventListener('click', ()=>{
     document.getElementById('teamName').value = '';
     document.getElementById('teamDesc').value = '';
+    document.getElementById('executionMode').value = 'roundrobin';
+    document.getElementById('maxRounds').value = '6';
+    document.getElementById('selectorPrompt').value = `Select an agent to perform task.
+
+{roles}
+
+Current conversation context:
+{history}
+
+Read the above conversation, then select an agent from {participants} to perform the next task.
+When the task is complete, let the user approve or disapprove the task.`;
+    document.getElementById('allowRepeatedSpeaker').checked = true;
+    toggleSelectorSettings();
     document.getElementById('teamConfig').value = JSON.stringify({
       agents: [],
-      settings: {max_rounds: 6}
+      settings: {
+        max_rounds: 6,
+        execution_mode: "roundrobin",
+        selector_prompt: "Select an agent to perform task.\n\n{roles}\n\nCurrent conversation context:\n{history}\n\nRead the above conversation, then select an agent from {participants} to perform the next task.\nWhen the task is complete, let the user approve or disapprove the task.",
+        allow_repeated_speaker: true
+      }
     }, null, 2);
     bootstrapAgentsBuilder([]);
     teamModal.show();
   });
 
+  // Toggle selector settings based on execution mode
+  function toggleSelectorSettings() {
+    const mode = document.getElementById('executionMode').value;
+    const selectorSettings = document.getElementById('selectorSettings');
+    selectorSettings.style.display = mode === 'selector' ? 'block' : 'none';
+  }
+
+  // Add event listener for execution mode change
+  document.getElementById('executionMode').addEventListener('change', ()=>{
+    toggleSelectorSettings();
+    syncSettingsToJson();
+    
+    // Refresh agent rows to show/hide agent type selector
+    const currentAgents = [];
+    Array.from(agentsList.children).forEach((row)=>{
+      const agent = {
+        name: row.querySelector('.agent-name').value.trim(),
+        role: row.querySelector('.agent-role').value.trim(),
+        system_prompt: row.querySelector('.agent-prompt').value.trim(),
+        description: row.querySelector('.agent-desc')?.value.trim() || '',
+        agent_type: row.querySelector('.agent-type')?.value || 'worker',
+        tools: row.agentData?.tools || []
+      };
+      currentAgents.push(agent);
+    });
+    
+    // Rebuild the agent rows with the new layout
+    bootstrapAgentsBuilder(currentAgents);
+  });
+
+  // Add event listeners for all setting inputs
+  document.getElementById('maxRounds').addEventListener('change', syncSettingsToJson);
+  document.getElementById('selectorPrompt').addEventListener('change', syncSettingsToJson);
+  document.getElementById('allowRepeatedSpeaker').addEventListener('change', syncSettingsToJson);
+
+  function syncSettingsToJson() {
+    const currentConfig = safeParseJson();
+    const settings = {
+      max_rounds: parseInt(document.getElementById('maxRounds').value) || 6,
+      execution_mode: document.getElementById('executionMode').value,
+      selector_prompt: document.getElementById('selectorPrompt').value,
+      allow_repeated_speaker: document.getElementById('allowRepeatedSpeaker').checked
+    };
+    
+    currentConfig.settings = settings;
+    document.getElementById('teamConfig').value = JSON.stringify(currentConfig, null, 2);
+  }
+
   document.getElementById('saveTeamBtn').addEventListener('click', ()=>{
     const name = document.getElementById('teamName').value.trim();
     const description = document.getElementById('teamDesc').value.trim();
+    
+    // Sync both agents and settings to JSON
     syncBuilderToJson();
+    syncSettingsToJson();
+    
     const configText = document.getElementById('teamConfig').value;
     let config = {};
     try { 
@@ -130,6 +200,22 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('teamDesc').value = t.description||'';
         document.getElementById('teamConfig').value = JSON.stringify(t.config||{}, null, 2);
         
+        // Load settings from config
+        const settings = (t.config && t.config.settings) || {};
+        document.getElementById('executionMode').value = settings.execution_mode || 'roundrobin';
+        document.getElementById('maxRounds').value = settings.max_rounds || 6;
+        document.getElementById('selectorPrompt').value = settings.selector_prompt || `Select an agent to perform task.
+
+{roles}
+
+Current conversation context:
+{history}
+
+Read the above conversation, then select an agent from {participants} to perform the next task.
+When the task is complete, let the user approve or disapprove the task.`;
+        document.getElementById('allowRepeatedSpeaker').checked = settings.allow_repeated_speaker !== false;
+        toggleSelectorSettings();
+        
         // Load agents after servers are loaded
         loadServersAndTools().then(() => {
           bootstrapAgentsBuilder((t.config&&t.config.agents)||[]);
@@ -140,8 +226,9 @@ document.addEventListener('DOMContentLoaded', () => {
           const name = document.getElementById('teamName').value.trim();
           const description = document.getElementById('teamDesc').value.trim();
           
-          // Always sync builder to JSON before parsing
+          // Always sync builder and settings to JSON before parsing
           syncBuilderToJson();
+          syncSettingsToJson();
           
           let config={}; 
           try {
@@ -370,21 +457,38 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('Adding agent row for:', agent);
     const idx = agentsList.children.length;
     const row = document.createElement('div'); row.className='border rounded p-2 mb-2';
+    
+    // Check execution mode to show/hide agent type selector
+    const executionMode = document.getElementById('executionMode').value;
+    const showAgentType = executionMode === 'selector';
+    
     row.innerHTML = `
       <div class="row g-2 align-items-end">
-        <div class="col-md-3">
+        <div class="col-md-2">
           <label class="form-label small">Name</label>
           <input class="form-control form-control-sm agent-name" value="${(agent?.name||'').replace(/"/g, '&quot;')}">
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
           <label class="form-label small">Role</label>
           <input class="form-control form-control-sm agent-role" value="${(agent?.role||'').replace(/"/g, '&quot;')}">
         </div>
-        <div class="col-md-4">
+        ${showAgentType ? `
+        <div class="col-md-2">
+          <label class="form-label small">Agent Type</label>
+          <select class="form-select form-select-sm agent-type">
+            <option value="worker" ${(agent?.agent_type||'worker')==='worker'?'selected':''}>Worker</option>
+            <option value="selector" ${(agent?.agent_type)==='selector'?'selected':''}>Selector</option>
+          </select>
+        </div>` : ''}
+        <div class="col-md-3">
+          <label class="form-label small">Description</label>
+          <input class="form-control form-control-sm agent-desc" value="${(agent?.description||'').replace(/"/g, '&quot;')}" placeholder="Brief description of agent role">
+        </div>
+        <div class="col-md-${showAgentType ? '2' : '3'}">
           <label class="form-label small">System Prompt</label>
           <input class="form-control form-control-sm agent-prompt" value="${(agent?.system_prompt||'').replace(/"/g, '&quot;')}">
         </div>
-        <div class="col-md-2 text-end">
+        <div class="col-md-1 text-end">
           <button class="btn btn-sm btn-outline-danger remove-agent">Remove</button>
         </div>
       </div>
@@ -461,11 +565,18 @@ document.addEventListener('DOMContentLoaded', () => {
       syncBuilderToJson();
     });
     
-    // Add event listeners for name, role, and prompt changes
-    ['agent-name', 'agent-role', 'agent-prompt'].forEach(className => {
+    // Add event listeners for name, role, description, agent type, and prompt changes
+    const inputClasses = ['agent-name', 'agent-role', 'agent-desc', 'agent-prompt'];
+    if (showAgentType) {
+      inputClasses.push('agent-type');
+    }
+    
+    inputClasses.forEach(className => {
       const input = row.querySelector(`.${className}`);
-      input.addEventListener('change', syncBuilderToJson);
-      input.addEventListener('blur', syncBuilderToJson);
+      if (input) {
+        input.addEventListener('change', syncBuilderToJson);
+        input.addEventListener('blur', syncBuilderToJson);
+      }
     });
   }
   function safeParseJson(){
@@ -483,6 +594,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const name = row.querySelector('.agent-name').value.trim();
       const role = row.querySelector('.agent-role').value.trim();
       const system_prompt = row.querySelector('.agent-prompt').value.trim();
+      const description = row.querySelector('.agent-desc')?.value.trim() || '';
+      const agent_type = row.querySelector('.agent-type')?.value || 'worker';
       
       // Use stored agent data for tools, fallback to parsing if needed
       let tools = [];
@@ -497,16 +610,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }).filter(Boolean);
       }
       
-      const agent = {name, role, system_prompt, tools};
+      const agent = {name, role, system_prompt, description, agent_type, tools};
       console.log(`Agent ${index}:`, agent);
       agents.push(agent);
     });
     
     console.log('All agents:', agents);
-    writeConfig({agents});
+    const currentConfig = safeParseJson();
+    currentConfig.agents = agents;
+    document.getElementById('teamConfig').value = JSON.stringify(currentConfig, null, 2);
   }
   if (addAgentBtn){
-    addAgentBtn.addEventListener('click', ()=> addAgentRow({name:'Agent', role:'', system_prompt:'', tools:[]}));
+    addAgentBtn.addEventListener('click', ()=> addAgentRow({
+      name:'Agent', 
+      role:'', 
+      system_prompt:'', 
+      description: 'An agent responsible for specific tasks.',
+      agent_type: 'worker',
+      tools:[]
+    }));
   }
   
   // Add event listener for "Sync from JSON" button
@@ -516,6 +638,23 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         const config = JSON.parse(document.getElementById('teamConfig').value || '{}');
         const agents = config.agents || [];
+        const settings = config.settings || {};
+        
+        // Update settings fields
+        document.getElementById('executionMode').value = settings.execution_mode || 'roundrobin';
+        document.getElementById('maxRounds').value = settings.max_rounds || 6;
+        document.getElementById('selectorPrompt').value = settings.selector_prompt || `Select an agent to perform task.
+
+{roles}
+
+Current conversation context:
+{history}
+
+Read the above conversation, then select an agent from {participants} to perform the next task.
+When the task is complete, let the user approve or disapprove the task.`;
+        document.getElementById('allowRepeatedSpeaker').checked = settings.allow_repeated_speaker !== false;
+        toggleSelectorSettings();
+        
         console.log('Syncing from JSON:', agents);
         bootstrapAgentsBuilder(agents);
       } catch (e) {

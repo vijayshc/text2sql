@@ -15,7 +15,7 @@ logger = logging.getLogger('text2sql.autogen')
 NEW_AUTOGEN_IMPORT_ERROR = None
 try:
     from autogen_agentchat.agents import AssistantAgent
-    from autogen_agentchat.teams import RoundRobinGroupChat
+    from autogen_agentchat.teams import RoundRobinGroupChat, SelectorGroupChat, Swarm
     from autogen_agentchat.conditions import TextMentionTermination, MaxMessageTermination
     from autogen_ext.models.openai import OpenAIChatCompletionClient
     from autogen_ext.tools.mcp import McpWorkbench, StdioServerParams, SseServerParams, StreamableHttpServerParams
@@ -330,6 +330,7 @@ class AutoGenOrchestrator:
         agents_cfg = team.config.get('agents', [])
         # Prefer fewer default turns to avoid post-answer empty loops; honor user setting when provided
         settings = team.config.get('settings', {}) or {}
+        execution_mode = settings.get('execution_mode', 'roundrobin')  # roundrobin or selector
         if 'max_rounds' in settings and settings.get('max_rounds') is not None:
             max_rounds = int(settings.get('max_rounds'))
         else:
@@ -364,6 +365,7 @@ class AutoGenOrchestrator:
                 workbench=wb,
                 model_client_stream=False,
                 reflect_on_tool_use=True,
+                description=spec.get('description', f"An agent responsible for {name.lower()} tasks."),
             )
             agents.append((agent, wb))
 
@@ -373,7 +375,12 @@ class AutoGenOrchestrator:
         # In autogen-agentchat>=0.7, pass max_turns to control rounds
         try:
             if monitor:
-                monitor.log_event('status', 'orchestrator', {"message": "groupchat configured", "max_turns": max_rounds, "agent_count": len(agents)})
+                monitor.log_event('status', 'orchestrator', {
+                    "message": "groupchat configured", 
+                    "max_turns": max_rounds, 
+                    "agent_count": len(agents),
+                    "execution_mode": execution_mode
+                })
         except Exception:
             pass
         
@@ -394,14 +401,47 @@ class AutoGenOrchestrator:
                 # Single agent without tools - use direct execution
                 return agents, None  # Signal to use direct agent execution
         else:
-            # Multi-agent - use RoundRobinGroupChat with termination condition  
+            # Multi-agent execution based on mode
             termination = TextMentionTermination("TERMINATE")
-            team_obj = RoundRobinGroupChat(
-                [a for a, _ in agents], 
-                max_turns=max_rounds,
-                termination_condition=termination
-            )
-            return agents, team_obj
+            
+            if execution_mode == 'selector':
+                # Use SelectorGroupChat with configurable selector prompt
+                selector_prompt = settings.get('selector_prompt', """Select an agent to perform task.
+
+{roles}
+
+Current conversation context:
+{history}
+
+Read the above conversation, then select an agent from {participants} to perform the next task.
+When the task is complete, let the user approve or disapprove the task.""")
+                
+                allow_repeated_speaker = settings.get('allow_repeated_speaker', True)
+                
+                team_obj = SelectorGroupChat(
+                    [a for a, _ in agents],
+                    model_client=self._build_model_client(),
+                    termination_condition=termination,
+                    selector_prompt=selector_prompt,
+                    allow_repeated_speaker=allow_repeated_speaker,
+                    max_turns=max_rounds,
+                )
+                return agents, team_obj
+            elif execution_mode == 'swarm':
+                # Use Swarm team with configurable participants
+                team_obj = Swarm(
+                    participants=[a for a, _ in agents],
+                    termination_condition=termination
+                )
+                return agents, team_obj
+            else:
+                # Default: RoundRobinGroupChat
+                team_obj = RoundRobinGroupChat(
+                    [a for a, _ in agents], 
+                    max_turns=max_rounds,
+                    termination_condition=termination
+                )
+                return agents, team_obj
 
     @staticmethod
     def _extract_final_text(result: Any) -> str:
@@ -412,7 +452,75 @@ class AutoGenOrchestrator:
             if not msgs or not isinstance(msgs, (list, tuple)):
                 return str(result)
             
-            # Collect all meaningful assistant responses
+            # Look for the last TextMessage from an agent (not user) and collect context
+            final_agent = None
+            tools_used = []
+            
+            # First pass: collect tool usage information
+            for m in msgs:
+                m_type = type(m).__name__
+                if m_type == 'ToolCallRequestEvent' and hasattr(m, 'content'):
+                    for tool_call in m.content:
+                        if hasattr(tool_call, 'name'):
+                            tool_name = tool_call.name
+                            # Clean up tool name (remove prefixes like 't_1_')
+                            clean_tool_name = tool_name
+                            if '_' in tool_name and tool_name.startswith('t_'):
+                                parts = tool_name.split('_', 2)
+                                if len(parts) >= 3:
+                                    clean_tool_name = parts[2]
+                            tools_used.append(clean_tool_name)
+            
+            # Second pass: find the final meaningful response
+            for m in reversed(msgs):
+                m_type = type(m).__name__
+                
+                # Focus on TextMessage types from agents
+                if m_type == 'TextMessage':
+                    content = getattr(m, 'content', None)
+                    src = getattr(m, 'source', '') or ''
+                    
+                    # Skip user messages
+                    if src.lower() == 'user':
+                        continue
+                    
+                    # Found an agent's text message
+                    if isinstance(content, str) and content.strip():
+                        text = content.strip()
+                        
+                        # Remove TERMINATE from the end if present
+                        if text.endswith('TERMINATE'):
+                            text = text[:-len('TERMINATE')].rstrip()
+                        
+                        # Return the cleaned text with context if it has meaningful content
+                        if text and text not in ('TERMINATE', ''):
+                            final_agent = src
+                            
+                            # Build response with context
+                            response_parts = []
+                            
+                            # Add tool context if tools were used
+                            if tools_used:
+                                unique_tools = list(set(tools_used))  # Remove duplicates
+                                if len(unique_tools) == 1:
+                                    response_parts.append(f"**Used Tool:** {unique_tools[0]}")
+                                else:
+                                    response_parts.append(f"**Used Tools:** {', '.join(unique_tools)}")
+                            
+                            # Add agent context if not generic
+                            if final_agent and final_agent not in ['Assistant', 'Agent', 'assistant', 'agent']:
+                                response_parts.append(f"**Agent:** {final_agent}")
+                            
+                            # Add separator line if we have context
+                            if response_parts:
+                                response_parts.append("")  # Empty line
+                            
+                            # Add the main content
+                            response_parts.append(text)
+                            
+                            return "\n".join(response_parts)
+            
+            # Fallback: collect all meaningful assistant responses
             meaningful_contents = []
             tool_results = []
             tool_call_info = []
@@ -453,9 +561,9 @@ class AutoGenOrchestrator:
                         if cleaned_content:  # Only add if there's actual content
                             meaningful_contents.append(cleaned_content)
             
-            # If we found meaningful responses, concatenate them
+            # If we found meaningful responses, return the last one
             if meaningful_contents:
-                return '\n\n'.join(meaningful_contents)
+                return meaningful_contents[-1]  # Return the last meaningful response
             
             # If no meaningful assistant response but we have tool results, create a helpful summary
             if tool_results:
@@ -615,12 +723,71 @@ class AutoGenOrchestrator:
                         msgs = getattr(result, 'messages', None)
                         if msgs and isinstance(msgs, (list, tuple)):
                             empty_chain = 0
+                            current_tool_name = None
+                            
                             for idx, m in enumerate(msgs):
                                 m_type = type(m).__name__
-                                src = (getattr(m, 'source', '') or '').lower()
+                                src = getattr(m, 'source', None)
+                                src_lower = (src or '').lower()
                                 mu = getattr(m, 'models_usage', None)
+                                
+                                # Extract tool information from ToolCallRequestEvent
+                                if m_type == 'ToolCallRequestEvent' and hasattr(m, 'content'):
+                                    for tool_call in m.content:
+                                        if hasattr(tool_call, 'name'):
+                                            tool_name = tool_call.name
+                                            # Clean up tool name (remove prefixes like 't_1_')
+                                            clean_tool_name = tool_name
+                                            if '_' in tool_name and tool_name.startswith('t_'):
+                                                parts = tool_name.split('_', 2)
+                                                if len(parts) >= 3:
+                                                    clean_tool_name = parts[2]
+                                            
+                                            current_tool_name = clean_tool_name
+                                            
+                                            # Log tool call event with agent and tool info
+                                            tool_args = getattr(tool_call, 'arguments', '{}')
+                                            monitor.log_event(
+                                                'tool_call', 
+                                                'mcp', 
+                                                {
+                                                    'tool_name': clean_tool_name,
+                                                    'original_name': tool_name,
+                                                    'arguments': tool_args,
+                                                    'index': idx
+                                                },
+                                                agent_name=src,
+                                                tool_name=clean_tool_name
+                                            )
+                                
+                                # Extract tool execution results
+                                elif m_type == 'ToolCallExecutionEvent' and hasattr(m, 'content'):
+                                    for tool_result in m.content:
+                                        if hasattr(tool_result, 'content') and tool_result.content:
+                                            result_tool_name = getattr(tool_result, 'name', current_tool_name or 'unknown')
+                                            # Clean up tool name
+                                            clean_result_name = result_tool_name
+                                            if '_' in result_tool_name and result_tool_name.startswith('t_'):
+                                                parts = result_tool_name.split('_', 2)
+                                                if len(parts) >= 3:
+                                                    clean_result_name = parts[2]
+                                            
+                                            # Log tool result event
+                                            monitor.log_event(
+                                                'tool_result', 
+                                                'mcp', 
+                                                {
+                                                    'tool_name': clean_result_name,
+                                                    'result_preview': str(tool_result.content)[:500],
+                                                    'is_error': getattr(tool_result, 'is_error', False),
+                                                    'index': idx
+                                                },
+                                                agent_name=src,
+                                                tool_name=clean_result_name
+                                            )
+                                
                                 # Treat model-originated messages as LLM calls when usage is present
-                                if src in ('assistant', 'agent', 'model') and mu is not None:
+                                elif src_lower in ('assistant', 'agent', 'model') and mu is not None:
                                     pt = getattr(mu, 'prompt_tokens', None)
                                     ct = getattr(mu, 'completion_tokens', None)
                                     content = getattr(m, 'content', None) or getattr(m, 'text', None) or ''
@@ -629,17 +796,40 @@ class AutoGenOrchestrator:
                                     payload = {
                                         'index': idx,
                                         'type': m_type,
-                                        'source': getattr(m, 'source', None),
+                                        'source': src,
                                         'prompt_tokens': pt,
                                         'completion_tokens': ct,
                                         'is_tool_request': bool(is_tool_req),
                                         'content_preview': (content[:300] + '…') if isinstance(content, str) and len(content) > 300 else content,
                                         'is_empty': True if (isinstance(content, str) and content.strip() == '') else False,
                                     }
-                                    monitor.log_event('llm_call', 'model', payload)
+                                    monitor.log_event('llm_call', 'model', payload, agent_name=src)
                                     # Track empty chains to identify unnecessary loops
                                     if isinstance(content, str) and content.strip() == '' and not is_tool_req and (ct == 0 or ct is None):
                                         empty_chain += 1
+                                
+                                # Log general TextMessage events from agents  
+                                elif m_type == 'TextMessage' and src and src_lower != 'user':
+                                    content = getattr(m, 'content', None) or ''
+                                    if isinstance(content, str) and content.strip():
+                                        # Don't log if it's just TERMINATE
+                                        clean_content = content.strip()
+                                        if clean_content not in ('TERMINATE', 'TERMINATE\n'):
+                                            if clean_content.endswith('TERMINATE'):
+                                                clean_content = clean_content[:-len('TERMINATE')].rstrip()
+                                            
+                                            if clean_content:  # Only log if there's meaningful content
+                                                monitor.log_event(
+                                                    'agent_response', 
+                                                    'agent', 
+                                                    {
+                                                        'content_preview': clean_content[:500] + ('...' if len(clean_content) > 500 else ''),
+                                                        'full_length': len(clean_content),
+                                                        'index': idx
+                                                    },
+                                                    agent_name=src
+                                                )
+                            
                             if empty_chain:
                                 monitor.log_event('llm_loop_summary', 'model', {'empty_llm_messages': empty_chain})
                     except Exception:

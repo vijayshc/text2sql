@@ -19,13 +19,20 @@ class AgentTeam:
               "name": str,
               "role": str,  # planner/executor/reviewer or freeform
               "system_prompt": str,
+              "description": str,  # Agent description for SelectorGroupChat
+              "agent_type": str,  # "worker" or "selector" (for SelectorGroupChat mode)
               "tools": [
                  {"server_id": int, "tool_name": str}
               ]
             }
           ],
           "controller": { },
-          "settings": { "max_rounds": int }
+          "settings": { 
+            "max_rounds": int,
+            "execution_mode": str,  # "roundrobin" or "selector"
+            "selector_prompt": str,  # Custom selector prompt for SelectorGroupChat
+            "allow_repeated_speaker": bool  # Allow same agent to speak multiple times in a row
+          }
         }
     - created_at TIMESTAMP
     - updated_at TIMESTAMP

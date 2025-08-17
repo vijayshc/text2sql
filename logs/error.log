@@ -1109,3 +1109,321 @@ Traceback (most recent call last):
 TypeError: 'NoneType' object is not subscriptable
 
 
+2025-08-18 00:15:24,785 - ERROR - [autogen_orchestrator.py:721] - Team run failed: RuntimeError: Reflect on tool use produced no valid text response.
+Traceback:
+Traceback (most recent call last):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_chat_agent_container.py", line 133, in handle_request
+    async for msg in self._agent.on_messages_stream(self._message_buffer, ctx.cancellation_token):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 989, in on_messages_stream
+    async for output_event in self._process_model_result(
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 1299, in _process_model_result
+    async for reflection_response in cls._reflect_on_tool_use_flow(
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 1454, in _reflect_on_tool_use_flow
+    raise RuntimeError("Reflect on tool use produced no valid text response.")
+
+RuntimeError: Reflect on tool use produced no valid text response.
+
+Traceback (most recent call last):
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 715, in run_team
+    result = await with_all_workbenches()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 642, in with_all_workbenches
+    result = await team_obj.run(task=task)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat.py", line 340, in run
+    async for message in self.run_stream(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat.py", line 554, in run_stream
+    raise RuntimeError(str(message.error))
+RuntimeError: RuntimeError: Reflect on tool use produced no valid text response.
+Traceback:
+Traceback (most recent call last):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_chat_agent_container.py", line 133, in handle_request
+    async for msg in self._agent.on_messages_stream(self._message_buffer, ctx.cancellation_token):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 989, in on_messages_stream
+    async for output_event in self._process_model_result(
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 1299, in _process_model_result
+    async for reflection_response in cls._reflect_on_tool_use_flow(
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 1454, in _reflect_on_tool_use_flow
+    raise RuntimeError("Reflect on tool use produced no valid text response.")
+
+RuntimeError: Reflect on tool use produced no valid text response.
+
+
+2025-08-18 00:38:33,483 - ERROR - [autogen_orchestrator.py:846] - Team run failed: RuntimeError: Reflect on tool use produced no valid text response.
+Traceback:
+Traceback (most recent call last):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_chat_agent_container.py", line 133, in handle_request
+    async for msg in self._agent.on_messages_stream(self._message_buffer, ctx.cancellation_token):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 989, in on_messages_stream
+    async for output_event in self._process_model_result(
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 1299, in _process_model_result
+    async for reflection_response in cls._reflect_on_tool_use_flow(
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 1454, in _reflect_on_tool_use_flow
+    raise RuntimeError("Reflect on tool use produced no valid text response.")
+
+RuntimeError: Reflect on tool use produced no valid text response.
+
+Traceback (most recent call last):
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 840, in run_team
+    result = await with_all_workbenches()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 685, in with_all_workbenches
+    result = await team_obj.run(task=task)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat.py", line 340, in run
+    async for message in self.run_stream(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat.py", line 554, in run_stream
+    raise RuntimeError(str(message.error))
+RuntimeError: RuntimeError: Reflect on tool use produced no valid text response.
+Traceback:
+Traceback (most recent call last):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_chat_agent_container.py", line 133, in handle_request
+    async for msg in self._agent.on_messages_stream(self._message_buffer, ctx.cancellation_token):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 989, in on_messages_stream
+    async for output_event in self._process_model_result(
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 1299, in _process_model_result
+    async for reflection_response in cls._reflect_on_tool_use_flow(
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 1454, in _reflect_on_tool_use_flow
+    raise RuntimeError("Reflect on tool use produced no valid text response.")
+
+RuntimeError: Reflect on tool use produced no valid text response.
+
+
+2025-08-18 00:39:35,661 - ERROR - [autogen_orchestrator.py:846] - Team run failed: RuntimeError: Reflect on tool use produced no valid text response.
+Traceback:
+Traceback (most recent call last):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_chat_agent_container.py", line 133, in handle_request
+    async for msg in self._agent.on_messages_stream(self._message_buffer, ctx.cancellation_token):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 989, in on_messages_stream
+    async for output_event in self._process_model_result(
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 1299, in _process_model_result
+    async for reflection_response in cls._reflect_on_tool_use_flow(
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 1454, in _reflect_on_tool_use_flow
+    raise RuntimeError("Reflect on tool use produced no valid text response.")
+
+RuntimeError: Reflect on tool use produced no valid text response.
+
+Traceback (most recent call last):
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 840, in run_team
+    result = await with_all_workbenches()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 685, in with_all_workbenches
+    result = await team_obj.run(task=task)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat.py", line 340, in run
+    async for message in self.run_stream(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat.py", line 554, in run_stream
+    raise RuntimeError(str(message.error))
+RuntimeError: RuntimeError: Reflect on tool use produced no valid text response.
+Traceback:
+Traceback (most recent call last):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_chat_agent_container.py", line 133, in handle_request
+    async for msg in self._agent.on_messages_stream(self._message_buffer, ctx.cancellation_token):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 989, in on_messages_stream
+    async for output_event in self._process_model_result(
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 1299, in _process_model_result
+    async for reflection_response in cls._reflect_on_tool_use_flow(
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 1454, in _reflect_on_tool_use_flow
+    raise RuntimeError("Reflect on tool use produced no valid text response.")
+
+RuntimeError: Reflect on tool use produced no valid text response.
+
+
+2025-08-18 00:39:58,779 - ERROR - [autogen_orchestrator.py:846] - Team run failed: 
+Traceback (most recent call last):
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 840, in run_team
+    result = await with_all_workbenches()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 685, in with_all_workbenches
+    result = await team_obj.run(task=task)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat.py", line 340, in run
+    async for message in self.run_stream(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat.py", line 534, in run_stream
+    await self._runtime.send_message(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_single_threaded_agent_runtime.py", line 385, in send_message
+    return await future
+           ^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_single_threaded_agent_runtime.py", line 508, in _process_send
+    response = await recipient_agent.on_message(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_base_agent.py", line 119, in on_message
+    return await self.on_message_impl(message, ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_sequential_routed_agent.py", line 67, in on_message_impl
+    return await super().on_message_impl(message, ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_routed_agent.py", line 485, in on_message_impl
+    return await h(self, message, ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_routed_agent.py", line 389, in wrapper
+    return_value = await func(self, message, ctx)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat_manager.py", line 132, in handle_start
+    await self._transition_to_next_speakers(ctx.cancellation_token)
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat_manager.py", line 176, in _transition_to_next_speakers
+    speaker_names = await speaker_names_future
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_selector_group_chat.py", line 212, in select_speaker
+    agent_name = await self._select_speaker(roles, participants, self._max_selector_attempts)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_selector_group_chat.py", line 270, in _select_speaker
+    assert isinstance(response.content, str)
+AssertionError
+
+2025-08-18 00:41:10,923 - ERROR - [autogen_orchestrator.py:846] - Team run failed: BadRequestError: Error code: 400 - {'error': {'message': 'Failed to parse tool call arguments as JSON', 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '{"cmd":["top -bn1 | grep \'Cpu(s)\'", "timeout": 10000}'}}
+Traceback:
+Traceback (most recent call last):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat_manager.py", line 164, in handle_agent_response
+    await self._transition_to_next_speakers(ctx.cancellation_token)
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat_manager.py", line 176, in _transition_to_next_speakers
+    speaker_names = await speaker_names_future
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_selector_group_chat.py", line 212, in select_speaker
+    agent_name = await self._select_speaker(roles, participants, self._max_selector_attempts)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_selector_group_chat.py", line 269, in _select_speaker
+    response = await self._model_client.create(messages=select_speaker_messages)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 691, in create
+    result: Union[ParsedChatCompletion[BaseModel], ChatCompletion] = await future
+                                                                     ^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/openai/resources/chat/completions/completions.py", line 2589, in create
+    return await self._post(
+           ^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/openai/_base_client.py", line 1794, in post
+    return await self.request(cast_to, opts, stream=stream, stream_cls=stream_cls)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/openai/_base_client.py", line 1594, in request
+    raise self._make_status_error_from_response(err.response) from None
+
+openai.BadRequestError: Error code: 400 - {'error': {'message': 'Failed to parse tool call arguments as JSON', 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '{"cmd":["top -bn1 | grep \'Cpu(s)\'", "timeout": 10000}'}}
+
+Traceback (most recent call last):
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 840, in run_team
+    result = await with_all_workbenches()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 685, in with_all_workbenches
+    result = await team_obj.run(task=task)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat.py", line 340, in run
+    async for message in self.run_stream(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat.py", line 554, in run_stream
+    raise RuntimeError(str(message.error))
+RuntimeError: BadRequestError: Error code: 400 - {'error': {'message': 'Failed to parse tool call arguments as JSON', 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '{"cmd":["top -bn1 | grep \'Cpu(s)\'", "timeout": 10000}'}}
+Traceback:
+Traceback (most recent call last):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat_manager.py", line 164, in handle_agent_response
+    await self._transition_to_next_speakers(ctx.cancellation_token)
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat_manager.py", line 176, in _transition_to_next_speakers
+    speaker_names = await speaker_names_future
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_selector_group_chat.py", line 212, in select_speaker
+    agent_name = await self._select_speaker(roles, participants, self._max_selector_attempts)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_selector_group_chat.py", line 269, in _select_speaker
+    response = await self._model_client.create(messages=select_speaker_messages)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 691, in create
+    result: Union[ParsedChatCompletion[BaseModel], ChatCompletion] = await future
+                                                                     ^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/openai/resources/chat/completions/completions.py", line 2589, in create
+    return await self._post(
+           ^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/openai/_base_client.py", line 1794, in post
+    return await self.request(cast_to, opts, stream=stream, stream_cls=stream_cls)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/openai/_base_client.py", line 1594, in request
+    raise self._make_status_error_from_response(err.response) from None
+
+openai.BadRequestError: Error code: 400 - {'error': {'message': 'Failed to parse tool call arguments as JSON', 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '{"cmd":["top -bn1 | grep \'Cpu(s)\'", "timeout": 10000}'}}
+
+
+2025-08-18 00:54:14,316 - ERROR - [autogen_orchestrator.py:853] - Team run failed: RuntimeError: Reflect on tool use produced no valid text response.
+Traceback:
+Traceback (most recent call last):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_chat_agent_container.py", line 133, in handle_request
+    async for msg in self._agent.on_messages_stream(self._message_buffer, ctx.cancellation_token):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 989, in on_messages_stream
+    async for output_event in self._process_model_result(
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 1299, in _process_model_result
+    async for reflection_response in cls._reflect_on_tool_use_flow(
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 1454, in _reflect_on_tool_use_flow
+    raise RuntimeError("Reflect on tool use produced no valid text response.")
+
+RuntimeError: Reflect on tool use produced no valid text response.
+
+Traceback (most recent call last):
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 847, in run_team
+    result = await with_all_workbenches()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 692, in with_all_workbenches
+    result = await team_obj.run(task=task)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat.py", line 340, in run
+    async for message in self.run_stream(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat.py", line 554, in run_stream
+    raise RuntimeError(str(message.error))
+RuntimeError: RuntimeError: Reflect on tool use produced no valid text response.
+Traceback:
+Traceback (most recent call last):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_chat_agent_container.py", line 133, in handle_request
+    async for msg in self._agent.on_messages_stream(self._message_buffer, ctx.cancellation_token):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 989, in on_messages_stream
+    async for output_event in self._process_model_result(
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 1299, in _process_model_result
+    async for reflection_response in cls._reflect_on_tool_use_flow(
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 1454, in _reflect_on_tool_use_flow
+    raise RuntimeError("Reflect on tool use produced no valid text response.")
+
+RuntimeError: Reflect on tool use produced no valid text response.
+
+
