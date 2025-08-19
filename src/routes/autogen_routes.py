@@ -22,9 +22,24 @@ autogen_bp = Blueprint('autogen', __name__)
 def teams():
     if request.method == 'POST':
         data = request.get_json() or {}
-        team = AgentTeam(name=data.get('name'), description=data.get('description'), config=data.get('config') or {})
-        team.save()
-        return jsonify({'success': True, 'team': {'id': team.id, 'name': team.name}})
+        team_id = data.get('id')
+        
+        if team_id:
+            # This is an update request with ID - redirect to PUT logic
+            team = AgentTeam.get_by_id(team_id)
+            if not team:
+                return jsonify({'error': 'Team not found'}), 404
+            team.name = data.get('name', team.name)
+            team.description = data.get('description', team.description)
+            if 'config' in data:
+                team.config = data['config']
+            team.save()
+            return jsonify({'success': True, 'team': {'id': team.id, 'name': team.name}})
+        else:
+            # This is a new team creation
+            team = AgentTeam(name=data.get('name'), description=data.get('description'), config=data.get('config') or {})
+            team.save()
+            return jsonify({'success': True, 'team': {'id': team.id, 'name': team.name}})
     else:
         AgentTeam.create_table()
         teams = AgentTeam.get_all()
@@ -138,7 +153,27 @@ def run_workflow(wf_id):
     asyncio.set_event_loop(loop)
     result = loop.run_until_complete(orch.run_workflow(wf, task, context))
     loop.close()
-    return jsonify(result)
+    
+    # Ensure result is JSON serializable
+    try:
+        # Create a clean result that's guaranteed to be JSON serializable
+        clean_result = {
+            "success": result.get("success", False),
+            "reply": result.get("reply", ""),
+            "run_id": result.get("run_id"),
+            "error": result.get("error"),
+            "trace": result.get("trace")
+        }
+        # Remove None values
+        clean_result = {k: v for k, v in clean_result.items() if v is not None}
+        return jsonify(clean_result)
+    except Exception as e:
+        logger.error(f"JSON serialization error: {e}")
+        return jsonify({
+            "success": False,
+            "error": "Result serialization failed",
+            "trace": str(e)
+        })
 
 @autogen_bp.route('/api/agent/autogen/chat', methods=['POST'])
 @login_required

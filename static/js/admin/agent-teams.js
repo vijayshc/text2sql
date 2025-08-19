@@ -45,15 +45,21 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('teamDesc').value = '';
     document.getElementById('executionMode').value = 'roundrobin';
     document.getElementById('maxRounds').value = '6';
-    document.getElementById('selectorPrompt').value = `Select an agent to perform task.
+    document.getElementById('selectorPrompt').value = `AGENT SELECTOR
 
+Available agents:
 {roles}
 
-Current conversation context:
+Task history:
 {history}
 
-Read the above conversation, then select an agent from {participants} to perform the next task.
-When the task is complete, let the user approve or disapprove the task.`;
+INSTRUCTIONS:
+1. Read the task history above
+2. Select EXACTLY ONE agent from: {participants}
+3. Respond with ONLY the agent name - no explanation, no tools, no extra text
+4. Valid responses are only the agent names listed in the participants
+
+Selected agent:`;
     document.getElementById('allowRepeatedSpeaker').checked = true;
     toggleSelectorSettings();
     document.getElementById('teamConfig').value = JSON.stringify({
@@ -61,11 +67,44 @@ When the task is complete, let the user approve or disapprove the task.`;
       settings: {
         max_rounds: 6,
         execution_mode: "roundrobin",
-        selector_prompt: "Select an agent to perform task.\n\n{roles}\n\nCurrent conversation context:\n{history}\n\nRead the above conversation, then select an agent from {participants} to perform the next task.\nWhen the task is complete, let the user approve or disapprove the task.",
+        selector_prompt: "AGENT SELECTOR\n\nAvailable agents:\n{roles}\n\nCurrent conversation:\n{history}\n\nINSTRUCTIONS:\n- Read the conversation above\n- Select EXACTLY ONE agent name from {participants}\n- Respond with ONLY the agent name, nothing else\n- Do not explain, do not use tools, do not add commentary\n- Just return the agent name\n\nSelect agent:",
         allow_repeated_speaker: true
       }
     }, null, 2);
     bootstrapAgentsBuilder([]);
+    
+    // Reset save button to create mode
+    document.getElementById('saveTeamBtn').onclick = ()=>{
+      const name = document.getElementById('teamName').value.trim();
+      const description = document.getElementById('teamDesc').value.trim();
+      
+      // Sync both agents and settings to JSON
+      syncBuilderToJson();
+      syncSettingsToJson();
+      
+      const configText = document.getElementById('teamConfig').value;
+      let config = {};
+      try { 
+        config = JSON.parse(configText); 
+      } catch(e) { 
+        alert('Invalid JSON config. Please fix the JSON or use the visual builder.'); 
+        return; 
+      }
+      fetch('/api/agent/teams', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name, description, config})})
+        .then(r=>r.json())
+        .then(result => {
+          if (result.error) {
+            alert('Error creating team: ' + result.error);
+          } else {
+            teamModal.hide(); 
+            refresh();
+          }
+        })
+        .catch(err => {
+          alert('Network error: ' + err.message);
+        });
+    };
+    
     teamModal.show();
   });
 
@@ -117,7 +156,8 @@ When the task is complete, let the user approve or disapprove the task.`;
     document.getElementById('teamConfig').value = JSON.stringify(currentConfig, null, 2);
   }
 
-  document.getElementById('saveTeamBtn').addEventListener('click', ()=>{
+  // Set up save button for creating new teams (this will be overridden when editing)
+  document.getElementById('saveTeamBtn').onclick = ()=>{
     const name = document.getElementById('teamName').value.trim();
     const description = document.getElementById('teamDesc').value.trim();
     
@@ -146,13 +186,31 @@ When the task is complete, let the user approve or disapprove the task.`;
       .catch(err => {
         alert('Network error: ' + err.message);
       });
-  });
+  };
 
   btnNewWorkflow.addEventListener('click', ()=>{
     currentWorkflowId = null; // Reset to create mode
     document.getElementById('wfName').value = '';
     document.getElementById('wfDesc').value = '';
-    document.getElementById('wfGraph').value = '{"nodes":[],"edges":[]}';
+    document.getElementById('wfGraph').value = JSON.stringify({
+      "nodes": [],
+      "edges": [],
+      "config": {
+        "entry_point": "",
+        "termination": {
+          "type": "max_message",
+          "max_messages": 20
+        }
+      }
+    }, null, 2);
+    
+    // Reset GraphFlow config UI
+    document.getElementById('entryPointAgent').value = '';
+    document.getElementById('terminationType').value = 'max_message';
+    document.getElementById('maxMessages').value = '20';
+    document.getElementById('terminationText').value = 'TERMINATE';
+    toggleTerminationConfig();
+    
     // populate team list
     fetch('/api/agent/teams').then(r=>r.json()).then(d=>{
       const sel = document.getElementById('wfTeam');
@@ -162,6 +220,11 @@ When the task is complete, let the user approve or disapprove the task.`;
         opt.value = t.id; opt.textContent = `${t.name}`; sel.appendChild(opt);
       });
       workflowModal.show();
+      
+      // Populate agent lists when team is selected
+      if (d.teams && d.teams.length > 0) {
+        populateAgentLists(d.teams[0].config);
+      }
     })
   });
 
@@ -171,19 +234,82 @@ When the task is complete, let the user approve or disapprove the task.`;
   document.getElementById('saveWorkflowBtn').addEventListener('click', ()=>{
     const name = document.getElementById('wfName').value.trim();
     const description = document.getElementById('wfDesc').value.trim();
+    if(!name) {alert('Name required'); return;}
     const team_id = parseInt(document.getElementById('wfTeam').value, 10);
+    
+    // Always sync GraphFlow configuration before saving in case user made UI changes
+    syncGraphFlowConfig();
+    
     const graphText = document.getElementById('wfGraph').value;
     let graph = {};
-    try { graph = JSON.parse(graphText); } catch(e) { alert('Invalid Graph JSON'); return; }
+    try { 
+      graph = JSON.parse(graphText); 
+      console.log('Saving workflow with graph:', graph);
+    } catch(e) { 
+      alert('Invalid Graph JSON: ' + e.message + '\n\nPlease fix the JSON syntax or use the visual builder.'); 
+      return; 
+    }
     
     if (currentWorkflowId) {
       // Update existing workflow
       fetch(`/api/agent/workflows/${currentWorkflowId}`, {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name, description, team_id, graph})})
-        .then(r=>r.json()).then(()=>{ workflowModal.hide(); refresh(); currentWorkflowId = null; });
+        .then(r=>r.json()).then((result) => { 
+          if (result.error) {
+            alert('Error updating workflow: ' + result.error);
+          } else {
+            workflowModal.hide(); 
+            refresh(); 
+            currentWorkflowId = null; 
+          }
+        })
+        .catch(err => {
+          alert('Network error: ' + err.message);
+        });
     } else {
       // Create new workflow
       fetch('/api/agent/workflows', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name, description, team_id, graph})})
-        .then(r=>r.json()).then(()=>{ workflowModal.hide(); refresh(); });
+        .then(r=>r.json()).then((result) => { 
+          if (result.error) {
+            alert('Error creating workflow: ' + result.error);
+          } else {
+            workflowModal.hide(); 
+            refresh(); 
+          }
+        })
+        .catch(err => {
+          alert('Network error: ' + err.message);
+        });
+    }
+  });
+
+  // GraphFlow event listeners
+  document.getElementById('terminationType')?.addEventListener('change', toggleTerminationConfig);
+  document.getElementById('maxMessages')?.addEventListener('change', syncGraphFlowConfig);
+  document.getElementById('terminationText')?.addEventListener('change', syncGraphFlowConfig);
+  document.getElementById('entryPointAgent')?.addEventListener('change', syncGraphFlowConfig);
+  document.getElementById('enableMessageFilter')?.addEventListener('change', toggleMessageFilter);
+  document.getElementById('addFilterBtn')?.addEventListener('click', addMessageFilter);
+  document.getElementById('addEdgeBtn')?.addEventListener('click', addGraphEdge);
+  
+  // Add change listener for direct JSON editing
+  document.getElementById('wfGraph')?.addEventListener('input', function() {
+    // Add visual indicator that JSON has been modified
+    const btn = document.getElementById('syncFromGraphJsonBtn');
+    if (btn) {
+      btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> JSON Modified';
+      btn.className = 'btn btn-sm btn-warning';
+    }
+  });
+  
+  document.getElementById('wfTeam')?.addEventListener('change', (e) => {
+    const teamId = e.target.value;
+    if (teamId) {
+      fetch(`/api/agent/teams/${teamId}`)
+        .then(r => r.json())
+        .then(team => {
+          populateAgentLists(team.config);
+        })
+        .catch(err => console.error('Failed to load team:', err));
     }
   });
 
@@ -204,15 +330,22 @@ When the task is complete, let the user approve or disapprove the task.`;
         const settings = (t.config && t.config.settings) || {};
         document.getElementById('executionMode').value = settings.execution_mode || 'roundrobin';
         document.getElementById('maxRounds').value = settings.max_rounds || 6;
-        document.getElementById('selectorPrompt').value = settings.selector_prompt || `Select an agent to perform task.
+        document.getElementById('selectorPrompt').value = settings.selector_prompt || `AGENT SELECTOR
 
+Available agents:
 {roles}
 
-Current conversation context:
+Current conversation:
 {history}
 
-Read the above conversation, then select an agent from {participants} to perform the next task.
-When the task is complete, let the user approve or disapprove the task.`;
+INSTRUCTIONS:
+- Read the conversation above
+- Select EXACTLY ONE agent name from {participants}
+- Respond with ONLY the agent name, nothing else
+- Do not explain, do not use tools, do not add commentary
+- Just return the agent name
+
+Select agent:`;
         document.getElementById('allowRepeatedSpeaker').checked = settings.allow_repeated_speaker !== false;
         toggleSelectorSettings();
         
@@ -269,13 +402,29 @@ When the task is complete, let the user approve or disapprove the task.`;
         document.getElementById('wfName').value = w.name;
         document.getElementById('wfDesc').value = w.description||'';
         document.getElementById('wfGraph').value = JSON.stringify(w.graph||{}, null, 2);
+        
+        // Load GraphFlow configuration first
+        loadGraphFlowConfig(w.graph || {});
+        
         fetch('/api/agent/teams').then(r=>r.json()).then(d=>{
           const sel = document.getElementById('wfTeam'); sel.innerHTML='';
           (d.teams||[]).forEach(t=>{
             const opt = document.createElement('option'); opt.value=t.id; opt.textContent=t.name; if(t.id===w.team_id) opt.selected=true; sel.appendChild(opt);
           });
+          
+          // Populate agent lists for the selected team
+          const selectedTeam = d.teams.find(t => t.id === w.team_id);
+          if (selectedTeam) {
+            populateAgentLists(selectedTeam.config);
+          }
+          
+          // Load the workflow graph into the builder UI
+          loadWorkflowIntoBuilder(w.graph || {});
+          
+          // Refresh visualization
+          refreshWorkflowVisualization();
+          
           workflowModal.show();
-          // No need for onclick handler anymore - the main event listener handles it
         })
       })
     }
@@ -311,31 +460,36 @@ When the task is complete, let the user approve or disapprove the task.`;
   const addNodeBtn = document.getElementById('addNodeBtn');
   const nodeName = document.getElementById('nodeName');
   const nodeAgent = document.getElementById('nodeAgent');
-  const nodePrev = document.getElementById('nodePrev');
-  const nodeNext = document.getElementById('nodeNext');
   const saveNodeBtn = document.getElementById('saveNodeBtn');
   const removeNodeBtn = document.getElementById('removeNodeBtn');
 
   function parseGraph(){ try{ return JSON.parse(document.getElementById('wfGraph').value||'{}'); }catch{ return {nodes:[], edges:[]}; } }
-  function writeGraph(g){ document.getElementById('wfGraph').value = JSON.stringify(g, null, 2); }
+  function writeGraph(g){ 
+    document.getElementById('wfGraph').value = JSON.stringify(g, null, 2); 
+    console.log('Updated workflow JSON:', g);
+    // Auto-refresh visualization when graph changes
+    refreshWorkflowVisualization();
+  }
   function refreshNodeSelectors(g){
+    // Use the populateNodeSelectors function for consistency
+    populateNodeSelectors(g);
+    
     // populate agent list from selected team
-    nodeAgent.innerHTML='';
-    try{
-      const teamId = parseInt(document.getElementById('wfTeam').value,10);
-      fetch(`/api/agent/teams/${teamId}`).then(r=>r.json()).then(t=>{
-        (t.config?.agents||[]).forEach(a=>{
-          const opt=document.createElement('option'); opt.value=a.name; opt.textContent=a.name; nodeAgent.appendChild(opt);
-        })
-      })
-    }catch{}
-    // nodes
-    nodePrev.innerHTML=''; nodeNext.innerHTML='';
-    const none=document.createElement('option'); none.value=''; none.textContent='None'; nodePrev.appendChild(none.cloneNode(true)); nodeNext.appendChild(none.cloneNode(true));
-    (g.nodes||[]).forEach(n=>{
-      const opt1=document.createElement('option'); opt1.value=n.id; opt1.textContent=n.name; nodePrev.appendChild(opt1);
-      const opt2=document.createElement('option'); opt2.value=n.id; opt2.textContent=n.name; nodeNext.appendChild(opt2);
-    })
+    const nodeAgentDropdown = document.getElementById('nodeAgent');
+    if (nodeAgentDropdown) {
+      nodeAgentDropdown.innerHTML='<option value="">Select Agent</option>';
+      try{
+        const teamId = parseInt(document.getElementById('wfTeam').value,10);
+        if (teamId) {
+          fetch(`/api/agent/teams/${teamId}`).then(r=>r.json()).then(t=>{
+            populateAgentLists(t.config);
+            console.log('Refreshed agent list for team:', teamId);
+          }).catch(err => console.error('Failed to load team agents:', err));
+        }
+      }catch(error){
+        console.error('Error refreshing node selectors:', error);
+      }
+    }
   }
   function refreshNodesList(g){
     nodesList.innerHTML='';
@@ -351,19 +505,76 @@ When the task is complete, let the user approve or disapprove the task.`;
     if(!n){ 
       nodeName.value=''; 
       nodeAgent.value=''; 
-      nodePrev.value=''; 
-      nodeNext.value=''; 
+      document.getElementById('enableMessageFilter').checked = false;
+      toggleMessageFilter();
       return; 
     }
     
-    nodeName.value = n.name || ''; 
-    nodeAgent.value = n.agent || '';
+    console.log('Selecting node:', n);
     
-    // find predecessors/successors via edges
-    const preds=(g.edges||[]).filter(e=>String(e.to)===String(id)).map(e=>String(e.from));
-    const succs=(g.edges||[]).filter(e=>String(e.from)===String(id)).map(e=>String(e.to));
-    nodePrev.value=preds[0]||''; 
-    nodeNext.value=succs[0]||'';
+    nodeName.value = n.name || ''; 
+    
+    // Ensure agent dropdown is populated before setting value
+    const nodeAgentDropdown = document.getElementById('nodeAgent');
+    if (nodeAgentDropdown) {
+      // If the dropdown is empty, try to populate it first
+      if (nodeAgentDropdown.options.length <= 1) {
+        console.log('Agent dropdown empty, trying to populate...');
+        try {
+          const teamId = parseInt(document.getElementById('wfTeam').value, 10);
+          if (teamId) {
+            fetch(`/api/agent/teams/${teamId}`)
+              .then(r => r.json())
+              .then(team => {
+                populateAgentLists(team.config);
+                // Set the agent value after population
+                nodeAgentDropdown.value = n.agent || '';
+                console.log('Set agent after population:', n.agent);
+              })
+              .catch(err => {
+                console.error('Failed to load team for agent population:', err);
+                nodeAgentDropdown.value = n.agent || '';
+              });
+          } else {
+            nodeAgentDropdown.value = n.agent || '';
+          }
+        } catch (error) {
+          console.error('Error populating agents:', error);
+          nodeAgentDropdown.value = n.agent || '';
+        }
+      } else {
+        // Dropdown is already populated, set value directly
+        nodeAgentDropdown.value = n.agent || '';
+        console.log('Set agent value directly:', n.agent);
+      }
+    }
+    
+    // Handle message filtering
+    const hasMessageFilter = n.message_filter && n.message_filter.enabled;
+    document.getElementById('enableMessageFilter').checked = hasMessageFilter;
+    toggleMessageFilter();
+    
+    if (hasMessageFilter) {
+      console.log('Loading message filters for node:', n.message_filter);
+      updateFiltersDisplay(n);
+    }
+  }
+  
+  function toggleMessageFilter() {
+    const enabled = document.getElementById('enableMessageFilter').checked;
+    document.getElementById('messageFilterConfig').style.display = enabled ? 'block' : 'none';
+    
+    if (!enabled) {
+      const nodeId = document.getElementById('nodesList').value;
+      if (nodeId) {
+        const graph = parseGraph();
+        const node = graph.nodes.find(n => String(n.id) === String(nodeId));
+        if (node && node.message_filter) {
+          node.message_filter.enabled = false;
+          writeGraph(graph);
+        }
+      }
+    }
   }
   nodesList?.addEventListener('change', ()=>{
     const g=parseGraph(); refreshNodeSelectors(g); selectNode(g, nodesList.value);
@@ -375,7 +586,7 @@ When the task is complete, let the user approve or disapprove the task.`;
   })
   saveNodeBtn?.addEventListener('click', ()=>{
     const g=parseGraph(); 
-    const id = nodesList.value; 
+    const id = nodesList?.value; 
     if(!id) {
       alert('Please select a node to save');
       return;
@@ -402,10 +613,8 @@ When the task is complete, let the user approve or disapprove the task.`;
     n.name = newName;
     n.agent = newAgent;
     
-    // rebuild edges to reflect prev/next single selections
-    g.edges=(g.edges||[]).filter(e=>String(e.from)!==String(id) && String(e.to)!==String(id));
-    if(nodePrev.value) g.edges.push({from: Number(nodePrev.value), to: Number(id)});
-    if(nodeNext.value) g.edges.push({from: Number(id), to: Number(nodeNext.value)});
+    // Note: Edges are managed separately in Edge Configuration section
+    // No automatic edge creation based on predecessor/successor
     
     writeGraph(g); 
     refreshNodesList(g); 
@@ -417,14 +626,329 @@ When the task is complete, let the user approve or disapprove the task.`;
     alert(`Node "${newName}" saved successfully!`);
   })
   removeNodeBtn?.addEventListener('click', ()=>{
-    const g=parseGraph(); const id=nodesList.value; if(!id) return;
+    const g=parseGraph(); const id=nodesList?.value; if(!id) return;
     g.nodes=(g.nodes||[]).filter(x=>String(x.id)!==String(id));
     g.edges=(g.edges||[]).filter(e=>String(e.from)!==String(id) && String(e.to)!==String(id));
     writeGraph(g); refreshNodesList(g); refreshNodeSelectors(g);
-    nodeName.value=''; nodeAgent.value=''; nodePrev.value=''; nodeNext.value='';
+    nodeName.value=''; nodeAgent.value='';
   })
 
-  // --- Agents Builder ---
+  // --- GraphFlow Configuration Functions ---
+  
+  function toggleTerminationConfig() {
+    const type = document.getElementById('terminationType').value;
+    document.getElementById('maxMessagesConfig').style.display = type === 'max_message' ? 'block' : 'none';
+    document.getElementById('textMentionConfig').style.display = type === 'text_mention' ? 'block' : 'none';
+  }
+  
+  function populateAgentLists(teamConfig) {
+    const agents = (teamConfig && teamConfig.agents) || [];
+    const agentSelects = [
+      document.getElementById('nodeAgent'),
+      document.getElementById('entryPointAgent'),
+      document.getElementById('filterSource')
+    ];
+    
+    agentSelects.forEach(select => {
+      if (select) {
+        const currentValue = select.value;
+        select.innerHTML = select.id === 'entryPointAgent' ? '<option value="">Auto-detect (source nodes)</option>' : '<option value="">Select Agent</option>';
+        agents.forEach(agent => {
+          const opt = document.createElement('option');
+          opt.value = agent.name;
+          opt.textContent = agent.name;
+          if (agent.name === currentValue) opt.selected = true;
+          select.appendChild(opt);
+        });
+      }
+    });
+  }
+  
+  function populateNodeSelectors(graph) {
+    const nodes = graph.nodes || [];
+    const selectors = [
+      document.getElementById('edgeFrom'),
+      document.getElementById('edgeTo')
+    ];
+    
+    selectors.forEach(select => {
+      if (select) {
+        const currentValue = select.value;
+        select.innerHTML = '<option value="">Select Node</option>';
+        nodes.forEach(node => {
+          const opt = document.createElement('option');
+          opt.value = node.id;
+          opt.textContent = `${node.name || 'Node'} (${node.id})`;
+          if (String(node.id) === String(currentValue)) opt.selected = true;
+          select.appendChild(opt);
+        });
+      }
+    });
+  }
+  
+  function syncGraphFlowConfig() {
+    try {
+      const graph = parseGraph();
+      
+      // Update termination config
+      const terminationType = document.getElementById('terminationType').value;
+      const config = graph.config || {};
+      config.termination = config.termination || {};
+      config.termination.type = terminationType;
+      
+      if (terminationType === 'max_message') {
+        config.termination.max_messages = parseInt(document.getElementById('maxMessages').value) || 20;
+      } else if (terminationType === 'text_mention') {
+        config.termination.text = document.getElementById('terminationText').value || 'TERMINATE';
+      }
+      
+      // Update entry point
+      const entryPoint = document.getElementById('entryPointAgent').value;
+      config.entry_point = entryPoint || '';
+      
+      graph.config = config;
+      writeGraph(graph);
+      
+      // Auto-refresh visualization when config changes
+      refreshWorkflowVisualization();
+    } catch (e) {
+      console.error('Error syncing GraphFlow config:', e);
+    }
+  }
+  
+  function loadGraphFlowConfig(graph) {
+    try {
+      const config = graph.config || {};
+      const termination = config.termination || {};
+      
+      document.getElementById('entryPointAgent').value = config.entry_point || '';
+      document.getElementById('terminationType').value = termination.type || 'max_message';
+      document.getElementById('maxMessages').value = termination.max_messages || 20;
+      document.getElementById('terminationText').value = termination.text || 'TERMINATE';
+      
+      toggleTerminationConfig();
+    } catch (e) {
+      console.error('Error loading GraphFlow config:', e);
+    }
+  }
+
+  function loadWorkflowIntoBuilder(graph) {
+    try {
+      const nodes = graph.nodes || [];
+      const edges = graph.edges || [];
+      
+      console.log('Loading workflow into builder:', { nodes, edges });
+      
+      // Populate node lists and selectors first
+      refreshNodesList(graph);
+      refreshNodeSelectors(graph);
+      
+      // If there are nodes, select the first one to show its properties
+      if (nodes.length > 0) {
+        const firstNode = nodes[0];
+        const nodesList = document.getElementById('nodesList');
+        if (nodesList) {
+          nodesList.value = String(firstNode.id);
+          
+          // Ensure agents are loaded before selecting node
+          setTimeout(() => {
+            selectNode(graph, firstNode.id);
+            console.log('Selected first node after delay:', firstNode);
+          }, 100);
+        }
+      }
+      
+      // Load edges information (shown in JSON, could add edge list UI later)
+      console.log('Loaded edges:', edges);
+      
+      // Update the visualization
+      refreshWorkflowVisualization();
+      
+    } catch (e) {
+      console.error('Error loading workflow into builder:', e);
+    }
+  }
+  
+  function addMessageFilter() {
+    const source = document.getElementById('filterSource').value;
+    const position = document.getElementById('filterPosition').value;
+    const count = parseInt(document.getElementById('filterCount').value) || 1;
+    
+    if (!source) {
+      alert('Please select a source agent');
+      return;
+    }
+    
+    const nodeId = document.getElementById('nodesList').value;
+    if (!nodeId) {
+      alert('Please select a node first');
+      return;
+    }
+    
+    const graph = parseGraph();
+    const node = graph.nodes.find(n => String(n.id) === String(nodeId));
+    if (!node) return;
+    
+    // Initialize message filter
+    if (!node.message_filter) {
+      node.message_filter = { enabled: true, filters: [] };
+    }
+    
+    // Add filter rule
+    node.message_filter.filters.push({
+      source: source,
+      position: position,
+      count: count
+    });
+    
+    writeGraph(graph);
+    updateFiltersDisplay(node);
+    
+    // Clear inputs
+    document.getElementById('filterSource').value = '';
+    document.getElementById('filterPosition').value = 'last';
+    document.getElementById('filterCount').value = '1';
+  }
+  
+  function updateFiltersDisplay(node) {
+    const filtersList = document.getElementById('filtersList');
+    const filters = (node.message_filter && node.message_filter.filters) || [];
+    
+    filtersList.innerHTML = '';
+    filters.forEach((filter, index) => {
+      const div = document.createElement('div');
+      div.className = 'small bg-light p-1 rounded mb-1 d-flex justify-content-between align-items-center';
+      div.innerHTML = `
+        <span>${filter.source} (${filter.position}, ${filter.count})</span>
+        <button class="btn btn-sm btn-outline-danger" onclick="removeMessageFilter(${index})">×</button>
+      `;
+      filtersList.appendChild(div);
+    });
+  }
+  
+  function removeMessageFilter(index) {
+    const nodeId = document.getElementById('nodesList').value;
+    if (!nodeId) return;
+    
+    const graph = parseGraph();
+    const node = graph.nodes.find(n => String(n.id) === String(nodeId));
+    if (!node || !node.message_filter) return;
+    
+    node.message_filter.filters.splice(index, 1);
+    if (node.message_filter.filters.length === 0) {
+      node.message_filter.enabled = false;
+    }
+    
+    writeGraph(graph);
+    updateFiltersDisplay(node);
+  }
+  
+  function addGraphEdge() {
+    const fromId = document.getElementById('edgeFrom').value;
+    const toId = document.getElementById('edgeTo').value;
+    
+    if (!fromId || !toId) {
+      alert('Please select both from and to nodes');
+      return;
+    }
+    
+    if (fromId === toId) {
+      alert('From and to nodes cannot be the same');
+      return;
+    }
+    
+    const graph = parseGraph();
+    
+    // Check if edge already exists
+    const existingEdge = graph.edges.find(e => 
+      String(e.from) === String(fromId) && String(e.to) === String(toId)
+    );
+    
+    if (existingEdge) {
+      alert('Edge already exists');
+      return;
+    }
+    
+    const edge = {
+      from: parseInt(fromId),
+      to: parseInt(toId)
+    };
+    
+    // Add optional configurations
+    const conditionType = document.getElementById('conditionType').value;
+    const conditionText = document.getElementById('conditionText').value;
+    const activationGroup = document.getElementById('activationGroup').value;
+    const activationCondition = document.getElementById('activationCondition').value;
+    
+    if (conditionType && conditionText) {
+      edge.condition = {
+        type: conditionType,
+        text: conditionText
+      };
+    }
+    
+    if (activationGroup) {
+      edge.activation_group = activationGroup;
+      if (activationCondition !== 'all') {
+        edge.activation_condition = activationCondition;
+      }
+    }
+    
+    graph.edges.push(edge);
+    writeGraph(graph);
+    
+    // Clear inputs
+    document.getElementById('edgeFrom').value = '';
+    document.getElementById('edgeTo').value = '';
+    document.getElementById('conditionType').value = '';
+    document.getElementById('conditionText').value = '';
+    document.getElementById('activationGroup').value = '';
+    document.getElementById('activationCondition').value = 'all';
+    
+    alert('Edge added successfully');
+  }
+
+  // --- Workflow Builder ---
+
+  // Add event listener for "Sync from JSON" button in workflow editor
+  document.addEventListener('click', (e) => {
+    if (e.target && e.target.id === 'syncFromGraphJsonBtn') {
+      try {
+        const graphJson = document.getElementById('wfGraph').value;
+        const graph = JSON.parse(graphJson);
+        
+        console.log('Syncing workflow from JSON:', graph);
+        
+        // Update the GraphFlow configuration UI
+        loadGraphFlowConfig(graph);
+        
+        // Load the graph into the builder
+        loadWorkflowIntoBuilder(graph);
+        
+        // Refresh visualization
+        refreshWorkflowVisualization();
+        
+        // Show success message
+        const btn = e.target.closest('button');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i> Synced!';
+        btn.className = 'btn btn-sm btn-success';
+        
+        setTimeout(() => {
+          btn.innerHTML = originalText;
+          btn.className = 'btn btn-sm btn-outline-secondary';
+        }, 2000);
+        
+      } catch (error) {
+        alert('Invalid JSON format. Please fix the JSON syntax and try again.');
+        console.error('JSON sync error:', error);
+      }
+    }
+  });
+
+  // Global function for removing message filters (called from HTML)
+  window.removeMessageFilter = removeMessageFilter;
+
   let serversCache = [];
   function loadServersAndTools(){
     return fetch('/api/agent/mcp/servers-with-tools').then(r=>r.json()).then(d=>{
@@ -456,7 +980,7 @@ When the task is complete, let the user approve or disapprove the task.`;
   function addAgentRow(agent){
     console.log('Adding agent row for:', agent);
     const idx = agentsList.children.length;
-    const row = document.createElement('div'); row.className='border rounded p-2 mb-2';
+    const row = document.createElement('div'); row.className='border rounded p-2 mb-2 agent-row';
     
     // Check execution mode to show/hide agent type selector
     const executionMode = document.getElementById('executionMode').value;
@@ -533,7 +1057,63 @@ When the task is complete, let the user approve or disapprove the task.`;
     const assignedSpan = row.querySelector('.assigned-tools');
     const assigned = (agent?.tools||[]);
     console.log('Assigned tools for agent:', assigned);
-    assignedSpan.textContent = assigned.map(x=>`#${x.server_id}:${x.tool_name}`).join(', ');
+    
+    // Store tools in row data
+    if (!row.agentData) row.agentData = {tools: []};
+    row.agentData.tools = [...assigned];
+    
+    // Function to update the assigned tools display with remove buttons
+    function updateAssignedToolsDisplay() {
+      if (row.agentData.tools.length === 0) {
+        assignedSpan.innerHTML = '<em>No tools assigned</em>';
+        return;
+      }
+      
+      const toolElements = row.agentData.tools.map((tool, index) => {
+        return `<span class="badge bg-secondary me-1">
+          #${tool.server_id}:${tool.tool_name}
+          <button type="button" class="btn-close btn-close-white ms-1" 
+                  onclick="removeAssignedTool(this, ${index})" 
+                  style="font-size: 0.6em;" aria-label="Remove tool"></button>
+        </span>`;
+      });
+      
+      assignedSpan.innerHTML = toolElements.join('');
+    }
+    
+    // Function to remove a tool (will be attached to window for onclick)
+    window.removeAssignedTool = function(button, toolIndex) {
+      // Find the row containing this button
+      const row = button.closest('.agent-row');
+      if (!row || !row.agentData || !row.agentData.tools) return;
+      
+      // Remove the tool at the specified index
+      row.agentData.tools.splice(toolIndex, 1);
+      
+      // Find the updateAssignedToolsDisplay function for this row
+      const assignedSpan = row.querySelector('.assigned-tools');
+      
+      // Update display by recreating the tool badges
+      if (row.agentData.tools.length === 0) {
+        assignedSpan.innerHTML = '<em>No tools assigned</em>';
+      } else {
+        const toolElements = row.agentData.tools.map((tool, index) => {
+          return `<span class="badge bg-secondary me-1">
+            #${tool.server_id}:${tool.tool_name}
+            <button type="button" class="btn-close btn-close-white ms-1" 
+                    onclick="removeAssignedTool(this, ${index})" 
+                    style="font-size: 0.6em;" aria-label="Remove tool"></button>
+          </span>`;
+        });
+        assignedSpan.innerHTML = toolElements.join('');
+      }
+      
+      // Sync to JSON
+      syncBuilderToJson();
+    };
+    
+    // Initial display update
+    updateAssignedToolsDisplay();
     
     row.querySelector('.add-tools').addEventListener('click', ()=>{
       const sid = parseInt(serverSelect.value,10); if(!sid) return;
@@ -553,8 +1133,8 @@ When the task is complete, let the user approve or disapprove the task.`;
         }
       });
       
-      // Update display
-      assignedSpan.textContent = row.agentData.tools.map(x=>`#${x.server_id}:${x.tool_name}`).join(', ');
+      // Update display using the new function
+      updateAssignedToolsDisplay();
       
       // Sync to JSON
       syncBuilderToJson();
@@ -643,15 +1223,22 @@ When the task is complete, let the user approve or disapprove the task.`;
         // Update settings fields
         document.getElementById('executionMode').value = settings.execution_mode || 'roundrobin';
         document.getElementById('maxRounds').value = settings.max_rounds || 6;
-        document.getElementById('selectorPrompt').value = settings.selector_prompt || `Select an agent to perform task.
+        document.getElementById('selectorPrompt').value = settings.selector_prompt || `AGENT SELECTOR
 
+Available agents:
 {roles}
 
-Current conversation context:
+Current conversation:
 {history}
 
-Read the above conversation, then select an agent from {participants} to perform the next task.
-When the task is complete, let the user approve or disapprove the task.`;
+INSTRUCTIONS:
+- Read the conversation above
+- Select EXACTLY ONE agent name from {participants}
+- Respond with ONLY the agent name, nothing else
+- Do not explain, do not use tools, do not add commentary
+- Just return the agent name
+
+Select agent:`;
         document.getElementById('allowRepeatedSpeaker').checked = settings.allow_repeated_speaker !== false;
         toggleSelectorSettings();
         
@@ -664,3 +1251,288 @@ When the task is complete, let the user approve or disapprove the task.`;
     });
   }
 });
+
+// Workflow Visualization with Mermaid.js
+function refreshWorkflowVisualization() {
+  const vizContainer = document.getElementById('workflowVisualization');
+  const mermaidContainer = document.getElementById('mermaidContainer');
+  const placeholder = document.getElementById('vizPlaceholder');
+  
+  if (!vizContainer || !mermaidContainer || !placeholder) return;
+  
+  // Check if Mermaid is available
+  if (typeof mermaid === 'undefined') {
+    showVisualizationError(mermaidContainer, 'Mermaid.js library not loaded. Please refresh the page.');
+    return;
+  }
+  
+  try {
+    const graph = JSON.parse(document.getElementById('wfGraph').value || '{}');
+    const nodes = graph.nodes || [];
+    const edges = graph.edges || [];
+    const config = graph.config || {};
+    
+    if (nodes.length === 0) {
+      placeholder.style.display = 'block';
+      mermaidContainer.style.display = 'none';
+      placeholder.innerHTML = `
+        <div class="text-center text-muted">
+          <i class="fas fa-project-diagram fa-3x mb-2"></i>
+          <p>No nodes defined. Add nodes to see workflow visualization.</p>
+        </div>
+      `;
+      return;
+    }
+    
+    // Generate Mermaid diagram syntax
+    const mermaidSyntax = generateMermaidSyntax(nodes, edges, config);
+    console.log('Generated Mermaid syntax:', mermaidSyntax);
+    
+    // Clear and prepare container
+    mermaidContainer.innerHTML = '';
+    placeholder.style.display = 'none';
+    mermaidContainer.style.display = 'block';
+    
+    // Create unique ID for this diagram
+    const diagramId = 'workflow-diagram-' + Date.now();
+    mermaidContainer.innerHTML = `<div id="${diagramId}" class="mermaid">${mermaidSyntax}</div>`;
+    
+    // Initialize Mermaid with custom config if not already done
+    try {
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: 'default',
+        flowchart: {
+          curve: 'basis',
+          nodeSpacing: 50,
+          rankSpacing: 50,
+          padding: 20,
+          useMaxWidth: true,
+          htmlLabels: true
+        },
+        themeVariables: {
+          primaryColor: '#e3f2fd',
+          primaryTextColor: '#1976d2',
+          primaryBorderColor: '#1976d2',
+          lineColor: '#666',
+          secondaryColor: '#fff3e0',
+          tertiaryColor: '#f3e5f5'
+        }
+      });
+    } catch (initError) {
+      console.log('Mermaid already initialized, continuing...');
+    }
+    
+    // Render the diagram
+    const diagramElement = document.getElementById(diagramId);
+    mermaid.run({
+      nodes: [diagramElement]
+    }).then(() => {
+      console.log('Mermaid diagram rendered successfully');
+      
+      // Add configuration legend
+      addMermaidLegend(vizContainer, config, nodes.length, edges.length);
+      
+      // Add click handlers for interactivity
+      addDiagramInteractivity(diagramId);
+      
+    }).catch((error) => {
+      console.error('Mermaid rendering error:', error);
+      showVisualizationError(mermaidContainer, 'Diagram rendering failed: ' + error.message);
+    });
+    
+  } catch (error) {
+    console.error('Visualization error:', error);
+    showVisualizationError(mermaidContainer, error.message);
+  }
+}
+
+function generateMermaidSyntax(nodes, edges, config) {
+  let syntax = 'graph TD\n';
+  
+  // Add nodes with styling
+  nodes.forEach(node => {
+    const nodeId = `N${node.id}`;
+    const nodeName = (node.name || node.agent || 'Node').replace(/["\n]/g, '');
+    const isEntryPoint = config.entry_point === node.agent;
+    const hasMessageFilter = node.message_filter && node.message_filter.enabled;
+    
+    // Choose node shape and styling based on type
+    let nodeDefinition;
+    if (isEntryPoint) {
+      nodeDefinition = `${nodeId}["🚀 ${nodeName}"]:::entryPoint`;
+    } else if (hasMessageFilter) {
+      nodeDefinition = `${nodeId}["🔍 ${nodeName}"]:::messageFilter`;
+    } else {
+      nodeDefinition = `${nodeId}["🤖 ${nodeName}"]:::regularNode`;
+    }
+    
+    syntax += `    ${nodeDefinition}\n`;
+  });
+  
+  syntax += '\n';
+  
+  // Add edges with conditions and styling
+  edges.forEach((edge, index) => {
+    const fromId = `N${edge.from}`;
+    const toId = `N${edge.to}`;
+    
+    let edgeDefinition = `    ${fromId}`;
+    let linkText = '';
+    let edgeClass = 'normalFlow';
+    
+    // Add condition text if present
+    if (edge.condition) {
+      if (typeof edge.condition === 'string') {
+        linkText = edge.condition.substring(0, 15) + (edge.condition.length > 15 ? '...' : '');
+      } else if (edge.condition.text) {
+        linkText = edge.condition.text.substring(0, 15) + (edge.condition.text.length > 15 ? '...' : '');
+      }
+      edgeClass = 'conditionalFlow';
+    }
+    
+    // Add activation group info
+    if (edge.activation_group && !linkText) {
+      linkText = `Group: ${edge.activation_group}`;
+      edgeClass = 'activationGroup';
+    } else if (edge.activation_group && linkText) {
+      linkText += ` (${edge.activation_group})`;
+    }
+    
+    // Choose arrow style and add link text
+    if (linkText) {
+      edgeDefinition += ` -->|"${linkText}"| ${toId}`;
+    } else {
+      edgeDefinition += ` --> ${toId}`;
+    }
+    
+    syntax += `${edgeDefinition}\n`;
+    
+    // Add edge styling
+    syntax += `    linkStyle ${index} stroke:${edgeClass === 'conditionalFlow' ? '#dc3545' : edgeClass === 'activationGroup' ? '#fd7e14' : '#6c757d'},stroke-width:2px${edgeClass === 'conditionalFlow' ? ',stroke-dasharray: 5 5' : ''}\n`;
+  });
+  
+  syntax += '\n';
+  
+  // Add CSS styling
+  syntax += `    classDef entryPoint fill:#d4edda,stroke:#155724,stroke-width:3px,color:#155724
+    classDef messageFilter fill:#fff3cd,stroke:#856404,stroke-width:2px,color:#856404
+    classDef regularNode fill:#e9ecef,stroke:#6c757d,stroke-width:2px,color:#495057
+    classDef conditionalFlow stroke:#dc3545,stroke-width:2px,stroke-dasharray: 5 5
+    classDef activationGroup stroke:#fd7e14,stroke-width:2px`;
+  
+  return syntax;
+}
+
+function addMermaidLegend(container, config, nodeCount, edgeCount) {
+  // Remove existing legend
+  const existingLegend = container.querySelector('.mermaid-legend');
+  if (existingLegend) {
+    existingLegend.remove();
+  }
+  
+  const legend = document.createElement('div');
+  legend.className = 'mermaid-legend mt-3 p-3 border rounded bg-light';
+  legend.innerHTML = `
+    <div class="row g-3 small">
+      <div class="col-md-3">
+        <strong><i class="fas fa-info-circle"></i> Elements:</strong>
+        <div class="mt-1">
+          <div><span class="badge bg-success me-1">🚀</span> Entry Point</div>
+          <div><span class="badge bg-warning me-1">🔍</span> Message Filter</div>
+          <div><span class="badge bg-secondary me-1">🤖</span> Regular Node</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <strong><i class="fas fa-share-alt"></i> Flows:</strong>
+        <div class="mt-1">
+          <div><span style="color: #6c757d;">━━</span> Direct Flow</div>
+          <div><span style="color: #dc3545;">┅┅</span> Conditional</div>
+          <div><span style="color: #fd7e14;">━━</span> Activation Group</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <strong><i class="fas fa-cog"></i> Configuration:</strong>
+        <div class="mt-1">
+          <div><strong>Entry:</strong> ${config.entry_point || 'Auto-detect'}</div>
+          <div><strong>Termination:</strong> ${config.termination?.type || 'max_message'}</div>
+          <div><strong>Max Messages:</strong> ${config.termination?.max_messages || 20}</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <strong><i class="fas fa-chart-bar"></i> Statistics:</strong>
+        <div class="mt-1">
+          <div><strong>Nodes:</strong> ${nodeCount}</div>
+          <div><strong>Edges:</strong> ${edgeCount}</div>
+          <div><strong>Complexity:</strong> ${getComplexityLevel(nodeCount, edgeCount)}</div>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  container.appendChild(legend);
+}
+
+function addDiagramInteractivity(diagramId) {
+  // Add click handlers for nodes (future enhancement)
+  const diagramElement = document.getElementById(diagramId);
+  if (diagramElement) {
+    // Add zoom and pan capabilities
+    diagramElement.style.cursor = 'move';
+    diagramElement.title = 'Workflow Diagram - Drag to pan, scroll to zoom';
+  }
+}
+
+function showVisualizationError(container, errorMessage) {
+  const placeholder = document.getElementById('vizPlaceholder');
+  if (placeholder) {
+    placeholder.style.display = 'block';
+    placeholder.innerHTML = `
+      <div class="text-center text-danger">
+        <i class="fas fa-exclamation-triangle fa-3x mb-2"></i>
+        <p><strong>Visualization Error</strong></p>
+        <p class="small">${errorMessage}</p>
+        <p class="small text-muted">Please check your workflow configuration and try again.</p>
+      </div>
+    `;
+  }
+  container.style.display = 'none';
+}
+
+function getComplexityLevel(nodeCount, edgeCount) {
+  const ratio = edgeCount / Math.max(nodeCount, 1);
+  if (nodeCount <= 2) return 'Simple';
+  if (nodeCount <= 5 && ratio <= 1.5) return 'Medium';
+  if (nodeCount <= 10 && ratio <= 2) return 'Complex';
+  return 'Advanced';
+}
+
+function exportWorkflowDiagram() {
+  try {
+    const mermaidContainer = document.getElementById('mermaidContainer');
+    const svgElement = mermaidContainer.querySelector('svg');
+    
+    if (!svgElement) {
+      alert('No diagram to export. Please refresh the visualization first.');
+      return;
+    }
+    
+    // Get SVG data
+    const svgData = new XMLSerializer().serializeToString(svgElement);
+    const svgBlob = new Blob([svgData], {type: 'image/svg+xml;charset=utf-8'});
+    
+    // Create download link
+    const downloadLink = document.createElement('a');
+    downloadLink.href = URL.createObjectURL(svgBlob);
+    downloadLink.download = `workflow-diagram-${new Date().toISOString().slice(0,10)}.svg`;
+    downloadLink.click();
+    
+    // Cleanup
+    URL.revokeObjectURL(downloadLink.href);
+    
+    console.log('Workflow diagram exported successfully');
+  } catch (error) {
+    console.error('Export error:', error);
+    alert('Failed to export diagram. Please try again.');
+  }
+}

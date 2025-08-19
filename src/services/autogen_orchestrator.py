@@ -2,6 +2,7 @@ import logging
 import os
 import traceback
 from typing import List, Dict, Any, Optional, TYPE_CHECKING
+from dataclasses import dataclass
 
 from src.models.agent_team import AgentTeam
 from src.models.agent_workflow import AgentWorkflow
@@ -20,6 +21,8 @@ try:
     from autogen_ext.models.openai import OpenAIChatCompletionClient
     from autogen_ext.tools.mcp import McpWorkbench, StdioServerParams, SseServerParams, StreamableHttpServerParams
     from autogen_core.models import ModelInfo
+    # Import AutoGen logging components
+    from autogen_core import EVENT_LOGGER_NAME, TRACE_LOGGER_NAME
     NEW_AUTOGEN_AVAILABLE = True
 except Exception as e:
     NEW_AUTOGEN_IMPORT_ERROR = traceback.format_exc()
@@ -40,6 +43,96 @@ except Exception as e:
 if TYPE_CHECKING:
     # Only for type hints; avoids import errors at runtime
     from autogen_ext.tools.mcp import McpWorkbench as _McpWorkbench
+
+class AutoGenEventHandler(logging.Handler):
+    """Custom logging handler to capture AutoGen runtime events and forward them to RunMonitor."""
+    
+    def __init__(self, monitor: Optional[RunMonitor] = None):
+        super().__init__()
+        self.monitor = monitor
+        self.setLevel(logging.INFO)
+    
+    def emit(self, record: logging.LogRecord) -> None:
+        """Capture and forward AutoGen events to our monitoring system."""
+        try:
+            if not self.monitor:
+                return
+            
+            # Extract structured event data
+            event_data = {}
+            event_type = 'autogen_event'
+            event_category = 'runtime'
+            agent_name = None
+            tool_name = None
+            
+            # Get the logger name to determine event context
+            logger_name = record.name
+            
+            # Check if this is a structured message (dataclass/dict)
+            if hasattr(record.msg, '__dataclass_fields__'):
+                # Structured dataclass event
+                event_data = {
+                    'event_class': record.msg.__class__.__name__,
+                    'logger_name': logger_name,
+                    'level': record.levelname,
+                    'timestamp': record.created,
+                }
+                
+                # Extract fields from the dataclass
+                for field_name, field_value in record.msg.__dict__.items():
+                    event_data[field_name] = str(field_value) if not isinstance(field_value, (dict, list, str, int, float, bool)) else field_value
+                
+                # Determine event categorization
+                event_class = record.msg.__class__.__name__.lower()
+                if 'message' in event_class:
+                    event_type = 'message_event'
+                    event_category = 'communication'
+                elif 'tool' in event_class:
+                    event_type = 'tool_event'
+                    event_category = 'mcp'
+                    tool_name = event_data.get('tool_name') or event_data.get('name')
+                elif 'agent' in event_class:
+                    event_type = 'agent_event'
+                    event_category = 'agent'
+                    agent_name = event_data.get('agent_name') or event_data.get('source') or event_data.get('name')
+                elif 'selector' in event_class:
+                    event_type = 'selector_event'
+                    event_category = 'orchestrator'
+                elif 'runtime' in event_class or 'execution' in event_class:
+                    event_type = 'runtime_event'
+                    event_category = 'runtime'
+                
+            elif isinstance(record.msg, dict):
+                # Dictionary-based event
+                event_data = record.msg.copy()
+                event_data.update({
+                    'logger_name': logger_name,
+                    'level': record.levelname,
+                    'timestamp': record.created,
+                })
+                event_type = 'autogen_dict_event'
+                
+            else:
+                # String message - convert to structured format
+                event_data = {
+                    'message': str(record.msg),
+                    'logger_name': logger_name,
+                    'level': record.levelname,
+                    'timestamp': record.created,
+                }
+                event_type = 'autogen_text_event'
+            
+            # Add exception info if present
+            if record.exc_info:
+                event_data['exception'] = self.formatException(record.exc_info)
+                event_category = 'error'
+            
+            # Log the event to our monitor system
+            self.monitor.log_event(event_type, event_category, event_data, agent_name=agent_name, tool_name=tool_name)
+            
+        except Exception as e:
+            # Don't let logging errors break the application
+            self.handleError(record)
 
 class CompositeWorkbench:
     """Combines multiple McpWorkbench instances and optionally restricts visible tools."""
@@ -192,6 +285,69 @@ class AutoGenOrchestrator:
 
     def __init__(self):
         self.llm_engine = get_llm_engine()
+        self._autogen_handler = None
+
+    def _setup_autogen_logging(self, monitor: Optional[RunMonitor] = None):
+        """Setup AutoGen runtime logging to capture events while teams/workflows are running."""
+        if not NEW_AUTOGEN_AVAILABLE:
+            return
+        
+        try:
+            # Create our custom handler
+            self._autogen_handler = AutoGenEventHandler(monitor)
+            
+            # Setup event logger (structured events)
+            event_logger = logging.getLogger(EVENT_LOGGER_NAME)
+            event_logger.setLevel(logging.INFO)
+            # Remove existing handlers to avoid duplicates
+            for handler in event_logger.handlers[:]:
+                event_logger.removeHandler(handler)
+            event_logger.addHandler(self._autogen_handler)
+            event_logger.propagate = False  # Don't propagate to root logger
+            
+            # Setup trace logger (debugging events)
+            trace_logger = logging.getLogger(TRACE_LOGGER_NAME)
+            trace_logger.setLevel(logging.DEBUG)
+            # Remove existing handlers to avoid duplicates
+            for handler in trace_logger.handlers[:]:
+                trace_logger.removeHandler(handler)
+            trace_logger.addHandler(self._autogen_handler)
+            trace_logger.propagate = False  # Don't propagate to root logger
+            
+            if monitor:
+                monitor.log_event('autogen_logging_setup', 'orchestrator', {
+                    'event_logger': EVENT_LOGGER_NAME,
+                    'trace_logger': TRACE_LOGGER_NAME,
+                    'handler_type': 'AutoGenEventHandler',
+                    'status': 'enabled'
+                })
+                
+        except Exception as e:
+            logger.error(f"Failed to setup AutoGen logging: {e}")
+            if monitor:
+                monitor.log_event('autogen_logging_error', 'orchestrator', {
+                    'error': str(e),
+                    'status': 'failed'
+                })
+
+    def _cleanup_autogen_logging(self):
+        """Cleanup AutoGen logging handlers."""
+        try:
+            if self._autogen_handler:
+                # Remove our handler from AutoGen loggers
+                event_logger = logging.getLogger(EVENT_LOGGER_NAME)
+                if self._autogen_handler in event_logger.handlers:
+                    event_logger.removeHandler(self._autogen_handler)
+                
+                trace_logger = logging.getLogger(TRACE_LOGGER_NAME)
+                if self._autogen_handler in trace_logger.handlers:
+                    trace_logger.removeHandler(self._autogen_handler)
+                
+                # Close the handler
+                self._autogen_handler.close()
+                self._autogen_handler = None
+        except Exception as e:
+            logger.error(f"Failed to cleanup AutoGen logging: {e}")
 
     def _ensure_openai_env(self):
         # Read from config and map to OpenAI-compatible environment variables
@@ -364,7 +520,7 @@ class AutoGenOrchestrator:
                 system_message=system_prompt,
                 workbench=wb,
                 model_client_stream=False,
-                reflect_on_tool_use=True,
+                reflect_on_tool_use=False,
                 description=spec.get('description', f"An agent responsible for {name.lower()} tasks."),
             )
             agents.append((agent, wb))
@@ -406,21 +562,66 @@ class AutoGenOrchestrator:
             
             if execution_mode == 'selector':
                 # Use SelectorGroupChat with configurable selector prompt
-                selector_prompt = settings.get('selector_prompt', """Select an agent to perform task.
+                selector_prompt = settings.get('selector_prompt', """You are an agent selector. Your ONLY job is to select which agent should speak next.
 
-{roles}
+Available agents: {participants}
 
 Current conversation context:
 {history}
 
-Read the above conversation, then select an agent from {participants} to perform the next task.
-When the task is complete, let the user approve or disapprove the task.""")
+CRITICAL RULES:
+- Respond with EXACTLY ONE agent name from the list
+- Do NOT use any tools or functions
+- Do NOT explain your reasoning
+- Do NOT add any extra text
+- Just return the agent name
+
+Select agent:""")
                 
                 allow_repeated_speaker = settings.get('allow_repeated_speaker', True)
                 
+                # Create a model client specifically for the selector (without tools)
+                # This must be completely isolated from any agent tool definitions
+                try:
+                    # Get basic config values
+                    api_key = os.getenv('OPENAI_API_KEY') or os.getenv('OPENROUTER_API_KEY', '')
+                    base_url = os.getenv('OPENAI_BASE_URL') or os.getenv('OPENROUTER_BASE_URL', '')
+                    model_name = getattr(self.llm_engine, 'model_name', None) or os.getenv('OPENROUTER_MODEL', '')
+                    
+                    # Create minimal ModelInfo without function calling
+                    minimal_model_info = ModelInfo(
+                        vision=False,
+                        function_calling=False,  # Explicitly disable function calling
+                        json_output=False,
+                        family="openai",
+                        structured_output=False,
+                    )
+                    
+                    # Create selector model client with strict no-tools configuration
+                    selector_model_client = OpenAIChatCompletionClient(
+                        model=model_name,
+                        api_key=api_key,
+                        base_url=base_url,
+                        model_info=minimal_model_info,
+                        parallel_tool_calls=False,
+                    )
+                    
+                    monitor.log_event('selector_model_created', 'orchestrator', {
+                        "model": model_name,
+                        "function_calling": False,
+                        "max_tokens": 10
+                    })
+                    
+                except Exception as e:
+                    monitor.log_event('selector_model_error', 'orchestrator', {"error": str(e)})
+                    # Fallback to basic configuration
+                    selector_model_client = self._build_model_client()
+                
+                # Remove custom selector function to use model-based selection
+                
                 team_obj = SelectorGroupChat(
                     [a for a, _ in agents],
-                    model_client=self._build_model_client(),
+                    model_client=selector_model_client,
                     termination_condition=termination,
                     selector_prompt=selector_prompt,
                     allow_repeated_speaker=allow_repeated_speaker,
@@ -616,6 +817,10 @@ When the task is complete, let the user approve or disapprove the task.""")
             return {"success": False, "error": "AutoGen AgentChat not installed", "trace": NEW_AUTOGEN_IMPORT_ERROR}
         monitor = RunMonitor()
         run_id = monitor.start_run('team', team.id or -1, task or '')
+        
+        # Setup AutoGen logging to capture runtime events
+        self._setup_autogen_logging(monitor)
+        
         try:
             agents_with_wb, team_obj = await self._build_agents_team(team, monitor=monitor)
             # Start all workbenches via context managers
@@ -854,35 +1059,46 @@ When the task is complete, let the user approve or disapprove the task.""")
             monitor.log_event('error', 'orchestrator', {"error": str(e), "trace": tb})
             monitor.end_run('error', error=str(e))
             return {"success": False, "error": str(e), "trace": tb, "run_id": run_id}
+        finally:
+            # Cleanup AutoGen logging
+            self._cleanup_autogen_logging()
 
     async def run_workflow(self, workflow: AgentWorkflow, input_text: str, context: Optional[List[Dict[str, str]]] = None) -> Dict[str, Any]:
-        """Run a workflow using the graph structure for sequential execution."""
+        """Run a workflow using AutoGen GraphFlow."""
         if not NEW_AUTOGEN_AVAILABLE:
             return {"success": False, "error": "AutoGen AgentChat not installed", "trace": NEW_AUTOGEN_IMPORT_ERROR}
             
         monitor = RunMonitor()
         run_id = monitor.start_run('workflow', workflow.id or -1, input_text or '')
         
+        # Setup AutoGen logging to capture runtime events
+        self._setup_autogen_logging(monitor)
+        
         try:
+            # Import GraphFlow components  
+            from autogen_agentchat.teams import DiGraphBuilder, GraphFlow
+            from autogen_agentchat.conditions import MaxMessageTermination, TextMentionTermination
+            from autogen_agentchat.agents import MessageFilterAgent, MessageFilterConfig, PerSourceFilter
+            
             # Get the team for this workflow
             team = AgentTeam.get_by_id(workflow.team_id)
             if not team:
                 return {"success": False, "error": "Workflow team not found"}
             
             # Parse the workflow graph
-            graph = workflow.graph or {}
-            nodes = graph.get('nodes', [])
-            edges = graph.get('edges', [])
+            graph_data = workflow.graph or {}
+            nodes = graph_data.get('nodes', [])
+            edges = graph_data.get('edges', [])
+            workflow_config = graph_data.get('config', {})
             
             if not nodes:
-                # Fallback to regular team execution if no workflow graph
-                monitor.log_event('workflow_fallback', 'orchestrator', {"reason": "no_nodes"})
-                return await self.run_team(team, input_text, context)
+                return {"success": False, "error": "Workflow has no nodes defined"}
             
-            monitor.log_event('workflow_start', 'orchestrator', {
+            monitor.log_event('graphflow_start', 'orchestrator', {
                 "workflow_id": workflow.id,
                 "nodes_count": len(nodes),
-                "edges_count": len(edges)
+                "edges_count": len(edges),
+                "config": workflow_config
             })
             
             # Build agents for the team
@@ -893,108 +1109,173 @@ When the task is complete, let the user approve or disapprove the task.""")
             for agent, wb in agents_with_wb:
                 agent_name = getattr(agent, 'name', None)
                 if agent_name:
-                    agent_map[agent_name] = (agent, wb)
-            
-            # Build execution order from graph
-            execution_order = self._build_execution_order(nodes, edges)
-            if not execution_order:
-                monitor.log_event('workflow_error', 'orchestrator', {"error": "no_execution_order"})
-                return {"success": False, "error": "Could not determine workflow execution order"}
-            
-            monitor.log_event('workflow_order', 'orchestrator', {"execution_order": execution_order})
+                    agent_map[agent_name] = agent
             
             # Start all workbenches
-            async def execute_sequential_workflow():
+            async def execute_graphflow():
                 for _, wb in agents_with_wb:
                     await wb.__aenter__()
                 
                 try:
-                    current_input = input_text
-                    workflow_results = []
+                    # Build the DiGraph using DiGraphBuilder
+                    builder = DiGraphBuilder()
+                    graph_agents = []
                     
-                    # Execute agents in sequence according to the workflow graph
-                    for node_id in execution_order:
-                        node = next((n for n in nodes if n['id'] == node_id), None)
-                        if not node:
-                            continue
-                            
+                    # Add nodes to builder and create filtered agents if needed
+                    for node in nodes:
                         agent_name = node.get('agent')
-                        node_name = node.get('name', f'Node-{node_id}')
-                        
                         if not agent_name or agent_name not in agent_map:
-                            monitor.log_event('workflow_skip', 'orchestrator', {
-                                "node_id": node_id,
-                                "node_name": node_name,
+                            monitor.log_event('graphflow_skip_node', 'orchestrator', {
+                                "node_id": node.get('id'),
                                 "reason": "agent_not_found",
                                 "agent_name": agent_name
                             })
                             continue
                         
-                        agent, wb = agent_map[agent_name]
+                        base_agent = agent_map[agent_name]
                         
-                        monitor.log_event('workflow_node_start', 'orchestrator', {
-                            "node_id": node_id,
-                            "node_name": node_name,
-                            "agent_name": agent_name
-                        })
+                        # Check if this node needs message filtering
+                        message_filter = node.get('message_filter')
+                        if message_filter and message_filter.get('enabled', False):
+                            # Create filtered agent
+                            per_source_filters = []
+                            for filter_rule in message_filter.get('filters', []):
+                                per_source_filters.append(PerSourceFilter(
+                                    source=filter_rule.get('source'),
+                                    position=filter_rule.get('position', 'last'),
+                                    count=filter_rule.get('count', 1)
+                                ))
+                            
+                            if per_source_filters:
+                                filtered_agent = MessageFilterAgent(
+                                    name=agent_name,
+                                    wrapped_agent=base_agent,
+                                    filter=MessageFilterConfig(per_source=per_source_filters)
+                                )
+                                graph_agents.append(filtered_agent)
+                                builder.add_node(filtered_agent)
+                                monitor.log_event('graphflow_filtered_agent', 'orchestrator', {
+                                    "agent_name": agent_name,
+                                    "filters": len(per_source_filters)
+                                })
+                            else:
+                                graph_agents.append(base_agent)
+                                builder.add_node(base_agent)
+                        else:
+                            graph_agents.append(base_agent)
+                            builder.add_node(base_agent)
+                    
+                    # Add edges to builder with conditions and activation groups
+                    for edge in edges:
+                        from_node_id = edge.get('from')
+                        to_node_id = edge.get('to')
                         
-                        # Execute this node's agent
-                        try:
-                            with _Timer() as t:
-                                result = await agent.run(task=current_input)
+                        # Find corresponding agents
+                        from_node = next((n for n in nodes if n.get('id') == from_node_id), None)
+                        to_node = next((n for n in nodes if n.get('id') == to_node_id), None)
+                        
+                        if not from_node or not to_node:
+                            continue
                             
-                            # Extract result text
-                            result_text = self._extract_final_text(result)
+                        from_agent_name = from_node.get('agent')
+                        to_agent_name = to_node.get('agent')
+                        
+                        if not from_agent_name or not to_agent_name:
+                            continue
                             
-                            workflow_results.append({
-                                "node_id": node_id,
-                                "node_name": node_name,
-                                "agent_name": agent_name,
-                                "input": current_input,
-                                "output": result_text,
-                                "elapsed_sec": getattr(t, 'elapsed', None)
-                            })
+                        from_agent = next((a for a in graph_agents if getattr(a, 'name', '') == from_agent_name), None)
+                        to_agent = next((a for a in graph_agents if getattr(a, 'name', '') == to_agent_name), None)
+                        
+                        if not from_agent or not to_agent:
+                            continue
+                        
+                        # Build edge with optional condition and activation settings
+                        edge_kwargs = {}
+                        
+                        # Add condition if specified
+                        condition = edge.get('condition')
+                        if condition:
+                            if isinstance(condition, str):
+                                # String-based condition (check if text contains the condition)
+                                edge_kwargs['condition'] = lambda msg, cond=condition: cond in msg.to_model_text()
+                            elif isinstance(condition, dict):
+                                condition_type = condition.get('type')
+                                if condition_type == 'text_contains':
+                                    text = condition.get('text', '')
+                                    edge_kwargs['condition'] = lambda msg, txt=text: txt in msg.to_model_text()
+                                elif condition_type == 'lambda':
+                                    # For safety, only allow simple predefined conditions
+                                    text = condition.get('text', '')
+                                    edge_kwargs['condition'] = lambda msg, txt=text: txt in msg.to_model_text()
+                        
+                        # Add activation group and condition
+                        activation_group = edge.get('activation_group')
+                        if activation_group:
+                            edge_kwargs['activation_group'] = activation_group
                             
-                            monitor.log_event('workflow_node_complete', 'orchestrator', {
-                                "node_id": node_id,
-                                "node_name": node_name,
-                                "agent_name": agent_name,
-                                "elapsed_sec": getattr(t, 'elapsed', None),
-                                "output_preview": result_text
-                            })
-                            
-                            # Use the output as input for the next agent
-                            current_input = result_text
-                            
-                        except Exception as e:
-                            monitor.log_event('workflow_node_error', 'orchestrator', {
-                                "node_id": node_id,
-                                "node_name": node_name,
-                                "agent_name": agent_name,
-                                "error": str(e)
-                            })
-                            # Continue with original input if node fails
-                            workflow_results.append({
-                                "node_id": node_id,
-                                "node_name": node_name,
-                                "agent_name": agent_name,
-                                "input": current_input,
-                                "output": f"ERROR: {str(e)}",
-                                "error": True
-                            })
+                        activation_condition = edge.get('activation_condition', 'all')
+                        if activation_condition in ['all', 'any']:
+                            edge_kwargs['activation_condition'] = activation_condition
+                        
+                        builder.add_edge(from_agent, to_agent, **edge_kwargs)
                     
-                    # Return the final result
-                    final_result = current_input if workflow_results else input_text
+                    # Set entry point if specified
+                    entry_point_agent = None
+                    entry_point_config = workflow_config.get('entry_point')
+                    if entry_point_config:
+                        entry_agent_name = entry_point_config
+                        entry_point_agent = next((a for a in graph_agents if getattr(a, 'name', '') == entry_agent_name), None)
+                        if entry_point_agent:
+                            builder.set_entry_point(entry_point_agent)
                     
-                    monitor.log_event('workflow_complete', 'orchestrator', {
-                        "steps_executed": len(workflow_results),
-                        "final_result_preview": final_result
+                    # Build the graph
+                    digraph = builder.build()
+                    
+                    # Create termination condition
+                    termination_condition = None
+                    termination_config = workflow_config.get('termination', {})
+                    termination_type = termination_config.get('type', 'max_message')
+                    
+                    if termination_type == 'max_message':
+                        max_messages = termination_config.get('max_messages', 20)
+                        termination_condition = MaxMessageTermination(max_messages)
+                    elif termination_type == 'text_mention':
+                        termination_text = termination_config.get('text', 'TERMINATE')
+                        termination_condition = TextMentionTermination(termination_text)
+                    else:
+                        # Default termination
+                        termination_condition = MaxMessageTermination(20)
+                    
+                    # Create GraphFlow
+                    flow = GraphFlow(
+                        participants=graph_agents,
+                        graph=digraph,
+                        termination_condition=termination_condition
+                    )
+                    
+                    monitor.log_event('graphflow_created', 'orchestrator', {
+                        "participants": len(graph_agents),
+                        "termination_type": termination_type
+                    })
+                    
+                    # Run the workflow
+                    monitor.log_event('graphflow_execution_start', 'orchestrator', {"task": input_text})
+                    
+                    with _Timer() as timer:
+                        result = await flow.run(task=input_text)
+                    
+                    # Extract final result
+                    final_text = self._extract_final_text(result)
+                    
+                    monitor.log_event('graphflow_execution_complete', 'orchestrator', {
+                        "elapsed_sec": getattr(timer, 'elapsed', None),
+                        "final_result_preview": final_text,
+                        "stop_reason": getattr(result, 'stop_reason', None)
                     })
                     
                     return {
                         "success": True,
-                        "reply": final_result,
-                        "workflow_steps": workflow_results,
+                        "reply": final_text,
                         "run_id": run_id
                     }
                     
@@ -1006,59 +1287,18 @@ When the task is complete, let the user approve or disapprove the task.""")
                         except Exception:
                             pass
             
-            result = await execute_sequential_workflow()
+            result = await execute_graphflow()
             monitor.end_run('success', final_reply=result.get('reply', ''))
             return result
             
         except Exception as e:
             tb = traceback.format_exc()
-            logger.error(f"Workflow run failed: {e}\n{tb}")
+            logger.error(f"GraphFlow workflow run failed: {e}\n{tb}")
             monitor.log_event('error', 'orchestrator', {"error": str(e), "trace": tb})
             monitor.end_run('error', error=str(e))
             return {"success": False, "error": str(e), "trace": tb, "run_id": run_id}
+        finally:
+            # Cleanup AutoGen logging
+            self._cleanup_autogen_logging()
 
-    def _build_execution_order(self, nodes: List[Dict], edges: List[Dict]) -> List[int]:
-        """Build execution order from workflow graph using topological sort."""
-        try:
-            # Build adjacency list
-            graph = {}
-            in_degree = {}
-            
-            # Initialize nodes
-            for node in nodes:
-                node_id = node['id']
-                graph[node_id] = []
-                in_degree[node_id] = 0
-            
-            # Build edges
-            for edge in edges:
-                from_node = edge['from']
-                to_node = edge['to']
-                if from_node in graph and to_node in graph:
-                    graph[from_node].append(to_node)
-                    in_degree[to_node] += 1
-            
-            # Topological sort using Kahn's algorithm
-            queue = [node_id for node_id in in_degree if in_degree[node_id] == 0]
-            result = []
-            
-            while queue:
-                current = queue.pop(0)
-                result.append(current)
-                
-                for neighbor in graph[current]:
-                    in_degree[neighbor] -= 1
-                    if in_degree[neighbor] == 0:
-                        queue.append(neighbor)
-            
-            # If we have a cycle or disconnected nodes, just return nodes in order
-            if len(result) != len(nodes):
-                logger.warning("Workflow graph has cycles or disconnected nodes, using node order")
-                return [node['id'] for node in nodes]
-            
-            return result
-            
-        except Exception as e:
-            logger.error(f"Failed to build execution order: {e}")
-            # Fallback: return nodes in the order they appear
-            return [node['id'] for node in nodes]
+

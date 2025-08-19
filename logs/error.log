@@ -1427,3 +1427,457 @@ Traceback (most recent call last):
 RuntimeError: Reflect on tool use produced no valid text response.
 
 
+2025-08-18 10:07:50,252 - ERROR - [autogen_orchestrator.py:1085] - GraphFlow workflow run failed: RuntimeError: Reflect on tool use produced no valid text response.
+Traceback:
+Traceback (most recent call last):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_chat_agent_container.py", line 133, in handle_request
+    async for msg in self._agent.on_messages_stream(self._message_buffer, ctx.cancellation_token):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 989, in on_messages_stream
+    async for output_event in self._process_model_result(
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 1299, in _process_model_result
+    async for reflection_response in cls._reflect_on_tool_use_flow(
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 1454, in _reflect_on_tool_use_flow
+    raise RuntimeError("Reflect on tool use produced no valid text response.")
+
+RuntimeError: Reflect on tool use produced no valid text response.
+
+Traceback (most recent call last):
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 1079, in run_workflow
+    result = await execute_graphflow()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 1054, in execute_graphflow
+    result = await flow.run(task=input_text)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat.py", line 340, in run
+    async for message in self.run_stream(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat.py", line 554, in run_stream
+    raise RuntimeError(str(message.error))
+RuntimeError: RuntimeError: Reflect on tool use produced no valid text response.
+Traceback:
+Traceback (most recent call last):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_chat_agent_container.py", line 133, in handle_request
+    async for msg in self._agent.on_messages_stream(self._message_buffer, ctx.cancellation_token):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 989, in on_messages_stream
+    async for output_event in self._process_model_result(
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 1299, in _process_model_result
+    async for reflection_response in cls._reflect_on_tool_use_flow(
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 1454, in _reflect_on_tool_use_flow
+    raise RuntimeError("Reflect on tool use produced no valid text response.")
+
+RuntimeError: Reflect on tool use produced no valid text response.
+
+
+2025-08-18 11:26:59,991 - ERROR - [autogen_orchestrator.py:853] - Team run failed: 
+Traceback (most recent call last):
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 847, in run_team
+    result = await with_all_workbenches()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 692, in with_all_workbenches
+    result = await team_obj.run(task=task)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat.py", line 340, in run
+    async for message in self.run_stream(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat.py", line 534, in run_stream
+    await self._runtime.send_message(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_single_threaded_agent_runtime.py", line 385, in send_message
+    return await future
+           ^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_single_threaded_agent_runtime.py", line 508, in _process_send
+    response = await recipient_agent.on_message(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_base_agent.py", line 119, in on_message
+    return await self.on_message_impl(message, ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_sequential_routed_agent.py", line 67, in on_message_impl
+    return await super().on_message_impl(message, ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_routed_agent.py", line 485, in on_message_impl
+    return await h(self, message, ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_routed_agent.py", line 389, in wrapper
+    return_value = await func(self, message, ctx)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat_manager.py", line 132, in handle_start
+    await self._transition_to_next_speakers(ctx.cancellation_token)
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat_manager.py", line 176, in _transition_to_next_speakers
+    speaker_names = await speaker_names_future
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_selector_group_chat.py", line 212, in select_speaker
+    agent_name = await self._select_speaker(roles, participants, self._max_selector_attempts)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_selector_group_chat.py", line 270, in _select_speaker
+    assert isinstance(response.content, str)
+AssertionError
+
+2025-08-18 11:50:14,718 - ERROR - [autogen_orchestrator.py:853] - Team run failed: 
+Traceback (most recent call last):
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 847, in run_team
+    result = await with_all_workbenches()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 692, in with_all_workbenches
+    result = await team_obj.run(task=task)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat.py", line 340, in run
+    async for message in self.run_stream(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat.py", line 534, in run_stream
+    await self._runtime.send_message(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_single_threaded_agent_runtime.py", line 385, in send_message
+    return await future
+           ^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_single_threaded_agent_runtime.py", line 508, in _process_send
+    response = await recipient_agent.on_message(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_base_agent.py", line 119, in on_message
+    return await self.on_message_impl(message, ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_sequential_routed_agent.py", line 67, in on_message_impl
+    return await super().on_message_impl(message, ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_routed_agent.py", line 485, in on_message_impl
+    return await h(self, message, ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_routed_agent.py", line 389, in wrapper
+    return_value = await func(self, message, ctx)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat_manager.py", line 132, in handle_start
+    await self._transition_to_next_speakers(ctx.cancellation_token)
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat_manager.py", line 176, in _transition_to_next_speakers
+    speaker_names = await speaker_names_future
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_selector_group_chat.py", line 212, in select_speaker
+    agent_name = await self._select_speaker(roles, participants, self._max_selector_attempts)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_selector_group_chat.py", line 271, in _select_speaker
+    assert isinstance(response.content, str)
+AssertionError
+
+2025-08-18 11:52:28,950 - ERROR - [autogen_orchestrator.py:853] - Team run failed: 
+Traceback (most recent call last):
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 847, in run_team
+    result = await with_all_workbenches()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 692, in with_all_workbenches
+    result = await team_obj.run(task=task)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat.py", line 340, in run
+    async for message in self.run_stream(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat.py", line 534, in run_stream
+    await self._runtime.send_message(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_single_threaded_agent_runtime.py", line 385, in send_message
+    return await future
+           ^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_single_threaded_agent_runtime.py", line 508, in _process_send
+    response = await recipient_agent.on_message(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_base_agent.py", line 119, in on_message
+    return await self.on_message_impl(message, ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_sequential_routed_agent.py", line 67, in on_message_impl
+    return await super().on_message_impl(message, ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_routed_agent.py", line 485, in on_message_impl
+    return await h(self, message, ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_routed_agent.py", line 389, in wrapper
+    return_value = await func(self, message, ctx)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat_manager.py", line 132, in handle_start
+    await self._transition_to_next_speakers(ctx.cancellation_token)
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat_manager.py", line 176, in _transition_to_next_speakers
+    speaker_names = await speaker_names_future
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_selector_group_chat.py", line 212, in select_speaker
+    agent_name = await self._select_speaker(roles, participants, self._max_selector_attempts)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_selector_group_chat.py", line 272, in _select_speaker
+    assert isinstance(response.content, str)
+AssertionError
+
+2025-08-18 11:59:34,513 - ERROR - [autogen_orchestrator.py:863] - Team run failed: 
+Traceback (most recent call last):
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 857, in run_team
+    result = await with_all_workbenches()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 702, in with_all_workbenches
+    result = await team_obj.run(task=task)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat.py", line 340, in run
+    async for message in self.run_stream(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat.py", line 534, in run_stream
+    await self._runtime.send_message(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_single_threaded_agent_runtime.py", line 385, in send_message
+    return await future
+           ^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_single_threaded_agent_runtime.py", line 508, in _process_send
+    response = await recipient_agent.on_message(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_base_agent.py", line 119, in on_message
+    return await self.on_message_impl(message, ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_sequential_routed_agent.py", line 67, in on_message_impl
+    return await super().on_message_impl(message, ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_routed_agent.py", line 485, in on_message_impl
+    return await h(self, message, ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_routed_agent.py", line 389, in wrapper
+    return_value = await func(self, message, ctx)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat_manager.py", line 132, in handle_start
+    await self._transition_to_next_speakers(ctx.cancellation_token)
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat_manager.py", line 176, in _transition_to_next_speakers
+    speaker_names = await speaker_names_future
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_selector_group_chat.py", line 212, in select_speaker
+    agent_name = await self._select_speaker(roles, participants, self._max_selector_attempts)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_selector_group_chat.py", line 272, in _select_speaker
+    assert isinstance(response.content, str)
+AssertionError
+
+2025-08-18 12:21:13,782 - ERROR - [autogen_orchestrator.py:877] - Team run failed: Error code: 400 - {'error': {'message': 'Failed to parse tool call arguments as JSON', 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '{"commands":["free -h","top -bn1 | grep \'Cpu(s)\''}}
+Traceback (most recent call last):
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 871, in run_team
+    result = await with_all_workbenches()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 716, in with_all_workbenches
+    result = await team_obj.run(task=task)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat.py", line 340, in run
+    async for message in self.run_stream(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat.py", line 534, in run_stream
+    await self._runtime.send_message(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_single_threaded_agent_runtime.py", line 385, in send_message
+    return await future
+           ^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_single_threaded_agent_runtime.py", line 508, in _process_send
+    response = await recipient_agent.on_message(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_base_agent.py", line 119, in on_message
+    return await self.on_message_impl(message, ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_sequential_routed_agent.py", line 67, in on_message_impl
+    return await super().on_message_impl(message, ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_routed_agent.py", line 485, in on_message_impl
+    return await h(self, message, ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_routed_agent.py", line 389, in wrapper
+    return_value = await func(self, message, ctx)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat_manager.py", line 132, in handle_start
+    await self._transition_to_next_speakers(ctx.cancellation_token)
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat_manager.py", line 176, in _transition_to_next_speakers
+    speaker_names = await speaker_names_future
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_selector_group_chat.py", line 212, in select_speaker
+    agent_name = await self._select_speaker(roles, participants, self._max_selector_attempts)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_selector_group_chat.py", line 269, in _select_speaker
+    response = await self._model_client.create(messages=select_speaker_messages)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 691, in create
+    result: Union[ParsedChatCompletion[BaseModel], ChatCompletion] = await future
+                                                                     ^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/openai/resources/chat/completions/completions.py", line 2589, in create
+    return await self._post(
+           ^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/openai/_base_client.py", line 1794, in post
+    return await self.request(cast_to, opts, stream=stream, stream_cls=stream_cls)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/openai/_base_client.py", line 1594, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.BadRequestError: Error code: 400 - {'error': {'message': 'Failed to parse tool call arguments as JSON', 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '{"commands":["free -h","top -bn1 | grep \'Cpu(s)\''}}
+
+2025-08-18 12:24:43,469 - ERROR - [autogen_orchestrator.py:886] - Team run failed: AssertionError: 
+Traceback:
+Traceback (most recent call last):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat_manager.py", line 164, in handle_agent_response
+    await self._transition_to_next_speakers(ctx.cancellation_token)
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat_manager.py", line 176, in _transition_to_next_speakers
+    speaker_names = await speaker_names_future
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_selector_group_chat.py", line 212, in select_speaker
+    agent_name = await self._select_speaker(roles, participants, self._max_selector_attempts)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_selector_group_chat.py", line 272, in _select_speaker
+    assert isinstance(response.content, str)
+
+AssertionError
+
+Traceback (most recent call last):
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 880, in run_team
+    result = await with_all_workbenches()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 725, in with_all_workbenches
+    result = await team_obj.run(task=task)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat.py", line 340, in run
+    async for message in self.run_stream(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat.py", line 554, in run_stream
+    raise RuntimeError(str(message.error))
+RuntimeError: AssertionError: 
+Traceback:
+Traceback (most recent call last):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat_manager.py", line 164, in handle_agent_response
+    await self._transition_to_next_speakers(ctx.cancellation_token)
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat_manager.py", line 176, in _transition_to_next_speakers
+    speaker_names = await speaker_names_future
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_selector_group_chat.py", line 212, in select_speaker
+    agent_name = await self._select_speaker(roles, participants, self._max_selector_attempts)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_selector_group_chat.py", line 272, in _select_speaker
+    assert isinstance(response.content, str)
+
+AssertionError
+
+
+2025-08-18 12:26:09,725 - ERROR - [autogen_orchestrator.py:882] - Team run failed: 
+Traceback (most recent call last):
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 876, in run_team
+    result = await with_all_workbenches()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 721, in with_all_workbenches
+    result = await team_obj.run(task=task)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat.py", line 340, in run
+    async for message in self.run_stream(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat.py", line 534, in run_stream
+    await self._runtime.send_message(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_single_threaded_agent_runtime.py", line 385, in send_message
+    return await future
+           ^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_single_threaded_agent_runtime.py", line 508, in _process_send
+    response = await recipient_agent.on_message(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_base_agent.py", line 119, in on_message
+    return await self.on_message_impl(message, ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_sequential_routed_agent.py", line 67, in on_message_impl
+    return await super().on_message_impl(message, ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_routed_agent.py", line 485, in on_message_impl
+    return await h(self, message, ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_routed_agent.py", line 389, in wrapper
+    return_value = await func(self, message, ctx)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat_manager.py", line 132, in handle_start
+    await self._transition_to_next_speakers(ctx.cancellation_token)
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat_manager.py", line 176, in _transition_to_next_speakers
+    speaker_names = await speaker_names_future
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_selector_group_chat.py", line 212, in select_speaker
+    agent_name = await self._select_speaker(roles, participants, self._max_selector_attempts)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_selector_group_chat.py", line 272, in _select_speaker
+    assert isinstance(response.content, str)
+AssertionError
+
+2025-08-18 12:37:58,341 - ERROR - [autogen_orchestrator.py:898] - Team run failed: 
+Traceback (most recent call last):
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 892, in run_team
+    result = await with_all_workbenches()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 737, in with_all_workbenches
+    result = await team_obj.run(task=task)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat.py", line 340, in run
+    async for message in self.run_stream(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat.py", line 534, in run_stream
+    await self._runtime.send_message(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_single_threaded_agent_runtime.py", line 385, in send_message
+    return await future
+           ^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_single_threaded_agent_runtime.py", line 508, in _process_send
+    response = await recipient_agent.on_message(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_base_agent.py", line 119, in on_message
+    return await self.on_message_impl(message, ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_sequential_routed_agent.py", line 67, in on_message_impl
+    return await super().on_message_impl(message, ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_routed_agent.py", line 485, in on_message_impl
+    return await h(self, message, ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_core/_routed_agent.py", line 389, in wrapper
+    return_value = await func(self, message, ctx)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat_manager.py", line 132, in handle_start
+    await self._transition_to_next_speakers(ctx.cancellation_token)
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat_manager.py", line 176, in _transition_to_next_speakers
+    speaker_names = await speaker_names_future
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_selector_group_chat.py", line 212, in select_speaker
+    agent_name = await self._select_speaker(roles, participants, self._max_selector_attempts)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_selector_group_chat.py", line 272, in _select_speaker
+    assert isinstance(response.content, str)
+AssertionError
+
+2025-08-18 14:25:54,776 - ERROR - [autogen_orchestrator.py:898] - Team run failed: RuntimeError: Reflect on tool use produced no valid text response.
+Traceback:
+Traceback (most recent call last):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_chat_agent_container.py", line 133, in handle_request
+    async for msg in self._agent.on_messages_stream(self._message_buffer, ctx.cancellation_token):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 989, in on_messages_stream
+    async for output_event in self._process_model_result(
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 1299, in _process_model_result
+    async for reflection_response in cls._reflect_on_tool_use_flow(
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 1454, in _reflect_on_tool_use_flow
+    raise RuntimeError("Reflect on tool use produced no valid text response.")
+
+RuntimeError: Reflect on tool use produced no valid text response.
+
+Traceback (most recent call last):
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 892, in run_team
+    result = await with_all_workbenches()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 737, in with_all_workbenches
+    result = await team_obj.run(task=task)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat.py", line 340, in run
+    async for message in self.run_stream(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat.py", line 554, in run_stream
+    raise RuntimeError(str(message.error))
+RuntimeError: RuntimeError: Reflect on tool use produced no valid text response.
+Traceback:
+Traceback (most recent call last):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_chat_agent_container.py", line 133, in handle_request
+    async for msg in self._agent.on_messages_stream(self._message_buffer, ctx.cancellation_token):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 989, in on_messages_stream
+    async for output_event in self._process_model_result(
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 1299, in _process_model_result
+    async for reflection_response in cls._reflect_on_tool_use_flow(
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 1454, in _reflect_on_tool_use_flow
+    raise RuntimeError("Reflect on tool use produced no valid text response.")
+
+RuntimeError: Reflect on tool use produced no valid text response.
+
+

@@ -147,52 +147,209 @@ When the task is complete, let the user approve or disapprove the task.</textare
  </div>
 
  <div class="modal fade" id="workflowModal" tabindex="-1">
-  <div class="modal-dialog modal-lg">
+  <div class="modal-dialog modal-xl">
     <div class="modal-content">
-      <div class="modal-header"><h5 class="modal-title">Workflow</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-header"><h5 class="modal-title">GraphFlow Workflow</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
       <div class="modal-body">
-        <div class="mb-2"><label class="form-label">Name</label><input id="wfName" class="form-control"></div>
-        <div class="mb-2"><label class="form-label">Description</label><textarea id="wfDesc" class="form-control" rows="2"></textarea></div>
-        <div class="mb-2"><label class="form-label">Team</label><select id="wfTeam" class="form-select"></select></div>
-        <div class="mb-2">
-          <div class="d-flex justify-content-between align-items-center">
-            <label class="form-label">Workflow Builder</label>
-            <button type="button" class="btn btn-sm btn-outline-primary" id="addNodeBtn"><i class="fas fa-plus"></i> Add Node</button>
-          </div>
-          <div id="workflowBuilder" class="border rounded p-2 bg-body-tertiary">
-            <div class="row g-2 mb-2">
-              <div class="col-md-4">
-                <label class="form-label small">Nodes</label>
-                <select size="6" class="form-select" id="nodesList"></select>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-2"><label class="form-label">Name</label><input id="wfName" class="form-control"></div>
+            <div class="mb-2"><label class="form-label">Description</label><textarea id="wfDesc" class="form-control" rows="2"></textarea></div>
+            <div class="mb-2"><label class="form-label">Team</label><select id="wfTeam" class="form-select"></select></div>
+            
+            <!-- GraphFlow Configuration -->
+            <div class="card mb-3">
+              <div class="card-header">
+                <h6 class="mb-0">GraphFlow Configuration</h6>
               </div>
-              <div class="col-md-8">
-                <div class="row g-2">
-                  <div class="col-md-6">
-                    <label class="form-label small">Node Name</label>
-                    <input id="nodeName" class="form-control form-control-sm" placeholder="e.g., Plan">
+              <div class="card-body">
+                <div class="mb-2">
+                  <label class="form-label">Entry Point Agent</label>
+                  <select id="entryPointAgent" class="form-select">
+                    <option value="">Auto-detect (source nodes)</option>
+                  </select>
+                  <div class="form-text">Override automatic entry point detection</div>
+                </div>
+                
+                <div class="mb-2">
+                  <label class="form-label">Termination Type</label>
+                  <select id="terminationType" class="form-select">
+                    <option value="max_message">Max Messages</option>
+                    <option value="text_mention">Text Mention</option>
+                  </select>
+                </div>
+                
+                <div id="maxMessagesConfig" class="mb-2">
+                  <label class="form-label">Max Messages</label>
+                  <input type="number" id="maxMessages" class="form-control" value="20" min="1" max="100">
+                  <div class="form-text">Maximum number of messages before termination</div>
+                </div>
+                
+                <div id="textMentionConfig" class="mb-2" style="display: none;">
+                  <label class="form-label">Termination Text</label>
+                  <input type="text" id="terminationText" class="form-control" value="TERMINATE">
+                  <div class="form-text">Text that triggers workflow termination</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <!-- Workflow Builder -->
+            <div class="mb-2">
+              <div class="d-flex justify-content-between align-items-center">
+                <label class="form-label">Workflow Graph Builder</label>
+                <button type="button" class="btn btn-sm btn-outline-primary" id="addNodeBtn"><i class="fas fa-plus"></i> Add Node</button>
+              </div>
+              <div id="workflowBuilder" class="border rounded p-2 bg-body-tertiary">
+                <div class="row g-2 mb-2">
+                  <div class="col-md-5">
+                    <label class="form-label small">Nodes</label>
+                    <select size="8" class="form-select" id="nodesList"></select>
                   </div>
-                  <div class="col-md-6">
-                    <label class="form-label small">Agent</label>
-                    <select id="nodeAgent" class="form-select form-select-sm"></select>
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label small">Predecessor</label>
-                    <select id="nodePrev" class="form-select form-select-sm"></select>
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label small">Successor</label>
-                    <select id="nodeNext" class="form-select form-select-sm"></select>
+                  <div class="col-md-7">
+                    <div class="row g-2">
+                      <div class="col-12">
+                        <label class="form-label small">Node Name</label>
+                        <input id="nodeName" class="form-control form-control-sm" placeholder="e.g., Plan">
+                      </div>
+                      <div class="col-12">
+                        <label class="form-label small">Agent</label>
+                        <select id="nodeAgent" class="form-select form-select-sm"></select>
+                      </div>
+                      <div class="col-12">
+                        <div class="alert alert-info alert-sm mt-2">
+                          <i class="fas fa-info-circle"></i>
+                          <small><strong>Note:</strong> Node connections are defined in the Edge Configuration section below.</small>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <!-- Message Filtering Configuration -->
+                    <div class="mt-2">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="enableMessageFilter">
+                        <label class="form-check-label" for="enableMessageFilter">
+                          Enable Message Filtering
+                        </label>
+                      </div>
+                      <div id="messageFilterConfig" style="display: none;" class="mt-1">
+                        <div class="row g-1">
+                          <div class="col-md-4">
+                            <select id="filterSource" class="form-select form-select-sm">
+                              <option value="">Source Agent</option>
+                            </select>
+                          </div>
+                          <div class="col-md-4">
+                            <select id="filterPosition" class="form-select form-select-sm">
+                              <option value="first">First</option>
+                              <option value="last" selected>Last</option>
+                            </select>
+                          </div>
+                          <div class="col-md-4">
+                            <input type="number" id="filterCount" class="form-control form-control-sm" value="1" min="1" max="10">
+                          </div>
+                        </div>
+                        <div class="mt-1">
+                          <button class="btn btn-sm btn-outline-success" id="addFilterBtn">Add Filter</button>
+                        </div>
+                        <div id="filtersList" class="mt-1"></div>
+                      </div>
+                    </div>
+                    
+                    <div class="mt-2 d-flex gap-1">
+                      <button class="btn btn-sm btn-outline-success" id="saveNodeBtn">Save Node</button>
+                      <button class="btn btn-sm btn-outline-danger" id="removeNodeBtn">Remove Node</button>
+                    </div>
                   </div>
                 </div>
-                <div class="mt-2 d-flex gap-2">
-                  <button class="btn btn-sm btn-outline-success" id="saveNodeBtn">Save Node</button>
-                  <button class="btn btn-sm btn-outline-danger" id="removeNodeBtn">Remove Node</button>
+              </div>
+            </div>
+            
+            <!-- Edge Configuration -->
+            <div class="card mb-2">
+              <div class="card-header">
+                <h6 class="mb-0">Edge Configuration</h6>
+              </div>
+              <div class="card-body">
+                <div class="row g-2">
+                  <div class="col-md-6">
+                    <label class="form-label small">From Node</label>
+                    <select id="edgeFrom" class="form-select form-select-sm"></select>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label small">To Node</label>
+                    <select id="edgeTo" class="form-select form-select-sm"></select>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label small">Condition Type</label>
+                    <select id="conditionType" class="form-select form-select-sm">
+                      <option value="">No Condition</option>
+                      <option value="text_contains">Text Contains</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label small">Condition Text</label>
+                    <input id="conditionText" class="form-control form-control-sm" placeholder="e.g., APPROVE">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label small">Activation Group</label>
+                    <input id="activationGroup" class="form-control form-control-sm" placeholder="e.g., critical">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label small">Activation Condition</label>
+                    <select id="activationCondition" class="form-select form-select-sm">
+                      <option value="all">All (Default)</option>
+                      <option value="any">Any</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="mt-2">
+                  <button class="btn btn-sm btn-outline-primary" id="addEdgeBtn">Add Edge</button>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <div class="mb-2"><label class="form-label">Graph (JSON)</label><textarea id="wfGraph" class="form-control" rows="8">{"nodes":[],"edges":[]}</textarea></div>
+        
+        <!-- Workflow Visualization -->
+        <div class="card mb-3">
+          <div class="card-header py-2">
+            <div class="d-flex justify-content-between align-items-center">
+              <h6 class="mb-0">Workflow Visualization</h6>
+              <div>
+                <button type="button" class="btn btn-sm btn-outline-secondary me-1" onclick="exportWorkflowDiagram()">
+                  <i class="fas fa-download"></i> Export
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-primary" onclick="refreshWorkflowVisualization()">
+                  <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div id="workflowVisualization" class="border rounded p-3" style="min-height: 400px; background: #f8f9fa;">
+              <div class="text-center text-muted" id="vizPlaceholder">
+                <i class="fas fa-project-diagram fa-3x mb-2"></i>
+                <p>Click "Refresh" to visualize your workflow graph</p>
+              </div>
+              <div id="mermaidContainer" style="display: none;"></div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="mb-2">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <label class="form-label mb-0">Graph Configuration (JSON)</label>
+            <div>
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="syncFromGraphJsonBtn">
+                <i class="fas fa-sync-alt"></i> Sync from JSON
+              </button>
+            </div>
+          </div>
+          <textarea id="wfGraph" class="form-control" rows="8">{"nodes":[],"edges":[],"config":{"entry_point":"","termination":{"type":"max_message","max_messages":20}}}</textarea>
+          <div class="form-text">Edit JSON directly and click "Sync from JSON" to update the visual builder</div>
+        </div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -205,5 +362,46 @@ When the task is complete, let the user approve or disapprove the task.</textare
 
 {% block scripts %}
 {{ super() }}
+<script>
+// Initialize Mermaid.js when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+  // Wait for Mermaid to be available
+  function initializeMermaid() {
+    if (typeof mermaid !== 'undefined') {
+      // Configure Mermaid with custom settings
+      mermaid.initialize({
+        startOnLoad: false, // We'll control when to render
+        theme: 'default',
+        flowchart: {
+          curve: 'basis',
+          nodeSpacing: 50,
+          rankSpacing: 50,
+          padding: 20,
+          useMaxWidth: true,
+          htmlLabels: true
+        },
+        themeVariables: {
+          primaryColor: '#e3f2fd',
+          primaryTextColor: '#1976d2',
+          primaryBorderColor: '#1976d2',
+          lineColor: '#666',
+          secondaryColor: '#fff3e0',
+          tertiaryColor: '#f3e5f5',
+          background: '#ffffff',
+          mainBkg: '#ffffff'
+        },
+        securityLevel: 'loose' // Allow HTML in labels
+      });
+      
+      console.log('Mermaid.js initialized successfully for workflow visualization');
+    } else {
+      // Retry after a short delay
+      setTimeout(initializeMermaid, 100);
+    }
+  }
+  
+  initializeMermaid();
+});
+</script>
 <script src="{{ url_for('static', filename='js/admin/agent-teams.js') }}"></script>
 {% endblock %}
