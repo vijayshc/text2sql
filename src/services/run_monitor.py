@@ -142,6 +142,72 @@ class RunMonitor:
                 pass
         return rows
 
+    @staticmethod
+    def get_filtered_events(run_id: int):
+        """Get only essential events for UI display"""
+        essential_event_types = {
+            'llm_input',       # LLM input 
+            'llm_result',      # LLM output
+            'llm_first_input', # First LLM input
+            'agent_response',  # Agent selection
+            'tool_call',       # Tool calling input
+            'tool_result',     # Tool calling output
+            'error',           # Errors
+            'status'           # Status updates
+        }
+        
+        conn = get_db_connection()
+        conn.row_factory = lambda cursor, row: {
+            col[0]: row[idx] for idx, col in enumerate(cursor.description)
+        }
+        cur = conn.cursor()
+        # Get only essential event types
+        placeholders = ','.join(['?' for _ in essential_event_types])
+        query = f'SELECT * FROM agent_run_events WHERE run_id = ? AND event_type IN ({placeholders}) ORDER BY id ASC'
+        cur.execute(query, (run_id, *essential_event_types))
+        rows = cur.fetchall()
+        conn.close()
+        
+        # Parse detail JSON and clean up data
+        filtered_rows = []
+        seen_duplicates = set()
+        
+        for r in rows:
+            try:
+                r['detail'] = json.loads(r.get('detail') or '{}')
+            except Exception:
+                pass
+                
+            # Skip duplicate tool calls with same content
+            if r['event_type'] in ('tool_call', 'tool_result'):
+                content_key = f"{r['event_type']}_{r.get('tool_name', '')}_{str(r.get('detail', {}))}"
+                if content_key in seen_duplicates:
+                    continue
+                seen_duplicates.add(content_key)
+            
+            # Clean up verbose autogen data in detail
+            if isinstance(r['detail'], dict):
+                # Remove overly verbose nested payload data
+                if 'payload' in r['detail'] and isinstance(r['detail']['payload'], str):
+                    try:
+                        payload_obj = json.loads(r['detail']['payload'])
+                        # Keep only essential payload info
+                        if 'task' in payload_obj:
+                            r['detail'] = {'task': payload_obj['task']}
+                        elif 'message' in payload_obj:
+                            r['detail'] = {'message': payload_obj.get('message', '')[:200] + '...'}
+                    except:
+                        pass
+                        
+                # Limit message content to reasonable size
+                if 'message' in r['detail'] and isinstance(r['detail']['message'], str):
+                    if len(r['detail']['message']) > 300:
+                        r['detail']['message'] = r['detail']['message'][:300] + '...'
+            
+            filtered_rows.append(r)
+            
+        return filtered_rows
+
 
 class _Timer:
     def __enter__(self):

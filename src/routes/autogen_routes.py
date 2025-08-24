@@ -257,8 +257,15 @@ def get_run(run_id: int):
     run = RunMonitor.get_run(run_id)
     if not run:
         return jsonify({'error': 'Run not found'}), 404
-    events = RunMonitor.get_events(run_id)
-    return jsonify({'success': True, 'run': run, 'events': events})
+    
+    # Use filtered events by default, allow full events with ?full=1
+    use_filtered = request.args.get('full') != '1'
+    if use_filtered:
+        events = RunMonitor.get_filtered_events(run_id)
+    else:
+        events = RunMonitor.get_events(run_id)
+    
+    return jsonify({'success': True, 'run': run, 'events': events, 'filtered': use_filtered})
 
 @autogen_bp.route('/api/agent/mcp/servers-with-tools', methods=['GET'])
 @login_required

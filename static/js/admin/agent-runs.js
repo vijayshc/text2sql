@@ -112,10 +112,15 @@
   }
 
   async function loadRun(runId){
-    const data = await fetchJSON(`/api/agent/runs/${runId}`);
+    // Check if we want full logs or filtered (default filtered)
+    const showFull = document.getElementById('showFullLogs')?.checked || false;
+    const url = `/api/agent/runs/${runId}${showFull ? '?full=1' : ''}`;
+    const data = await fetchJSON(url);
     const run = data.run;
     const events = data.events || [];
-    selectedRunLabel().textContent = `Run #${run.id} - ${run.status}`;
+    const isFiltered = data.filtered !== false;
+    
+    selectedRunLabel().textContent = `Run #${run.id} - ${run.status} ${isFiltered ? '(Filtered View)' : '(Full Logs)'}`;
     
     // Build the final reply section with expand button if content exists
     const finalReplySection = run.final_reply ? `
@@ -130,28 +135,67 @@
       </div>
     ` : '';
 
+    // Add log filter controls
+    const logControls = `
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="showFullLogs" ${showFull ? 'checked' : ''}>
+          <label class="form-check-label small" for="showFullLogs">
+            Show full logs (${isFiltered ? events.length + ' filtered' : 'all verbose logs'})
+          </label>
+        </div>
+        <small class="text-muted">Essential: LLM I/O, Agent Selection, Tool Calls</small>
+      </div>
+    `;
+
     runMeta().innerHTML = `
       <div class="small text-muted">Task:</div>
       <div class="mb-2"><code>${(run.task||'').replace(/</g,'&lt;')}</code></div>
       ${run.error ? `<div class="alert alert-danger py-1 px-2 small">${run.error}</div>` : ''}
       ${finalReplySection}
+      ${logControls}
     `;
 
-    const rows = events.map((e, idx) => `
+    const rows = events.map((e, idx) => {
+      // Color code different event types
+      let typeClass = 'bg-secondary';
+      switch(e.event_type) {
+        case 'llm_input':
+        case 'llm_first_input':
+          typeClass = 'bg-primary';
+          break;
+        case 'llm_result':
+          typeClass = 'bg-success';
+          break;
+        case 'agent_response':
+          typeClass = 'bg-info';
+          break;
+        case 'tool_call':
+          typeClass = 'bg-warning';
+          break;
+        case 'tool_result':
+          typeClass = 'bg-light text-dark';
+          break;
+        case 'error':
+          typeClass = 'bg-danger';
+          break;
+      }
+      
+      return `
       <tr>
         <td>${idx+1}</td>
-        <td>${fmt(e.ts)}</td>
-        <td><span class="badge bg-secondary">${e.event_type}</span></td>
-        <td>${e.source||''}</td>
-        <td>${e.agent_name||''}</td>
-        <td>${e.server_id||''}</td>
-        <td>${e.tool_name||''}</td>
-        <td>
-          <span class="text-monospace small">${previewDetail(e.detail)}</span>
+        <td class="small">${fmt(e.ts)}</td>
+        <td><span class="badge ${typeClass}">${e.event_type}</span></td>
+        <td class="small">${e.source||''}</td>
+        <td class="small">${e.agent_name||''}</td>
+        <td class="small">${e.server_id||''}</td>
+        <td class="small">${e.tool_name||''}</td>
+        <td class="small">
+          <span class="text-monospace">${previewDetail(e.detail)}</span>
           <button class="btn btn-link btn-sm ms-1 p-0 view-payload" data-payload='${JSON.stringify(e.detail||{}).replace(/'/g, "&#39;")}' title="View full"><i class="fas fa-expand"></i></button>
         </td>
       </tr>
-    `).join('');
+    `}).join('');
     eventsTableBody().innerHTML = rows || '<tr><td colspan="8" class="text-muted">No events</td></tr>';
     // Switch to details tab if tabs exist
     const tabTriggerEl = document.querySelector('#tab-details-tab');
@@ -187,8 +231,17 @@
       }
     });
 
-    // Handle result modal view mode toggle
+    // Handle full logs toggle
     document.addEventListener('change', (e) => {
+      if (e.target.id === 'showFullLogs') {
+        // Re-load current run with new filter setting
+        const currentRunId = selectedRunLabel().textContent.match(/Run #(\d+)/)?.[1];
+        if (currentRunId) {
+          loadRun(currentRunId).catch(console.error);
+        }
+      }
+      
+      // Handle result modal view mode toggle
       if (e.target.name === 'resultViewMode') {
         const formatted = document.getElementById('resultFormatted');
         const raw = document.getElementById('resultRaw');

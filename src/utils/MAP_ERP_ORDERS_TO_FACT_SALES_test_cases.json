@@ -1,0 +1,92 @@
+{
+  "test_cases": [
+    {
+      "name": "Basic order conversion",
+      "description": "Verify that a single active order with items is correctly aggregated and converted to USD.",
+      "input": {
+        "orders": [
+          {"order_id": "O1001", "last_modified_date": "2024-08-01 10:00:00", "customer_id": "C001", "order_date": "2024-07-31", "currency_code": "EUR", "status": "Completed", "is_active": true}
+        ],
+        "customers": [
+          {"customer_id": "C001", "customer_name": "Acme Corp"}
+        ],
+        "order_items": [
+          {"order_id": "O1001", "item_id": "I001", "quantity": 2, "unit_price": 50.00},
+          {"order_id": "O1001", "item_id": "I002", "quantity": 1, "unit_price": 30.00}
+        ],
+        "Dim_Exchange_Rates": [
+          {"RateDate": "2024-07-31", "CurrencyCode": "EUR", "ExchangeRate": 1.10}
+        ]
+      },
+      "expected": {
+        "Fact_Sales": [
+          {
+            "Target_Order_ID": "O1001",
+            "Target_Amount_Local": 130.00,
+            "Target_Amount_USD": 143.00,
+            "Target_Customer_Name": "Acme Corp",
+            "Target_Distinct_Items": 2,
+            "Target_Status_Category": "Fulfilled"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Deduplication logic",
+      "description": "When multiple rows exist for same order_id, only the most recent should be processed.",
+      "input": {
+        "orders": [
+          {"order_id": "O2001", "last_modified_date": "2024-07-01 09:00:00", "customer_id": "C002", "order_date": "2024-06-30", "currency_code": "USD", "status": "Shipped", "is_active": true},
+          {"order_id": "O2001", "last_modified_date": "2024-07-02 12:00:00", "customer_id": "C002", "order_date": "2024-06-30", "currency_code": "USD", "status": "Shipped", "is_active": true}
+        ],
+        "customers": [
+          {"customer_id": "C002", "customer_name": "Beta LLC"}
+        ],
+        "order_items": [
+          {"order_id": "O2001", "item_id": "I003", "quantity": 1, "unit_price": 20.00}
+        ],
+        "Dim_Exchange_Rates": []
+      },
+      "expected": {
+        "Fact_Sales": [
+          {
+            "Target_Order_ID": "O2001",
+            "Target_Amount_Local": 20.00,
+            "Target_Amount_USD": 20.00,
+            "Target_Customer_Name": "Beta LLC",
+            "Target_Distinct_Items": 1,
+            "Target_Status_Category": "Fulfilled"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Missing exchange rate fallback",
+      "description": "When exchange rate is missing, default to 1.0.",
+      "input": {
+        "orders": [
+          {"order_id": "O3001", "last_modified_date": "2024-07-10 08:00:00", "customer_id": "C003", "order_date": "2024-07-09", "currency_code": "JPY", "status": "Cancelled", "is_active": true}
+        ],
+        "customers": [
+          {"customer_id": "C003", "customer_name": "Gamma Inc"}
+        ],
+        "order_items": [
+          {"order_id": "O3001", "item_id": "I004", "quantity": 5, "unit_price": 10.00}
+        ],
+        "Dim_Exchange_Rates": []
+      },
+      "expected": {
+        "Fact_Sales": [
+          {
+            "Target_Order_ID": "O3001",
+            "Target_Amount_Local": 50.00,
+            "Target_Amount_USD": 50.00,
+            "Target_Customer_Name": "Gamma Inc",
+            "Target_Distinct_Items": 1,
+            "Target_Status_Category": "Cancelled"
+          }
+        ]
+      }
+    }
+  ]
+}

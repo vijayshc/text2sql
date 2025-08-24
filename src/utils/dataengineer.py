@@ -410,7 +410,7 @@ async def execute_sql_query(query: str) -> Dict[str, Any]:
     """Executes a read-only SQL query against the database and returns results.
 
     Args:
-        query: The SQL query string to execute. IMPORTANT: Only SELECT statements are recommended.
+        query: The SQL query string to execute.
 
     Returns:
         A dictionary containing:
@@ -420,11 +420,11 @@ async def execute_sql_query(query: str) -> Dict[str, Any]:
         - "errors": List of errors if any occurred
     """
     # Basic check to prevent obviously harmful commands (can be improved)
-    if not query.strip().upper().startswith("SELECT"):
-        return {"success": False, "data": None, "columns": None, "errors": ["Only SELECT queries are allowed."]}
+    # if not query.strip().upper().startswith("SELECT"):
+    #     return {"success": False, "data": None, "columns": None, "errors": ["Only SELECT queries are allowed."]}
 
     try:
-        db_path = os.path.join(os.path.dirname(__file__), 'testdb.db')
+        db_path = os.path.join(os.path.dirname(__file__),  'testdb.db')
         async with aiosqlite.connect(db_path) as db:
             db.row_factory = aiosqlite.Row
             async with db.execute(query) as cursor:

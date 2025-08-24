@@ -1881,3 +1881,144 @@ Traceback (most recent call last):
 RuntimeError: Reflect on tool use produced no valid text response.
 
 
+2025-08-23 11:59:20,184 - ERROR - [autogen_orchestrator.py:1296] - GraphFlow workflow run failed: 'str' object has no attribute 'get'
+Traceback (most recent call last):
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 1105, in run_workflow
+    agents_with_wb, _ = await self._build_agents_team(team, monitor=monitor)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 510, in _build_agents_team
+    wb = await self._build_workbench_for_agent(spec, monitor=monitor)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 461, in _build_workbench_for_agent
+    sid = t.get('server_id')
+          ^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+2025-08-23 12:00:02,483 - ERROR - [autogen_orchestrator.py:1296] - GraphFlow workflow run failed: 'str' object has no attribute 'get'
+Traceback (most recent call last):
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 1105, in run_workflow
+    agents_with_wb, _ = await self._build_agents_team(team, monitor=monitor)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 510, in _build_agents_team
+    wb = await self._build_workbench_for_agent(spec, monitor=monitor)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 461, in _build_workbench_for_agent
+    sid = t.get('server_id')
+          ^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+2025-08-23 12:00:56,190 - ERROR - [autogen_orchestrator.py:1296] - GraphFlow workflow run failed: 'str' object has no attribute 'get'
+Traceback (most recent call last):
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 1105, in run_workflow
+    agents_with_wb, _ = await self._build_agents_team(team, monitor=monitor)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 510, in _build_agents_team
+    wb = await self._build_workbench_for_agent(spec, monitor=monitor)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 461, in _build_workbench_for_agent
+    sid = t.get('server_id')
+          ^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+2025-08-23 12:01:32,931 - ERROR - [autogen_orchestrator.py:1296] - GraphFlow workflow run failed: The agent name must be a valid Python identifier.
+Traceback (most recent call last):
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 1105, in run_workflow
+    agents_with_wb, _ = await self._build_agents_team(team, monitor=monitor)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 517, in _build_agents_team
+    agent = AssistantAgent(
+            ^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 747, in __init__
+    super().__init__(name=name, description=description)
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_base_chat_agent.py", line 49, in __init__
+    raise ValueError("The agent name must be a valid Python identifier.")
+ValueError: The agent name must be a valid Python identifier.
+
+2025-08-23 12:03:07,261 - ERROR - [autogen_orchestrator.py:1296] - GraphFlow workflow run failed: Graph has no nodes.
+Traceback (most recent call last):
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 1290, in run_workflow
+    result = await execute_graphflow()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 1232, in execute_graphflow
+    digraph = builder.build()
+              ^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_graph/_graph_builder.py", line 204, in build
+    graph.graph_validate()
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_graph/_digraph_group_chat.py", line 209, in graph_validate
+    raise ValueError("Graph has no nodes.")
+ValueError: Graph has no nodes.
+
+2025-08-23 19:51:42,865 - ERROR - [autogen_orchestrator.py:1058] - Team run failed: BadRequestError: Error code: 400 - {'error': {'message': "Tool call validation failed: tool call validation failed: attempted to call tool 'execute_sql_query' which was not in request.tools", 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '{"name": "execute_sql_query", "arguments": {"query":"SELECT name FROM sqlite_master WHERE type=\'table\' AND name=\'MAPPINGS\';"}}'}}
+Traceback:
+Traceback (most recent call last):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_chat_agent_container.py", line 133, in handle_request
+    async for msg in self._agent.on_messages_stream(self._message_buffer, ctx.cancellation_token):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 953, in on_messages_stream
+    async for inference_output in self._call_llm(
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 1107, in _call_llm
+    model_result = await model_client.create(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 691, in create
+    result: Union[ParsedChatCompletion[BaseModel], ChatCompletion] = await future
+                                                                     ^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/openai/resources/chat/completions/completions.py", line 2583, in create
+    return await self._post(
+           ^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/openai/_base_client.py", line 1794, in post
+    return await self.request(cast_to, opts, stream=stream, stream_cls=stream_cls)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/openai/_base_client.py", line 1594, in request
+    raise self._make_status_error_from_response(err.response) from None
+
+openai.BadRequestError: Error code: 400 - {'error': {'message': "Tool call validation failed: tool call validation failed: attempted to call tool 'execute_sql_query' which was not in request.tools", 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '{"name": "execute_sql_query", "arguments": {"query":"SELECT name FROM sqlite_master WHERE type=\'table\' AND name=\'MAPPINGS\';"}}'}}
+
+Traceback (most recent call last):
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 1052, in run_team
+    result = await with_all_workbenches()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/gitrepo/copilot/text2sql/src/services/autogen_orchestrator.py", line 897, in with_all_workbenches
+    result = await team_obj.run(task=task)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat.py", line 340, in run
+    async for message in self.run_stream(
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_base_group_chat.py", line 554, in run_stream
+    raise RuntimeError(str(message.error))
+RuntimeError: BadRequestError: Error code: 400 - {'error': {'message': "Tool call validation failed: tool call validation failed: attempted to call tool 'execute_sql_query' which was not in request.tools", 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '{"name": "execute_sql_query", "arguments": {"query":"SELECT name FROM sqlite_master WHERE type=\'table\' AND name=\'MAPPINGS\';"}}'}}
+Traceback:
+Traceback (most recent call last):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/teams/_group_chat/_chat_agent_container.py", line 133, in handle_request
+    async for msg in self._agent.on_messages_stream(self._message_buffer, ctx.cancellation_token):
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 953, in on_messages_stream
+    async for inference_output in self._call_llm(
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_agentchat/agents/_assistant_agent.py", line 1107, in _call_llm
+    model_result = await model_client.create(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/autogen_ext/models/openai/_openai_client.py", line 691, in create
+    result: Union[ParsedChatCompletion[BaseModel], ChatCompletion] = await future
+                                                                     ^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/openai/resources/chat/completions/completions.py", line 2583, in create
+    return await self._post(
+           ^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/openai/_base_client.py", line 1794, in post
+    return await self.request(cast_to, opts, stream=stream, stream_cls=stream_cls)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/vijay/anaconda3/lib/python3.11/site-packages/openai/_base_client.py", line 1594, in request
+    raise self._make_status_error_from_response(err.response) from None
+
+openai.BadRequestError: Error code: 400 - {'error': {'message': "Tool call validation failed: tool call validation failed: attempted to call tool 'execute_sql_query' which was not in request.tools", 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '{"name": "execute_sql_query", "arguments": {"query":"SELECT name FROM sqlite_master WHERE type=\'table\' AND name=\'MAPPINGS\';"}}'}}
+
+
