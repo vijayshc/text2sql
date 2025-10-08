@@ -19,6 +19,7 @@ from src.routes.autogen_routes import autogen_bp
 from src.routes.tool_confirmation_routes import tool_confirmation_bp  # new import for confirmation endpoint
 from src.routes.skill_routes import skill_bp  # Import skill routes
 from src.routes.data_mapping_routes import data_mapping_bp  # Import data mapping routes
+from src.routes.project_mapping_routes import project_mapping_bp  # Import project mapping routes
 from src.models.user import Permissions
 from config.config import SECRET_KEY, DEBUG, MCP_SERVER_SCRIPT_PATH, AUTH_PROVIDER
 import logging
@@ -152,6 +153,8 @@ app.register_blueprint(mcp_admin_bp)
 app.register_blueprint(skill_bp)
 # Register data mapping blueprint
 app.register_blueprint(data_mapping_bp)
+# Register project mapping blueprint
+app.register_blueprint(project_mapping_bp)
 
 # Make CSRF token available in templates
 @app.context_processor

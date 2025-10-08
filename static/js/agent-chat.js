@@ -31,11 +31,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const autogenTeamCol = document.getElementById('autogenTeamCol');
     const autogenWorkflowCol = document.getElementById('autogenWorkflowCol');
     const mcpServerCol = document.getElementById('mcpServerCol');
+    const projectCol = document.getElementById('projectCol');
+    const projectSelect = document.getElementById('projectSelect');
 
     let eventSource = null;
     
     // Variable to track the most recent agent response
     let lastAgentResponse = "Hello! I'm your agent assistant. How can I help you today?";
+    
+    // Variable to track the most recent llm_result JSON for the current response
+    let lastLlmResult = null;
     
     // Array to store conversation history for follow-up questions
     // This will only include the user questions and final answers, not intermediate steps
@@ -47,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     ];
 
-    function addMessage(content, type, isFinal = false) {
+    function addMessage(content, type, isFinal = false, llmResultData = null) {
         const messageElement = document.createElement('div');
         // Use knowledge-base chat message structure
         messageElement.classList.add('message', type === 'user' ? 'user-message' : 'system-message');
@@ -56,6 +61,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (type === 'agent') {
             lastAgentResponse = content;
             console.log("Updated lastAgentResponse:", lastAgentResponse);
+            
+            // Store llm_result if provided
+            if (llmResultData) {
+                lastLlmResult = llmResultData;
+            }
         }
         
         // If this is a final answer or user message, store it in conversation history
@@ -90,6 +100,26 @@ document.addEventListener('DOMContentLoaded', () => {
         const avatar = document.createElement('div');
         avatar.classList.add('avatar', type === 'user' ? 'user-avatar' : 'system-avatar');
         avatar.innerHTML = type === 'user' ? '<i class="fas fa-user-circle"></i>' : '<i class="fas fa-robot"></i>';
+        
+        // Add JSON view icon to avatar area if this is a final agent message with llm_result data
+        if (type === 'agent' && isFinal && llmResultData) {
+            const jsonIconBtn = document.createElement('button');
+            jsonIconBtn.className = 'btn btn-link btn-sm p-0 ms-1 view-llm-json';
+            jsonIconBtn.title = 'View LLM Result JSON';
+            jsonIconBtn.innerHTML = '<i class="fas fa-code"></i>';
+            jsonIconBtn.setAttribute('data-llm-result', JSON.stringify(llmResultData));
+            jsonIconBtn.style.cssText = 'font-size: 1rem; opacity: 0.8; vertical-align: middle; color: inherit;';
+            
+            // Add click handler
+            jsonIconBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const jsonData = JSON.parse(this.getAttribute('data-llm-result'));
+                showLlmResultModal(jsonData);
+            });
+            
+            avatar.appendChild(jsonIconBtn);
+        }
         
         // Create content container
         const contentDiv = document.createElement('div');
@@ -188,6 +218,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (serverSelect) serverSelect.disabled = true;
             });
     }
+    
+    // Load mapping projects
+    function loadProjects() {
+        if (!projectSelect) return;
+        
+        fetch('/api/mapping-projects')
+            .then(r => r.json())
+            .then(d => {
+                // Reset, keep first "Default" option
+                while (projectSelect.options.length > 1) projectSelect.remove(1);
+                if (d.success && d.projects) {
+                    d.projects.forEach(p => {
+                        const opt = document.createElement('option');
+                        opt.value = p.name;
+                        opt.textContent = p.name;
+                        projectSelect.appendChild(opt);
+                    });
+                }
+            })
+            .catch(() => {});
+    }
 
     // Load AutoGen teams/workflows
     function loadTeams() {
@@ -228,14 +279,18 @@ document.addEventListener('DOMContentLoaded', () => {
             if (mcpServerCol) mcpServerCol.style.display = 'block';
             if (autogenTeamCol) autogenTeamCol.style.display = 'none';
             if (autogenWorkflowCol) autogenWorkflowCol.style.display = 'none';
+            if (projectCol) projectCol.style.display = 'block';
             loadAvailableServers();
+            loadProjects();
         } else {
             // Show AutoGen options, hide MCP options
             if (autogenTeamCol) autogenTeamCol.style.display = 'block';
             if (autogenWorkflowCol) autogenWorkflowCol.style.display = 'block';
             if (mcpServerCol) mcpServerCol.style.display = 'none';
+            if (projectCol) projectCol.style.display = 'block';
             loadTeams();
             loadWorkflows();
+            loadProjects();
         }
     }
 
@@ -273,6 +328,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Determine endpoint and payload based on mode
         const mode = modeSelect ? modeSelect.value : 'autogen';
+        const projectName = projectSelect && projectSelect.value ? projectSelect.value : null;
         let endpoint, payload;
         
         if (mode === 'mcp') {
@@ -282,7 +338,8 @@ document.addEventListener('DOMContentLoaded', () => {
             payload = {
                 query: query,
                 server_id: serverId || undefined,
-                conversation_history: previousHistory
+                conversation_history: previousHistory,
+                project_name: projectName
             };
         } else {
             // Use AutoGen endpoint
@@ -300,7 +357,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 query,
                 team_id: teamSelect && teamSelect.value ? parseInt(teamSelect.value, 10) : undefined,
                 workflow_id: workflowSelect && workflowSelect.value ? parseInt(workflowSelect.value, 10) : undefined,
-                conversation_history: previousHistory
+                conversation_history: previousHistory,
+                project_name: projectName
             };
         }
 
@@ -370,10 +428,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                 if (update.is_final === true || isLikelyFinalAnswer) {
                     console.log("Adding FINAL answer to history:", update.content);
-                    addMessage(update.content, 'agent', true); // true marks this as a final answer
+                    // Pass llm_result data if available in the update
+                    addMessage(update.content, 'agent', true, update.llm_result || null); // true marks this as a final answer
                 } else {
                     console.log("Adding intermediate response:", update.content);
-                    addMessage(update.content, 'agent', false); // intermediate response
+                    addMessage(update.content, 'agent', false, null); // intermediate response
                 }
                 break;
             case 'tool_call':
@@ -474,4 +533,55 @@ document.addEventListener('DOMContentLoaded', () => {
             intermediateStep.classList.toggle('expanded');
         }
     });
+    
+    // Function to display LLM result JSON in a modal
+    window.showLlmResultModal = function(jsonData) {
+        // Create modal if it doesn't exist
+        let modal = document.getElementById('llmResultModal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.className = 'modal fade';
+            modal.id = 'llmResultModal';
+            modal.setAttribute('tabindex', '-1');
+            modal.innerHTML = `
+                <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">LLM Result JSON</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <pre id="llmResultJson" class="bg-dark text-light p-3" style="border-radius: 5px; max-height: 500px; overflow-y: auto;"></pre>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary btn-sm" id="copyLlmJson"><i class="fas fa-copy"></i> Copy</button>
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            
+            // Add copy button handler
+            modal.querySelector('#copyLlmJson').addEventListener('click', function() {
+                const jsonText = modal.querySelector('#llmResultJson').textContent;
+                navigator.clipboard.writeText(jsonText).then(() => {
+                    const btn = this;
+                    const originalHTML = btn.innerHTML;
+                    btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                    setTimeout(() => { btn.innerHTML = originalHTML; }, 2000);
+                }).catch(err => {
+                    console.error('Failed to copy:', err);
+                });
+            });
+        }
+        
+        // Update modal content
+        const jsonPre = modal.querySelector('#llmResultJson');
+        jsonPre.textContent = JSON.stringify(jsonData, null, 2);
+        
+        // Show modal
+        const bsModal = new bootstrap.Modal(modal);
+        bsModal.show();
+    };
 });

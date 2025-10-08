@@ -9,88 +9,90 @@
 <!-- Markdown-it for markdown rendering -->
 <script src="{{ url_for('static', filename='vendor/markdown-it/markdown-it-13.0.1.min.js') }}"></script>
 <style>
-  /* Result modal specific styles */
-  #resultModal .markdown-content {
+  /* Markdown content styling for both resultModal and stepsModal */
+  .markdown-content {
     font-size: 14px;
     line-height: 1.6;
   }
-  
-  #resultModal .markdown-content h1,
-  #resultModal .markdown-content h2,
-  #resultModal .markdown-content h3,
-  #resultModal .markdown-content h4,
-  #resultModal .markdown-content h5,
-  #resultModal .markdown-content h6 {
+
+  .markdown-content h1,
+  .markdown-content h2,
+  .markdown-content h3,
+  .markdown-content h4,
+  .markdown-content h5,
+  .markdown-content h6 {
     margin-top: 1.5rem;
     margin-bottom: 0.75rem;
     font-weight: 600;
   }
-  
-  #resultModal .markdown-content h1 { font-size: 1.5rem; }
-  #resultModal .markdown-content h2 { font-size: 1.35rem; }
-  #resultModal .markdown-content h3 { font-size: 1.2rem; }
-  #resultModal .markdown-content h4 { font-size: 1.1rem; }
-  #resultModal .markdown-content h5 { font-size: 1rem; }
-  #resultModal .markdown-content h6 { font-size: 0.9rem; }
-  
-  #resultModal .markdown-content p {
+
+  .markdown-content h1 { font-size: 1.5rem; }
+  .markdown-content h2 { font-size: 1.35rem; }
+  .markdown-content h3 { font-size: 1.2rem; }
+  .markdown-content h4 { font-size: 1.1rem; }
+  .markdown-content h5 { font-size: 1rem; }
+  .markdown-content h6 { font-size: 0.9rem; }
+
+  .markdown-content p {
     margin-bottom: 1rem;
   }
-  
-  #resultModal .markdown-content ul,
-  #resultModal .markdown-content ol {
+
+  .markdown-content ul,
+  .markdown-content ol {
     margin-bottom: 1rem;
     padding-left: 1.5rem;
   }
-  
-  #resultModal .markdown-content li {
+
+  .markdown-content li {
     margin-bottom: 0.25rem;
   }
-  
-  #resultModal .markdown-content blockquote {
-    border-left: 4px solid var(--bs-primary);
+
+  .markdown-content blockquote {
+    border-left: 4px solid var(--bs-primary, #0d6efd);
     margin: 1rem 0;
     padding: 0.5rem 1rem;
-    background-color: var(--bs-light);
+    background-color: var(--bs-light, rgba(0,0,0,.03));
   }
-  
-  #resultModal .markdown-content code {
-    background-color: var(--bs-light);
+
+  .markdown-content code {
+    background-color: var(--bs-light, rgba(0,0,0,.03));
     padding: 0.125rem 0.25rem;
     border-radius: 0.25rem;
     font-size: 0.875em;
   }
-  
-  #resultModal .markdown-content pre {
-    background-color: var(--bs-dark);
-    color: var(--bs-light);
+
+  .markdown-content pre {
+    background-color: var(--bs-dark, #f8f9fa);
+    color: var(--bs-light, #333);
     padding: 1rem;
     border-radius: 0.5rem;
     overflow-x: auto;
     margin: 1rem 0;
+    border: 1px solid var(--bs-border-color, #dee2e6);
   }
-  
-  #resultModal .markdown-content pre code {
+
+  .markdown-content pre code {
     background: none;
     padding: 0;
     color: inherit;
   }
-  
-  #resultModal .markdown-content table {
+
+  .markdown-content table {
     width: 100%;
     margin: 1rem 0;
     border-collapse: collapse;
+    border: 1px solid var(--bs-border-color, #dee2e6);
   }
-  
-  #resultModal .markdown-content th,
-  #resultModal .markdown-content td {
-    border: 1px solid var(--bs-border-color);
+
+  .markdown-content th,
+  .markdown-content td {
+    border: 1px solid var(--bs-border-color, #dee2e6);
     padding: 0.5rem;
     text-align: left;
   }
-  
-  #resultModal .markdown-content th {
-    background-color: var(--bs-light);
+
+  .markdown-content th {
+    background-color: var(--bs-light, rgba(0,0,0,.03));
     font-weight: 600;
   }
 </style>
@@ -218,7 +220,7 @@
         <div class="btn-group btn-group-sm ms-3" role="group">
           <input type="radio" class="btn-check" name="resultViewMode" id="resultViewFormatted" autocomplete="off" checked>
           <label class="btn btn-outline-primary" for="resultViewFormatted">Formatted</label>
-          
+
           <input type="radio" class="btn-check" name="resultViewMode" id="resultViewRaw" autocomplete="off">
           <label class="btn btn-outline-primary" for="resultViewRaw">Raw</label>
         </div>
@@ -227,6 +229,24 @@
       <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
         <div id="resultFormatted" class="markdown-content"></div>
         <pre class="bg-light p-3 rounded" id="resultRaw" style="white-space: pre-wrap; word-break: break-word; display: none;"></pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Steps Modal for LLM Result Conversation View -->
+<div class="modal fade" id="stepsModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Conversation Steps</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+        <div id="stepsModalBody"></div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

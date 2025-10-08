@@ -223,7 +223,22 @@ def autogen_chat_stream():
                 if res.get('success'):
                     reply = res.get('reply') or res.get('final') or ''
                     collected.append(reply)
-                    yield f"data: {json.dumps({'type':'llm_response','content': reply, 'is_final': True, 'run_id': res.get('run_id')})}\n\n"
+                    
+                    # Fetch llm_result from run events if run_id is available
+                    llm_result_data = None
+                    run_id = res.get('run_id')
+                    if run_id:
+                        try:
+                            events = RunMonitor.get_events(run_id)
+                            # Find the last llm_result event
+                            for event in reversed(events):
+                                if event.get('event_type') == 'llm_result':
+                                    llm_result_data = event.get('detail', {})
+                                    break
+                        except Exception as e:
+                            logger.warning(f"Failed to fetch llm_result: {e}")
+                    
+                    yield f"data: {json.dumps({'type':'llm_response','content': reply, 'is_final': True, 'run_id': run_id, 'llm_result': llm_result_data})}\n\n"
                 else:
                     err_msg = res.get('error', 'Unknown error')
                     collected.append(f"ERROR: {err_msg}")

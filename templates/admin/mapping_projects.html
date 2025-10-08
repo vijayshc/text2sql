@@ -1,0 +1,216 @@
+{% extends "index.html" %}
+
+{% block head %}
+{{ super() }}
+<style>
+.upload-area {
+    border: 2px dashed var(--border-color);
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.upload-area:hover {
+    border-color: var(--button-primary-bg);
+    background-color: var(--hover-bg);
+}
+
+.upload-area.drag-over {
+    border-color: var(--success-color);
+    background-color: var(--hover-bg);
+}
+
+#documentsTable_wrapper {
+    margin-top: 1rem;
+}
+
+#projectsTable_wrapper .dataTables_filter {
+    margin-bottom: 1rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="page-title">
+                        <i class="fas fa-folder-open"></i> Mapping Documents
+                    </h2>
+                    <p class="text-muted">Manage your data mapping documents</p>
+                </div>
+                <div>
+                    <button class="btn btn-primary me-2" id="selectProjectBtn">
+                        <i class="fas fa-folder"></i> Select Project
+                    </button>
+                    <button class="btn btn-success" id="uploadMappingBtn" style="display: none;">
+                        <i class="fas fa-upload"></i> Upload Mapping
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Current Project Card -->
+    <div id="noProjectSelected" class="card glass text-center py-5 mb-4">
+        <div class="card-body">
+            <i class="fas fa-folder-open fa-4x text-muted mb-3"></i>
+            <h5 class="text-muted">No Project Selected</h5>
+            <p class="text-muted">Click "Select Project" to choose a project or create a new one</p>
+        </div>
+    </div>
+
+    <div id="projectDetails" style="display: none;">
+        <!-- Project Info -->
+        <div class="card glass mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle"></i> 
+                    <span id="projectName">Project Name</span>
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-0" id="projectDescription">Project description</p>
+            </div>
+        </div>
+
+        <!-- Documents Table -->
+        <div class="card glass">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-file-excel"></i> Documents</h5>
+            </div>
+            <div class="card-body">
+                <table id="documentsTable" class="table table-striped table-hover" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Filename</th>
+                            <th>Uploaded By</th>
+                            <th>Uploaded At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Upload Mapping Modal -->
+<div class="modal fade" id="uploadMappingModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-upload"></i> Upload Mapping Document
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="upload-area" id="uploadArea">
+                    <i class="fas fa-cloud-upload-alt fa-3x mb-2"></i>
+                    <h5>Upload Mapping Document</h5>
+                    <p class="text-muted">Drag & drop an Excel file here or click to browse</p>
+                    <input type="file" id="fileInput" accept=".xlsx,.xls" style="display: none;">
+                    <button class="btn btn-primary" id="browseBtn">
+                        <i class="fas fa-folder-open"></i> Browse Files
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Projects Modal -->
+<div class="modal fade" id="projectsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-folder"></i> Select Project
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3 text-end">
+                    <button class="btn btn-sm btn-primary" id="createProjectBtn">
+                        <i class="fas fa-plus"></i> Create New Project
+                    </button>
+                </div>
+                <table id="projectsTable" class="table table-striped table-hover" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Project Name</th>
+                            <th>Description</th>
+                            <th>Created At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create/Edit Project Modal -->
+<div class="modal fade" id="projectFormModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="projectFormModalTitle">Create Project</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="projectForm">
+                    <input type="hidden" id="projectId">
+                    <div class="mb-3">
+                        <label for="projectNameInput" class="form-label">Project Name *</label>
+                        <input type="text" class="form-control" id="projectNameInput" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="projectDescInput" class="form-label">Description</label>
+                        <textarea class="form-control" id="projectDescInput" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveProjectBtn">Save Project</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p id="deleteMessage">Are you sure you want to delete this item?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/admin/mapping-projects.js') }}"></script>
+{% endblock %}

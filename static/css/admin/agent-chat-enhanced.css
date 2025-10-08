@@ -1,5 +1,31 @@
 /* Enhanced styling for agent chat with conversation history support - Theme-aware */
 
+/* Avatar container with JSON icon button */
+.system-message .avatar {
+    display: flex;
+    align-items: center;
+    width: auto;
+    min-width: 32px;
+    gap: 4px;
+}
+
+/* Style for the LLM JSON view button in avatar */
+.system-message .avatar .view-llm-json {
+    color: inherit;
+    text-decoration: none;
+    padding: 2px 4px;
+    transition: opacity 0.2s ease;
+}
+
+.system-message .avatar .view-llm-json:hover {
+    opacity: 1 !important;
+    transform: scale(1.1);
+}
+
+.system-message .avatar .view-llm-json i {
+    font-size: 0.9rem;
+}
+
 /* Style for intermediate steps - collapsed and faded by default */
 .message.system-message.intermediate-step {
     opacity: 0.65;

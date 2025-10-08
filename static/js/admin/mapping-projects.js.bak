@@ -1,0 +1,384 @@
+/**
+ * Mapping Projects Management
+ * Handles project and document CRUD operations
+ */
+
+let currentProject = null;
+let projects = [];
+let documents = [];
+
+document.addEventListener('DOMContentLoaded', () => {
+    initializeEventListeners();
+    loadProjects();
+});
+
+function initializeEventListeners() {
+    // Project management
+    document.getElementById('createProjectBtn').addEventListener('click', () => showProjectModal());
+    document.getElementById('saveProjectBtn').addEventListener('click', saveProject);
+    document.getElementById('editProjectBtn').addEventListener('click', () => showProjectModal(currentProject));
+    document.getElementById('deleteProjectBtn').addEventListener('click', () => confirmDeleteProject());
+    
+    // Document upload
+    document.getElementById('browseBtn').addEventListener('click', () => {
+        document.getElementById('fileInput').click();
+    });
+    
+    document.getElementById('fileInput').addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            uploadDocument(e.target.files[0]);
+        }
+    });
+    
+    // Drag and drop
+    const uploadArea = document.getElementById('uploadArea');
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.classList.add('drag-over');
+    });
+    
+    uploadArea.addEventListener('dragleave', () => {
+        uploadArea.classList.remove('drag-over');
+    });
+    
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('drag-over');
+        
+        if (e.dataTransfer.files.length > 0) {
+            const file = e.dataTransfer.files[0];
+            if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+                uploadDocument(file);
+            } else {
+                showAlert('Please upload an Excel file (.xlsx or .xls)', 'warning');
+            }
+        }
+    });
+}
+
+// ==================== Project Management ====================
+
+async function loadProjects() {
+    try {
+        const response = await fetch('/api/mapping-projects');
+        const data = await response.json();
+        
+        if (data.success) {
+            projects = data.projects;
+            renderProjects();
+        } else {
+            showAlert('Failed to load projects: ' + data.error, 'danger');
+        }
+    } catch (error) {
+        showAlert('Error loading projects: ' + error.message, 'danger');
+    }
+}
+
+function renderProjects() {
+    const projectsList = document.getElementById('projectsList');
+    
+    if (projects.length === 0) {
+        projectsList.innerHTML = `
+            <div class="text-center py-4">
+                <i class="fas fa-folder-open fa-3x text-muted mb-2"></i>
+                <p class="text-muted">No projects yet</p>
+                <p class="text-muted small">Create your first project to get started</p>
+            </div>
+        `;
+        return;
+    }
+    
+    projectsList.innerHTML = projects.map(project => `
+        <div class="list-group-item list-group-item-action project-card ${currentProject && currentProject.id === project.id ? 'active' : ''}"
+             data-project-id="${project.id}"
+             onclick="selectProject(${project.id})">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-1"><i class="fas fa-folder"></i> ${escapeHtml(project.name)}</h6>
+                    <small class="text-muted">${escapeHtml(project.description || 'No description')}</small>
+                </div>
+                <i class="fas fa-chevron-right text-muted"></i>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function selectProject(projectId) {
+    const project = projects.find(p => p.id === projectId);
+    if (!project) return;
+    
+    currentProject = project;
+    renderProjects();
+    
+    // Show project details
+    document.getElementById('noProjectSelected').style.display = 'none';
+    document.getElementById('projectDetails').style.display = 'block';
+    document.getElementById('projectName').textContent = project.name;
+    document.getElementById('projectDescription').textContent = project.description || 'No description';
+    
+    // Load documents for this project
+    await loadDocuments(projectId);
+}
+
+function showProjectModal(project = null) {
+    const modal = new bootstrap.Modal(document.getElementById('projectModal'));
+    const title = document.getElementById('projectModalTitle');
+    const projectId = document.getElementById('projectId');
+    const nameInput = document.getElementById('projectNameInput');
+    const descInput = document.getElementById('projectDescInput');
+    
+    if (project) {
+        // Edit mode
+        title.textContent = 'Edit Project';
+        projectId.value = project.id;
+        nameInput.value = project.name;
+        descInput.value = project.description || '';
+    } else {
+        // Create mode
+        title.textContent = 'Create Project';
+        projectId.value = '';
+        nameInput.value = '';
+        descInput.value = '';
+    }
+    
+    modal.show();
+}
+
+async function saveProject() {
+    const projectId = document.getElementById('projectId').value;
+    const name = document.getElementById('projectNameInput').value.trim();
+    const description = document.getElementById('projectDescInput').value.trim();
+    
+    if (!name) {
+        showAlert('Project name is required', 'warning');
+        return;
+    }
+    
+    const data = { name, description };
+    const isEdit = projectId !== '';
+    
+    try {
+        const response = await fetch(
+            isEdit ? `/api/mapping-projects/${projectId}` : '/api/mapping-projects',
+            {
+                method: isEdit ? 'PUT' : 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            }
+        );
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showAlert(isEdit ? 'Project updated successfully' : 'Project created successfully', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('projectModal')).hide();
+            await loadProjects();
+            
+            // Select the newly created/updated project
+            if (!isEdit) {
+                selectProject(result.project.id);
+            } else if (currentProject && currentProject.id === result.project.id) {
+                selectProject(result.project.id);
+            }
+        } else {
+            showAlert('Error: ' + result.error, 'danger');
+        }
+    } catch (error) {
+        showAlert('Error saving project: ' + error.message, 'danger');
+    }
+}
+
+function confirmDeleteProject() {
+    if (!currentProject) return;
+    
+    const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    const message = document.getElementById('deleteMessage');
+    message.innerHTML = `
+        <p>Are you sure you want to delete the project <strong>${escapeHtml(currentProject.name)}</strong>?</p>
+        <p class="text-danger"><i class="fas fa-exclamation-triangle"></i> This will delete all associated documents and cannot be undone.</p>
+    `;
+    
+    document.getElementById('confirmDeleteBtn').onclick = deleteProject;
+    modal.show();
+}
+
+async function deleteProject() {
+    if (!currentProject) return;
+    
+    try {
+        const response = await fetch(`/api/mapping-projects/${currentProject.id}`, {
+            method: 'DELETE'
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showAlert('Project deleted successfully', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
+            
+            currentProject = null;
+            document.getElementById('noProjectSelected').style.display = 'block';
+            document.getElementById('projectDetails').style.display = 'none';
+            
+            await loadProjects();
+        } else {
+            showAlert('Error: ' + result.error, 'danger');
+        }
+    } catch (error) {
+        showAlert('Error deleting project: ' + error.message, 'danger');
+    }
+}
+
+// ==================== Document Management ====================
+
+async function loadDocuments(projectId) {
+    try {
+        const response = await fetch(`/api/mapping-projects/${projectId}/documents`);
+        const data = await response.json();
+        
+        if (data.success) {
+            documents = data.documents;
+            renderDocuments();
+        } else {
+            showAlert('Failed to load documents: ' + data.error, 'danger');
+        }
+    } catch (error) {
+        showAlert('Error loading documents: ' + error.message, 'danger');
+    }
+}
+
+function renderDocuments() {
+    const documentsList = document.getElementById('documentsList');
+    
+    if (documents.length === 0) {
+        documentsList.innerHTML = `
+            <div class="text-center py-3">
+                <i class="fas fa-file-excel fa-2x text-muted mb-2"></i>
+                <p class="text-muted">No documents uploaded yet</p>
+            </div>
+        `;
+        return;
+    }
+    
+    documentsList.innerHTML = `
+        <div class="list-group">
+            ${documents.map(doc => `
+                <div class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1">
+                                <i class="fas fa-file-excel text-success"></i> 
+                                ${escapeHtml(doc.filename)}
+                            </h6>
+                            <small class="text-muted">
+                                Uploaded: ${new Date(doc.uploaded_at).toLocaleString()}
+                            </small>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-primary" onclick="downloadDocument(${currentProject.id}, ${doc.id})">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="confirmDeleteDocument(${doc.id}, '${escapeHtml(doc.filename)}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+async function uploadDocument(file) {
+    if (!currentProject) {
+        showAlert('Please select a project first', 'warning');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    try {
+        showAlert('Uploading document...', 'info');
+        
+        const response = await fetch(`/api/mapping-projects/${currentProject.id}/documents/upload`, {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showAlert('Document uploaded successfully', 'success');
+            document.getElementById('fileInput').value = '';
+            await loadDocuments(currentProject.id);
+        } else {
+            showAlert('Error: ' + result.error, 'danger');
+        }
+    } catch (error) {
+        showAlert('Error uploading document: ' + error.message, 'danger');
+    }
+}
+
+function downloadDocument(projectId, docId) {
+    window.location.href = `/api/mapping-projects/${projectId}/documents/${docId}/download`;
+}
+
+function confirmDeleteDocument(docId, filename) {
+    const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    const message = document.getElementById('deleteMessage');
+    message.innerHTML = `
+        <p>Are you sure you want to delete <strong>${filename}</strong>?</p>
+        <p class="text-danger"><i class="fas fa-exclamation-triangle"></i> This action cannot be undone.</p>
+    `;
+    
+    document.getElementById('confirmDeleteBtn').onclick = () => deleteDocument(docId);
+    modal.show();
+}
+
+async function deleteDocument(docId) {
+    if (!currentProject) return;
+    
+    try {
+        const response = await fetch(`/api/mapping-projects/${currentProject.id}/documents/${docId}`, {
+            method: 'DELETE'
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showAlert('Document deleted successfully', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
+            await loadDocuments(currentProject.id);
+        } else {
+            showAlert('Error: ' + result.error, 'danger');
+        }
+    } catch (error) {
+        showAlert('Error deleting document: ' + error.message, 'danger');
+    }
+}
+
+// ==================== Utility Functions ====================
+
+function showAlert(message, type = 'info') {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3`;
+    alertDiv.style.zIndex = '9999';
+    alertDiv.style.minWidth = '300px';
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(alertDiv);
+    
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 5000);
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
