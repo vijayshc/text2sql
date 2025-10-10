@@ -5,6 +5,7 @@ The purpose of our support policy is to provide customers with a clear understan
 By adhering to these guidelines, we are committed to providing customers with the highest level of service and support, as well as ensuring that our cloud services meet the evolving needs of our customers. We understand that our customers rely on our services to support their business operations, and we are committed to providing the support and resources necessary to ensure their success.
 
 When does the Cloudera on cloud (formerly, Public Cloud Data Services) EOS policy go into effect?
+dfdf
 
 The policy goes into effect immediately and applies to all upcoming Cloudera on cloud (formerly, Public Cloud Data Services) releases. Please refer to the Current End of Support (EoS) Dates table for each Cloudera on cloud (formerly, Public Cloud Data Services) to understand EOS dates for already released versions.
 
@@ -15,6 +16,7 @@ Our Cloudera on cloud (formerly, Public Cloud Data Services) are built on Kubern
 Our Cloudera on cloud (formerly, Public Cloud Data Services) EOS policy is drawn to respect the cloud providers’ EOS policies and ensure that our data services remain secure, reliable, and compliant.
 
 And on a regular basis we will assess any updates to the cloud provider Kubernetes EOS policy to ensure as much alignment as possible.
+
 
 What is the recommended upgrade cadence? 
 

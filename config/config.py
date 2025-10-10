@@ -74,6 +74,18 @@ os.makedirs(UPLOADS_DIR, exist_ok=True)
 CHUNK_SIZE = int(os.getenv('CHUNK_SIZE', '1000'))
 CHUNK_OVERLAP = int(os.getenv('CHUNK_OVERLAP', '200'))
 
+# File browser configuration
+FILE_BROWSER_ROOT = os.path.abspath(os.getenv('FILE_BROWSER_ROOT', UPLOADS_DIR))
+os.makedirs(FILE_BROWSER_ROOT, exist_ok=True)
+
+_default_file_exts = '.txt,.md,.json,.csv,.yaml,.yml,.sql,.py'
+_configured_exts = os.getenv('FILE_BROWSER_ALLOWED_EXTENSIONS', _default_file_exts)
+FILE_BROWSER_ALLOWED_EXTENSIONS = {
+    ext if ext.startswith('.') else f'.{ext}'
+    for ext in (item.strip().lower() for item in _configured_exts.split(',') if item.strip())
+}
+
+
 # Conversation history configuration
 KNOWLEDGE_CONVERSATION_HISTORY_LIMIT = int(os.getenv('KNOWLEDGE_CONVERSATION_HISTORY_LIMIT', '10'))
 METADATA_CONVERSATION_HISTORY_LIMIT = int(os.getenv('METADATA_CONVERSATION_HISTORY_LIMIT', '10'))

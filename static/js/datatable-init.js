@@ -73,7 +73,7 @@
     // Skip specific IDs that are known to have custom initialization
     const id = table.id || '';
     const customManagedTables = [
-      'resultsTable', 
+      'resultsTable',
       'queryEditorResultsTable',
       'sqlResultsTable',
       'records-table', // Vector DB records with custom pagination
@@ -83,6 +83,7 @@
       'serversTable',
       'skillsTable',
       'recentActivitiesTable' // Admin dashboard table with dynamic content
+      // Note: fileBrowserTable is NOT in this list - it should use central initialization
     ];
     
     if (customManagedTables.includes(id)) return true;
