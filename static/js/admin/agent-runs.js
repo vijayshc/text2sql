@@ -8,8 +8,12 @@
     typographer: true
   });
 
-  const runsTableBody = () => document.querySelector('#runsTable tbody');
-  const eventsTableBody = () => document.querySelector('#eventsTable tbody');
+  let runsTableElement = null;
+  let runsDataTable = null;
+  let eventsTableElement = null;
+  let eventsDataTable = null;
+  const runsTableBody = () => runsTableElement ? runsTableElement.querySelector('tbody') : null;
+  const eventsTableBody = () => eventsTableElement ? eventsTableElement.querySelector('tbody') : null;
   const runMeta = () => document.querySelector('#runMeta');
   const runsLimitEl = () => document.querySelector('#runsLimit');
   const refreshBtn = () => document.querySelector('#refreshRunsBtn');
@@ -63,26 +67,117 @@
     const s = (status||'').toLowerCase();
     const map = { running: 'bg-info', success: 'bg-success', error: 'bg-danger' };
     const cls = map[s] || 'bg-secondary';
-    return `<span class="badge ${cls}">${status}</span>`;
+    return `<span class="badge ${cls}">${escapeHtml(status || '')}</span>`;
+  }
+
+  function escapeHtml(value) {
+    if (value === null || value === undefined) return '';
+    return String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function initRunsDataTable() {
+    if (!runsTableElement) return;
+    if (!(window.jQuery && $.fn.DataTable)) return;
+    if ($.fn.DataTable.isDataTable(runsTableElement)) {
+      runsDataTable = $(runsTableElement).DataTable();
+      return;
+    }
+
+    runsDataTable = $(runsTableElement).DataTable({
+      order: [[0, 'desc']],
+      columnDefs: [
+        { targets: -1, orderable: false, searchable: false },
+        { targets: 3, orderable: false }
+      ],
+      drawCallback: function() { this.api().columns.adjust(); },
+      initComplete: function() { this.api().columns.adjust(); }
+    });
+  }
+
+  function initEventsDataTable() {
+    if (!eventsTableElement) return;
+    if (!(window.jQuery && $.fn.DataTable)) return;
+    if ($.fn.DataTable.isDataTable(eventsTableElement)) {
+      eventsDataTable = $(eventsTableElement).DataTable();
+      return;
+    }
+
+    eventsDataTable = $(eventsTableElement).DataTable({
+      order: [[0, 'asc']],
+      columnDefs: [
+        { targets: [2, 7], orderable: false, searchable: true },
+        { targets: [3, 4, 5, 6], orderable: false }
+      ],
+      drawCallback: function() { this.api().columns.adjust(); },
+      initComplete: function() { this.api().columns.adjust(); }
+    });
   }
 
   async function loadRuns(){
     const limit = encodeURIComponent(runsLimitEl().value || '50');
     const data = await fetchJSON(`/api/agent/runs?limit=${limit}`);
-    const rows = (data.runs||[]).map(r => `
-      <tr data-run-id="${r.id}">
-        <td>${r.id}</td>
-        <td>${r.entity_type}</td>
-        <td>${r.entity_id}</td>
-        <td class="text-monospace small" title="${(r.task||'').replace(/"/g, '&quot;')}">${previewTask(r.task)}</td>
-        <td>${badge(r.status)}</td>
-        <td>${fmt(r.started_at)}</td>
-        <td>${fmt(r.finished_at)}</td>
-        <td>
-          <button class="btn btn-sm btn-outline-primary view-run" data-run-id="${r.id}"><i class="fas fa-eye"></i></button>
-        </td>
-      </tr>`).join('');
-    runsTableBody().innerHTML = rows || '<tr><td colspan="8" class="text-muted">No runs</td></tr>';
+    const runs = data.runs || [];
+
+    if (runsDataTable) {
+      const rows = runs.map(r => {
+        const taskFull = r.task || '';
+        const taskPreview = escapeHtml(previewTask(taskFull));
+        const taskTitle = escapeHtml(taskFull);
+        const actions = `<div class="btn-group btn-group-sm" role="group">
+          <button class="btn btn-outline-primary view-run" data-run-id="${r.id}" title="View details"><i class="fas fa-eye"></i></button>
+        </div>`;
+
+        return [
+          r.id,
+          escapeHtml(r.entity_type || '-'),
+          escapeHtml(r.entity_id || '-'),
+          `<span class="text-monospace small" title="${taskTitle}">${taskPreview}</span>`,
+          badge(r.status),
+          fmt(r.started_at),
+          fmt(r.finished_at),
+          actions
+        ];
+      });
+
+      runsDataTable.clear();
+      if (rows.length) {
+        runsDataTable.rows.add(rows);
+      }
+      runsDataTable.draw();
+      return;
+    }
+
+    const tbody = runsTableBody();
+    if (!tbody) return;
+
+    if (!runs.length) {
+      tbody.innerHTML = '<tr><td colspan="8" class="text-muted">No runs</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = runs.map(r => {
+      const taskFull = r.task || '';
+      const taskPreview = escapeHtml(previewTask(taskFull));
+      const taskTitle = escapeHtml(taskFull);
+      return `
+        <tr data-run-id="${r.id}">
+          <td>${r.id}</td>
+          <td>${escapeHtml(r.entity_type || '-')}</td>
+          <td>${escapeHtml(r.entity_id || '-')}</td>
+          <td class="text-monospace small" title="${taskTitle}">${taskPreview}</td>
+          <td>${badge(r.status)}</td>
+          <td>${fmt(r.started_at)}</td>
+          <td>${fmt(r.finished_at)}</td>
+          <td>
+            <button class="btn btn-sm btn-outline-primary view-run" data-run-id="${r.id}"><i class="fas fa-eye"></i></button>
+          </td>
+        </tr>`;
+    }).join('');
   }
 
   function previewTask(task) {
@@ -145,8 +240,7 @@
       ${logControls}
     `;
 
-    const rows = events.map((e, idx) => {
-      // Color code different event types
+    const eventRows = events.map((e, idx) => {
       let typeClass = 'bg-secondary';
       switch(e.event_type) {
         case 'llm_input':
@@ -169,28 +263,85 @@
           typeClass = 'bg-danger';
           break;
       }
-      
+
       const eventButtons = e.event_type === 'llm_result'
         ? `<button class="btn btn-link btn-sm ms-1 p-0 view-result" data-result='${JSON.stringify(e.detail||{}).replace(/'/g, "&#39;")}' data-event-type="llm_result" title="View conversation steps"><i class="fas fa-eye"></i></button>
           <button class="btn btn-link btn-sm ms-1 p-0 view-payload" data-payload='${JSON.stringify(e.detail||{}).replace(/'/g, "&#39;")}' title="View raw JSON"><i class="fas fa-expand"></i></button>`
         : `<button class="btn btn-link btn-sm ms-1 p-0 view-payload" data-payload='${JSON.stringify(e.detail||{}).replace(/'/g, "&#39;")}' title="View full"><i class="fas fa-expand"></i></button>`;
 
-      return `
-      <tr>
-        <td>${idx+1}</td>
-        <td class="small">${fmt(e.ts)}</td>
-        <td><span class="badge ${typeClass}">${e.event_type}</span></td>
-        <td class="small">${e.source||''}</td>
-        <td class="small">${e.agent_name||''}</td>
-        <td class="small">${e.server_id||''}</td>
-        <td class="small">${e.tool_name||''}</td>
-        <td class="small">
-          <span class="text-monospace">${previewDetail(e.detail)}</span>
-          ${eventButtons}
-        </td>
-      </tr>
-    `}).join('');
-    eventsTableBody().innerHTML = rows || '<tr><td colspan="8" class="text-muted">No events</td></tr>';
+      const detailPreview = escapeHtml(previewDetail(e.detail));
+
+      return [
+        idx + 1,
+        `<span class="small">${escapeHtml(fmt(e.ts))}</span>`,
+        `<span class="badge ${typeClass}">${escapeHtml(e.event_type || '')}</span>`,
+        `<span class="small">${escapeHtml(e.source || '')}</span>`,
+        `<span class="small">${escapeHtml(e.agent_name || '')}</span>`,
+        `<span class="small">${escapeHtml(e.server_id || '')}</span>`,
+        `<span class="small">${escapeHtml(e.tool_name || '')}</span>`,
+        `<span class="small text-monospace">${detailPreview}</span> ${eventButtons}`
+      ];
+    });
+
+    if (eventsDataTable) {
+      eventsDataTable.clear();
+      if (eventRows.length) {
+        eventsDataTable.rows.add(eventRows);
+      }
+      eventsDataTable.draw();
+    } else {
+      const tbody = eventsTableBody();
+      if (!tbody) return;
+      if (!eventRows.length) {
+        tbody.innerHTML = '<tr><td colspan="8" class="text-muted">No events</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = events.map((e, idx) => {
+        let typeClass = 'bg-secondary';
+        switch(e.event_type) {
+          case 'llm_input':
+          case 'llm_first_input':
+            typeClass = 'bg-primary';
+            break;
+          case 'llm_result':
+            typeClass = 'bg-success';
+            break;
+          case 'agent_response':
+            typeClass = 'bg-info';
+            break;
+          case 'tool_call':
+            typeClass = 'bg-warning';
+            break;
+          case 'tool_result':
+            typeClass = 'bg-light text-dark';
+            break;
+          case 'error':
+            typeClass = 'bg-danger';
+            break;
+        }
+
+        const eventButtons = e.event_type === 'llm_result'
+          ? `<button class="btn btn-link btn-sm ms-1 p-0 view-result" data-result='${JSON.stringify(e.detail||{}).replace(/'/g, "&#39;")}' data-event-type="llm_result" title="View conversation steps"><i class="fas fa-eye"></i></button>
+            <button class="btn btn-link btn-sm ms-1 p-0 view-payload" data-payload='${JSON.stringify(e.detail||{}).replace(/'/g, "&#39;")}' title="View raw JSON"><i class="fas fa-expand"></i></button>`
+          : `<button class="btn btn-link btn-sm ms-1 p-0 view-payload" data-payload='${JSON.stringify(e.detail||{}).replace(/'/g, "&#39;")}' title="View full"><i class="fas fa-expand"></i></button>`;
+
+        return `
+          <tr>
+            <td>${idx + 1}</td>
+            <td class="small">${escapeHtml(fmt(e.ts))}</td>
+            <td><span class="badge ${typeClass}">${escapeHtml(e.event_type || '')}</span></td>
+            <td class="small">${escapeHtml(e.source || '')}</td>
+            <td class="small">${escapeHtml(e.agent_name || '')}</td>
+            <td class="small">${escapeHtml(e.server_id || '')}</td>
+            <td class="small">${escapeHtml(e.tool_name || '')}</td>
+            <td class="small">
+              <span class="text-monospace">${escapeHtml(previewDetail(e.detail))}</span>
+              ${eventButtons}
+            </td>
+          </tr>`;
+      }).join('');
+    }
     // Switch to details tab if tabs exist
     const tabTriggerEl = document.querySelector('#tab-details-tab');
     if (tabTriggerEl && window.bootstrap && bootstrap.Tab) {
@@ -595,6 +746,10 @@
 
   // init
   document.addEventListener('DOMContentLoaded', () => {
+    runsTableElement = document.getElementById('runsTable');
+    eventsTableElement = document.getElementById('eventsTable');
+    initRunsDataTable();
+    initEventsDataTable();
     attachHandlers();
     loadRuns().catch(console.error);
   });

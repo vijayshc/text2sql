@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const teamsList = document.getElementById('teamsList');
-  const workflowsList = document.getElementById('workflowsList');
+  const teamsTableEl = document.getElementById('teamsTable');
+  const workflowsTableEl = document.getElementById('workflowsTable');
   const btnNewTeam = document.getElementById('btnNewTeam');
   const btnNewWorkflow = document.getElementById('btnNewWorkflow');
   const agentsBuilder = document.getElementById('agentsBuilder');
@@ -10,35 +10,358 @@ document.addEventListener('DOMContentLoaded', () => {
   const teamModal = new bootstrap.Modal(document.getElementById('teamModal'));
   const workflowModal = new bootstrap.Modal(document.getElementById('workflowModal'));
 
+  let teamsDataTable = null;
+  let workflowsDataTable = null;
+  let teamsCache = [];
+  let workflowsCache = [];
+  let teamNameLookup = new Map();
+
+  function escapeHtml(value) {
+    if (value === null || value === undefined) return '';
+    return String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function initDataTables() {
+    if (!(window.jQuery && $.fn.DataTable)) {
+      return;
+    }
+
+    if (teamsTableEl) {
+      teamsDataTable = $(teamsTableEl).DataTable({
+        columns: [
+          { title: 'Team' },
+          { title: 'Agents' },
+          { title: 'Mode' },
+          { title: 'Max Rounds' },
+          { title: 'Actions', orderable: false, searchable: false }
+        ],
+        order: [[0, 'asc']],
+        drawCallback: function() { this.api().columns.adjust(); },
+        initComplete: function() { this.api().columns.adjust(); }
+      });
+    }
+
+    if (workflowsTableEl) {
+      workflowsDataTable = $(workflowsTableEl).DataTable({
+        columns: [
+          { title: 'Workflow' },
+          { title: 'Team' },
+          { title: 'Nodes' },
+          { title: 'Entry' },
+          { title: 'Actions', orderable: false, searchable: false }
+        ],
+        order: [[0, 'asc']],
+        drawCallback: function() { this.api().columns.adjust(); },
+        initComplete: function() { this.api().columns.adjust(); }
+      });
+    }
+  }
+
+  function formatExecutionMode(team) {
+    const mode = team?.config?.settings?.execution_mode || 'roundrobin';
+    switch (mode) {
+      case 'selector':
+        return '<span class="badge bg-info text-dark">Selector</span>';
+      case 'swarm':
+        return '<span class="badge bg-warning text-dark">Swarm</span>';
+      default:
+        return '<span class="badge bg-secondary">Round Robin</span>';
+    }
+  }
+
+  function renderAgents(team) {
+    const agents = team?.config?.agents || [];
+    if (agents.length === 0) {
+      return '<span class="text-muted">No agents</span>';
+    }
+
+    const badges = agents.slice(0, 3).map(agent =>
+      `<span class="badge bg-secondary me-1">${escapeHtml(agent.name || agent.role || 'Agent')}</span>`
+    ).join('');
+    const remaining = agents.length - 3;
+    return remaining > 0
+      ? `${badges}<span class="badge bg-light text-muted">+${remaining} more</span>`
+      : badges;
+  }
+
+  function buildTeamRow(team) {
+    const description = team.description ? `<div class="text-muted small">${escapeHtml(team.description)}</div>` : '';
+    const maxRounds = team?.config?.settings?.max_rounds ?? '-';
+    const actions = `
+      <div class="btn-group btn-group-sm" role="group">
+        <button class="btn btn-outline-primary" data-action="edit" data-id="${team.id}" title="Edit team"><i class="fas fa-edit"></i></button>
+        <button class="btn btn-outline-danger" data-action="del" data-id="${team.id}" title="Delete team"><i class="fas fa-trash"></i></button>
+      </div>`;
+
+    return [
+      `<div><strong>${escapeHtml(team.name)}</strong>${description}</div>`,
+      renderAgents(team),
+      formatExecutionMode(team),
+      maxRounds,
+      actions
+    ];
+  }
+
+  function parseWorkflowGraph(graph) {
+    if (!graph) return { nodes: [], config: {} };
+    if (typeof graph === 'string') {
+      try { return JSON.parse(graph); }
+      catch { return { nodes: [], config: {} }; }
+    }
+    return graph;
+  }
+
+  function buildWorkflowRow(workflow) {
+    const graph = parseWorkflowGraph(workflow.graph);
+    const nodes = Array.isArray(graph.nodes) ? graph.nodes.length : 0;
+    const entry = graph?.config?.entry_point || 'Auto';
+    const description = workflow.description ? `<div class="text-muted small">${escapeHtml(workflow.description)}</div>` : '';
+    const teamLabel = teamNameLookup.get(workflow.team_id) || `Team #${workflow.team_id}`;
+    const actions = `
+      <div class="btn-group btn-group-sm" role="group">
+        <button class="btn btn-outline-primary" data-action="editwf" data-id="${workflow.id}" title="Edit workflow"><i class="fas fa-edit"></i></button>
+        <button class="btn btn-outline-success" data-action="runwf" data-id="${workflow.id}" title="Run workflow"><i class="fas fa-play"></i></button>
+        <button class="btn btn-outline-danger" data-action="delwf" data-id="${workflow.id}" title="Delete workflow"><i class="fas fa-trash"></i></button>
+      </div>`;
+
+    return [
+      `<div><strong>${escapeHtml(workflow.name)}</strong>${description}</div>`,
+      escapeHtml(teamLabel),
+      nodes,
+      escapeHtml(entry || ''),
+      actions
+    ];
+  }
+
+  function renderTeamsTable(teams) {
+    if (teamsDataTable) {
+      const rows = teams.map(buildTeamRow);
+      teamsDataTable.clear();
+      if (rows.length) {
+        teamsDataTable.rows.add(rows);
+      }
+      teamsDataTable.draw();
+    } else if (teamsTableEl) {
+      const tbody = teamsTableEl.querySelector('tbody');
+      if (!tbody) return;
+      tbody.innerHTML = teams.map(team => {
+        const row = buildTeamRow(team);
+        return `<tr>${row.map(cell => `<td>${cell}</td>`).join('')}</tr>`;
+      }).join('');
+    }
+  }
+
+  function renderWorkflowsTable(workflows) {
+    if (workflowsDataTable) {
+      const rows = workflows.map(buildWorkflowRow);
+      workflowsDataTable.clear();
+      if (rows.length) {
+        workflowsDataTable.rows.add(rows);
+      }
+      workflowsDataTable.draw();
+    } else if (workflowsTableEl) {
+      const tbody = workflowsTableEl.querySelector('tbody');
+      if (!tbody) return;
+      tbody.innerHTML = workflows.map(workflow => {
+        const row = buildWorkflowRow(workflow);
+        return `<tr>${row.map(cell => `<td>${cell}</td>`).join('')}</tr>`;
+      }).join('');
+    }
+  }
+
+  function handleTeamAction(action, id) {
+    if (!id) return;
+
+    if (action === 'del') {
+      if (confirm('Delete team?')) {
+        fetch(`/api/agent/teams/${id}`, { method: 'DELETE' })
+          .then(() => refresh())
+          .catch(err => alert('Failed to delete team: ' + err.message));
+      }
+      return;
+    }
+
+    if (action === 'edit') {
+      fetch(`/api/agent/teams/${id}`)
+        .then(r => r.json())
+        .then(t => {
+          document.getElementById('teamName').value = t.name;
+          document.getElementById('teamDesc').value = t.description || '';
+          document.getElementById('teamConfig').value = JSON.stringify(t.config || {}, null, 2);
+
+          const settings = (t.config && t.config.settings) || {};
+          document.getElementById('executionMode').value = settings.execution_mode || 'roundrobin';
+          document.getElementById('maxRounds').value = settings.max_rounds || 6;
+          document.getElementById('selectorPrompt').value = settings.selector_prompt || `AGENT SELECTOR
+
+Available agents:
+{roles}
+
+Current conversation:
+{history}
+
+INSTRUCTIONS:
+- Read the conversation above
+- Select EXACTLY ONE agent name from {participants}
+- Respond with ONLY the agent name, nothing else
+- Do not explain, do not use tools, do not add commentary
+- Just return the agent name
+
+Select agent:`;
+          document.getElementById('allowRepeatedSpeaker').checked = settings.allow_repeated_speaker !== false;
+          toggleSelectorSettings();
+
+          loadServersAndTools().then(() => {
+            bootstrapAgentsBuilder((t.config && t.config.agents) || []);
+          });
+
+          teamModal.show();
+          document.getElementById('saveTeamBtn').onclick = () => {
+            const name = document.getElementById('teamName').value.trim();
+            const description = document.getElementById('teamDesc').value.trim();
+
+            syncBuilderToJson();
+            syncSettingsToJson();
+
+            let config = {};
+            try {
+              config = JSON.parse(document.getElementById('teamConfig').value);
+            } catch (e) {
+              alert('Invalid JSON config. Please fix the JSON or use the visual builder.');
+              return;
+            }
+
+            fetch(`/api/agent/teams/${id}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ name, description, config })
+            })
+              .then(r => r.json())
+              .then(result => {
+                if (result.error) {
+                  alert('Error saving team: ' + result.error);
+                } else {
+                  teamModal.hide();
+                  refresh();
+                }
+              })
+              .catch(err => {
+                alert('Network error: ' + err.message);
+              });
+          };
+        });
+    }
+  }
+
+  function handleWorkflowAction(action, id) {
+    if (!id) return;
+
+    if (action === 'delwf') {
+      if (confirm('Delete workflow?')) {
+        fetch(`/api/agent/workflows/${id}`, { method: 'DELETE' })
+          .then(() => refresh())
+          .catch(err => alert('Failed to delete workflow: ' + err.message));
+      }
+      return;
+    }
+
+    if (action === 'editwf') {
+      fetch(`/api/agent/workflows/${id}`)
+        .then(r => r.json())
+        .then(w => {
+          currentWorkflowId = parseInt(id, 10);
+          document.getElementById('wfName').value = w.name;
+          document.getElementById('wfDesc').value = w.description || '';
+          document.getElementById('wfGraph').value = JSON.stringify(w.graph || {}, null, 2);
+
+          loadGraphFlowConfig(w.graph || {});
+
+          fetch('/api/agent/teams').then(r => r.json()).then(d => {
+            const sel = document.getElementById('wfTeam'); sel.innerHTML='';
+            (d.teams || []).forEach(t => {
+              const opt = document.createElement('option'); opt.value = t.id; opt.textContent = t.name; if (t.id === w.team_id) opt.selected = true; sel.appendChild(opt);
+            });
+
+            const selectedTeam = d.teams.find(t => t.id === w.team_id);
+            if (selectedTeam) {
+              populateAgentLists(selectedTeam.config);
+            }
+
+            loadWorkflowIntoBuilder(w.graph || {});
+            refreshWorkflowVisualization();
+            workflowModal.show();
+          });
+        });
+      return;
+    }
+
+    if (action === 'runwf') {
+      const task = prompt('Enter task/input to run:');
+      if (!task) return;
+      fetch(`/api/agent/run/workflow/${id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ task })
+      })
+        .then(r => r.json()).then(res => {
+          if (res.success) {
+            alert(res.reply || 'Done');
+          } else {
+            try {
+              const modal = new bootstrap.Modal(document.getElementById('agentErrorModal'));
+              document.getElementById('agentErrorMessage').textContent = res.error || 'Unknown error';
+              document.getElementById('agentErrorTrace').textContent = res.trace || '';
+              modal.show();
+              document.getElementById('copyAgentErrorTrace').onclick = () => {
+                const txt = document.getElementById('agentErrorTrace').textContent || '';
+                navigator.clipboard?.writeText(txt);
+              };
+            } catch (e) {
+              alert((res.error || 'Error') + (res.trace ? `\n\n${res.trace}` : ''));
+            }
+          }
+        });
+    }
+  }
+
   function refresh() {
-    fetch('/api/agent/teams').then(r=>r.json()).then(d=>{
-      teamsList.innerHTML = '';
-      (d.teams||[]).forEach(t=>{
-        const li = document.createElement('li');
-        li.className='list-group-item d-flex justify-content-between align-items-center';
-        li.innerHTML = `<div><strong>${t.name}</strong><div class="text-muted small">${t.description||''}</div></div>
-        <div>
-          <button class="btn btn-sm btn-outline-primary me-1" data-action="edit" data-id="${t.id}"><i class="fas fa-edit"></i></button>
-          <button class="btn btn-sm btn-outline-danger" data-action="del" data-id="${t.id}"><i class="fas fa-trash"></i></button>
-        </div>`;
-        teamsList.appendChild(li);
-      })
-    });
-    fetch('/api/agent/workflows').then(r=>r.json()).then(d=>{
-      workflowsList.innerHTML = '';
-      (d.workflows||[]).forEach(w=>{
-        const li = document.createElement('li');
-        li.className='list-group-item d-flex justify-content-between align-items-center';
-        li.innerHTML = `<div><strong>${w.name}</strong><div class="text-muted small">Team #${w.team_id}</div></div>
-        <div>
-          <button class="btn btn-sm btn-outline-primary me-1" data-action="editwf" data-id="${w.id}"><i class="fas fa-edit"></i></button>
-          <button class="btn btn-sm btn-outline-success me-1" data-action="runwf" data-id="${w.id}"><i class="fas fa-play"></i></button>
-          <button class="btn btn-sm btn-outline-danger" data-action="delwf" data-id="${w.id}"><i class="fas fa-trash"></i></button>
-        </div>`;
-        workflowsList.appendChild(li);
-      })
+    const teamsPromise = fetch('/api/agent/teams').then(r => r.json()).catch(error => ({ error }));
+    const workflowsPromise = fetch('/api/agent/workflows').then(r => r.json()).catch(error => ({ error }));
+
+    Promise.all([teamsPromise, workflowsPromise]).then(([teamsResponse, workflowsResponse]) => {
+      if (teamsResponse?.error) {
+        console.error('Failed to load agent teams:', teamsResponse.error);
+        teamsCache = [];
+      } else {
+        teamsCache = teamsResponse?.teams || [];
+      }
+
+      teamNameLookup = new Map(teamsCache.map(team => [team.id, team.name]));
+      renderTeamsTable(teamsCache);
+
+      if (workflowsResponse?.error) {
+        console.error('Failed to load workflows:', workflowsResponse.error);
+        workflowsCache = [];
+      } else {
+        workflowsCache = workflowsResponse?.workflows || [];
+      }
+
+      renderWorkflowsTable(workflowsCache);
+    }).catch(error => {
+      console.error('Failed to refresh agent data:', error);
+      teamsCache = [];
+      workflowsCache = [];
+      renderTeamsTable([]);
+      renderWorkflowsTable([]);
     });
   }
+
+  initDataTables();
 
   btnNewTeam.addEventListener('click', ()=>{
     document.getElementById('teamName').value = '';
@@ -313,145 +636,16 @@ Selected agent:`;
     }
   });
 
-  teamsList.addEventListener('click', (e)=>{
-    const btn = e.target.closest('button[data-action]'); if(!btn) return;
-    const id = btn.getAttribute('data-id');
-    const action = btn.getAttribute('data-action');
-    if(action==='del'){
-      if(confirm('Delete team?')) fetch(`/api/agent/teams/${id}`, {method:'DELETE'}).then(()=>refresh());
-    }
-    if(action==='edit'){
-      fetch(`/api/agent/teams/${id}`).then(r=>r.json()).then(t=>{
-        document.getElementById('teamName').value = t.name;
-        document.getElementById('teamDesc').value = t.description||'';
-        document.getElementById('teamConfig').value = JSON.stringify(t.config||{}, null, 2);
-        
-        // Load settings from config
-        const settings = (t.config && t.config.settings) || {};
-        document.getElementById('executionMode').value = settings.execution_mode || 'roundrobin';
-        document.getElementById('maxRounds').value = settings.max_rounds || 6;
-        document.getElementById('selectorPrompt').value = settings.selector_prompt || `AGENT SELECTOR
+  document.addEventListener('click', (event) => {
+    const btn = event.target.closest('button[data-action]');
+    if (!btn) return;
 
-Available agents:
-{roles}
-
-Current conversation:
-{history}
-
-INSTRUCTIONS:
-- Read the conversation above
-- Select EXACTLY ONE agent name from {participants}
-- Respond with ONLY the agent name, nothing else
-- Do not explain, do not use tools, do not add commentary
-- Just return the agent name
-
-Select agent:`;
-        document.getElementById('allowRepeatedSpeaker').checked = settings.allow_repeated_speaker !== false;
-        toggleSelectorSettings();
-        
-        // Load agents after servers are loaded
-        loadServersAndTools().then(() => {
-          bootstrapAgentsBuilder((t.config&&t.config.agents)||[]);
-        });
-        
-        teamModal.show();
-        document.getElementById('saveTeamBtn').onclick = ()=>{
-          const name = document.getElementById('teamName').value.trim();
-          const description = document.getElementById('teamDesc').value.trim();
-          
-          // Always sync builder and settings to JSON before parsing
-          syncBuilderToJson();
-          syncSettingsToJson();
-          
-          let config={}; 
-          try {
-            config=JSON.parse(document.getElementById('teamConfig').value);
-          } catch(e) {
-            alert('Invalid JSON config. Please fix the JSON or use the visual builder.');
-            return;
-          }
-          
-          fetch(`/api/agent/teams/${id}`, {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name, description, config})})
-            .then(r => r.json())
-            .then(result => {
-              if (result.error) {
-                alert('Error saving team: ' + result.error);
-              } else {
-                teamModal.hide(); 
-                refresh();
-              }
-            })
-            .catch(err => {
-              alert('Network error: ' + err.message);
-            });
-        }
-      })
+    if (btn.closest('#teamsTable')) {
+      handleTeamAction(btn.getAttribute('data-action'), btn.getAttribute('data-id'));
+    } else if (btn.closest('#workflowsTable')) {
+      handleWorkflowAction(btn.getAttribute('data-action'), btn.getAttribute('data-id'));
     }
-  })
-
-  workflowsList.addEventListener('click', (e)=>{
-    const btn = e.target.closest('button[data-action]'); if(!btn) return;
-    const id = btn.getAttribute('data-id');
-    const action = btn.getAttribute('data-action');
-    if(action==='delwf'){
-      if(confirm('Delete workflow?')) fetch(`/api/agent/workflows/${id}`, {method:'DELETE'}).then(()=>refresh());
-    }
-    if(action==='editwf'){
-      fetch(`/api/agent/workflows/${id}`).then(r=>r.json()).then(w=>{
-        currentWorkflowId = parseInt(id); // Set to edit mode
-        document.getElementById('wfName').value = w.name;
-        document.getElementById('wfDesc').value = w.description||'';
-        document.getElementById('wfGraph').value = JSON.stringify(w.graph||{}, null, 2);
-        
-        // Load GraphFlow configuration first
-        loadGraphFlowConfig(w.graph || {});
-        
-        fetch('/api/agent/teams').then(r=>r.json()).then(d=>{
-          const sel = document.getElementById('wfTeam'); sel.innerHTML='';
-          (d.teams||[]).forEach(t=>{
-            const opt = document.createElement('option'); opt.value=t.id; opt.textContent=t.name; if(t.id===w.team_id) opt.selected=true; sel.appendChild(opt);
-          });
-          
-          // Populate agent lists for the selected team
-          const selectedTeam = d.teams.find(t => t.id === w.team_id);
-          if (selectedTeam) {
-            populateAgentLists(selectedTeam.config);
-          }
-          
-          // Load the workflow graph into the builder UI
-          loadWorkflowIntoBuilder(w.graph || {});
-          
-          // Refresh visualization
-          refreshWorkflowVisualization();
-          
-          workflowModal.show();
-        })
-      })
-    }
-    if(action==='runwf'){
-      const task = prompt('Enter task/input to run:');
-      if(!task) return;
-      fetch(`/api/agent/run/workflow/${id}`, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({task})})
-        .then(r=>r.json()).then(res=>{
-          if(res.success){
-            alert(res.reply || 'Done');
-          } else {
-            try {
-              const modal = new bootstrap.Modal(document.getElementById('agentErrorModal'));
-              document.getElementById('agentErrorMessage').textContent = res.error || 'Unknown error';
-              document.getElementById('agentErrorTrace').textContent = res.trace || '';
-              modal.show();
-              document.getElementById('copyAgentErrorTrace').onclick = ()=>{
-                const txt = document.getElementById('agentErrorTrace').textContent || '';
-                navigator.clipboard?.writeText(txt);
-              }
-            } catch (e) {
-              alert((res.error||'Error') + (res.trace? `\n\n${res.trace}`:''));
-            }
-          }
-        })
-    }
-  })
+  });
 
   refresh();
 

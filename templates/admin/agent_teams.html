@@ -1,27 +1,16 @@
 {% extends "admin/index.html" %}
 
 {% block content %}
-<div class="card">
+<div class="card shadow-sm mb-4">
   <div class="card-header d-flex justify-content-between align-items-center">
     <h5 class="mb-0">Agent Teams & Workflows</h5>
-    <div>
-      <button class="btn btn-sm btn-primary" id="btnNewTeam"><i class="fas fa-users me-1"></i>New Team</button>
-      <button class="btn btn-sm btn-secondary" id="btnNewWorkflow"><i class="fas fa-project-diagram me-1"></i>New Workflow</button>
-    </div>
   </div>
   <div class="card-body">
-    <div class="row g-3">
-      <div class="col-md-6">
-        <h6>Teams</h6>
-        <ul class="list-group" id="teamsList"></ul>
-      </div>
-      <div class="col-md-6">
-        <h6>Workflows</h6>
-        <ul class="list-group" id="workflowsList"></ul>
-      </div>
-    </div>
+    <p class="mb-0 text-muted small">Manage collaborative agent teams and GraphFlow workflows. Use the actions to edit, run, or delete each item.</p>
   </div>
 </div>
+
+{% include 'admin/partials/agent_teams_tables.html' %}
 
 <!-- Error Details Modal -->
 <div class="modal fade" id="agentErrorModal" tabindex="-1" aria-labelledby="agentErrorModalLabel" aria-hidden="true">
