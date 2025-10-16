@@ -28,6 +28,7 @@ import os
 import sys
 import time
 import uuid
+import threading
 from datetime import datetime
 from threading import Thread
 import signal
@@ -163,7 +164,8 @@ app.register_blueprint(project_mapping_bp)
 def inject_csrf_token():
     return dict(csrf_token=generate_csrf_token)
 
-# Store query progress
+# Store query progress with thread-safe lock
+query_progress_lock = threading.Lock()
 query_progress = {}
 
 # Import login_required from auth_utils
@@ -200,14 +202,15 @@ def process_query():
     
     # Generate unique ID for this query
     query_id = str(uuid.uuid4())
-    query_progress[query_id] = {
-        'status': 'processing',
-        'current_step': 0,
-        'steps': [],
-        'result': None,
-        'error': None,
-        'start_time': time.time()  # Add timestamp when query is initiated
-    }
+    with query_progress_lock:
+        query_progress[query_id] = {
+            'status': 'processing',
+            'current_step': 0,
+            'steps': [],
+            'result': None,
+            'error': None,
+            'start_time': time.time()  # Add timestamp when query is initiated
+        }
     
     selected_workspaces = [w for w in sql_manager.schema_manager.get_workspaces() if w['name'] == workspace_name]
     
@@ -227,6 +230,7 @@ def process_query():
         user_id=user_id,
         query_progress=query_progress,
         update_progress_func=update_progress,
+        query_progress_lock=query_progress_lock,
         ip_address=ip_address  # Pass the IP address to the background task
     )
     
@@ -291,34 +295,36 @@ def get_table_suggestions():
 @login_required
 def get_query_progress(query_id):
     """Get the progress of a query"""
-    if query_id not in query_progress:
-        return jsonify({"error": "Query not found"}), 404
+    with query_progress_lock:
+        if query_id not in query_progress:
+            return jsonify({"error": "Query not found"}), 404
+            
+        progress = query_progress[query_id]
         
-    progress = query_progress[query_id]
-    
-    # If query is complete, clean up
-    if progress['status'] in ['completed', 'error']:
-        result = progress.copy()
-        if progress['status'] == 'completed':
-            del query_progress[query_id]  # Clean up completed queries
-        return jsonify(result)
-    
-    # Check for timeout (2 minutes = 120 seconds)
-    current_time = time.time()
-    if 'start_time' in progress and (current_time - progress['start_time']) > 120:
-        logger.warning(f"Query {query_id} timed out after 2 minutes")
-        progress['status'] = 'error'
-        progress['error'] = "Query processing timed out after 2 minutes"
-        result = progress.copy()
-        return jsonify(result), 408  # Return 408 Request Timeout status
+        # If query is complete, clean up
+        if progress['status'] in ['completed', 'error']:
+            result = progress.copy()
+            if progress['status'] == 'completed':
+                del query_progress[query_id]  # Clean up completed queries
+            return jsonify(result)
         
-    return jsonify(progress)
+        # Check for timeout (2 minutes = 120 seconds)
+        current_time = time.time()
+        if 'start_time' in progress and (current_time - progress['start_time']) > 120:
+            logger.warning(f"Query {query_id} timed out after 2 minutes")
+            progress['status'] = 'error'
+            progress['error'] = "Query processing timed out after 2 minutes"
+            result = progress.copy()
+            return jsonify(result), 408  # Return 408 Request Timeout status
+            
+        return jsonify(progress)
 
 def update_progress(query_id, step_info):
     """Update the progress of a query"""
-    if query_id in query_progress:
-        query_progress[query_id]['current_step'] += 1
-        query_progress[query_id]['steps'].append(step_info)
+    with query_progress_lock:
+        if query_id in query_progress:
+            query_progress[query_id]['current_step'] += 1
+            query_progress[query_id]['steps'].append(step_info)
 
 @app.route('/api/schema', methods=['GET'])
 @login_required

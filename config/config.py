@@ -90,6 +90,12 @@ FILE_BROWSER_ALLOWED_EXTENSIONS = {
 KNOWLEDGE_CONVERSATION_HISTORY_LIMIT = int(os.getenv('KNOWLEDGE_CONVERSATION_HISTORY_LIMIT', '10'))
 METADATA_CONVERSATION_HISTORY_LIMIT = int(os.getenv('METADATA_CONVERSATION_HISTORY_LIMIT', '10'))
 
+# Rate Limiting Configuration
+RATE_LIMIT_ENABLED = os.getenv('RATE_LIMIT_ENABLED', 'false').lower() == 'true'
+LOGIN_ATTEMPT_LIMIT = int(os.getenv('LOGIN_ATTEMPT_LIMIT', '10'))  # Maximum login attempts per window
+LOGIN_ATTEMPT_WINDOW = int(os.getenv('LOGIN_ATTEMPT_WINDOW', '3600'))  # Time window in seconds (default: 1 hour)
+FAILED_LOGIN_LOCKOUT_THRESHOLD = int(os.getenv('FAILED_LOGIN_LOCKOUT_THRESHOLD', '5'))  # Lock account after this many failed attempts
+
 # ChromaDB Service configuration
 CHROMADB_SERVICE_URL = os.getenv('CHROMADB_SERVICE_URL', 'http://localhost:8001')
 CHROMADB_SERVICE_TIMEOUT = int(os.getenv('CHROMADB_SERVICE_TIMEOUT', '30'))

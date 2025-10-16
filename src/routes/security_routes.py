@@ -12,6 +12,7 @@ import functools
 import time
 import re
 import uuid
+import threading
 from datetime import datetime, timedelta
 import secrets
 from src.utils.user_manager import UserManager
@@ -25,6 +26,11 @@ user_manager = UserManager()
 
 # Logger
 logger = logging.getLogger('text2sql')
+
+# Thread-safe locks for rate limiting dictionaries
+rate_limit_lock = threading.Lock()
+failed_login_lock = threading.Lock()
+ip_login_lock = threading.Lock()
 
 # Store for rate limiting (in production, use Redis or another distributed cache)
 rate_limit_store = {}
@@ -124,39 +130,49 @@ def rate_limit(limit=5, per=60, scope='default'):
     def decorator(f):
         @functools.wraps(f)
         def decorated_function(*args, **kwargs):
+            # Check if rate limiting is enabled
+            from config.config import RATE_LIMIT_ENABLED
+            
+            if not RATE_LIMIT_ENABLED:
+                # RATE LIMITING DISABLED - Bypass all rate limit checks
+                response = f(*args, **kwargs)
+                return response
+            
             # Get client identifier (IP address or user_id if logged in)
             client_id = session.get('user_id', request.remote_addr)
             
             # Create a unique key for this client and endpoint
             key = f"{client_id}:{scope}"
             
-            # Initialize or get rate limiting data
-            if key not in rate_limit_store:
-                rate_limit_store[key] = {'count': 0, 'reset_time': time.time() + per}
-            
-            # Reset count if time period has passed
-            if time.time() > rate_limit_store[key]['reset_time']:
-                rate_limit_store[key] = {'count': 0, 'reset_time': time.time() + per}
-            
-            # Check limit
-            if rate_limit_store[key]['count'] >= limit:
+            # Use thread-safe lock for rate limit store access
+            with rate_limit_lock:
+                # Initialize or get rate limiting data
+                if key not in rate_limit_store:
+                    rate_limit_store[key] = {'count': 0, 'reset_time': time.time() + per}
+                
+                # Reset count if time period has passed
+                if time.time() > rate_limit_store[key]['reset_time']:
+                    rate_limit_store[key] = {'count': 0, 'reset_time': time.time() + per}
+                
+                # Check limit
+                if rate_limit_store[key]['count'] >= limit:
+                    # Set rate limit headers
+                    headers = {
+                        'X-RateLimit-Limit': str(limit),
+                        'X-RateLimit-Remaining': '0',
+                        'X-RateLimit-Reset': str(int(rate_limit_store[key]['reset_time']))
+                    }
+                    return jsonify({'error': 'Too many requests'}), 429, headers
+                    
+                # Increment count
+                rate_limit_store[key]['count'] += 1
+                
                 # Set rate limit headers
                 headers = {
                     'X-RateLimit-Limit': str(limit),
-                    'X-RateLimit-Remaining': '0',
+                    'X-RateLimit-Remaining': str(limit - rate_limit_store[key]['count']),
                     'X-RateLimit-Reset': str(int(rate_limit_store[key]['reset_time']))
                 }
-                return jsonify({'error': 'Too many requests'}), 429, headers
-                
-            # Increment count
-            rate_limit_store[key]['count'] += 1
-            
-            # Set rate limit headers
-            headers = {
-                'X-RateLimit-Limit': str(limit),
-                'X-RateLimit-Remaining': str(limit - rate_limit_store[key]['count']),
-                'X-RateLimit-Reset': str(int(rate_limit_store[key]['reset_time']))
-            }
             
             # Execute the function
             response = f(*args, **kwargs)
@@ -316,98 +332,126 @@ def is_rate_limited_for_login(ip_address):
     """
     Check if an IP address is rate-limited for login attempts
     """
+    from config.config import RATE_LIMIT_ENABLED, LOGIN_ATTEMPT_LIMIT, LOGIN_ATTEMPT_WINDOW
+    
+    # Check if rate limiting is enabled
+    if not RATE_LIMIT_ENABLED:
+        return False, 0
+    
     now = datetime.utcnow().timestamp()
     
-    # Initialize tracking for this IP if it doesn't exist
-    if ip_address not in ip_login_attempts:
-        ip_login_attempts[ip_address] = {
-            'attempts': 0,
-            'reset_time': now + 3600,  # 1 hour window
-            'blocked_until': 0
-        }
-    
-    # Check if IP is currently blocked
-    if ip_login_attempts[ip_address]['blocked_until'] > now:
-        return True, int(ip_login_attempts[ip_address]['blocked_until'] - now)
-    
-    # Reset attempts if the window has passed
-    if now > ip_login_attempts[ip_address]['reset_time']:
-        ip_login_attempts[ip_address] = {
-            'attempts': 0,
-            'reset_time': now + 3600,  # 1 hour window
-            'blocked_until': 0
-        }
-    
-    # Check if too many attempts in this window
-    if ip_login_attempts[ip_address]['attempts'] >= 10:  # 10 attempts per hour
-        # Block for increasing amount of time
-        block_minutes = min(60, 5 * (ip_login_attempts[ip_address]['attempts'] - 9))
-        ip_login_attempts[ip_address]['blocked_until'] = now + (block_minutes * 60)
-        return True, block_minutes * 60
-    
-    return False, 0
+    with ip_login_lock:
+        # Initialize tracking for this IP if it doesn't exist
+        if ip_address not in ip_login_attempts:
+            ip_login_attempts[ip_address] = {
+                'attempts': 0,
+                'reset_time': now + LOGIN_ATTEMPT_WINDOW,  # Time window from config
+                'blocked_until': 0
+            }
+        
+        # Check if IP is currently blocked
+        if ip_login_attempts[ip_address]['blocked_until'] > now:
+            return True, int(ip_login_attempts[ip_address]['blocked_until'] - now)
+        
+        # Reset attempts if the window has passed
+        if now > ip_login_attempts[ip_address]['reset_time']:
+            ip_login_attempts[ip_address] = {
+                'attempts': 0,
+                'reset_time': now + LOGIN_ATTEMPT_WINDOW,
+                'blocked_until': 0
+            }
+        
+        # Check if too many attempts in this window
+        if ip_login_attempts[ip_address]['attempts'] >= LOGIN_ATTEMPT_LIMIT:  # From config
+            # Block for increasing amount of time
+            block_minutes = min(60, 5 * (ip_login_attempts[ip_address]['attempts'] - (LOGIN_ATTEMPT_LIMIT - 1)))
+            ip_login_attempts[ip_address]['blocked_until'] = now + (block_minutes * 60)
+            return True, block_minutes * 60
+        
+        return False, 0
 
 
 def record_failed_login(username, ip_address):
     """
     Record a failed login attempt for both username and IP
     """
+    from config.config import RATE_LIMIT_ENABLED, LOGIN_ATTEMPT_WINDOW
+    
+    if not RATE_LIMIT_ENABLED:
+        return  # Do nothing if rate limiting is disabled
+    
     now = datetime.utcnow().timestamp()
     
-    # Track by username
-    if username not in failed_login_attempts:
-        failed_login_attempts[username] = {
-            'attempts': 0,
-            'reset_time': now + 3600  # 1 hour window
-        }
+    # Use thread-safe locks for all dictionary accesses
+    with failed_login_lock:
+        # Track by username
+        if username not in failed_login_attempts:
+            failed_login_attempts[username] = {
+                'attempts': 0,
+                'reset_time': now + LOGIN_ATTEMPT_WINDOW
+            }
+        
+        if now > failed_login_attempts[username]['reset_time']:
+            failed_login_attempts[username] = {
+                'attempts': 1,
+                'reset_time': now + LOGIN_ATTEMPT_WINDOW
+            }
+        else:
+            failed_login_attempts[username]['attempts'] += 1
     
-    if now > failed_login_attempts[username]['reset_time']:
-        failed_login_attempts[username] = {
-            'attempts': 1,
-            'reset_time': now + 3600
-        }
-    else:
-        failed_login_attempts[username]['attempts'] += 1
-    
-    # Track by IP
-    if ip_address not in ip_login_attempts:
-        ip_login_attempts[ip_address] = {
-            'attempts': 0,
-            'reset_time': now + 3600,
-            'blocked_until': 0
-        }
-    
-    if now > ip_login_attempts[ip_address]['reset_time']:
-        ip_login_attempts[ip_address] = {
-            'attempts': 1,
-            'reset_time': now + 3600,
-            'blocked_until': 0
-        }
-    else:
-        ip_login_attempts[ip_address]['attempts'] += 1
+    with ip_login_lock:
+        # Track by IP
+        if ip_address not in ip_login_attempts:
+            ip_login_attempts[ip_address] = {
+                'attempts': 0,
+                'reset_time': now + LOGIN_ATTEMPT_WINDOW,
+                'blocked_until': 0
+            }
+        
+        if now > ip_login_attempts[ip_address]['reset_time']:
+            ip_login_attempts[ip_address] = {
+                'attempts': 1,
+                'reset_time': now + LOGIN_ATTEMPT_WINDOW,
+                'blocked_until': 0
+            }
+        else:
+            ip_login_attempts[ip_address]['attempts'] += 1
 
 
 def clear_login_attempts(username, ip_address):
     """
     Clear login attempts on successful login
     """
-    if username in failed_login_attempts:
-        del failed_login_attempts[username]
+    from config.config import RATE_LIMIT_ENABLED
     
-    if ip_address in ip_login_attempts:
-        # Keep the IP in the tracking dict but reset attempts
-        ip_login_attempts[ip_address]['attempts'] = 0
+    if not RATE_LIMIT_ENABLED:
+        return  # Do nothing if rate limiting is disabled
+    
+    with failed_login_lock:
+        if username in failed_login_attempts:
+            del failed_login_attempts[username]
+    
+    with ip_login_lock:
+        if ip_address in ip_login_attempts:
+            # Keep the IP in the tracking dict but reset attempts
+            ip_login_attempts[ip_address]['attempts'] = 0
 
 
 def check_for_account_lockout(username):
     """
     Check if an account should be locked due to too many failed attempts
     """
-    if username in failed_login_attempts:
-        # Lock account after 5 consecutive failed attempts
-        return failed_login_attempts[username]['attempts'] >= 5
+    from config.config import RATE_LIMIT_ENABLED, FAILED_LOGIN_LOCKOUT_THRESHOLD
     
-    return False
+    if not RATE_LIMIT_ENABLED:
+        return False  # Never lock accounts if rate limiting is disabled
+    
+    with failed_login_lock:
+        if username in failed_login_attempts:
+            # Lock account after configured number of failed attempts
+            return failed_login_attempts[username]['attempts'] >= FAILED_LOGIN_LOCKOUT_THRESHOLD
+        
+        return False
 
 
 def log_security_event(event_type, username, ip_address, details=None):

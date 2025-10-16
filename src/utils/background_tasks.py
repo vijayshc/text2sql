@@ -18,7 +18,7 @@ class BackgroundTaskManager:
         self.user_manager = user_manager
     
     def process_query_task(self, query_id, query, workspace_name, selected_workspaces, 
-                         explicit_tables, user_id, query_progress, update_progress_func, ip_address=None):
+                         explicit_tables, user_id, query_progress, update_progress_func, query_progress_lock=None, ip_address=None):
         """
         Process a SQL query in the background
         
@@ -31,6 +31,7 @@ class BackgroundTaskManager:
             user_id (int): ID of the user who initiated the query (None if not logged in)
             query_progress (dict): Dictionary to store query progress
             update_progress_func (function): Function to update progress
+            query_progress_lock (threading.Lock, optional): Lock for thread-safe access to query_progress
             ip_address (str, optional): IP address of the client making the request
         """
         # Create a new thread for processing
@@ -43,8 +44,13 @@ class BackgroundTaskManager:
                     progress_callback=lambda step: update_progress_func(query_id, step)
                 )
                 
-                query_progress[query_id]['result'] = result
-                query_progress[query_id]['status'] = 'completed'
+                if query_progress_lock:
+                    with query_progress_lock:
+                        query_progress[query_id]['result'] = result
+                        query_progress[query_id]['status'] = 'completed'
+                else:
+                    query_progress[query_id]['result'] = result
+                    query_progress[query_id]['status'] = 'completed'
                 
                 # Log audit for the query
                 if user_id:
@@ -60,8 +66,13 @@ class BackgroundTaskManager:
                     
             except Exception as e:
                 logger.exception(f"Exception while processing query: {str(e)}")
-                query_progress[query_id]['error'] = str(e)
-                query_progress[query_id]['status'] = 'error'
+                if query_progress_lock:
+                    with query_progress_lock:
+                        query_progress[query_id]['error'] = str(e)
+                        query_progress[query_id]['status'] = 'error'
+                else:
+                    query_progress[query_id]['error'] = str(e)
+                    query_progress[query_id]['status'] = 'error'
                 
                 # Log audit for failed query
                 if user_id:

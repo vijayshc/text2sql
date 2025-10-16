@@ -47,3 +47,14 @@ node_modules/
 # Build artifacts
 dist/
 build/
+
+chroma_data/
+
+logs/
+
+temp/
+
+# File browser metadata
+uploads/.file_metadata.json
+
+

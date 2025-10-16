@@ -5,6 +5,8 @@ import logging
 import uuid
 import time
 import os
+import threading
+from queue import Queue, Empty
 
 # Use our own login_required decorator instead of flask_login's
 from src.utils.auth_utils import login_required
@@ -24,7 +26,9 @@ agent_bp = Blueprint('agent', __name__)
 # Initialize user manager for audit logging
 user_manager = UserManager()
 
-# Store for pending tool confirmations
+# Thread-safe store for pending tool confirmations using threading.Event
+# Structure: {call_id: {'event': threading.Event, 'confirmed': None}}
+confirm_flags_lock = threading.Lock()
 confirm_flags = {}
 
 @agent_bp.route('/agent', methods=['GET'])
@@ -166,9 +170,13 @@ def agent_chat():
                         
                         # Intercept sensitive tool calls for confirmation
                         if upd.get('type') == 'tool_call' and upd.get('tool_name') == 'run_bash_shell':
-                            # Generate unique call ID and set pending flag
+                            # Generate unique call ID and set pending flag with thread-safe event
                             call_id = str(uuid.uuid4())
-                            confirm_flags[call_id] = None
+                            with confirm_flags_lock:
+                                confirm_flags[call_id] = {
+                                    'event': threading.Event(),
+                                    'confirmed': None
+                                }
                             
                             # Send tool call details to client for confirmation
                             confirmation_data = {
@@ -179,13 +187,17 @@ def agent_chat():
                             }
                             yield f"data: {json.dumps(confirmation_data)}\n\n"
                             
-                            # Wait for confirmation (poll with timeout)
-                            start_time = time.time()
+                            # Wait for confirmation (non-blocking event wait with timeout)
                             timeout = 60  # 1 minute timeout
-                            while confirm_flags[call_id] is None:
-                                loop.run_until_complete(asyncio.sleep(0.5))
-                                if time.time() - start_time > timeout:
-                                    del confirm_flags[call_id]
+                            with confirm_flags_lock:
+                                event = confirm_flags[call_id]['event']
+                            
+                            # Wait for the event to be set (non-blocking, won't prevent other requests)
+                            event_set = event.wait(timeout=timeout)
+                            
+                            with confirm_flags_lock:
+                                if call_id not in confirm_flags:
+                                    # Already cleaned up, likely timed out in another thread
                                     timeout_data = {
                                         'type': 'error',
                                         'message': f"Tool call confirmation timed out after {timeout} seconds."
@@ -193,10 +205,27 @@ def agent_chat():
                                     collected_responses.append(f"ERROR: {timeout_data['message']}")
                                     yield f"data: {json.dumps(timeout_data)}\n\n"
                                     return
+                                
+                                confirmation_result = confirm_flags[call_id]['confirmed']
+                            
+                            # Check if we timed out
+                            if not event_set:
+                                with confirm_flags_lock:
+                                    if call_id in confirm_flags:
+                                        del confirm_flags[call_id]
+                                timeout_data = {
+                                    'type': 'error',
+                                    'message': f"Tool call confirmation timed out after {timeout} seconds."
+                                }
+                                collected_responses.append(f"ERROR: {timeout_data['message']}")
+                                yield f"data: {json.dumps(timeout_data)}\n\n"
+                                return
                             
                             # Check confirmation result
-                            if not confirm_flags[call_id]:
-                                del confirm_flags[call_id]
+                            if not confirmation_result:
+                                with confirm_flags_lock:
+                                    if call_id in confirm_flags:
+                                        del confirm_flags[call_id]
                                 rejection_data = {
                                     'type': 'error',
                                     'message': "Tool call was rejected by the user."
@@ -205,8 +234,10 @@ def agent_chat():
                                 yield f"data: {json.dumps(rejection_data)}\n\n"
                                 return
                             
-                            # Tool call was confirmed, continue
-                            del confirm_flags[call_id]
+                            # Tool call was confirmed, clean up and continue
+                            with confirm_flags_lock:
+                                if call_id in confirm_flags:
+                                    del confirm_flags[call_id]
                             
                         # Forward update to client and capture it as fallback
                         update_json = json.dumps(upd)
@@ -274,9 +305,12 @@ def tool_confirmation():
     call_id = data['call_id']
     confirmed = data['confirmed']
     
-    if call_id not in confirm_flags:
-        return jsonify({'error': 'Invalid confirmation ID or confirmation expired'}), 400
-    
-    confirm_flags[call_id] = confirmed
+    with confirm_flags_lock:
+        if call_id not in confirm_flags:
+            return jsonify({'error': 'Invalid confirmation ID or confirmation expired'}), 400
+        
+        # Store the confirmation result and signal the event
+        confirm_flags[call_id]['confirmed'] = confirmed
+        confirm_flags[call_id]['event'].set()
     
     return jsonify({'success': True})
