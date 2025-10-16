@@ -1,4 +1,24 @@
-/* Authentication Pages Dark Theme Styles */
+/* Authentication Pages Theme-Aware Styles */
+
+/* Theme-aware body background for login page */
+body {
+    background-color: var(--light-bg) !important;
+}
+
+/* Light theme: white background */
+body.theme-light {
+    background-color: #ffffff !important;
+}
+
+/* Light Colored theme: white background */
+body.theme-lightColored {
+    background-color: #ffffff !important;
+}
+
+/* Dark theme: keep dark background */
+body.theme-dark {
+    background-color: var(--light-bg) !important;
+}
 
 .auth-container {
     max-width: 400px;

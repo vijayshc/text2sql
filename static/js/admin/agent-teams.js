@@ -1200,11 +1200,11 @@ Selected agent:`;
         </div>` : ''}
         <div class="col-md-3">
           <label class="form-label small">Description</label>
-          <input class="form-control form-control-sm agent-desc" value="${(agent?.description||'').replace(/"/g, '&quot;')}" placeholder="Brief description of agent role">
+          <textarea class="form-control form-control-sm agent-desc" rows="2" placeholder="Brief description of agent role">${(agent?.description||'').replace(/</g, '&lt;')}</textarea>
         </div>
         <div class="col-md-${showAgentType ? '2' : '3'}">
           <label class="form-label small">System Prompt</label>
-          <input class="form-control form-control-sm agent-prompt" value="${(agent?.system_prompt||'').replace(/"/g, '&quot;')}">
+          <textarea class="form-control form-control-sm agent-prompt" rows="3">${(agent?.system_prompt||'').replace(/</g, '&lt;')}</textarea>
         </div>
         <div class="col-md-1 text-end">
           <button class="btn btn-sm btn-outline-danger remove-agent">Remove</button>
@@ -1350,6 +1350,9 @@ Selected agent:`;
       if (input) {
         input.addEventListener('change', syncBuilderToJson);
         input.addEventListener('blur', syncBuilderToJson);
+        input.addEventListener('input', () => {
+          syncBuilderToJson();
+        });
       }
     });
   }
