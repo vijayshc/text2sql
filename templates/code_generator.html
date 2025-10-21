@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link href="{{ url_for('static', filename='css/code-generator.css') }}" rel="stylesheet">
+<!-- Marked.js for markdown rendering -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<!-- Highlight.js for syntax highlighting -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid pt-3">
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="text-center py-4 d-none">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2 text-muted">Processing request...</p>
+    </div>
+
+    <!-- Code Generator Form Card -->
+    <div class="card shadow-sm compact-card">
+        <div class="card-body py-3">
+            <form id="codeGenForm" class="code-gen-form">
+                <div class="form-header d-flex justify-content-end align-items-center flex-wrap gap-2">
+                    <label for="projectSelect" class="form-label mb-0">Mapping Project</label>
+                    <div class="project-controls d-flex align-items-center gap-2">
+                        <select class="form-select form-select-sm w-auto" id="projectSelect" required>
+                            <option value="">-- Select Project --</option>
+                        </select>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" id="refreshBtn" title="Refresh projects">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="query-container mt-2">
+                    <div class="input-group">
+                        <textarea class="form-control" id="userPrompt" rows="3"
+                                  placeholder="Describe the mapping you want to generate code for..."
+                                  required></textarea>
+                        <button type="submit" class="btn btn-primary" id="generateBtn">
+                            <i class="fas fa-play me-2"></i>Generate Code
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Hidden Reset Button -->
+                <button type="button" class="d-none" id="resetBtn">Reset</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Progress Card -->
+    <div class="card shadow-sm mt-3 d-none" id="progressCard">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-tasks me-2"></i>Generation Progress</h5>
+        </div>
+        <div class="card-body p-3">
+            <div class="progress mb-2" style="height: 25px;">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                     role="progressbar" 
+                     id="progressBar" 
+                     style="width: 0%">0%</div>
+            </div>
+            <div id="progressMessage" class="text-center text-muted small mb-3">
+                Initializing...
+            </div>
+            
+            <!-- Steps visible during generation -->
+            <div id="stepsContainer" class="steps-timeline">
+                <!-- Steps will be dynamically added here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Card with Tabs -->
+    <div class="card shadow-sm mt-3 d-none" id="resultsCard">
+        <div class="card-header">
+            <ul class="nav nav-tabs card-header-tabs" id="resultsTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="steps-tab" data-bs-toggle="tab" data-bs-target="#steps-panel" type="button" role="tab" aria-controls="steps-panel" aria-selected="true">
+                        <i class="fas fa-tasks me-1"></i>Processing Steps
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="code-tab" data-bs-toggle="tab" data-bs-target="#code-panel" type="button" role="tab" aria-controls="code-panel" aria-selected="false">
+                        <i class="fas fa-file-code me-1"></i>Generated Code
+                    </button>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body p-3">
+            <div class="tab-content" id="resultsTabContent">
+                <!-- Steps Tab (Primary) -->
+                <div class="tab-pane fade show active" id="steps-panel" role="tabpanel" aria-labelledby="steps-tab">
+                    <div id="stepsContainerResults" class="steps-timeline">
+                        <!-- Steps will be moved here after completion -->
+                    </div>
+                </div>
+                
+                <!-- Code Tab (Secondary) -->
+                <div class="tab-pane fade" id="code-panel" role="tabpanel" aria-labelledby="code-tab">
+                    <!-- Metadata -->
+                    <div class="alert alert-info mb-2 py-2" id="generationMetadata">
+                        <div class="row g-2">
+                            <div class="col-md-4 col-6">
+                                <small><strong>Mapping:</strong> <span id="metaMappingName">-</span></small>
+                            </div>
+                            <div class="col-md-4 col-6">
+                                <small><strong>Project:</strong> <span id="metaProjectName">-</span></small>
+                            </div>
+                            <div class="col-md-4 col-6">
+                                <small><strong>Generated:</strong> <span id="metaTimestamp">-</span></small>
+                            </div>
+                            <div class="col-md-4 col-6">
+                                <small><strong>Tables:</strong> <span id="metaTableCount">-</span></small>
+                            </div>
+                            <div class="col-md-4 col-6">
+                                <small><strong>Existing Code:</strong> <span id="metaHadExisting">-</span></small>
+                            </div>
+                            <div class="col-md-4 col-6">
+                                <small><strong>Status:</strong> <span class="badge bg-success" id="metaStatus">Success</span></small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex justify-content-end gap-2 mb-2">
+                        <button class="btn btn-sm btn-success d-none" id="saveCodeBtn">
+                            <i class="fas fa-save me-1"></i>Save Changes
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" id="copyCodeBtn" title="Copy to clipboard">
+                            <i class="fas fa-copy me-1"></i>Copy
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" id="downloadCodeBtn" title="Download code">
+                            <i class="fas fa-download me-1"></i>Download
+                        </button>
+                    </div>
+
+                    <!-- Code Display -->
+                    <div id="monacoEditor" style="height: 450px; border: 1px solid var(--border-color); border-radius: 0.25rem;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Card -->
+    <div class="card shadow-sm mt-4 d-none border-danger" id="errorCard">
+        <div class="card-header bg-danger text-white">
+            <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Error</h5>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-danger mb-0" id="errorMessage">
+                An error occurred during code generation.
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Monaco Editor -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/editor/editor.main.css">
+<script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/loader.js"></script>
+<script src="{{ url_for('static', filename='js/code-generator.js') }}"></script>
+<script>
+    // Initialize code generator on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof CodeGenerator !== 'undefined') {
+            window.codeGenerator = new CodeGenerator();
+        } else {
+            console.error('CodeGenerator class not loaded');
+        }
+    });
+</script>
+{% endblock %}

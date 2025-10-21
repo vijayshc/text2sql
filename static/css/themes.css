@@ -1324,6 +1324,24 @@ pre {
     overflow-x: auto;
 }
 
+/* Exception for step-details pre - must be compact */
+.step-details pre {
+    margin: 0 !important;
+    padding: 0.3rem !important;
+    background: var(--input-bg);
+    border-radius: 2px;
+    line-height: 1.15 !important;
+    white-space: pre-wrap !important;
+    word-wrap: break-word !important;
+    color: var(--text-primary);
+    height: 100px !important;
+    overflow: auto !important;
+    display: block !important;
+    font-family: 'Courier New', Consolas, monospace !important;
+    box-sizing: border-box !important;
+}
+
+
 code {
     padding: 0.125rem 0.25rem;
     font-size: 0.875rem;
