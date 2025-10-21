@@ -59,10 +59,10 @@ class CodeGeneratorService:
                         existing_client = _mcp_clients.get(server.id)
                         if existing_client:
                             try:
-                                await existing_client.disconnect()
-                                logger.info(f"Disconnected existing client for {server.name}")
+                                await existing_client.cleanup()
+                                logger.info(f"Cleaned up existing client for {server.name}")
                             except Exception as e:
-                                logger.warning(f"Error disconnecting existing client: {e}")
+                                logger.warning(f"Error cleaning up existing client: {e}")
                         
                         # Remove from cache
                         _mcp_clients.pop(server.id, None)
@@ -398,7 +398,7 @@ Return only the JSON object, no additional text or explanation.
             
             # Close the client after use
             try:
-                await client.disconnect()
+                await client.cleanup()
             except:
                 pass
             
@@ -412,7 +412,7 @@ Return only the JSON object, no additional text or explanation.
             # Try to close client on error
             if 'client' in locals():
                 try:
-                    await client.disconnect()
+                    await client.cleanup()
                 except:
                     pass
             
@@ -502,8 +502,30 @@ Return only the JSON array, no additional text or explanation.
                 return {table_name: {"columns": [], "status": "error", "error": "MCP client not available"} 
                         for table_name in table_names}
             
+            # Validate client connection before proceeding
+            if not client.is_connected():
+                logger.error("Client connection validation failed - not connected")
+                return {table_name: {"columns": [], "status": "error", "error": "MCP client not connected"} 
+                        for table_name in table_names}
+            
+            # Validate that session exists
+            if not hasattr(client, 'session') or client.session is None:
+                logger.error("Client session is not available")
+                return {table_name: {"columns": [], "status": "error", "error": "MCP client session not available"} 
+                        for table_name in table_names}
+            
             for table_name in table_names:
                 try:
+                    # Double-check connection before each call
+                    if not client.is_connected() or not client.session:
+                        logger.error(f"Connection lost before processing {table_name}")
+                        structures[table_name] = {
+                            "columns": [],
+                            "status": "error",
+                            "error": "Connection lost"
+                        }
+                        continue
+                    
                     # Get table columns
                     result = await client.session.call_tool("get_table_data", {
                         "table_name": table_name,
@@ -527,6 +549,8 @@ Return only the JSON array, no additional text or explanation.
                         
                 except Exception as e:
                     logger.error(f"Error getting structure for {table_name}: {str(e)}")
+                    import traceback
+                    logger.error(traceback.format_exc())
                     structures[table_name] = {
                         "columns": [],
                         "status": "error",
@@ -536,9 +560,9 @@ Return only the JSON array, no additional text or explanation.
             # Always close the client
             if client:
                 try:
-                    await client.disconnect()
-                except:
-                    pass
+                    await client.cleanup()
+                except Exception as cleanup_error:
+                    logger.warning(f"Error during client cleanup: {cleanup_error}")
         
         return structures
     

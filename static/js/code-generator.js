@@ -175,9 +175,25 @@ class CodeGenerator {
         }
         
         try {
-            // Hide previous results
+            // Hide previous results and clear any previous result UI
             this.hideError();
             this.resultsCard.classList.add('d-none');
+
+            // Clear previous results steps (from prior runs) so final display doesn't accumulate old steps
+            const stepsContainerResultsClear = document.getElementById('stepsContainerResults');
+            if (stepsContainerResultsClear) stepsContainerResultsClear.innerHTML = '';
+
+            // Dispose any existing Monaco editor from previous run to avoid stale content
+            if (this.editor) {
+                try {
+                    this.editor.dispose();
+                } catch (e) {
+                    console.warn('Error disposing previous editor:', e);
+                }
+                this.editor = null;
+            }
+            this.currentFilePath = null;
+            this.stepDetails = {};
             
             // Show progress card and initialize steps
             this.progressCard.classList.remove('d-none');
@@ -453,10 +469,20 @@ class CodeGenerator {
         // Move steps from progress card to results card
         const stepsContainer = document.getElementById('stepsContainer');
         const stepsContainerResults = document.getElementById('stepsContainerResults');
-        
-        // Move all step elements
-        while (stepsContainer.firstChild) {
-            stepsContainerResults.appendChild(stepsContainer.firstChild);
+
+        // Ensure previous results are cleared before appending new ones
+        if (stepsContainerResults) {
+            stepsContainerResults.innerHTML = '';
+        }
+
+        // Move all step elements from progress to results container
+        while (stepsContainer && stepsContainer.firstChild) {
+            if (stepsContainerResults) {
+                stepsContainerResults.appendChild(stepsContainer.firstChild);
+            } else {
+                // If results container is missing, just remove from progress
+                stepsContainer.removeChild(stepsContainer.firstChild);
+            }
         }
         
         // Hide progress card
