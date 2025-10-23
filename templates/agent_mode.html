@@ -3,9 +3,9 @@
 {% block head %}
 {{ super() }}
 <!-- Highlight.js for code highlighting -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css" rel="stylesheet">
+<link href="{{ url_for('static', filename='vendor/highlight/styles/github-dark.min.css') }}" rel="stylesheet" id="highlight-theme">
 <!-- Markdown-it for markdown rendering -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/13.0.1/markdown-it.min.js"></script>
+<script src="{{ url_for('static', filename='vendor/markdown-it/markdown-it-13.0.1.min.js') }}"></script>
 <!-- Enhanced Agent Chat Styling -->
 <link href="{{ url_for('static', filename='css/admin/agent-chat-enhanced.css') }}" rel="stylesheet">
 {% endblock %}
@@ -21,11 +21,48 @@
             </button>
         </div>
         <div class="server-selection mt-2">
-            <label for="serverSelect" class="form-label small">MCP Server (optional):</label>
-            <select class="form-select form-select-sm glass" id="serverSelect">
-                <option value="">Auto-select best server</option>
-                <!-- Servers will be loaded here -->
-            </select>
+            <div class="row g-2">
+                <!-- Mode Selection -->
+                <div class="col-4">
+                    <label for="modeSelect" class="form-label small">Agent Mode:</label>
+                    <select class="form-select form-select-sm glass" id="modeSelect">
+                        <option value="autogen">AutoGen</option>
+                        <option value="mcp">MCP Server</option>
+                    </select>
+                </div>
+                
+                <!-- AutoGen Mode Options -->
+                <div class="col-4" id="autogenTeamCol">
+                    <label for="teamSelect" class="form-label small">Team (optional):</label>
+                    <select class="form-select form-select-sm glass" id="teamSelect">
+                        <option value="">None</option>
+                    </select>
+                </div>
+                <div class="col-4" id="autogenWorkflowCol">
+                    <label for="workflowSelect" class="form-label small">Workflow (optional):</label>
+                    <select class="form-select form-select-sm glass" id="workflowSelect">
+                        <option value="">None</option>
+                    </select>
+                </div>
+                
+                <!-- MCP Server Mode Options (hidden by default) -->
+                <div class="col-8" id="mcpServerCol" style="display: none;">
+                    <label for="serverSelect" class="form-label small">MCP Server (optional):</label>
+                    <select class="form-select form-select-sm glass" id="serverSelect">
+                        <option value="">Auto-select best server</option>
+                        <!-- Servers will be loaded here -->
+                    </select>
+                </div>
+                
+                <!-- Project Selection (for data engineering tasks) -->
+                <div class="col-4" id="projectCol" style="display: none;">
+                    <label for="projectSelect" class="form-label small">Project (optional):</label>
+                    <select class="form-select form-select-sm glass" id="projectSelect">
+                        <option value="">Default</option>
+                        <!-- Projects will be loaded here -->
+                    </select>
+                </div>
+            </div>
         </div>
     </div>
     <!-- Progress indicator -->
@@ -41,10 +78,8 @@
             <div class="avatar system-avatar">
                 <i class="fas fa-robot"></i>
             </div>
-            <div class="message-content glass final-answer">
-                <p>Hello! I'm your agent assistant. I'll help you solve tasks by using tools and accessing resources.</p>
-                <p>You can ask follow-up questions, and I'll maintain context from our conversation.</p>
-                <p>How can I help you today?</p>
+            <div class="message-content glass">
+                <p>Hello! I'm your agent assistant.  How can I help you today?</p>
             </div>
         </div>
     </div>

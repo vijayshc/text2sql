@@ -1,148 +1,70 @@
-/* Admin Schema Management Styles */
+/* Admin Schema Management Styles (theme-aligned) */
+/* This file only contains schema-page specifics. Base theming lives in themes.css */
 
-/* Ensure primary buttons match the navbar gradient colors */
-.btn-primary {
-    background: var(--primary-gradient);
-    border-color: var(--primary-color);
-}
-
-.btn-primary:hover, .btn-primary:focus, .btn-primary:active {
-    background: linear-gradient(135deg, #266b97, #243342);
-    border-color: #1a252f;
-}
-
-/* Style the list group items to match the color scheme */
+/* List group active/hover states align with theme */
 .list-group-item.active {
-    background: var(--primary-gradient);
-    border-color: var(--primary-color);
+    background-color: var(--hover-bg);
+    border-color: var(--border-color);
+    color: var(--text-primary);
 }
 
-/* Style the card headers to match navbar - changed to lighter color */
-#workspacesList .list-group-item.active {
-    background: #2a79ad; /* Changed to lighter color from the nav menu */
-    border-color: var(--primary-color);
-    color: white;
+#workspacesList .list-group-item.active,
+#tablesList .list-group-item.active { 
+    background-color: var(--hover-bg); 
+    border-color: var(--border-color); 
+    color: var(--text-primary); 
 }
 
-/* Style the tables list active items */
-#tablesList .list-group-item.active {
-    background: #2a79ad; /* Changed to lighter color from the nav menu */
-    border-color: var(--primary-color);
-    color: white;
-}
+.list-group-item:hover { background-color: var(--hover-bg); color: var(--text-primary); }
 
-/* Style card headers to match the color scheme - changed to lighter color */
+/* Card headers: use table header palette for stronger visual hierarchy */
 .admin-card-header {
-    background: #2a79ad; /* Changed to lighter color from the nav menu */
-    color: white;
-    border-bottom: 0;
+    background-color: var(--table-header-bg);
+    color: var(--table-header-text, var(--text-primary));
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 1.5rem;
 }
 
-/* Style outline buttons to match accent color */
-.btn-outline-primary {
-    color: var(--accent-color);
-    border-color: var(--accent-color);
+/* Join table header follows theme */
+#joinsTable thead th, .table thead th {
+    background-color: var(--table-header-bg);
+    color: var(--table-header-text, var(--text-primary));
+    border: 1px solid var(--table-border);
 }
 
-.btn-outline-primary:hover, .btn-outline-primary:focus, .btn-outline-primary:active {
-    background-color: var(--accent-color);
-    color: white;
-    border-color: var(--accent-color);
-}
+/* Smooth interactions */
+.list-group-item, .btn, .card, .table tr { transition: all 0.2s ease; }
 
-/* Add solid background to joins table header */
-#joinsTable thead th {
-    background: #2a79ad; /* Changed to lighter color from the nav menu */
-    color: white;
-    border: none;
-}
-
-/* Style tabs to match the color scheme */
-.nav-tabs .nav-link.active {
-    color: var(--accent-color);
-    border-color: var(--accent-color);
-    border-bottom-width: 3px;
-}
-
-/* Add subtle hover effect to workspace and table items */
-.list-group-item:hover {
-    background-color: rgba(52, 152, 219, 0.05);
-}
-
-/* Style buttons in edit/delete area */
-.btn-outline-secondary, .btn-outline-danger {
-    border-radius: 4px;
-}
-
-/* Add consistent border radius to all elements */
-.card, .modal-content, .form-control, .btn, .list-group-item {
-    border-radius: 6px;
-}
-
-/* Ensure form inputs have consistent styling */
-.form-control:focus {
-    border-color: var(--accent-color);
-    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
-}
-
-/* Style modals to match the theme */
+/* Modal header theme alignment */
 .modal-header {
-    background: #2a79ad; /* Changed to lighter color from the nav menu */
-    color: white;
-    border-bottom: none;
+    background-color: var(--card-bg);
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-color);
 }
 
-.modal-header .btn-close {
-    color: white;
-    opacity: 0.8;
-    filter: invert(1) grayscale(100%) brightness(200%);
+/* Form focus ring align with theme */
+.form-control:focus {
+    border-color: var(--input-focus-border);
+    box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
-/* Ensure consistent styling for detail section headers */
-#detailHeader {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--primary-color);
+/* Minor utilities */
+.action-btn-group .btn { margin-right: 0.25rem; }
+.btn-group-sm > .btn { padding: 0.25rem 0.5rem; }
+.modal-body .form-label { font-weight: 500; color: var(--text-primary); }
+
+/* Code/JSON areas */
+#importExportContent { 
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace; 
+    font-size: 0.9rem; 
+    background-color: var(--card-bg); 
+    color: var(--text-secondary); 
 }
 
-/* Style columns table headers */
-.table thead th {
-    background: #2a79ad; /* Changed to lighter color from the nav menu */
-    color: white;
-    border: none;
-}
-
-/* Make all action buttons more consistent */
-.action-btn-group .btn {
-    margin-right: 0.25rem;
-}
-
-/* Add transition effects for smoother interactions */
-.list-group-item, .btn, .card, .table tr {
-    transition: all 0.2s ease;
-}
-
-/* Ensure workspace and table action buttons are properly spaced */
-.btn-group-sm > .btn {
-    padding: 0.25rem 0.5rem;
-}
-
-/* Ensure consistent form styles in modals */
-.modal-body .form-label {
-    font-weight: 500;
-    color: var(--secondary-color);
-}
-
-/* Import/Export elements styling */
-#importExportContent {
-    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-    font-size: 0.9rem;
-}
-
-/* Join condition code styling */
-code {
-    color: var(--accent-color);
-    background-color: rgba(52, 152, 219, 0.1);
-    padding: 0.2rem 0.4rem;
-    border-radius: 4px;
+code { 
+    color: var(--text-primary); 
+    background-color: var(--hover-bg); 
+    padding: 0.2rem 0.4rem; 
+    border-radius: 4px; 
+    border: 1px solid var(--border-color); 
 }

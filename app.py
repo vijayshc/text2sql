@@ -10,20 +10,26 @@ from src.routes.auth_routes import auth_bp, admin_required, permission_required
 from src.routes.admin_routes import admin_bp
 from src.routes.admin_api_routes import admin_api_bp
 from src.routes.admin_db_routes import admin_db_bp
+from src.routes.admin_file_browser_routes import admin_file_browser_bp
 from src.routes.security_routes import security_bp, generate_csrf_token
 from src.routes.vector_db_routes import vector_db_bp
 from src.routes.knowledge_routes import knowledge_bp
 from src.routes.metadata_search_routes import metadata_search_bp
 from src.routes.agent_routes import agent_bp
+from src.routes.autogen_routes import autogen_bp
 from src.routes.tool_confirmation_routes import tool_confirmation_bp  # new import for confirmation endpoint
 from src.routes.skill_routes import skill_bp  # Import skill routes
+from src.routes.data_mapping_routes import data_mapping_bp  # Import data mapping routes
+from src.routes.project_mapping_routes import project_mapping_bp  # Import project mapping routes
+from src.routes.code_generator_routes import code_generator_bp  # Import code generator routes
 from src.models.user import Permissions
-from config.config import SECRET_KEY, DEBUG, MCP_SERVER_SCRIPT_PATH
+from config.config import SECRET_KEY, DEBUG, MCP_SERVER_SCRIPT_PATH, AUTH_PROVIDER
 import logging
 import os
 import sys
 import time
 import uuid
+import threading
 from datetime import datetime
 from threading import Thread
 import signal
@@ -47,6 +53,10 @@ def initialize_mcp_servers():
     
     # Ensure the skills table exists
     Skill.create_table()
+    
+    # Ensure code generation history table exists
+    from src.models.code_generation_history import CodeGenerationHistory
+    CodeGenerationHistory.create_table()
 
     # Start all servers marked as running in the database
     loop = asyncio.new_event_loop()
@@ -82,6 +92,13 @@ def cleanup_mcp_client():
     
     mcp_client = None
     mcp_event_loop = None
+
+# Provide missing shutdown function referenced in cleanup
+async def shutdown_mcp_client():
+    try:
+        await MCPClientManager.cleanup_all()
+    except Exception as e:
+        logger.warning(f"shutdown_mcp_client encountered an error: {e}")
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -125,12 +142,14 @@ app.register_blueprint(auth_bp)
 app.register_blueprint(admin_bp)
 app.register_blueprint(admin_api_bp)
 app.register_blueprint(admin_db_bp)
+app.register_blueprint(admin_file_browser_bp)
 app.register_blueprint(security_bp)
 app.register_blueprint(vector_db_bp)
 app.register_blueprint(knowledge_bp)
 app.register_blueprint(metadata_search_bp)
 app.register_blueprint(agent_bp)  # Register the agent blueprint
 app.register_blueprint(tool_confirmation_bp)  # Register tool confirmation blueprint
+app.register_blueprint(autogen_bp)  # Register AutoGen orchestration endpoints
 from src.routes.config_routes import config_bp
 app.register_blueprint(config_bp)
 from src.routes.query_editor_routes import query_editor_bp
@@ -140,13 +159,20 @@ from src.routes.mcp_admin_routes import mcp_admin_bp
 app.register_blueprint(mcp_admin_bp)
 # Register skill management blueprint
 app.register_blueprint(skill_bp)
+# Register data mapping blueprint
+app.register_blueprint(data_mapping_bp)
+# Register project mapping blueprint
+app.register_blueprint(project_mapping_bp)
+# Register code generator blueprint
+app.register_blueprint(code_generator_bp)
 
 # Make CSRF token available in templates
 @app.context_processor
 def inject_csrf_token():
     return dict(csrf_token=generate_csrf_token)
 
-# Store query progress
+# Store query progress with thread-safe lock
+query_progress_lock = threading.Lock()
 query_progress = {}
 
 # Import login_required from auth_utils
@@ -183,14 +209,15 @@ def process_query():
     
     # Generate unique ID for this query
     query_id = str(uuid.uuid4())
-    query_progress[query_id] = {
-        'status': 'processing',
-        'current_step': 0,
-        'steps': [],
-        'result': None,
-        'error': None,
-        'start_time': time.time()  # Add timestamp when query is initiated
-    }
+    with query_progress_lock:
+        query_progress[query_id] = {
+            'status': 'processing',
+            'current_step': 0,
+            'steps': [],
+            'result': None,
+            'error': None,
+            'start_time': time.time()  # Add timestamp when query is initiated
+        }
     
     selected_workspaces = [w for w in sql_manager.schema_manager.get_workspaces() if w['name'] == workspace_name]
     
@@ -210,6 +237,7 @@ def process_query():
         user_id=user_id,
         query_progress=query_progress,
         update_progress_func=update_progress,
+        query_progress_lock=query_progress_lock,
         ip_address=ip_address  # Pass the IP address to the background task
     )
     
@@ -249,43 +277,61 @@ def get_table_suggestions():
         # Sort alphabetically by name
         table_info.sort(key=lambda x: x["name"])
         
+        # Audit log the table suggestions request
+        user_manager.log_audit_event(
+            user_id=session.get('user_id'),
+            action='get_table_suggestions',
+            details=f"Retrieved {len(table_info)} table suggestions for workspace: {workspace_name}" + (f", filtered by: '{query}'" if query else ""),
+            ip_address=request.remote_addr
+        )
+        
         return jsonify({"suggestions": table_info})
     except Exception as e:
         logger.exception(f"Error retrieving table suggestions: {str(e)}")
+        
+        # Audit log the error
+        user_manager.log_audit_event(
+            user_id=session.get('user_id'),
+            action='get_table_suggestions_error',
+            details=f"Error retrieving table suggestions for workspace {workspace_name}: {str(e)}",
+            ip_address=request.remote_addr
+        )
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/query/progress/<query_id>', methods=['GET'])
 @login_required
 def get_query_progress(query_id):
     """Get the progress of a query"""
-    if query_id not in query_progress:
-        return jsonify({"error": "Query not found"}), 404
+    with query_progress_lock:
+        if query_id not in query_progress:
+            return jsonify({"error": "Query not found"}), 404
+            
+        progress = query_progress[query_id]
         
-    progress = query_progress[query_id]
-    
-    # If query is complete, clean up
-    if progress['status'] in ['completed', 'error']:
-        result = progress.copy()
-        if progress['status'] == 'completed':
-            del query_progress[query_id]  # Clean up completed queries
-        return jsonify(result)
-    
-    # Check for timeout (2 minutes = 120 seconds)
-    current_time = time.time()
-    if 'start_time' in progress and (current_time - progress['start_time']) > 120:
-        logger.warning(f"Query {query_id} timed out after 2 minutes")
-        progress['status'] = 'error'
-        progress['error'] = "Query processing timed out after 2 minutes"
-        result = progress.copy()
-        return jsonify(result), 408  # Return 408 Request Timeout status
+        # If query is complete, clean up
+        if progress['status'] in ['completed', 'error']:
+            result = progress.copy()
+            if progress['status'] == 'completed':
+                del query_progress[query_id]  # Clean up completed queries
+            return jsonify(result)
         
-    return jsonify(progress)
+        # Check for timeout (2 minutes = 120 seconds)
+        current_time = time.time()
+        if 'start_time' in progress and (current_time - progress['start_time']) > 120:
+            logger.warning(f"Query {query_id} timed out after 2 minutes")
+            progress['status'] = 'error'
+            progress['error'] = "Query processing timed out after 2 minutes"
+            result = progress.copy()
+            return jsonify(result), 408  # Return 408 Request Timeout status
+            
+        return jsonify(progress)
 
 def update_progress(query_id, step_info):
     """Update the progress of a query"""
-    if query_id in query_progress:
-        query_progress[query_id]['current_step'] += 1
-        query_progress[query_id]['steps'].append(step_info)
+    with query_progress_lock:
+        if query_id in query_progress:
+            query_progress[query_id]['current_step'] += 1
+            query_progress[query_id]['steps'].append(step_info)
 
 @app.route('/api/schema', methods=['GET'])
 @login_required
@@ -602,8 +648,30 @@ def samples_page():
 def get_workspaces():
     """Get the list of available workspaces"""
     logger.debug("Workspaces list requested")
-    workspaces = sql_manager.schema_manager.get_workspaces()
-    return jsonify({"workspaces": workspaces})
+    
+    try:
+        workspaces = sql_manager.schema_manager.get_workspaces()
+        
+        # Audit log the workspaces request
+        user_manager.log_audit_event(
+            user_id=session.get('user_id'),
+            action='get_workspaces',
+            details=f"Retrieved {len(workspaces)} workspaces",
+            ip_address=request.remote_addr
+        )
+        
+        return jsonify({"workspaces": workspaces})
+    except Exception as e:
+        logger.exception(f"Error retrieving workspaces: {str(e)}")
+        
+        # Audit log the error
+        user_manager.log_audit_event(
+            user_id=session.get('user_id'),
+            action='get_workspaces_error',
+            details=f"Error retrieving workspaces: {str(e)}",
+            ip_address=request.remote_addr
+        )
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/api/tables', methods=['GET'])
 @login_required
@@ -615,9 +683,26 @@ def get_tables_for_workspace():
     try:
         # Get tables from schema manager
         tables = sql_manager.schema_manager.get_table_names(workspace_name)
+        
+        # Audit log the tables request
+        user_manager.log_audit_event(
+            user_id=session.get('user_id'),
+            action='get_tables',
+            details=f"Retrieved {len(tables)} tables for workspace: {workspace_name}",
+            ip_address=request.remote_addr
+        )
+        
         return jsonify({"tables": tables})
     except Exception as e:
         logger.exception(f"Error retrieving tables: {str(e)}")
+        
+        # Audit log the error
+        user_manager.log_audit_event(
+            user_id=session.get('user_id'),
+            action='get_tables_error',
+            details=f"Error retrieving tables for workspace {workspace_name}: {str(e)}",
+            ip_address=request.remote_addr
+        )
         return jsonify({"error": str(e)}), 500
 
 # Context processor to add user information to templates
@@ -638,7 +723,9 @@ def inject_user():
         is_admin=is_admin,
         user_manager=user_manager,
         has_permission=lambda permission: user_manager.has_permission(session.get('user_id'), permission) if session.get('user_id') else False,
-        permissions=Permissions
+    permissions=Permissions,
+    auth_provider=AUTH_PROVIDER,
+    is_ldap=(AUTH_PROVIDER == 'ldap')
     )
 
 @app.errorhandler(404)
@@ -668,6 +755,15 @@ def init_app_with_context(app):
     with app.app_context():
         logger.info("Initializing application-wide components")
         initialize_mcp_servers()
+        # Ensure AutoGen persistence tables exist
+        try:
+            from src.models.agent_team import AgentTeam
+            from src.models.agent_workflow import AgentWorkflow
+            AgentTeam.create_table()
+            AgentWorkflow.create_table()
+            logger.info("AutoGen tables initialized")
+        except Exception as e:
+            logger.warning(f"Failed to initialize AutoGen tables: {e}")
         logger.info("Application-wide components initialization complete")
 
 # Register initialization function with the app

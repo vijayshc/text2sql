@@ -219,7 +219,7 @@ class KnowledgeManager:
             self.logger.info(f"Document {document_id} processing completed successfully")
             
         except Exception as e:
-            self.logger.error(f"Error processing document {document_id}: {str(e)}", exc_info=True)
+            self.logger.info(f"Error processing document {document_id}: {str(e)}", exc_info=True)
             
             # Update document status to error
             now = datetime.now().isoformat()
@@ -384,7 +384,7 @@ class KnowledgeManager:
             self.logger.info(f"Document {document_id} processing completed successfully")
             
         except Exception as e:
-            self.logger.error(f"Error processing text content {document_id}: {str(e)}", exc_info=True)
+            self.logger.info(f"Error processing text content {document_id}: {str(e)}", exc_info=True)
             
             # Update document status to error
             now = datetime.now().isoformat()
@@ -448,7 +448,7 @@ class KnowledgeManager:
                 )
                 
             except Exception as e:
-                self.logger.error(f"Error creating embedding for chunk {i} of document {document_id}: {str(e)}", exc_info=True)
+                self.logger.info(f"Error creating embedding for chunk {i} of document {document_id}: {str(e)}", exc_info=True)
         
         self.conn.commit()
     
@@ -550,13 +550,19 @@ class KnowledgeManager:
         return [row[0] for row in cursor.fetchall()]
         
     def get_all_tags(self) -> List[str]:
-        """Get a list of all unique tags in the system
+        """Get a list of all unique tags from active (completed) documents in the system
         
         Returns:
-            List of unique tags
+            List of unique tags from active documents only
         """
         cursor = self.conn.cursor()
-        cursor.execute('SELECT DISTINCT tag FROM knowledge_document_tags ORDER BY tag')
+        cursor.execute('''
+            SELECT DISTINCT kdt.tag 
+            FROM knowledge_document_tags kdt
+            INNER JOIN knowledge_documents kd ON kdt.document_id = kd.id
+            WHERE kd.status = 'completed'
+            ORDER BY kdt.tag
+        ''')
         return [row[0] for row in cursor.fetchall()]
         
     def _get_document_ids_by_tags(self, tags: List[str]) -> List[str]:
@@ -627,7 +633,7 @@ class KnowledgeManager:
             self.conn.commit()
             return True
         except Exception as e:
-            self.logger.error(f"Error adding tag to document {document_id}: {str(e)}", exc_info=True)
+            self.logger.info(f"Error adding tag to document {document_id}: {str(e)}", exc_info=True)
             return False
             
     def remove_document_tag(self, document_id: str, tag: str) -> bool:
@@ -647,10 +653,10 @@ class KnowledgeManager:
             self.conn.commit()
             return True
         except Exception as e:
-            self.logger.error(f"Error removing tag from document {document_id}: {str(e)}", exc_info=True)
+            self.logger.info(f"Error removing tag from document {document_id}: {str(e)}", exc_info=True)
             return False
     
-    def get_answer(self, query: str, user_id: int, stream: bool = False, tags: List[str] = None):
+    def get_answer(self, query: str, user_id: int, stream: bool = False, tags: List[str] = None, conversation_history: List[Dict[str, str]] = None):
         """Get an answer to a query using the knowledge base
         
         Args:
@@ -658,6 +664,7 @@ class KnowledgeManager:
             user_id: User ID
             stream: Whether to stream the response
             tags: Optional list of tags to filter documents by
+            conversation_history: Previous conversation messages for context
             
         Returns:
             If stream=False: Dictionary with answer and supporting information
@@ -690,9 +697,13 @@ class KnowledgeManager:
             # Search for similar chunks in vector database
             filter_expr = None
             if filtered_document_ids:
-                # Create a filter expression like "document_id in ['id1', 'id2', ...]"
-                doc_ids_str = "', '".join(filtered_document_ids)
-                filter_expr = f"document_id in ['{doc_ids_str}']" if doc_ids_str else None
+                # Create ChromaDB filter expression using proper dictionary format
+                if len(filtered_document_ids) == 1:
+                    # Single document ID filter
+                    filter_expr = {"document_id": filtered_document_ids[0]}
+                else:
+                    # Multiple document IDs filter using $in operator
+                    filter_expr = {"document_id": {"$in": filtered_document_ids}}
             
             
             top_chunks = self.vector_store.search_similar(
@@ -730,7 +741,7 @@ class KnowledgeManager:
             # Handle streaming case
             if stream:
                 # Generate streaming answer
-                stream_generator = self._generate_answer(query, context_chunks, stream=True)
+                stream_generator = self._generate_answer(query, context_chunks, conversation_history, stream=True)
                 
                 # Create a new generator that saves the complete answer when done
                 def save_and_stream():
@@ -744,7 +755,7 @@ class KnowledgeManager:
                         full_answer = "".join(collected_answer)
                         self._save_query(query, full_answer, user_id)
                     except Exception as e:
-                        self.logger.error(f"Error in streaming answer: {str(e)}", exc_info=True)
+                        self.logger.info(f"Error in streaming answer: {str(e)}", exc_info=True)
                         yield "\nError occurred during streaming."
                 
                 # Return exactly two values as a tuple
@@ -753,7 +764,7 @@ class KnowledgeManager:
             # Handle non-streaming case (original behavior)
             else:
                 # Generate answer using LLM
-                answer = self._generate_answer(query, context_chunks)
+                answer = self._generate_answer(query, context_chunks, conversation_history)
                 
                 # Save the query and answer to database
                 self._save_query(query, answer, user_id)
@@ -765,7 +776,12 @@ class KnowledgeManager:
                 }
             
         except Exception as e:
-            self.logger.info(f"Error answering query '{query}': {str(e)}", exc_info=True)
+            import traceback
+            error_traceback = traceback.format_exc()
+            self.logger.info(f"Error answering query '{query}': {str(e)}")
+            self.logger.info(f"Full traceback:\n{error_traceback}")
+            print(f"KNOWLEDGE MANAGER ERROR: {str(e)}")
+            print(f"TRACEBACK:\n{error_traceback}")
             return {
                 'success': False,
                 'error': str(e),
@@ -785,7 +801,7 @@ class KnowledgeManager:
             llm_engine = LLMEngine()
             return llm_engine.get_reranking_model()
         except Exception as e:
-            self.logger.error(f"Failed to get reranking model from LLMEngine: {str(e)}", exc_info=True)
+            self.logger.info(f"Failed to get reranking model from LLMEngine: {str(e)}", exc_info=True)
             return None
             
     def _rerank_chunks(self, query: str, chunk_ids: List[str]) -> List[str]:
@@ -847,7 +863,7 @@ class KnowledgeManager:
             return reranked_ids
             
         except Exception as e:
-            self.logger.error(f"Error during chunk reranking: {str(e)}", exc_info=True)
+            self.logger.info(f"Error during chunk reranking: {str(e)}", exc_info=True)
             # If reranking fails, return original order (top 3)
             return chunk_ids[:3]
     
@@ -919,23 +935,35 @@ class KnowledgeManager:
         
         return chunks
     
-    def _generate_answer(self, query: str, context_chunks: List[Dict[str, Any]], stream: bool = False):
+    def _generate_answer(self, query: str, context_chunks: List[Dict[str, Any]], conversation_history: List[Dict[str, str]] = None, stream: bool = False):
         """Generate an answer to the query using LLM and context chunks
         
         Args:
             query: User query
             context_chunks: Context chunks with their content
+            conversation_history: Previous conversation messages for context
             stream: Whether to stream the response
             
         Returns:
             If stream=False: Generated answer as a string
             If stream=True: A generator yielding text chunks
         """
-        # Build the context string from the chunks
+        # Create a mapping of unique documents to numbered references
+        document_index = {}
+        document_counter = 1
+        
+        # Build the context string from the chunks with numbered references
         context = ""
         
         for i, chunk in enumerate(context_chunks):
-            context += f"\n\nDocument: {chunk['filename']}\n"
+            # Get or assign a document number
+            doc_filename = chunk['filename']
+            if doc_filename not in document_index:
+                document_index[doc_filename] = document_counter
+                document_counter += 1
+            
+            doc_num = document_index[doc_filename]
+            context += f"\n\nDocument [{doc_num}]:\n"
             
             if 'predecessor' in chunk:
                 context += chunk['predecessor']['content'] + "\n\n"
@@ -945,20 +973,53 @@ class KnowledgeManager:
             if 'successor' in chunk:
                 context += chunk['successor']['content']
         
-        # Create prompt for LLM
+        # Build conversation context if history is provided
+        conversation_context = ""
+        if conversation_history:
+            conversation_context = "\n\nPrevious conversation context:\n"
+            # Include only the last few messages to avoid token limits
+            recent_history = conversation_history[-6:]  # Last 6 messages (3 exchanges)
+            for msg in recent_history:
+                role = msg.get('role', '')
+                content = msg.get('content', '')
+                if role == 'user':
+                    conversation_context += f"User: {content}\n"
+                elif role == 'assistant':
+                    conversation_context += f"Assistant: {content}\n"
+        
+        # Create a document reference list for the LLM
+        doc_reference_list = ""
+        if document_index:
+            doc_reference_list = "\n\nDocument References:\n"
+            for doc_name, doc_num in sorted(document_index.items(), key=lambda x: x[1]):
+                doc_reference_list += f"[{doc_num}] {doc_name}\n"
+        
+        # Create prompt for LLM with conversation context and numbered citation instructions
+        system_content = f"""You are a helpful AI assistant that provides accurate answers based on the given context. 
+        If the answer cannot be found in the context, acknowledge that you don't know instead of making up information.
+        Provide clear, concise answers and use markdown formatting in your response to improve readability.
+        
+        IMPORTANT CITATION RULES:
+        - When referencing information from the context, use numbered citations like [1], [2], etc.
+        - Do NOT repeat the full document names in your response
+        - Use citations sparingly - only at the end of sentences or paragraphs where you reference specific information
+        - The document references will be provided separately at the end, so you don't need to mention document names{conversation_context}"""
+        
         prompt = [
-            {"role": "system", "content": """You are a helpful AI assistant that provides accurate answers based on the given context. 
-            If the answer cannot be found in the context, acknowledge that you don't know instead of making up information.
-            Provide clear, concise answers and use markdown formatting in your response to improve readability.
-            When referring to information from the context, cite the document name."""},
-            {"role": "user", "content": f"Context information:\n{context}\n\nQuestion: {query}\n\nProvide a detailed answer to the question based only on the context provided. Use markdown formatting for better readability."}
+            {"role": "system", "content": system_content},
+            {"role": "user", "content": f"Context information:\n{context}{doc_reference_list}\n\nQuestion: {query}\n\nProvide a detailed answer to the question based only on the context provided. Use markdown formatting for better readability and numbered citations [1], [2], etc. when referencing specific information."}
         ]
         
         try:
             # Generate answer using LLM engine
             return self.llm_engine.generate_completion(prompt, log_prefix="Knowledge QA", stream=stream)
         except Exception as e:
-            self.logger.error(f"Error generating answer: {str(e)}", exc_info=True)
+            import traceback
+            error_traceback = traceback.format_exc()
+            self.logger.info(f"Error generating answer: {str(e)}")
+            self.logger.info(f"Full traceback:\n{error_traceback}")
+            print(f"GENERATE ANSWER ERROR: {str(e)}")
+            print(f"TRACEBACK:\n{error_traceback}")
             if stream:
                 def error_generator():
                     yield "I'm sorry, I couldn't generate an answer based on the available information."
@@ -984,59 +1045,31 @@ class KnowledgeManager:
         self.conn.commit()
     
     def _get_sources(self, context_chunks: List[Dict[str, Any]]) -> List[Dict[str, str]]:
-        """Get source information for citation
+        """Get source information for citation with numbered references
         
         Args:
             context_chunks: Context chunks with their metadata
             
         Returns:
-            List of sources
+            List of unique sources with document numbers
         """
         sources = []
+        seen_documents = set()
+        document_counter = 1
         
         for chunk in context_chunks:
-            sources.append({
-                'document': chunk['filename'],
-                'chunk_id': chunk['id']
-            })
+            doc_filename = chunk['filename']
+            if doc_filename not in seen_documents:
+                sources.append({
+                    'document': doc_filename,
+                    'document_number': document_counter,
+                    'chunk_id': chunk['id']
+                })
+                seen_documents.add(doc_filename)
+                document_counter += 1
             
         return sources
     
-    def _get_document_ids_by_tags(self, tags: List[str]) -> List[str]:
-        """Get document IDs that have all the specified tags
-        
-        Args:
-            tags: List of tags to filter by
-            
-        Returns:
-            List of document IDs
-        """
-        if not tags:
-            return None
-            
-        # Normalize tags
-        normalized_tags = [tag.strip().lower() for tag in tags if tag.strip()]
-        if not normalized_tags:
-            return None
-            
-        # Construct SQL query to find documents that have ALL the specified tags
-        # This uses a GROUP BY and HAVING COUNT to ensure documents have all tags
-        cursor = self.conn.cursor()
-        placeholders = ','.join(['?' for _ in normalized_tags])
-        
-        query = f"""
-            SELECT document_id FROM knowledge_document_tags
-            WHERE tag IN ({placeholders})
-            GROUP BY document_id
-            HAVING COUNT(DISTINCT tag) = ?
-        """
-        
-        # The params include all tags plus the count of tags
-        params = normalized_tags + [len(normalized_tags)]
-        
-        cursor.execute(query, params)
-        return [row[0] for row in cursor.fetchall()]
-
     def delete_document(self, document_id: str) -> bool:
         """Delete a document and its chunks from the system
         
@@ -1097,7 +1130,7 @@ class KnowledgeManager:
                                     filter_expr=filter_expr
                                 )
                             except Exception as chunk_err:
-                                self.logger.error(f"Error deleting chunk {chunk_id}: {str(chunk_err)}")
+                                self.logger.info(f"Error deleting chunk {chunk_id}: {str(chunk_err)}")
                         
                         # Flush after each batch
                         # self.vector_store.client.flush('knowledge_chunks')
@@ -1106,10 +1139,100 @@ class KnowledgeManager:
                     # self.vector_store.client.load_collection('knowledge_chunks')
                     self.logger.info(f"Successfully deleted chunks from vector store for document {document_id}")
                 except Exception as e:
-                    self.logger.error(f"Error deleting chunks from vector store: {str(e)}", exc_info=True)
+                    self.logger.info(f"Error deleting chunks from vector store: {str(e)}", exc_info=True)
                     # Continue despite vector store errors - document is already removed from DB
             
             return True
         except Exception as e:
-            self.logger.error(f"Error deleting document {document_id}: {str(e)}", exc_info=True)
+            self.logger.info(f"Error deleting document {document_id}: {str(e)}", exc_info=True)
             return False
+
+    def get_document_info(self, document_id: str) -> Dict[str, Any]:
+        """Get detailed information about a document
+        
+        Args:
+            document_id: Document ID
+            
+        Returns:
+            Dictionary with document information or None if not found
+        """
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute(
+                '''SELECT id, original_filename, file_path, content_type, status, 
+                   created_at, updated_at, processed_at, error 
+                   FROM knowledge_documents WHERE id = ?''',
+                (document_id,)
+            )
+            row = cursor.fetchone()
+            
+            if not row:
+                return None
+            
+            doc_id, filename, file_path, content_type, status, created_at, updated_at, processed_at, error = row
+            
+            # Get chunk count
+            cursor.execute('SELECT COUNT(*) FROM knowledge_chunks WHERE document_id = ?', (doc_id,))
+            chunk_count = cursor.fetchone()[0]
+            
+            # Get tags
+            tags = self.get_document_tags(doc_id)
+            
+            return {
+                'id': doc_id,
+                'original_filename': filename,
+                'file_path': file_path,
+                'content_type': content_type,
+                'status': status,
+                'created_at': created_at,
+                'updated_at': updated_at,
+                'processed_at': processed_at,
+                'error': error,
+                'chunk_count': chunk_count,
+                'tags': tags
+            }
+        except Exception as e:
+            self.logger.error(f"Error getting document info {document_id}: {str(e)}", exc_info=True)
+            return None
+
+    def get_document_markdown(self, document_id: str) -> str:
+        """Get the markdown content of a processed document
+        
+        Args:
+            document_id: Document ID
+            
+        Returns:
+            Markdown content string or None if not found/not processed
+        """
+        try:
+            document_info = self.get_document_info(document_id)
+            if not document_info:
+                return None
+            
+            # If document is not completed, return None
+            if document_info['status'] != 'completed':
+                return None
+            
+            file_path = document_info['file_path']
+            content_type = document_info['content_type']
+            
+            # Check if file exists
+            if not os.path.exists(file_path):
+                return None
+            
+            # For text content, read directly
+            if content_type == 'txt':
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    return f.read()
+            
+            # For other file types, convert using markitdown
+            try:
+                result = self.md_converter.convert(file_path)
+                return result.text_content
+            except Exception as e:
+                self.logger.error(f"Error converting document to markdown: {str(e)}", exc_info=True)
+                return None
+            
+        except Exception as e:
+            self.logger.error(f"Error getting document markdown {document_id}: {str(e)}", exc_info=True)
+            return None

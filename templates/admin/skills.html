@@ -4,9 +4,6 @@
 
 {% block head %}
 {{ super() }}
-<!-- DataTables CSS -->
-<link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-<link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -69,7 +66,7 @@
 
         <!-- Skills Table -->
         <div class="table-responsive">
-            <table class="table table-hover">
+            <table class="table table-hover" id="skillsTable">
                 <thead>
                     <tr>
                         <th>Name</th>
@@ -81,15 +78,7 @@
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody id="skillsTableBody">
-                    <tr>
-                        <td colspan="7" class="text-center">
-                            <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
+                <tbody id="skillsTableBody"></tbody>
             </table>
         </div>
     </div>
@@ -296,66 +285,77 @@ function loadSkills() {
         });
 }
 
-// Render skills table
+// Render skills table via DataTables for search/pagination consistency
 function renderSkillsTable(skillsData) {
-    const tbody = $('#skillsTableBody');
-    tbody.empty();
-    
-    if (skillsData.length === 0) {
-        tbody.append(`
-            <tr>
-                <td colspan="7" class="text-center text-muted">
-                    <i class="fas fa-info-circle me-2"></i>No skills found
-                </td>
-            </tr>
-        `);
-        return;
-    }
-    
-    skillsData.forEach(function(skill) {
-        const statusClass = skill.status === 'active' ? 'badge-active' : 
+    const table = $('#skillsTable');
+    // Build row arrays matching the thead order
+    const rows = skillsData.map(function(skill) {
+        const statusClass = skill.status === 'active' ? 'badge-active' :
                            skill.status === 'draft' ? 'badge-draft' : 'badge-deprecated';
-        
-        const tags = skill.tags && skill.tags.length > 0 ? 
-                    skill.tags.slice(0, 3).map(tag => `<span class="badge bg-secondary me-1">${tag}</span>`).join('') :
-                    '<span class="text-muted">No tags</span>';
-        
-        const row = `
-            <tr>
-                <td>
-                    <strong>${escapeHtml(skill.name)}</strong><br>
-                    <small class="text-muted">v${skill.version}</small>
-                </td>
-                <td>
-                    <span class="badge badge-category bg-primary">${skill.category.replace('_', ' ')}</span>
-                </td>
-                <td>
-                    <div class="text-truncate" style="max-width: 300px;" title="${escapeHtml(skill.description)}">
-                        ${escapeHtml(skill.description)}
-                    </div>
-                </td>
-                <td>${tags}</td>
-                <td>
-                    <span class="badge ${statusClass}">${skill.status}</span>
-                </td>
-                <td>${skill.version}</td>
-                <td>
-                    <div class="btn-group btn-group-sm">
-                        <button class="btn btn-outline-info" onclick="viewSkill('${skill.skill_id}')" title="View Details">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button class="btn btn-outline-primary" onclick="editSkill('${skill.skill_id}')" title="Edit">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn btn-outline-danger" onclick="deleteSkill('${skill.skill_id}', '${escapeHtml(skill.name)}')" title="Delete">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-        `;
-        tbody.append(row);
+        const tags = skill.tags && skill.tags.length > 0 ?
+            skill.tags.slice(0, 3).map(tag => `<span class="badge bg-secondary me-1">${tag}</span>`).join('') :
+            '<span class="text-muted">No tags</span>';
+        return [
+            `<strong>${escapeHtml(skill.name)}</strong><br><small class="text-muted">v${skill.version}</small>`,
+            `<span class="badge badge-category bg-primary">${skill.category.replace('_', ' ')}</span>`,
+            `<div class="text-truncate" style="max-width: 300px;" title="${escapeHtml(skill.description)}">${escapeHtml(skill.description)}</div>`,
+            tags,
+            `<span class="badge ${statusClass}">${skill.status}</span>`,
+            `${skill.version}`,
+            `<div class="btn-group btn-group-sm">
+                <button class="btn btn-outline-info" onclick="viewSkill('${skill.skill_id}')" title="View Details">
+                    <i class="fas fa-eye"></i>
+                </button>
+                <button class="btn btn-outline-primary" onclick="editSkill('${skill.skill_id}')" title="Edit">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-outline-danger" onclick="deleteSkill('${skill.skill_id}', '${escapeHtml(skill.name)}')" title="Delete">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>`
+        ];
     });
+
+    // Initialize or update DataTable uniformly
+    if ($.fn.DataTable.isDataTable(table)) {
+        const dt = table.DataTable();
+        dt.clear();
+        dt.rows.add(rows);
+        dt.draw();
+    } else {
+        table.DataTable({
+            data: rows,
+            columns: [
+                { title: 'Name' },
+                { title: 'Category' },
+                { title: 'Description' },
+                { title: 'Tags' },
+                { title: 'Status' },
+                { title: 'Version' },
+                { title: 'Actions', orderable: false, searchable: false }
+            ],
+            responsive: false,
+            autoWidth: false,
+            scrollX: false,
+            columnDefs: [
+                { 
+                    targets: '_all', 
+                    className: 'dt-left'
+                },
+                { 
+                    targets: -1, 
+                    orderable: false, 
+                    searchable: false 
+                }
+            ],
+            drawCallback: function(settings) {
+                this.api().columns.adjust();
+            },
+            initComplete: function(settings, json) {
+                this.api().columns.adjust();
+            }
+        });
+    }
 }
 
 // Search skills

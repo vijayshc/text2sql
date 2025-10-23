@@ -23,7 +23,7 @@ class DatabaseQueryEditor {
     
     initializeMonacoEditor() {
         // Configure RequireJS for Monaco
-        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.40.0/min/vs' }});
+        require.config({ paths: { 'vs': '/static/vendor/monaco-editor/0.40.0/min/vs' }});
         
         // Load Monaco
         require(['vs/editor/editor.main'], () => {
@@ -275,6 +275,8 @@ class DatabaseQueryEditor {
             ordering: true,
             order: [[0, 'asc']], // Default sort on first column
             responsive: false, // Disable responsive mode to show horizontal scrollbar
+            scrollX: true,
+            scrollCollapse: false,
             pageLength: 10,
             lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
             //scrollX: true, // Enable horizontal scrolling

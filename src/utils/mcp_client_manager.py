@@ -765,7 +765,7 @@ Follow these guidelines:
                 
                 logger.info(f"TOOL CALL ATTEMPT {retry_count + 1}: Calling {tool_name} via MCP session")
                 result = await self.session.call_tool(tool_name, tool_args)
-                logger.info(f"TOOL CALL SUCCESS: {tool_name} completed successfully")
+                logger.info(f"TOOL CALL SUCCESS: {result} completed successfully")
                 
                 # Format result for OpenAI API
                 result_content = self._format_tool_result(result)

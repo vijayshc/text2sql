@@ -9,8 +9,12 @@ load_dotenv()
 
 # OpenRouter configuration
 OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY', '')
-OPENROUTER_BASE_URL = os.getenv('OPENROUTER_BASE_URL', 'https://generativelanguage.googleapis.com/v1beta/openai/')
-OPENROUTER_MODEL = os.getenv('OPENROUTER_MODEL', 'gemma-3-27b-it')
+OPENROUTER_BASE_URL = os.getenv('OPENROUTER_BASE_URL', 'https://api.groq.com/openai/v1')
+OPENROUTER_MODEL = os.getenv('OPENROUTER_MODEL', 'openai/gpt-oss-20b')
+
+OPENAI_API_KEY=OPENROUTER_API_KEY
+OPENAI_API_BASE=OPENROUTER_BASE_URL
+
 
 # Azure OpenAI configuration (kept for backward compatibility)
 AZURE_ENDPOINT = os.getenv('AZURE_ENDPOINT', 'https://models.inference.ai.azure.com')
@@ -23,6 +27,32 @@ DATABASE_URI = os.getenv('DATABASE_URI', 'sqlite:///text2sql.db')
 # Application settings
 DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
 SECRET_KEY = os.environ.get("SECRET_KEY", "default-dev-key-change-in-production")
+
+# Authentication settings
+# Options: 'local' (password in DB) or 'ldap'
+AUTH_PROVIDER = os.getenv('AUTH_PROVIDER', 'local').lower()
+
+# LDAP configuration (used when AUTH_PROVIDER='ldap')
+LDAP_SERVER_URI = os.getenv('LDAP_SERVER_URI', '')  # e.g., ldap://ad.example.com or ldaps://ad.example.com
+LDAP_USE_SSL = os.getenv('LDAP_USE_SSL', 'true').lower() == 'true'
+LDAP_START_TLS = os.getenv('LDAP_START_TLS', 'false').lower() == 'true'
+
+# How to bind with the end-user credentials. Examples:
+#   '{username}@example.com' (userPrincipalName) or 'EXAMPLE\\{username}' (DOMAIN\\user)
+LDAP_BIND_DN_TEMPLATE = os.getenv('LDAP_BIND_DN_TEMPLATE', '{username}')
+
+# Where and how to search the user entry after bind
+LDAP_USER_SEARCH_BASE = os.getenv('LDAP_USER_SEARCH_BASE', '')  # e.g., 'DC=example,DC=com'
+# Example filters: '(sAMAccountName={username})' or '(userPrincipalName={username}@example.com)'
+LDAP_USER_FILTER_TEMPLATE = os.getenv('LDAP_USER_FILTER_TEMPLATE', '(sAMAccountName={username})')
+
+# Allowed AD group (full DN) for access control. Example:
+# 'CN=Text2SQL Users,OU=Groups,DC=example,DC=com'
+LDAP_ALLOWED_GROUP_DN = os.getenv('LDAP_ALLOWED_GROUP_DN', '')
+
+# Optional attribute mappings to fetch from LDAP
+LDAP_ATTRIBUTE_MAIL = os.getenv('LDAP_ATTRIBUTE_MAIL', 'mail')
+LDAP_ATTRIBUTE_DISPLAY_NAME = os.getenv('LDAP_ATTRIBUTE_DISPLAY_NAME', 'displayName')
 
 # Model configuration
 MAX_TOKENS = int(os.getenv('MAX_TOKENS', '2000'))
@@ -43,6 +73,28 @@ UPLOADS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'uploads'
 os.makedirs(UPLOADS_DIR, exist_ok=True)
 CHUNK_SIZE = int(os.getenv('CHUNK_SIZE', '1000'))
 CHUNK_OVERLAP = int(os.getenv('CHUNK_OVERLAP', '200'))
+
+# File browser configuration
+FILE_BROWSER_ROOT = os.path.abspath(os.getenv('FILE_BROWSER_ROOT', UPLOADS_DIR))
+os.makedirs(FILE_BROWSER_ROOT, exist_ok=True)
+
+_default_file_exts = '.txt,.md,.json,.csv,.yaml,.yml,.sql,.py'
+_configured_exts = os.getenv('FILE_BROWSER_ALLOWED_EXTENSIONS', _default_file_exts)
+FILE_BROWSER_ALLOWED_EXTENSIONS = {
+    ext if ext.startswith('.') else f'.{ext}'
+    for ext in (item.strip().lower() for item in _configured_exts.split(',') if item.strip())
+}
+
+
+# Conversation history configuration
+KNOWLEDGE_CONVERSATION_HISTORY_LIMIT = int(os.getenv('KNOWLEDGE_CONVERSATION_HISTORY_LIMIT', '10'))
+METADATA_CONVERSATION_HISTORY_LIMIT = int(os.getenv('METADATA_CONVERSATION_HISTORY_LIMIT', '10'))
+
+# Rate Limiting Configuration
+RATE_LIMIT_ENABLED = os.getenv('RATE_LIMIT_ENABLED', 'false').lower() == 'true'
+LOGIN_ATTEMPT_LIMIT = int(os.getenv('LOGIN_ATTEMPT_LIMIT', '10'))  # Maximum login attempts per window
+LOGIN_ATTEMPT_WINDOW = int(os.getenv('LOGIN_ATTEMPT_WINDOW', '3600'))  # Time window in seconds (default: 1 hour)
+FAILED_LOGIN_LOCKOUT_THRESHOLD = int(os.getenv('FAILED_LOGIN_LOCKOUT_THRESHOLD', '5'))  # Lock account after this many failed attempts
 
 # ChromaDB Service configuration
 CHROMADB_SERVICE_URL = os.getenv('CHROMADB_SERVICE_URL', 'http://localhost:8001')

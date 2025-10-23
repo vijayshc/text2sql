@@ -11,6 +11,15 @@ import bcrypt  # Replacing hashlib with bcrypt
 import secrets
 import logging
 import hashlib  # Keep for backward compatibility
+from config.config import AUTH_PROVIDER
+
+try:
+    if AUTH_PROVIDER == 'ldap':
+        from src.utils.ldap_auth import LDAPAuthenticator
+    else:
+        LDAPAuthenticator = None
+except Exception:
+    LDAPAuthenticator = None
 
 logger = logging.getLogger('text2sql')
 
@@ -69,21 +78,73 @@ class UserManager:
             return False
     
     def authenticate(self, username, password):
-        """Authenticate a user by username and password"""
+        """Authenticate a user by username and password.
+        If AUTH_PROVIDER is 'ldap', authenticate via LDAP and provision user if needed.
+        """
         try:
-            session = self._get_session()
-            user = session.query(User).filter(User.username == username).first()
-            print(user)
-            if not user:
+            if AUTH_PROVIDER == 'ldap':
+                return self._authenticate_ldap(username, password)
+            else:
+                session = self._get_session()
+                user = session.query(User).filter(User.username == username).first()
+                if not user:
+                    return None
+                if self._verify_password(user.password_hash, password):
+                    return user.id
                 return None
-                
-            if self._verify_password(user.password_hash, password):
-                return user.id
-                
-            return None
         except Exception as e:
             logger.info(f"Authentication error: {str(e)}")
             return None
+
+    def _authenticate_ldap(self, username: str, password: str):
+        """Authenticate via LDAP and upsert a local user record.
+        Returns user.id on success else None.
+        """
+        if LDAPAuthenticator is None:
+            logger.error("LDAPAuthenticator not available; check configuration and dependencies.")
+            return None
+
+        ldap = LDAPAuthenticator()
+        profile = ldap.authenticate(username, password)
+        if not profile:
+            return None
+
+        # Provision or update local user without storing the external password
+        session = self._get_session()
+        user = session.query(User).filter(User.username == username).first()
+        if not user:
+            # Ensure 'user' role exists
+            role = session.query(Role).filter(Role.name == "user").first()
+            if not role:
+                role = Role(name="user", description="Standard user")
+                session.add(role)
+                session.flush()
+
+            # Create a strong random local password hash placeholder
+            placeholder = uuid.uuid4().hex + uuid.uuid4().hex
+            user = User(
+                username=username,
+                email=profile.get('email') or f"{username}@example.com",
+                password_hash=self._hash_password(placeholder),
+                is_active=True
+            )
+            session.add(user)
+            session.flush()
+            user.roles.append(role)
+            session.commit()
+        else:
+            # Optionally update email
+            updated = False
+            new_email = profile.get('email')
+            if new_email and new_email != user.email:
+                user.email = new_email
+                updated = True
+            if not user.is_active:
+                # Deny login if inactive locally
+                return None
+            if updated:
+                session.commit()
+        return user.id
     
     def create_user(self, username, email, password):
         """Create a new user"""

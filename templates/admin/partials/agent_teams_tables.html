@@ -1,0 +1,56 @@
+<div class="row g-3">
+  <div class="col-12 col-xl-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="mb-0">Teams</h6>
+        <button class="btn btn-sm btn-primary" id="btnNewTeam">
+          <i class="fas fa-users me-1"></i>
+          New Team
+        </button>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table id="teamsTable" class="table table-hover align-middle" data-table-init="false">
+            <thead>
+              <tr>
+                <th>Team</th>
+                <th>Agents</th>
+                <th>Mode</th>
+                <th>Max Rounds</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-xl-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="mb-0">Workflows</h6>
+        <button class="btn btn-sm btn-secondary" id="btnNewWorkflow">
+          <i class="fas fa-project-diagram me-1"></i>
+          New Workflow
+        </button>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table id="workflowsTable" class="table table-hover align-middle" data-table-init="false">
+            <thead>
+              <tr>
+                <th>Workflow</th>
+                <th>Team</th>
+                <th>Nodes</th>
+                <th>Entry</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

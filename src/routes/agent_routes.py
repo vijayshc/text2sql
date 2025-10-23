@@ -1,13 +1,16 @@
-from flask import Blueprint, request, jsonify, current_app, Response, stream_with_context
+from flask import Blueprint, request, jsonify, current_app, session, Response, stream_with_context
 import asyncio
 import json
 import logging
 import uuid
 import time
 import os
+import threading
+from queue import Queue, Empty
 
 # Use our own login_required decorator instead of flask_login's
 from src.utils.auth_utils import login_required
+from src.utils.user_manager import UserManager
 
 from src.models.user import User
 from src.routes.auth_routes import admin_required
@@ -20,7 +23,12 @@ logger = logging.getLogger('text2sql')
 # Create Blueprint
 agent_bp = Blueprint('agent', __name__)
 
-# Store for pending tool confirmations
+# Initialize user manager for audit logging
+user_manager = UserManager()
+
+# Thread-safe store for pending tool confirmations using threading.Event
+# Structure: {call_id: {'event': threading.Event, 'confirmed': None}}
+confirm_flags_lock = threading.Lock()
 confirm_flags = {}
 
 @agent_bp.route('/agent', methods=['GET'])
@@ -69,104 +77,219 @@ def agent_chat():
     conversation_history = data.get('conversation_history', [])  # Get history for follow-up questions
     
     def generate():
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
+        collected_responses = []
         
-        # Choose appropriate MCP client based on query content
-        if server_id:
-            from src.utils.mcp_client_manager import MCPClientManager
-            client = loop.run_until_complete(MCPClientManager.get_client(server_id, connect=True))
-            if not client:
-                yield f"data: {json.dumps({'type': 'error', 'message': 'Could not connect to selected server.'})}\n\n"
-                return
-        else:
-            # Let the system choose the best server based on the query
-            client = loop.run_until_complete(get_mcp_client_for_query(query))
-            if not client:
-                yield f"data: {json.dumps({'type': 'error', 'message': 'No suitable MCP server available for your query.'})}\n\n"
-                return
+        try:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
             
-        yield f"data: {json.dumps({'type': 'status', 'message': f'Connected to MCP server: {client.server_name}'})}\n\n"
-
-        # Prepare query with conversation history if available
-        if conversation_history:
-            # Create a structured query with conversation history
-            structured_query = {
-                'query': query,
-                'conversation_history': conversation_history
-            }
-            logger.info(f"Processing query with {len(conversation_history)} previous messages for context")
-            # Stream updates with history
-            agen = client.process_query_stream(structured_query)
-        else:
-            # Stream updates with just the query
-            agen = client.process_query_stream(query)
-            
-        try:                # Track if we've found a final answer already to avoid duplicates
-            final_answer_found = False
-            current_responses = []
-            is_next_response_final = False  # Flag to mark the next LLM response as final
-            last_llm_response = None  # Track the last LLM response for fallback
-            
-            while True:
-                # Get next update from MCP
-                upd = loop.run_until_complete(agen.__anext__())
-                
-                # Intercept sensitive tool calls for confirmation
-                if upd.get('type') == 'tool_call' and upd.get('tool_name') == 'run_bash_shell':
-                    # Generate unique call ID and set pending flag
-                    call_id = str(uuid.uuid4())
-                    confirm_flags[call_id] = None
-                    
-                    # Send tool call details to client for confirmation
-                    confirmation_data = {
-                        'type': 'tool_confirmation_request',
-                        'call_id': call_id,
-                        'tool_name': upd.get('tool_name'),
-                        'arguments': upd.get('arguments')
-                    }
-                    yield f"data: {json.dumps(confirmation_data)}\n\n"
-                    
-                    # Wait for confirmation (poll with timeout)
-                    start_time = time.time()
-                    timeout = 60  # 1 minute timeout
-                    while confirm_flags[call_id] is None:
-                        loop.run_until_complete(asyncio.sleep(0.5))
-                        if time.time() - start_time > timeout:
-                            del confirm_flags[call_id]
-                            timeout_data = {
-                                'type': 'error',
-                                'message': f"Tool call confirmation timed out after {timeout} seconds."
-                            }
-                            yield f"data: {json.dumps(timeout_data)}\n\n"
-                            return
-                    
-                    # Check confirmation result
-                    if not confirm_flags[call_id]:
-                        del confirm_flags[call_id]
-                        rejection_data = {
-                            'type': 'error',
-                            'message': "Tool call was rejected by the user."
-                        }
-                        yield f"data: {json.dumps(rejection_data)}\n\n"
+            try:
+                # Choose appropriate MCP client based on query content
+                if server_id:
+                    from src.utils.mcp_client_manager import MCPClientManager
+                    client = loop.run_until_complete(MCPClientManager.get_client(server_id, connect=True))
+                    if not client:
+                        error_msg = 'Could not connect to selected server.'
+                        collected_responses.append(f"ERROR: {error_msg}")
+                        yield f"data: {json.dumps({'type': 'error', 'message': error_msg})}\n\n"
+                        return
+                else:
+                    # Let the system choose the best server based on the query
+                    client = loop.run_until_complete(get_mcp_client_for_query(query))
+                    if not client:
+                        error_msg = 'No suitable MCP server available for your query.'
+                        collected_responses.append(f"ERROR: {error_msg}")
+                        yield f"data: {json.dumps({'type': 'error', 'message': error_msg})}\n\n"
                         return
                     
-                    # Tool call was confirmed, continue
-                    del confirm_flags[call_id]
+                status_msg = f'Connected to MCP server: {client.server_name}'
+                collected_responses.append(f"STATUS: {status_msg}")
+                yield f"data: {json.dumps({'type': 'status', 'message': status_msg})}\n\n"
+
+                # Prepare query with conversation history if available
+                if conversation_history:
+                    # Create a structured query with conversation history
+                    structured_query = {
+                        'query': query,
+                        'conversation_history': conversation_history
+                    }
+                    logger.info(f"Processing query with {len(conversation_history)} previous messages for context")
+                    # Stream updates with history
+                    agen = client.process_query_stream(structured_query)
+                else:
+                    # Stream updates with just the query
+                    agen = client.process_query_stream(query)
                     
-                # Forward update to client
-                yield f"data: {json.dumps(upd)}\n\n"
-                
-        except StopAsyncIteration:
-            # End of generator, nothing more to stream
-            yield f"data: {json.dumps({'type': 'status', 'message': 'Agent processing completed.'})}\n\n"
-            pass
-        except Exception as e:
-            logger.exception("Error in agent chat stream")
-            error_msg = str(e)
-            yield f"data: {json.dumps({'type': 'error', 'message': f'Error: {error_msg}'})}\n\n"
+                try:
+                    while True:
+                        # Get next update from MCP
+                        upd = loop.run_until_complete(agen.__anext__())
+                        
+                        # Log the raw update for debugging
+                        logger.debug(f"Agent stream update: {upd}")
+                        
+                        # Collect ALL response content for audit logging - be more comprehensive
+                        update_type = upd.get('type', '')
+                        
+                        if update_type == 'text':
+                            content = upd.get('content', '')
+                            if content:
+                                collected_responses.append(content)
+                        elif update_type == 'final_answer':
+                            content = upd.get('content', '')
+                            if content:
+                                collected_responses.append(content)
+                        elif update_type == 'tool_result':
+                            tool_result = upd.get('content', upd.get('result', ''))
+                            if tool_result:
+                                collected_responses.append(f"TOOL_RESULT: {tool_result}")
+                        elif update_type == 'tool_call':
+                            tool_name = upd.get('tool_name', '')
+                            tool_args = upd.get('arguments', {})
+                            collected_responses.append(f"TOOL_CALL: {tool_name}({tool_args})")
+                        elif update_type == 'error':
+                            error_content = upd.get('message', upd.get('content', ''))
+                            if error_content:
+                                collected_responses.append(f"ERROR: {error_content}")
+                        elif update_type == 'status':
+                            status_content = upd.get('message', upd.get('content', ''))
+                            if status_content:
+                                collected_responses.append(f"STATUS: {status_content}")
+                        elif update_type == 'response' or update_type == 'message':
+                            # Handle other response types that might contain content
+                            content = upd.get('content', upd.get('text', upd.get('message', '')))
+                            if content:
+                                collected_responses.append(content)
+                        else:
+                            # Capture any other type with content for comprehensive logging
+                            content = upd.get('content', upd.get('text', upd.get('message', '')))
+                            if content and update_type:
+                                collected_responses.append(f"{update_type.upper()}: {content}")
+                            elif content:
+                                collected_responses.append(content)
+                        
+                        # Intercept sensitive tool calls for confirmation
+                        if upd.get('type') == 'tool_call' and upd.get('tool_name') == 'run_bash_shell':
+                            # Generate unique call ID and set pending flag with thread-safe event
+                            call_id = str(uuid.uuid4())
+                            with confirm_flags_lock:
+                                confirm_flags[call_id] = {
+                                    'event': threading.Event(),
+                                    'confirmed': None
+                                }
+                            
+                            # Send tool call details to client for confirmation
+                            confirmation_data = {
+                                'type': 'tool_confirmation_request',
+                                'call_id': call_id,
+                                'tool_name': upd.get('tool_name'),
+                                'arguments': upd.get('arguments')
+                            }
+                            yield f"data: {json.dumps(confirmation_data)}\n\n"
+                            
+                            # Wait for confirmation (non-blocking event wait with timeout)
+                            timeout = 60  # 1 minute timeout
+                            with confirm_flags_lock:
+                                event = confirm_flags[call_id]['event']
+                            
+                            # Wait for the event to be set (non-blocking, won't prevent other requests)
+                            event_set = event.wait(timeout=timeout)
+                            
+                            with confirm_flags_lock:
+                                if call_id not in confirm_flags:
+                                    # Already cleaned up, likely timed out in another thread
+                                    timeout_data = {
+                                        'type': 'error',
+                                        'message': f"Tool call confirmation timed out after {timeout} seconds."
+                                    }
+                                    collected_responses.append(f"ERROR: {timeout_data['message']}")
+                                    yield f"data: {json.dumps(timeout_data)}\n\n"
+                                    return
+                                
+                                confirmation_result = confirm_flags[call_id]['confirmed']
+                            
+                            # Check if we timed out
+                            if not event_set:
+                                with confirm_flags_lock:
+                                    if call_id in confirm_flags:
+                                        del confirm_flags[call_id]
+                                timeout_data = {
+                                    'type': 'error',
+                                    'message': f"Tool call confirmation timed out after {timeout} seconds."
+                                }
+                                collected_responses.append(f"ERROR: {timeout_data['message']}")
+                                yield f"data: {json.dumps(timeout_data)}\n\n"
+                                return
+                            
+                            # Check confirmation result
+                            if not confirmation_result:
+                                with confirm_flags_lock:
+                                    if call_id in confirm_flags:
+                                        del confirm_flags[call_id]
+                                rejection_data = {
+                                    'type': 'error',
+                                    'message': "Tool call was rejected by the user."
+                                }
+                                collected_responses.append(f"ERROR: {rejection_data['message']}")
+                                yield f"data: {json.dumps(rejection_data)}\n\n"
+                                return
+                            
+                            # Tool call was confirmed, clean up and continue
+                            with confirm_flags_lock:
+                                if call_id in confirm_flags:
+                                    del confirm_flags[call_id]
+                            
+                        # Forward update to client and capture it as fallback
+                        update_json = json.dumps(upd)
+                        yield f"data: {update_json}\n\n"
+                        
+                        # Fallback: if we haven't captured this content yet, try to extract it
+                        if update_type not in ['tool_confirmation_request'] and not any(
+                            part in str(collected_responses[-5:]) if collected_responses else ''
+                            for part in [upd.get('content', ''), upd.get('text', ''), upd.get('message', '')]
+                            if part
+                        ):
+                            # Try to extract any text content we might have missed
+                            fallback_content = upd.get('content') or upd.get('text') or upd.get('message')
+                            if fallback_content and len(str(fallback_content).strip()) > 0:
+                                collected_responses.append(f"FALLBACK_{update_type}: {fallback_content}")
+                    
+                except StopAsyncIteration:
+                    # End of generator, nothing more to stream
+                    completion_msg = 'Agent processing completed.'
+                    collected_responses.append(f"STATUS: {completion_msg}")
+                    yield f"data: {json.dumps({'type': 'status', 'message': completion_msg})}\n\n"
+                except Exception as e:
+                    logger.exception("Error in agent chat stream")
+                    error_msg = str(e)
+                    collected_responses.append(f"ERROR: {error_msg}")
+                    yield f"data: {json.dumps({'type': 'error', 'message': f'Error: {error_msg}'})}\n\n"
+                finally:
+                    loop.close()
+            
+            except Exception as outer_error:
+                logger.exception("Outer error in agent chat stream")
+                collected_responses.append(f"ERROR: {str(outer_error)}")
+                yield f"data: {json.dumps({'type': 'error', 'message': f'Error: {str(outer_error)}'})}\n\n"
+        
         finally:
-            loop.close()
+            # Log audit event with collected response after streaming is complete
+            try:
+                full_response = ' | '.join(collected_responses) if collected_responses else "No response content captured"
+                # Debug logging to see what we captured
+                logger.info(f"Agent audit - Collected {len(collected_responses)} response parts")
+                logger.debug(f"Agent audit - Full response preview: {full_response[:500]}...")
+                
+                user_manager.log_audit_event(
+                    user_id=session.get('user_id'),
+                    action='agent_chat_stream',
+                    details=f"Agent mode streaming query completed. Server: {server_id or 'auto-select'}, Response parts: {len(collected_responses)}, Response length: {len(full_response)} chars",
+                    ip_address=request.remote_addr,
+                    query_text=query,
+                    response=full_response[:1000] if full_response else None  # Limit response to 1000 chars for audit
+                )
+            except Exception as audit_error:
+                logger.error(f"Error logging audit event for agent streaming query: {str(audit_error)}")
 
     return Response(stream_with_context(generate()), mimetype='text/event-stream')
 
@@ -182,9 +305,12 @@ def tool_confirmation():
     call_id = data['call_id']
     confirmed = data['confirmed']
     
-    if call_id not in confirm_flags:
-        return jsonify({'error': 'Invalid confirmation ID or confirmation expired'}), 400
-    
-    confirm_flags[call_id] = confirmed
+    with confirm_flags_lock:
+        if call_id not in confirm_flags:
+            return jsonify({'error': 'Invalid confirmation ID or confirmation expired'}), 400
+        
+        # Store the confirmation result and signal the event
+        confirm_flags[call_id]['confirmed'] = confirmed
+        confirm_flags[call_id]['event'].set()
     
     return jsonify({'success': True})

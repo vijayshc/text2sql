@@ -8,7 +8,7 @@
 let editor;
 
 // Load Monaco editor
-require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs' }});
+require.config({ paths: { 'vs': '/static/vendor/monaco-editor/0.36.1/min/vs' }});
 require(['vs/editor/editor.main'], function() {
     editor = monaco.editor.create(document.getElementById('monaco-editor-container'), {
         value: '',
@@ -221,15 +221,9 @@ function displayResults(response) {
                 $('#queryEditorResultsTable').DataTable().destroy();
                 console.log("Destroyed existing DataTable"); // Debug log
             }
-            
-            // Remove all content and event handlers to ensure clean slate
-            $('#queryEditorResultsTable').empty();
         } catch (e) {
             console.error("Error destroying DataTable:", e);
         }
-        
-        // Create a completely fresh table structure
-        $('#queryEditorResultsTable').html('<thead></thead><tbody></tbody>');
         
         // First make sure the results card is visible
         $('#resultsCard').show();
@@ -237,54 +231,67 @@ function displayResults(response) {
         if (response.results && response.results.length > 0) {
             console.log("Results found:", response.results.length, "rows"); // Debug log
             
-            const tableHead = $('#queryEditorResultsTable thead');
-            const tableBody = $('#queryEditorResultsTable tbody');
-            
             // Hide no results message
             $('#noResultsMessage').hide();
             
-            // Add table headers
-            let headerRow = $('<tr>');
-            response.columns.forEach(column => {
-                headerRow.append($('<th>').text(column));
-            });
-            tableHead.append(headerRow);
+            // Prepare data for DataTable - let DataTable handle all the HTML creation
+            const columns = response.columns.map(column => ({
+                title: column,
+                data: column
+            }));
             
-            // Add table rows
-            response.results.forEach(row => {
-                let tableRow = $('<tr>');
+            // Transform the data to make sure null values are handled
+            const data = response.results.map(row => {
+                const transformedRow = {};
                 response.columns.forEach(column => {
-                    tableRow.append($('<td>').text(row[column] !== null ? row[column] : 'NULL'));
+                    transformedRow[column] = row[column] !== null ? row[column] : 'NULL';
                 });
-                tableBody.append(tableRow);
+                return transformedRow;
             });
             
-            // Initialize DataTable with options - give DOM time to update
-            setTimeout(() => {
-                try {
-                    $('#queryEditorResultsTable').DataTable({
-                        responsive: false, // Disable responsive features
-                        scrollX: true,      // Enable horizontal scrolling
-                        scrollY: '350px',   // Enable vertical scrolling with fixed height
-                        scrollCollapse: true,
-                        pageLength: 10,
-                        ordering: true,
-                        searching: true,
-                        destroy: true,      // Enable clean destruction
-                        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, 'All']]
-                    });
-                    console.log("DataTable initialized"); // Debug log
-                } catch (e) {
-                    console.error("Error initializing DataTable:", e);
-                    // Fallback to show data without DataTable functionality
-                    $('#resultsCard').show();
-                }
-            }, 200);
+            // Completely recreate the table element to ensure clean state
+            const tableContainer = $('#queryEditorResultsTable').parent();
+            $('#queryEditorResultsTable').remove();
+            tableContainer.append('<table class="table table-hover" id="queryEditorResultsTable"></table>');
+            
+            // Initialize DataTable with data and columns - let DataTable create everything
+            try {
+                $('#queryEditorResultsTable').DataTable({
+                    data: data,
+                    columns: columns,
+                    responsive: false, // Disable responsive features for proper alignment
+                    scrollX: false,    // Disable horizontal scrolling to prevent alignment issues
+                    autoWidth: false,  // Disable auto width calculation
+                    scrollCollapse: false, // Don't collapse scroll area
+                    pageLength: 10,
+                    ordering: true,
+                    searching: true,
+                    destroy: true,      // Enable clean destruction
+                    lengthMenu: [[10, 25, 50, -1], [10, 25, 50, 'All']],
+                    columnDefs: [
+                        { 
+                            targets: '_all', 
+                            className: 'dt-left'
+                        }
+                    ],
+                    drawCallback: function(settings) {
+                        // Force column width recalculation for alignment
+                        this.api().columns.adjust();
+                    },
+                    initComplete: function(settings, json) {
+                        // Ensure columns are properly aligned after initialization
+                        this.api().columns.adjust();
+                    }
+                });
+                console.log("DataTable initialized with data"); // Debug log
+            } catch (e) {
+                console.error("Error initializing DataTable:", e);
+                // Fallback to show data without DataTable functionality
+                $('#resultsCard').show();
+            }
         } else {
-            // Show no results message
-            $('#resultsCard').show();
-            $('#resultsTableHead').empty();
-            $('#resultsTableBody').empty();
+            // Show no results message for empty results
+            $('#queryEditorResultsTable').empty();
             $('#noResultsMessage').show();
         }
     } else {

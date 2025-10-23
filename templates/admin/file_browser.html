@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}File Browser - Admin - Text2SQL Assistant{% endblock %}
+
+{% block head %}
+{{ super() }}
+<!-- Monaco Editor -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/editor/editor.main.css">
+<!-- File Browser CSS -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/file-browser.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="fas fa-folder-open me-2"></i>File Browser</h1>
+</div>
+
+<!-- File Browser Card -->
+<div class="card file-browser-card shadow-sm">
+    <!-- Header with Breadcrumbs and Actions -->
+    <div class="card-header">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0" id="fileBreadcrumbs">
+                        <li class="breadcrumb-item"><a href="#" data-path="">Root</a></li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="col-md-6 text-end">
+                <div class="btn-toolbar justify-content-end gap-2" role="toolbar">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-sm btn-primary" id="uploadFileBtn">
+                            <i class="fas fa-file-upload"></i> Upload File
+                        </button>
+                        <button type="button" class="btn btn-sm btn-primary" id="uploadFolderBtn">
+                            <i class="fas fa-folder-plus"></i> Upload Folder
+                        </button>
+                    </div>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="downloadBtn" disabled>
+                            <i class="fas fa-download"></i> Download
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-danger" id="deleteBtn" disabled>
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                    <input type="search" class="form-control form-control-sm" id="searchBox" placeholder="Search files..." style="width: 200px;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- File List Table -->
+    <div class="file-browser-table">
+        <table class="table table-sm mb-0 no-datatable">
+            <thead>
+                <tr>
+                    <th style="width: 50px;"></th>
+                    <th>Name</th>
+                    <th style="width: 150px;">Modified</th>
+                    <th style="width: 100px;">Size</th>
+                    <th style="width: 150px;">Uploaded By</th>
+                </tr>
+            </thead>
+            <tbody id="fileListBody">
+                <tr>
+                    <td colspan="5" class="text-center">
+                        <div class="file-browser-loading">
+                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            Loading files...
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Footer with Pagination Info -->
+    <div class="card-footer">
+        <p class="pagination-info mb-0" id="paginationInfo">
+            <span id="itemCount">0</span> items
+        </p>
+    </div>
+</div>
+
+<!-- Hidden file inputs for upload -->
+<input type="file" id="fileInput" style="display: none;" multiple>
+<input type="file" id="folderInput" style="display: none;" webkitdirectory directory multiple>
+
+<!-- Full-page Monaco Editor Container (hidden by default) -->
+<div class="file-editor-fullpage" id="fileEditorContainer" style="display: none;">
+    <div class="editor-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h5 class="mb-0" id="editorFileName">Edit File</h5>
+            </div>
+            <div class="col-auto">
+                <button type="button" class="btn btn-sm btn-success me-2" id="saveFileBtn">
+                    <i class="fas fa-save"></i> Save
+                </button>
+                <button type="button" class="btn btn-sm btn-secondary" id="closeEditorBtn">
+                    <i class="fas fa-times"></i> Close
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="editor-container">
+        <div id="monacoEditorContainer"></div>
+    </div>
+</div>
+
+<!-- Toast Container for Notifications -->
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+    <div id="notificationToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto" id="toastTitle">Notification</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="toastBody">
+            Message content
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<!-- Monaco Editor -->
+<script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/loader.js"></script>
+<!-- File Browser JS -->
+<script src="{{ url_for('static', filename='js/admin/file-browser.js') }}"></script>
+<script>
+    // Set active menu item
+    document.addEventListener('DOMContentLoaded', function() {
+        const adminMenuItems = document.querySelectorAll('.sidebar-nav .nav-link');
+        adminMenuItems.forEach(item => {
+            item.classList.remove('active');
+            if (item.getAttribute('href') && item.getAttribute('href').includes('file-browser')) {
+                item.classList.add('active');
+            }
+        });
+    });
+</script>
+{% endblock %}

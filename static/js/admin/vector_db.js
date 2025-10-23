@@ -117,6 +117,47 @@ function displayCollections() {
     
     tableBody.innerHTML = html;
     
+    // Initialize DataTable for collections list - with safe destruction first
+    const collectionsSelector = '#collections-table';
+    const collectionsTable = $(collectionsSelector);
+    
+    // Safely destroy existing DataTable if it exists
+    if ($.fn.DataTable.isDataTable(collectionsSelector)) {
+        try {
+            collectionsTable.DataTable().clear();
+            collectionsTable.DataTable().destroy();
+            // Remove any DataTable classes that might interfere
+            collectionsTable.removeClass('dataTable');
+        } catch (e) {
+            console.warn('Error destroying collections DataTable:', e);
+        }
+    }
+    
+    // Ensure proper table classes for styling
+    collectionsTable.addClass('table table-hover table-bordered');
+    
+    // Initialize fresh DataTable
+    try {
+        collectionsTable.DataTable({
+            responsive: true,
+            autoWidth: false,
+            pageLength: 10,
+            dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+                 '<"row"<"col-sm-12"tr>>' +
+                 '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+            language: {
+                search: 'Filter collections:',
+                lengthMenu: 'Show _MENU_ collections per page',
+                emptyTable: 'No collections found'
+            },
+            columnDefs: [
+                { targets: -1, orderable: false, searchable: false } // Actions column
+            ]
+        });
+    } catch (e) {
+        console.warn('Error initializing collections DataTable:', e);
+    }
+
     // Fetch collection details after displaying the basic list
     state.collections.forEach(collection => {
         fetchCollectionDetails(collection);
@@ -569,6 +610,52 @@ function displayCollectionRecords(records) {
     });
     
     tableBody.innerHTML = html;
+
+    // Initialize DataTable on records table (destroy/reinit to pick new columns)
+    const recordsSelector = '#records-table';
+    const recordsTable = $(recordsSelector);
+    
+    // Safely destroy existing DataTable if it exists
+    if ($.fn.DataTable.isDataTable(recordsSelector)) {
+        try {
+            recordsTable.DataTable().clear();
+            recordsTable.DataTable().destroy();
+            // Remove any DataTable classes that might interfere
+            recordsTable.removeClass('dataTable');
+        } catch (e) {
+            console.warn('Error destroying records DataTable:', e);
+        }
+    }
+    
+    // Ensure proper table classes for styling
+    recordsTable.addClass('table table-hover table-bordered');
+    
+    // Initialize fresh DataTable
+    try {
+        recordsTable.DataTable({
+            responsive: true,
+            autoWidth: false,
+            pageLength: 10,
+            dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+                 '<"row"<"col-sm-12"tr>>' +
+                 '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+            language: {
+                search: 'Filter records:',
+                lengthMenu: 'Show _MENU_ records per page',
+                emptyTable: 'No records found'
+            },
+            columnDefs: [
+                { targets: -1, orderable: false, searchable: false } // Actions column
+            ],
+            order: hasSearchResults ? [[0, 'desc']] : [] // Sort by similarity if available
+        });
+    } catch (e) {
+        console.warn('Error initializing records DataTable:', e);
+    }
+
+    // Hide custom pagination in favor of DataTables controls
+    const customPager = document.getElementById('custom-pagination');
+    if (customPager) customPager.style.display = 'none';
     
     // Add event listeners to dropdown items
     document.querySelectorAll('.dropdown-item.btn-view-record').forEach(item => {

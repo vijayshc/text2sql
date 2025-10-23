@@ -1,4 +1,4 @@
-/* MCP Servers Management CSS */
+/* MCP Servers Management CSS - Dark Theme */
 
 .server-status {
     display: inline-block;
@@ -9,17 +9,17 @@
 }
 
 .server-status.running {
-    background-color: #28a745;
-    box-shadow: 0 0 5px #28a745;
+    background-color: #10b981;
+    box-shadow: 0 0 8px #10b981;
 }
 
 .server-status.stopped {
-    background-color: #6c757d;
+    background-color: #6b7280;
 }
 
 .server-status.error {
-    background-color: #dc3545;
-    box-shadow: 0 0 5px #dc3545;
+    background-color: #ef4444;
+    box-shadow: 0 0 8px #ef4444;
 }
 
 .server-actions {
@@ -30,30 +30,37 @@
 
 .tool-item {
     margin-bottom: 10px;
-    border-left: 3px solid #6610f2;
+    border-left: 3px solid #3b82f6;
     padding-left: 10px;
+    background-color: rgba(59, 130, 246, 0.05);
+    border-radius: 4px;
+    padding: 8px 10px;
 }
 
 .tool-name {
     font-weight: bold;
     display: block;
     margin-bottom: 5px;
+    color: var(--text-primary);
 }
 
 .tool-description {
-    color: #6c757d;
+    color: var(--text-secondary);
     margin-bottom: 5px;
 }
 
 .tool-params {
-    background-color: #f8f9fa;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
     padding: 8px;
     border-radius: 4px;
     margin-top: 5px;
+    color: var(--text-secondary);
 }
 
 .glass-modal {
-    background: rgba(255, 255, 255, 0.7);
+    background: var(--card-bg);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }

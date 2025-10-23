@@ -6,7 +6,7 @@
 
 // Initialize Monaco editor for SQL tab
 let sqlEditor;
-require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs' }});
+require.config({ paths: { 'vs': '/static/vendor/monaco-editor/0.36.1/min/vs' }});
 
 // Wait for DOM to be fully loaded before initializing the editor
 document.addEventListener('DOMContentLoaded', function() {
@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
             sqlEditor = monaco.editor.create(editorContainer, {
                 value: '',
                 language: 'sql',
-                theme: 'vs-dark',
+            theme: (window.themeManager && window.themeManager.getCurrentTheme && window.themeManager.getCurrentTheme() !== 'dark') ? 'vs' : 'vs-dark',
                 automaticLayout: true,
                 minimap: { enabled: false },
                 scrollBeyondLastLine: false,

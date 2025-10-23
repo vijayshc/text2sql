@@ -6,20 +6,20 @@
 <style>
     #monaco-editor-container {
         height: 500px;
-        border-radius: 10px;
+        border-radius: 8px;
         overflow: hidden;
         margin-bottom: 20px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        box-shadow: var(--card-shadow);
+        border: 1px solid var(--border-color);
     }
     
     .query-editor-card {
-        backdrop-filter: blur(10px);
-        background: rgba(255, 255, 255, 0.3);
-        border-radius: 15px;
-        box-shadow: 0 4px 30px rgba(31, 38, 135, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.3);
+        background: var(--card-bg);
+        border-radius: 8px;
+        box-shadow: var(--card-shadow);
+        border: 1px solid var(--border-color);
         padding: 20px;
-        transition: all 0.3s ease;
+        transition: all var(--transition-speed) ease;
     }
 
     .monaco-editor{
@@ -27,7 +27,8 @@
     }
 
     .query-editor-card:hover {
-        box-shadow: 0 4px 30px rgba(31, 38, 135, 0.2);
+        box-shadow: var(--card-shadow-hover);
+        transform: translateY(-1px);
     }
 
     .query-toolbar {
@@ -43,16 +44,14 @@
 
     .results-card {
         margin-top: 20px;
-        min-height: 200px;
-        max-height: 500px;
-        overflow: hidden;
+        /* Remove fixed height constraints to allow content-based expansion */
     }
     
     .scrollable-results {
         width: 100%;
         overflow-x: auto;
-        overflow-y: auto;
-        max-height: 400px;
+        overflow-y: visible;
+        /* Allow content-based height expansion */
     }
 
     .modal-content {
@@ -131,7 +130,7 @@
             <div class="query-editor-card results-card" id="resultsCard" style="display: none;">
                 <h5 class="mb-3">Query Results</h5>
                 <div class="scrollable-results">
-                    <table class="table table-hover" id="queryEditorResultsTable">
+                    <table class="table table-hover" id="queryEditorResultsTable" data-table-init="false">
                         <thead id="queryEditorResultsTableHead"></thead>
                         <tbody id="queryEditorResultsTableBody"></tbody>
                     </table>
@@ -176,7 +175,7 @@
 {% block scripts %}
 {{ super() }}
 <!-- Monaco Editor -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/loader.min.js"></script>
+<script src="{{ url_for('static', filename='vendor/monaco-editor/0.36.1/min/vs/loader.min.js') }}"></script>
 <!-- Query Editor JS -->
 <script src="{{ url_for('static', filename='js/query-editor.js') }}"></script>
 {% endblock %}

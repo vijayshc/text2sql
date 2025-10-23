@@ -25,6 +25,9 @@ const schemaManager = {
 
             // Update table filter dropdown and set up filtering
             this.initializeSchemaFiltering(result.schema);
+            
+            // Initialize DataTables for schema tables
+            this.initializeDataTables();
 
             // Display the modal
             if (text2sql.schemaModal) {
@@ -66,6 +69,9 @@ const schemaManager = {
             // Initialize filtering and set selected table
             this.initializeSchemaFiltering(result.schema);
             
+            // Initialize DataTables for schema tables
+            this.initializeDataTables();
+            
             // Set the table filter dropdown to this specific table
             const tableFilter = document.getElementById('tableFilter');
             if (tableFilter) {
@@ -86,40 +92,33 @@ const schemaManager = {
     
     // Format schema data from API into HTML
     formatSchemaData: function(schemaData) {
-        return schemaData.map(table => {
-            const primaryKeys = table.columns
-                .filter(col => col.is_primary_key)
-                .map(col => col.name);
-                
+        return schemaData.map((table, index) => {
             return `
-                <div class="schema-table-container" data-table="${table.name}">
+                <div class="schema-table-container mb-4" data-table="${table.name}">
                     <h4>${table.name}</h4>
                     ${table.description ? `<p class="text-muted mb-3">${table.description}</p>` : ''}
-                    <table class="table table-sm table-striped schema-table">
-                        <thead>
-                            <tr>
-                                <th>Column</th>
-                                <th>Type</th>
-                                <th>Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${table.columns.map(col => `
-                                <tr ${col.is_primary_key ? 'class="table-primary"' : ''}>
-                                    <td>${col.name}</td>
-                                    <td>${col.datatype}</td>
-                                    <td>${col.description || ''}</td>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-striped table-bordered schema-table schema-datatable w-100" id="schemaTable_${index}" data-table-init="false">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Column</th>
+                                    <th>Type</th>
+                                    <th>Description</th>
+                                    <th>Primary Key</th>
                                 </tr>
-                            `).join('')}
-                            ${primaryKeys.length > 0 ? `
-                                <tr class="table-primary">
-                                    <td colspan="3">
-                                        <strong>Primary Key(s):</strong> ${primaryKeys.join(', ')}
-                                    </td>
-                                </tr>
-                            ` : ''}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                ${table.columns.map(col => `
+                                    <tr>
+                                        <td>${col.name}</td>
+                                        <td>${col.datatype}</td>
+                                        <td>${col.description || ''}</td>
+                                        <td class="text-center">${col.is_primary_key ? '<i class="fas fa-key text-warning"></i>' : ''}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             `;
         }).join('\n');
@@ -160,5 +159,79 @@ const schemaManager = {
                 table.style.display = 'none';
             }
         });
+        
+        // Reinitialize DataTables for visible tables
+        this.initializeDataTables();
+    },
+    
+    // Initialize DataTables for schema tables
+    initializeDataTables: function() {
+        // Wait a bit for DOM to be fully updated
+        setTimeout(() => {
+            // Destroy existing DataTables if any
+            $('.schema-datatable').each(function() {
+                if ($.fn.DataTable.isDataTable(this)) {
+                    $(this).DataTable().destroy();
+                }
+            });
+            
+            // Initialize DataTables for all schema tables
+            $('.schema-datatable').each(function() {
+                $(this).DataTable({
+                    responsive: false, // Disable responsive for better alignment
+                    pageLength: 10,
+                    lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+                    autoWidth: false, // Disable auto width calculation
+                    scrollX: false,   // Disable horizontal scroll for alignment
+                    language: {
+                        search: "Filter results:",
+                        lengthMenu: "Show _MENU_ entries per page",
+                        emptyTable: "No columns found",
+                        info: "Showing _START_ to _END_ of _TOTAL_ columns",
+                        infoEmpty: "Showing 0 to 0 of 0 columns",
+                        infoFiltered: "(filtered from _MAX_ total columns)"
+                    },
+                    columnDefs: [
+                        {
+                            targets: 0, // Column name
+                            className: 'dt-left'
+                        },
+                        {
+                            targets: 1, // Type
+                            className: 'dt-left'
+                        },
+                        {
+                            targets: 2, // Description
+                            className: 'dt-left'
+                        },
+                        {
+                            targets: 3, // Primary Key column
+                            orderable: false,
+                            searchable: false,
+                            className: 'dt-center'
+                        }
+                    ],
+                    drawCallback: function(settings) {
+                        // Force column width recalculation for alignment
+                        this.api().columns.adjust();
+                    },
+                    initComplete: function(settings, json) {
+                        // Ensure columns are properly aligned after initialization
+                        this.api().columns.adjust();
+                    },
+                    order: [[0, 'asc']], // Sort by column name by default
+                dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+                    '<"row"<"col-sm-12"tr>>' +
+                    '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+                    drawCallback: function() {
+                        // Ensure proper table layout after draw
+                        $(this).css('width', '100%');
+                        $(this).find('th, td').css('text-align', function(i) {
+                            return i === 3 ? 'center' : 'left';
+                        });
+                    }
+                });
+            });
+        }, 100);
     }
 };

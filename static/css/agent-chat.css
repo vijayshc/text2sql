@@ -1,92 +1,328 @@
-/* Additional styles specific to agent-chat */
+/* Theme-aware Agent Chat Interface */
 
 .agent-chat-container {
-    /* Ensures the container takes full height if needed */
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--light-bg);
+    color: var(--text-primary);
+    min-height: 100vh;
 }
 
 .chat-history {
     overflow-y: auto;
-    background-color: rgba(255, 255, 255, 0.1); /* Slightly lighter background for chat */
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: transparent;
+    border: none;
+    padding: 1rem 1.5rem;
+    flex: 1;
+    max-height: none;
 }
 
 .chat-message {
-    margin-bottom: 15px;
-    padding: 10px 15px;
-    border-radius: 10px;
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
     max-width: 85%;
     word-wrap: break-word;
+    line-height: 1.5;
+    position: relative;
+    font-size: 0.95rem;
 }
 
 .user-message {
-    background-color: rgba(0, 123, 255, 0.3); /* User message background */
-    color: #e0e0e0;
+    background: var(--hover-bg);
+    color: var(--text-primary);
     margin-left: auto;
-    border-bottom-right-radius: 0;
+    margin-right: 0;
+    border: 1px solid var(--border-color);
+    font-weight: 400;
 }
 
 .agent-message {
-    background-color: rgba(255, 255, 255, 0.2); /* Agent message background */
-    color: #f0f0f0;
+    background: var(--card-bg);
+    color: var(--text-primary);
     margin-right: auto;
-    border-bottom-left-radius: 0;
+    margin-left: 0;
+    border: 1px solid var(--border-color);
 }
 
 .agent-message pre {
-    background-color: rgba(0, 0, 0, 0.3);
-    padding: 10px;
-    border-radius: 5px;
+    background-color: var(--input-bg);
+    padding: 0.75rem;
+    border-radius: 6px;
     overflow-x: auto;
-    color: #c7d2fe; /* Light code text */
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    margin: 0.5rem 0;
+    font-family: 'Monaco', 'Consolas', monospace;
+    font-size: 0.85rem;
+    line-height: 1.4;
 }
 
 .agent-message code {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Monaco', 'Consolas', monospace;
+    color: var(--text-primary);
+    background: var(--input-bg);
+    padding: 0.2rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.85rem;
 }
 
 .status-message {
     font-style: italic;
-    color: #adb5bd; /* Lighter text for status */
+    color: var(--text-muted);
     text-align: center;
-    margin: 10px 0;
-    font-size: 0.9em;
+    margin: 1rem 0;
+    font-size: 0.85rem;
+    padding: 0.5rem 1rem;
+    background: transparent;
+    border-radius: 12px;
+    max-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .error-message {
-    background-color: rgba(220, 53, 69, 0.3); /* Danger background */
-    color: #f8d7da; /* Light red text */
-    border: 1px solid rgba(220, 53, 69, 0.5);
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--danger-color);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-left: 3px solid var(--danger-color);
 }
 
 .tool-call-message,
 .tool-result-message {
-    font-family: monospace;
-    font-size: 0.85em;
-    background-color: rgba(108, 117, 125, 0.2);
-    border: 1px solid rgba(108, 117, 125, 0.4);
-    color: #ced4da;
+    font-family: 'Monaco', 'Consolas', monospace;
+    font-size: 0.8rem;
+    background-color: var(--input-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    border-radius: 6px;
+    margin: 0.5rem 0;
+    max-width: 80%;
+    padding: 0.75rem;
 }
 
 .tool-call-message strong,
 .tool-result-message strong {
-    color: #e9ecef;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* Simple chat input styling - Theme-aware */
+.chat-input-group {
+    padding: 1rem 1.5rem;
+    background: var(--light-bg);
+    border-top: 1px solid var(--border-color);
+    border-radius: 0;
+}
+
+.chat-input-group .input-group {
+    background: var(--input-bg);
+    border-radius: 8px;
+    border: 1px solid var(--input-border);
+    overflow: hidden;
 }
 
 .chat-input-group textarea {
     resize: none;
+    background-color: transparent;
+    border: none;
+    color: var(--text-primary);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    transition: all 0.2s ease;
+    min-height: 44px;
+}
+
+.chat-input-group textarea:focus {
+    background-color: transparent;
+    border: none;
+    color: var(--text-primary);
+    box-shadow: none;
+    outline: none;
+}
+
+.chat-input-group textarea::placeholder {
+    color: var(--text-muted);
+    font-style: normal;
+}
+
+.chat-input-group .btn {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    padding: 0.75rem 1rem;
+    margin: 0;
+    border-radius: 0 8px 8px 0;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+}
+
+.chat-input-group .btn:hover {
+    background: var(--hover-bg);
+    color: var(--text-primary);
 }
 
 .agent-progress {
-    height: 25px; /* Adjust as needed */
+    height: 30px;
+    padding: 0.75rem 1.5rem;
+    background: var(--light-bg);
+    border-top: 1px solid var(--border-color);
 }
 
 .agent-progress .progress {
-    height: 8px;
+    height: 3px;
+    background-color: var(--border-color);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.agent-progress .progress-bar {
+    background: var(--primary-color);
+    border-radius: 2px;
+    transition: width 0.3s ease;
 }
 
 .agent-progress .progress-status {
-    font-size: 0.8em;
+    font-size: 0.75rem;
     display: block;
-    text-align: center;
-    margin-top: 2px;
+    text-align: left;
+    margin-top: 0.5rem;
+    color: var(--text-secondary);
+    font-weight: 400;
 }
+
+/* Remove message avatars for cleaner look */
+.chat-message::before {
+    display: none;
+}
+
+/* Smooth scrolling for chat history */
+.chat-history {
+    scroll-behavior: smooth;
+}
+
+/* Remove timestamps for cleaner interface */
+.message-timestamp {
+    display: none;
+}
+
+/* Simplified typing indicator */
+.typing-indicator {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    max-width: 85%;
+    margin-right: auto;
+    margin-bottom: 1rem;
+}
+
+.typing-dots {
+    display: flex;
+    gap: 4px;
+}
+
+.typing-dots span {
+    width: 6px;
+    height: 6px;
+    background: var(--text-muted);
+    border-radius: 50%;
+    animation: typing 1.4s infinite ease-in-out;
+}
+
+.typing-dots span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-dots span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typing {
+    0%, 60%, 100% {
+        transform: translateY(0);
+        opacity: 0.4;
+    }
+    30% {
+        transform: translateY(-6px);
+        opacity: 1;
+    }
+}
+
+/* Markdown content styling for agent messages */
+.agent-message .markdown-content {
+    line-height: 1.6;
+    color: var(--text-primary);
+}
+
+.agent-message .markdown-content h1, 
+.agent-message .markdown-content h2, 
+.agent-message .markdown-content h3, 
+.agent-message .markdown-content h4, 
+.agent-message .markdown-content h5, 
+.agent-message .markdown-content h6 {
+    margin-top: 0.75rem;
+    margin-bottom: 0.25rem;
+    color: var(--text-primary);
+}
+
+.agent-message .markdown-content p {
+    margin-bottom: 0.75rem;
+    color: var(--text-primary);
+}
+
+.agent-message .markdown-content pre {
+    background-color: var(--input-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+    overflow-x: auto;
+    color: var(--text-primary);
+}
+
+.agent-message .markdown-content code {
+    font-family: 'Monaco', 'Consolas', monospace;
+    font-size: 0.85rem;
+    background-color: var(--input-bg);
+    padding: 0.2rem 0.4rem;
+    border-radius: 3px;
+    color: var(--text-primary);
+}
+
+/* Highlight.js theme integration for agent chat */
+.agent-message .hljs {
+    background-color: var(--input-bg) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 0.75rem;
+    overflow-x: auto;
+    font-family: 'Monaco', 'Consolas', monospace;
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+/* Override highlight.js colors with theme variables for better integration */
+body.theme-dark .agent-message .hljs-keyword { color: var(--syntax-keyword) !important; }
+body.theme-dark .agent-message .hljs-string { color: var(--syntax-string) !important; }
+body.theme-dark .agent-message .hljs-number { color: var(--syntax-number) !important; }
+body.theme-dark .agent-message .hljs-function { color: var(--syntax-function) !important; }
+body.theme-dark .agent-message .hljs-comment { color: var(--syntax-comment) !important; }
+
+body.theme-light .agent-message .hljs-keyword { color: var(--syntax-keyword) !important; }
+body.theme-light .agent-message .hljs-string { color: var(--syntax-string) !important; }
+body.theme-light .agent-message .hljs-number { color: var(--syntax-number) !important; }
+body.theme-light .agent-message .hljs-function { color: var(--syntax-function) !important; }
+body.theme-light .agent-message .hljs-comment { color: var(--syntax-comment) !important; }
+
+body.theme-lightColored .agent-message .hljs-keyword { color: var(--syntax-keyword) !important; }
+body.theme-lightColored .agent-message .hljs-string { color: var(--syntax-string) !important; }
+body.theme-lightColored .agent-message .hljs-number { color: var(--syntax-number) !important; }
+body.theme-lightColored .agent-message .hljs-function { color: var(--syntax-function) !important; }
+body.theme-lightColored .agent-message .hljs-comment { color: var(--syntax-comment) !important; }

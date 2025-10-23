@@ -46,7 +46,7 @@ def get_db_session():
     return _Session()
 
 def get_db_connection():
-    """Get a raw SQLite database connection
+    """Get a raw SQLite database connection with proper timeout and retry handling
     
     Returns:
         sqlite3.Connection: A SQLite connection object
@@ -57,10 +57,44 @@ def get_db_connection():
     else:
         # Default to text2sql.db if URI parsing fails
         db_path = 'text2sql.db'
-        
-    conn = sqlite3.connect(db_path)
-    conn.row_factory = sqlite3.Row  # Return rows as dictionaries
-    return conn
+    
+    # Retry connection with exponential backoff for database lock issues
+    max_retries = 5
+    base_delay = 0.1
+    
+    for attempt in range(max_retries):
+        try:
+            conn = sqlite3.connect(
+                db_path,
+                timeout=30.0,  # 30 second timeout
+                check_same_thread=False
+            )
+            conn.row_factory = sqlite3.Row  # Return rows as dictionaries
+            
+            # Enable WAL mode for better concurrency (if not already enabled)
+            try:
+                conn.execute("PRAGMA journal_mode=WAL")
+                conn.execute("PRAGMA synchronous=NORMAL")  # Better performance with WAL
+                conn.execute("PRAGMA temp_store=MEMORY")  # Use memory for temp tables
+                conn.execute("PRAGMA mmap_size=268435456")  # 256MB memory mapping
+            except sqlite3.Error:
+                # Ignore pragma errors, they're just optimizations
+                pass
+                
+            return conn
+            
+        except sqlite3.OperationalError as e:
+            if "database is locked" in str(e).lower() and attempt < max_retries - 1:
+                # Wait with exponential backoff before retrying
+                delay = base_delay * (2 ** attempt)
+                time.sleep(delay)
+                continue
+            else:
+                # Re-raise if not a lock error or max retries exceeded
+                raise
+        except Exception as e:
+            # Re-raise any other exceptions immediately
+            raise
 
 class DatabaseManager:
     def __init__(self, connection_string=None):

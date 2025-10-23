@@ -44,11 +44,13 @@ async def get_table_columns_json(table_name: str) -> List[str]:
 
 
 @mcp.tool()
-async def get_mapping_details(mapping_reference_name: str) -> Dict[str, Any]:
+async def get_mapping_details(mapping_reference_name: str, project_name: Optional[str] = None) -> Dict[str, Any]:
     """Reads mapping.xlsx, filters by mapping_reference_name, and returns formatted details.
 
     Args:
         mapping_reference_name: The reference name to filter the mapping data by.
+        project_name: Optional project name to locate the mapping file within project uploads.
+                     If not provided, uses the default mapping.xlsx in src/utils/.
 
     Returns:
         A dictionary containing:
@@ -58,7 +60,15 @@ async def get_mapping_details(mapping_reference_name: str) -> Dict[str, Any]:
         - "metadata": Additional information about the mapping
         - "sql_generation_hints": Structure to help with SQL generation
     """
-    excel_file_path = os.path.join(os.path.dirname(__file__), 'mapping.xlsx')
+    # Determine the Excel file path based on project_name
+    if project_name:
+        # Look for mapping.xlsx in project-specific uploads directory
+        project_upload_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), '..', 'uploads', 'projects', project_name)
+        excel_file_path = os.path.join(project_upload_dir, 'mapping.xlsx')
+    else:
+        # Use default mapping.xlsx in src/utils/
+        excel_file_path = os.path.join(os.path.dirname(__file__), 'mapping.xlsx')
+    
     required_columns = [
         'Mapping Name', 'Type', 'Alias', 'Full Table Name / Subquery Definition',
         'Join Type', 'Left Alias', 'Right Alias', 'Join Condition', 'Load Strategy',
@@ -75,7 +85,7 @@ async def get_mapping_details(mapping_reference_name: str) -> Dict[str, Any]:
                 "success": False,
                 "mapping_data": [],
                 "errors": [f"Mapping file not found at {excel_file_path}"],
-                "metadata": {"mapping_reference_name": mapping_reference_name}
+                "metadata": {"mapping_reference_name": mapping_reference_name, "project_name": project_name}
             }
 
         df = pd.read_excel(excel_file_path, engine='openpyxl')
@@ -112,7 +122,7 @@ async def get_mapping_details(mapping_reference_name: str) -> Dict[str, Any]:
                 "success": False, 
                 "mapping_data": [],
                 "errors": [f"No mapping found for reference name: {mapping_reference_name}"],
-                "metadata": {"mapping_reference_name": mapping_reference_name}
+                "metadata": {"mapping_reference_name": mapping_reference_name, "project_name": project_name}
             }
 
         # Format the initial output
@@ -182,7 +192,8 @@ async def get_mapping_details(mapping_reference_name: str) -> Dict[str, Any]:
             "mapping_data": mapping_data,
             "errors": [],
             "metadata": {
-                "mapping_reference_name": mapping_reference_name
+                "mapping_reference_name": mapping_reference_name,
+                "project_name": project_name
             }
             # },
             # "sql_generation_hints": sql_generation_hints
@@ -193,7 +204,7 @@ async def get_mapping_details(mapping_reference_name: str) -> Dict[str, Any]:
             "success": False,
             "mapping_data": [],
             "errors": [f"An error occurred while processing the mapping file: {str(e)}"],
-            "metadata": {"mapping_reference_name": mapping_reference_name}
+            "metadata": {"mapping_reference_name": mapping_reference_name, "project_name": project_name}
         }
 
 @mcp.tool()
@@ -410,7 +421,7 @@ async def execute_sql_query(query: str) -> Dict[str, Any]:
     """Executes a read-only SQL query against the database and returns results.
 
     Args:
-        query: The SQL query string to execute. IMPORTANT: Only SELECT statements are recommended.
+        query: The SQL query string to execute.
 
     Returns:
         A dictionary containing:
@@ -420,11 +431,11 @@ async def execute_sql_query(query: str) -> Dict[str, Any]:
         - "errors": List of errors if any occurred
     """
     # Basic check to prevent obviously harmful commands (can be improved)
-    if not query.strip().upper().startswith("SELECT"):
-        return {"success": False, "data": None, "columns": None, "errors": ["Only SELECT queries are allowed."]}
+    # if not query.strip().upper().startswith("SELECT"):
+    #     return {"success": False, "data": None, "columns": None, "errors": ["Only SELECT queries are allowed."]}
 
     try:
-        db_path = os.path.join(os.path.dirname(__file__), 'testdb.db')
+        db_path = os.path.join(os.path.dirname(__file__),  'testdb.db')
         async with aiosqlite.connect(db_path) as db:
             db.row_factory = aiosqlite.Row
             async with db.execute(query) as cursor:

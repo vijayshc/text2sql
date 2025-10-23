@@ -1,0 +1,694 @@
+{
+  "schemas": [
+    {
+      "schemaName": "staging",
+      "tables": [
+        {
+          "tableName": "STG_ORDERS",
+          "tableType": "STAGING",
+          "businessName": "Staging Orders Data",
+          "description": "Raw order data from source systems before transformation",
+          "subjectArea": "Sales",
+          "granularity": "One record per order line item",
+          "primaryKey": ["ORDER_ID", "LINE_ITEM_ID"],
+          "partitionKeys": ["ORDER_DATE"],
+          "updateFrequency": "Hourly",
+          "relationships": [
+            {
+              "toTable": "STG_CUSTOMERS",
+              "type": "LOOKUP",
+              "bridgeTable": null,
+              "joinConditions": [
+                {"fromColumn": "CUSTOMER_ID", "toColumn": "CUSTOMER_ID"}
+              ]
+            },
+            {
+              "toTable": "STG_PRODUCTS",
+              "type": "LOOKUP",
+              "bridgeTable": null,
+              "joinConditions": [
+                {"fromColumn": "PRODUCT_ID", "toColumn": "PRODUCT_ID"}
+              ]
+            }
+          ],
+          "columns": [
+            {
+              "columnName": "ORDER_ID",
+              "dataType": "VARCHAR(50)",
+              "businessName": "Order Identifier",
+              "description": "Unique identifier for the order",
+              "isNullable": false,
+              "isNaturalKey": true,
+              "isPII": false,
+              "securityClassification": "Internal",
+              "tags": ["identifier", "order"],
+              "validValueRanges": "Alphanumeric format: ORD-XXXXXXX"
+            },
+            {
+              "columnName": "LINE_ITEM_ID",
+              "dataType": "INTEGER",
+              "businessName": "Line Item Number",
+              "description": "Sequential number for each line item within an order",
+              "isNullable": false,
+              "isNaturalKey": true,
+              "isPII": false,
+              "securityClassification": "Internal",
+              "tags": ["identifier", "sequence"],
+              "validValueRanges": "1-999"
+            },
+            {
+              "columnName": "CUSTOMER_ID",
+              "dataType": "VARCHAR(20)",
+              "businessName": "Customer Identifier",
+              "description": "Foreign key to customer master data",
+              "isNullable": false,
+              "isNaturalKey": true,
+              "isPII": false,
+              "securityClassification": "Internal",
+              "tags": ["foreign_key", "customer"],
+              "validValueRanges": "Format: CUST-XXXXX"
+            },
+            {
+              "columnName": "PRODUCT_ID",
+              "dataType": "VARCHAR(20)",
+              "businessName": "Product Identifier",
+              "description": "Foreign key to product master data",
+              "isNullable": false,
+              "isNaturalKey": true,
+              "isPII": false,
+              "securityClassification": "Internal",
+              "tags": ["foreign_key", "product"],
+              "validValueRanges": "Format: PROD-XXXXX"
+            },
+            {
+              "columnName": "ORDER_DATE",
+              "dataType": "DATE",
+              "businessName": "Order Date",
+              "description": "Date when the order was placed",
+              "isNullable": false,
+              "isNaturalKey": false,
+              "isPII": false,
+              "securityClassification": "Internal",
+              "tags": ["date", "transaction"],
+              "validValueRanges": "2020-01-01 to current date"
+            },
+            {
+              "columnName": "QUANTITY",
+              "dataType": "INTEGER",
+              "businessName": "Order Quantity",
+              "description": "Number of units ordered for this line item",
+              "isNullable": false,
+              "isNaturalKey": false,
+              "isPII": false,
+              "securityClassification": "Internal",
+              "tags": ["measure", "quantity"],
+              "validValueRanges": "1-10000"
+            },
+            {
+              "columnName": "UNIT_PRICE",
+              "dataType": "DECIMAL(10,2)",
+              "businessName": "Unit Price",
+              "description": "Price per unit for this product",
+              "isNullable": false,
+              "isNaturalKey": false,
+              "isPII": false,
+              "securityClassification": "Internal",
+              "tags": ["measure", "price", "financial"],
+              "validValueRanges": "0.01-99999.99"
+            }
+          ]
+        },
+        {
+          "tableName": "STG_CUSTOMERS",
+          "tableType": "STAGING",
+          "businessName": "Staging Customer Data",
+          "description": "Raw customer data from CRM system",
+          "subjectArea": "Customer",
+          "granularity": "One record per customer",
+          "primaryKey": ["CUSTOMER_ID"],
+          "partitionKeys": [],
+          "updateFrequency": "Daily",
+          "relationships": [],
+          "columns": [
+            {
+              "columnName": "CUSTOMER_ID",
+              "dataType": "VARCHAR(20)",
+              "businessName": "Customer Identifier",
+              "description": "Unique identifier for the customer",
+              "isNullable": false,
+              "isNaturalKey": true,
+              "isPII": false,
+              "securityClassification": "Internal",
+              "tags": ["identifier", "customer"],
+              "validValueRanges": "Format: CUST-XXXXX"
+            },
+            {
+              "columnName": "CUSTOMER_NAME",
+              "dataType": "VARCHAR(255)",
+              "businessName": "Customer Full Name",
+              "description": "Complete name of the customer",
+              "isNullable": false,
+              "isNaturalKey": false,
+              "isPII": true,
+              "securityClassification": "Confidential",
+              "tags": ["name", "personal"],
+              "validValueRanges": "Free text"
+            },
+            {
+              "columnName": "EMAIL_ADDRESS",
+              "dataType": "VARCHAR(255)",
+              "businessName": "Email Address",
+              "description": "Primary email address for customer communication",
+              "isNullable": true,
+              "isNaturalKey": false,
+              "isPII": true,
+              "securityClassification": "Confidential",
+              "tags": ["email", "contact", "personal"],
+              "validValueRanges": "Valid email format"
+            },
+            {
+              "columnName": "PHONE_NUMBER",
+              "dataType": "VARCHAR(20)",
+              "businessName": "Phone Number",
+              "description": "Primary phone number for customer contact",
+              "isNullable": true,
+              "isNaturalKey": false,
+              "isPII": true,
+              "securityClassification": "Confidential",
+              "tags": ["phone", "contact", "personal"],
+              "validValueRanges": "Various phone formats"
+            }
+          ]
+        },
+        {
+          "tableName": "STG_PRODUCTS",
+          "tableType": "STAGING",
+          "businessName": "Staging Product Data",
+          "description": "Raw product master data from inventory system",
+          "subjectArea": "Inventory",
+          "granularity": "One record per product",
+          "primaryKey": ["PRODUCT_ID"],
+          "partitionKeys": [],
+          "updateFrequency": "Daily",
+          "relationships": [],
+          "columns": [
+            {
+              "columnName": "PRODUCT_ID",
+              "dataType": "VARCHAR(20)",
+              "businessName": "Product Identifier",
+              "description": "Unique identifier for the product",
+              "isNullable": false,
+              "isNaturalKey": true,
+              "isPII": false,
+              "securityClassification": "Internal",
+              "tags": ["identifier", "product"],
+              "validValueRanges": "Format: PROD-XXXXX"
+            },
+            {
+              "columnName": "PRODUCT_NAME",
+              "dataType": "VARCHAR(255)",
+              "businessName": "Product Name",
+              "description": "Commercial name of the product",
+              "isNullable": false,
+              "isNaturalKey": false,
+              "isPII": false,
+              "securityClassification": "Internal",
+              "tags": ["name", "product"],
+              "validValueRanges": "Free text"
+            },
+            {
+              "columnName": "CATEGORY_CODE",
+              "dataType": "VARCHAR(10)",
+              "businessName": "Product Category",
+              "description": "Product category classification code",
+              "isNullable": false,
+              "isNaturalKey": false,
+              "isPII": false,
+              "securityClassification": "Internal",
+              "tags": ["category", "classification"],
+              "validValueRanges": "ELEC, CLOTH, BOOK, HOME, etc."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "schemaName": "warehouse",
+      "tables": [
+        {
+          "tableName": "FACT_SALES",
+          "tableType": "FACT",
+          "businessName": "Sales Fact Table",
+          "description": "Daily sales transactions with dimensional references",
+          "subjectArea": "Sales",
+          "granularity": "One record per order line item per day",
+          "primaryKey": ["SALES_KEY"],
+          "partitionKeys": ["TRANSACTION_DATE"],
+          "updateFrequency": "Daily",
+          "relationships": [
+            {
+              "toTable": "DIM_CUSTOMER",
+              "type": "LINK",
+              "bridgeTable": null,
+              "joinConditions": [
+                {"fromColumn": "CUSTOMER_KEY", "toColumn": "CUSTOMER_KEY"}
+              ]
+            },
+            {
+              "toTable": "DIM_PRODUCT",
+              "type": "LINK",
+              "bridgeTable": null,
+              "joinConditions": [
+                {"fromColumn": "PRODUCT_KEY", "toColumn": "PRODUCT_KEY"}
+              ]
+            },
+            {
+              "toTable": "DIM_DATE",
+              "type": "LINK",
+              "bridgeTable": null,
+              "joinConditions": [
+                {"fromColumn": "DATE_KEY", "toColumn": "DATE_KEY"}
+              ]
+            }
+          ],
+          "columns": [
+            {
+              "columnName": "SALES_KEY",
+              "dataType": "NUMBER(38,0)",
+              "businessName": "Sales Surrogate Key",
+              "description": "System-generated unique identifier for each sales record",
+              "isNullable": false,
+              "isNaturalKey": false,
+              "isPII": false,
+              "securityClassification": "Internal",
+              "tags": ["surrogate_key", "primary_key"],
+              "validValueRanges": "Auto-generated sequence"
+            },
+            {
+              "columnName": "CUSTOMER_KEY",
+              "dataType": "NUMBER(38,0)",
+              "businessName": "Customer Dimension Key",
+              "description": "Foreign key to customer dimension",
+              "isNullable": false,
+              "isNaturalKey": false,
+              "isPII": false,
+              "securityClassification": "Internal",
+              "tags": ["foreign_key", "dimension"],
+              "validValueRanges": "Valid customer dimension keys"
+            },
+            {
+              "columnName": "PRODUCT_KEY",
+              "dataType": "NUMBER(38,0)",
+              "businessName": "Product Dimension Key",
+              "description": "Foreign key to product dimension",
+              "isNullable": false,
+              "isNaturalKey": false,
+              "isPII": false,
+              "securityClassification": "Internal",
+              "tags": ["foreign_key", "dimension"],
+              "validValueRanges": "Valid product dimension keys"
+            },
+            {
+              "columnName": "DATE_KEY",
+              "dataType": "NUMBER(8,0)",
+              "businessName": "Date Dimension Key",
+              "description": "Foreign key to date dimension in YYYYMMDD format",
+              "isNullable": false,
+              "isNaturalKey": false,
+              "isPII": false,
+              "securityClassification": "Internal",
+              "tags": ["foreign_key", "dimension", "date"],
+              "validValueRanges": "20200101-present in YYYYMMDD format"
+            },
+            {
+              "columnName": "ORDER_ID",
+              "dataType": "VARCHAR(50)",
+              "businessName": "Source Order ID",
+              "description": "Original order identifier from source system",
+              "isNullable": false,
+              "isNaturalKey": true,
+              "isPII": false,
+              "securityClassification": "Internal",
+              "tags": ["natural_key", "degenerate_dimension"],
+              "validValueRanges": "Alphanumeric format: ORD-XXXXXXX"
+            },
+            {
+              "columnName": "LINE_ITEM_ID",
+              "dataType": "INTEGER",
+              "businessName": "Line Item Number",
+              "description": "Line item sequence within the order",
+              "isNullable": false,
+              "isNaturalKey": true,
+              "isPII": false,
+              "securityClassification": "Internal",
+              "tags": ["natural_key", "degenerate_dimension"],
+              "validValueRanges": "1-999"
+            },
+            {
+              "columnName": "QUANTITY",
+              "dataType": "INTEGER",
+              "businessName": "Sales Quantity",
+              "description": "Number of units sold",
+              "isNullable": false,
+              "isNaturalKey": false,
+              "isPII": false,
+              "securityClassification": "Internal",
+              "tags": ["measure", "quantity"],
+              "validValueRanges": "1-10000"
+            },
+            {
+              "columnName": "UNIT_PRICE",
+              "dataType": "DECIMAL(10,2)",
+              "businessName": "Unit Price",
+              "description": "Price per unit at time of sale",
+              "isNullable": false,
+              "isNaturalKey": false,
+              "isPII": false,
+              "securityClassification": "Internal",
+              "tags": ["measure", "price", "financial"],
+              "validValueRanges": "0.01-99999.99"
+            },
+            {
+              "columnName": "SALES_AMOUNT",
+              "dataType": "DECIMAL(15,2)",
+              "businessName": "Total Sales Amount",
+              "description": "Total sales amount (quantity * unit_price)",
+              "isNullable": false,
+              "isNaturalKey": false,
+              "isPII": false,
+              "securityClassification": "Internal",
+              "tags": ["measure", "amount", "financial", "calculated"],
+              "validValueRanges": "0.01-999999999.99"
+            },
+            {
+              "columnName": "TRANSACTION_DATE",
+              "dataType": "DATE",
+              "businessName": "Transaction Date",
+              "description": "Date when the transaction occurred",
+              "isNullable": false,
+              "isNaturalKey": false,
+              "isPII": false,
+              "securityClassification": "Internal",
+              "tags": ["date", "transaction"],
+              "validValueRanges": "2020-01-01 to current date"
+            }
+          ]
+        },
+        {
+          "tableName": "DIM_CUSTOMER",
+          "tableType": "DIMENSION",
+          "businessName": "Customer Dimension",
+          "description": "Slowly changing dimension for customer master data",
+          "subjectArea": "Customer",
+          "granularity": "One record per customer (Type 2 SCD)",
+          "primaryKey": ["CUSTOMER_KEY"],
+          "partitionKeys": [],
+          "updateFrequency": "Daily",
+          "relationships": [],
+          "columns": [
+            {
+              "columnName": "CUSTOMER_KEY",
+              "dataType": "NUMBER(38,0)",
+              "businessName": "Customer Surrogate Key",
+              "description": "System-generated unique identifier for each customer version",
+              "isNullable": false,
+              "isNaturalKey": false,
+              "isPII": false,
+              "securityClassification": "Internal",
+              "tags": ["surrogate_key", "primary_key"],
+              "validValueRanges": "Auto-generated sequence"
+            },
+            {
+              "columnName": "CUSTOMER_ID",
+              "dataType": "VARCHAR(20)",
+              "businessName": "Customer Business Key",
+              "description": "Natural business identifier for the customer",
+              "isNullable": false,
+              "isNaturalKey": true,
+              "isPII": false,
+              "securityClassification": "Internal",
+              "tags": ["natural_key", "business_key"],
+              "validValueRanges": "Format: CUST-XXXXX"
+            },
+            {
+              "columnName": "CUSTOMER_NAME",
+              "dataType": "VARCHAR(255)",
+              "businessName": "Customer Full Name",
+              "description": "Complete name of the customer",
+              "isNullable": false,
+              "isNaturalKey": false,
+              "isPII": true,
+              "securityClassification": "Confidential",
+              "tags": ["name", "personal"],
+              "validValueRanges": "Free text"
+            },
+            {
+              "columnName": "EMAIL_ADDRESS",
+              "dataType": "VARCHAR(255)",
+              "businessName": "Email Address",
+              "description": "Primary email address for customer communication",
+              "isNullable": true,
+              "isNaturalKey": false,
+              "isPII": true,
+              "securityClassification": "Confidential",
+              "tags": ["email", "contact", "personal"],
+              "validValueRanges": "Valid email format"
+            },
+            {
+              "columnName": "PHONE_NUMBER",
+              "dataType": "VARCHAR(20)",
+              "businessName": "Phone Number",
+              "description": "Primary phone number for customer contact",
+              "isNullable": true,
+              "isNaturalKey": false,
+              "isPII": true,
+              "securityClassification": "Confidential",
+              "tags": ["phone", "contact", "personal"],
+              "validValueRanges": "Various phone formats"
+            },
+            {
+              "columnName": "EFFECTIVE_DATE",
+              "dataType": "DATE",
+              "businessName": "Effective Date",
+              "description": "Date when this customer record version became effective",
+              "isNullable": false,
+              "isNaturalKey": false,
+              "isPII": false,
+              "securityClassification": "Internal",
+              "tags": ["scd", "metadata", "date"],
+              "validValueRanges": "2020-01-01 to current date"
+            },
+            {
+              "columnName": "EXPIRY_DATE",
+              "dataType": "DATE",
+              "businessName": "Expiry Date",
+              "description": "Date when this customer record version expired (null for current)",
+              "isNullable": true,
+              "isNaturalKey": false,
+              "isPII": false,
+              "securityClassification": "Internal",
+              "tags": ["scd", "metadata", "date"],
+              "validValueRanges": "2020-01-01 to current date or null"
+            },
+            {
+              "columnName": "IS_CURRENT",
+              "dataType": "CHAR(1)",
+              "businessName": "Current Record Flag",
+              "description": "Flag indicating if this is the current version of the customer record",
+              "isNullable": false,
+              "isNaturalKey": false,
+              "isPII": false,
+              "securityClassification": "Internal",
+              "tags": ["scd", "metadata", "flag"],
+              "validValueRanges": "Y, N"
+            }
+          ]
+        },
+        {
+          "tableName": "DIM_PRODUCT",
+          "tableType": "DIMENSION",
+          "businessName": "Product Dimension",
+          "description": "Product master data with category hierarchy",
+          "subjectArea": "Inventory",
+          "granularity": "One record per product (Type 1 SCD)",
+          "primaryKey": ["PRODUCT_KEY"],
+          "partitionKeys": [],
+          "updateFrequency": "Daily",
+          "relationships": [],
+          "columns": [
+            {
+              "columnName": "PRODUCT_KEY",
+              "dataType": "NUMBER(38,0)",
+              "businessName": "Product Surrogate Key",
+              "description": "System-generated unique identifier for each product",
+              "isNullable": false,
+              "isNaturalKey": false,
+              "isPII": false,
+              "securityClassification": "Internal",
+              "tags": ["surrogate_key", "primary_key"],
+              "validValueRanges": "Auto-generated sequence"
+            },
+            {
+              "columnName": "PRODUCT_ID",
+              "dataType": "VARCHAR(20)",
+              "businessName": "Product Business Key",
+              "description": "Natural business identifier for the product",
+              "isNullable": false,
+              "isNaturalKey": true,
+              "isPII": false,
+              "securityClassification": "Internal",
+              "tags": ["natural_key", "business_key"],
+              "validValueRanges": "Format: PROD-XXXXX"
+            },
+            {
+              "columnName": "PRODUCT_NAME",
+              "dataType": "VARCHAR(255)",
+              "businessName": "Product Name",
+              "description": "Commercial name of the product",
+              "isNullable": false,
+              "isNaturalKey": false,
+              "isPII": false,
+              "securityClassification": "Internal",
+              "tags": ["name", "product"],
+              "validValueRanges": "Free text"
+            },
+            {
+              "columnName": "CATEGORY_CODE",
+              "dataType": "VARCHAR(10)",
+              "businessName": "Product Category Code",
+              "description": "Product category classification code",
+              "isNullable": false,
+              "isNaturalKey": false,
+              "isPII": false,
+              "securityClassification": "Internal",
+              "tags": ["category", "classification"],
+              "validValueRanges": "ELEC, CLOTH, BOOK, HOME, etc."
+            },
+            {
+              "columnName": "CATEGORY_NAME",
+              "dataType": "VARCHAR(100)",
+              "businessName": "Product Category Name",
+              "description": "Descriptive name for the product category",
+              "isNullable": false,
+              "isNaturalKey": false,
+              "isPII": false,
+              "securityClassification": "Internal",
+              "tags": ["category", "description"],
+              "validValueRanges": "Electronics, Clothing, Books, Home & Garden, etc."
+            }
+          ]
+        },
+        {
+          "tableName": "DIM_DATE",
+          "tableType": "DIMENSION",
+          "businessName": "Date Dimension",
+          "description": "Calendar dimension with date attributes",
+          "subjectArea": "Time",
+          "granularity": "One record per calendar day",
+          "primaryKey": ["DATE_KEY"],
+          "partitionKeys": [],
+          "updateFrequency": "Annual",
+          "relationships": [],
+          "columns": [
+            {
+              "columnName": "DATE_KEY",
+              "dataType": "NUMBER(8,0)",
+              "businessName": "Date Key",
+              "description": "Primary key in YYYYMMDD format",
+              "isNullable": false,
+              "isNaturalKey": true,
+              "isPII": false,
+              "securityClassification": "Internal",
+              "tags": ["primary_key", "date"],
+              "validValueRanges": "20200101-present in YYYYMMDD format"
+            },
+            {
+              "columnName": "FULL_DATE",
+              "dataType": "DATE",
+              "businessName": "Full Date",
+              "description": "Complete date value",
+              "isNullable": false,
+              "isNaturalKey": false,
+              "isPII": false,
+              "securityClassification": "Internal",
+              "tags": ["date"],
+              "validValueRanges": "2020-01-01 to future dates"
+            },
+            {
+              "columnName": "YEAR",
+              "dataType": "NUMBER(4,0)",
+              "businessName": "Year",
+              "description": "Four-digit year",
+              "isNullable": false,
+              "isNaturalKey": false,
+              "isPII": false,
+              "securityClassification": "Internal",
+              "tags": ["date", "year"],
+              "validValueRanges": "2020-2030"
+            },
+            {
+              "columnName": "MONTH",
+              "dataType": "NUMBER(2,0)",
+              "businessName": "Month Number",
+              "description": "Month number (1-12)",
+              "isNullable": false,
+              "isNaturalKey": false,
+              "isPII": false,
+              "securityClassification": "Internal",
+              "tags": ["date", "month"],
+              "validValueRanges": "1-12"
+            },
+            {
+              "columnName": "MONTH_NAME",
+              "dataType": "VARCHAR(20)",
+              "businessName": "Month Name",
+              "description": "Full month name",
+              "isNullable": false,
+              "isNaturalKey": false,
+              "isPII": false,
+              "securityClassification": "Internal",
+              "tags": ["date", "month", "name"],
+              "validValueRanges": "January, February, ..., December"
+            },
+            {
+              "columnName": "DAY",
+              "dataType": "NUMBER(2,0)",
+              "businessName": "Day Number",
+              "description": "Day of month (1-31)",
+              "isNullable": false,
+              "isNaturalKey": false,
+              "isPII": false,
+              "securityClassification": "Internal",
+              "tags": ["date", "day"],
+              "validValueRanges": "1-31"
+            },
+            {
+              "columnName": "DAY_OF_WEEK",
+              "dataType": "NUMBER(1,0)",
+              "businessName": "Day of Week Number",
+              "description": "Day of week number (1=Sunday, 7=Saturday)",
+              "isNullable": false,
+              "isNaturalKey": false,
+              "isPII": false,
+              "securityClassification": "Internal",
+              "tags": ["date", "day_of_week"],
+              "validValueRanges": "1-7"
+            },
+            {
+              "columnName": "DAY_NAME",
+              "dataType": "VARCHAR(20)",
+              "businessName": "Day Name",
+              "description": "Full day name",
+              "isNullable": false,
+              "isNaturalKey": false,
+              "isPII": false,
+              "securityClassification": "Internal",
+              "tags": ["date", "day", "name"],
+              "validValueRanges": "Sunday, Monday, ..., Saturday"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

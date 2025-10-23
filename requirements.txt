@@ -9,7 +9,27 @@ python-dotenv # Added for .env file support
 aiosqlite
 pandas
 openpyxl
-openai
+openai>=1.35,<1.50
 requests
 chromadb>=0.4.0
 sentence-transformers
+rank-bm25
+nltk
+autogen-core==0.7.2
+autogen-agentchat==0.7.2
+autogen-ext==0.7.2
+mcp[http]>=1.2.0
+mcp>=1.2.0
+ldap3>=2.9
+
+# Additional dependencies identified from import analysis
+numpy  # For numerical operations and vector calculations
+bcrypt  # For secure password hashing
+azure-ai-inference  # For Azure AI model interactions
+werkzeug  # For secure file handling and utilities
+aiohttp  # For async HTTP requests in MCP client manager
+markitdown  # For document processing in knowledge manager
+uvicorn  # For running MCP servers
+starlette  # For HTTP handling in MCP servers
+httpx  # For HTTP requests in weather service
+markitdown[all]

@@ -8,12 +8,15 @@ from src.utils.knowledge_manager import KnowledgeManager
 from src.routes.auth_routes import admin_required, permission_required
 from src.utils.auth_utils import login_required
 from src.models.user import Permissions
+from src.utils.user_manager import UserManager
 
 # Blueprint for knowledge base routes
 knowledge_bp = Blueprint('knowledge', __name__)
 
 # Initialize knowledge manager with lazy loading
 knowledge_manager = None
+# Initialize user manager for audit logging
+user_manager = UserManager()
 
 def get_knowledge_manager():
     """Get knowledge manager instance with lazy initialization"""
@@ -72,6 +75,17 @@ def upload_document():
         # Process the document asynchronously
         document_id = get_knowledge_manager().process_document(file_path, original_filename, tags)
         
+        # Audit log the document upload
+        user_manager.log_audit_event(
+            user_id=session.get('user_id'),
+            action='upload_document',
+            details={
+                'document_id': document_id,
+                'filename': original_filename,
+                'tags': tags
+            }
+        )
+        
         return jsonify({
             'success': True, 
             'message': 'Document uploaded and processing started',
@@ -107,6 +121,17 @@ def add_text_content():
         # Process the text content
         document_id = get_knowledge_manager().process_text_content(name, content_type, content, tags)
         
+        # Audit log the text content addition
+        user_manager.log_audit_event(
+            user_id=session.get('user_id'),
+            action='add_text_content',
+            details={
+                'document_id': document_id,
+                'name': name,
+                'tags': tags
+            }
+        )
+        
         return jsonify({
             'success': True, 
             'message': 'Text content submitted for processing',
@@ -135,7 +160,15 @@ def delete_document(document_id):
     """Delete a document and its chunks from the system"""
     success = get_knowledge_manager().delete_document(document_id)
     if success:
-        return jsonify({'success': True, 'message': 'Document deleted successfully'})
+        # Audit log the document deletion
+        user_manager.log_audit_event(
+            user_id=session.get('user_id'),
+            action='delete_document',
+            details={
+                'document_id': document_id
+            }
+        )
+        return jsonify  ({'success': True, 'message': 'Document deleted successfully'})
     else:
         return jsonify({'success': False, 'error': 'Failed to delete document'}), 500
 
@@ -154,9 +187,21 @@ def query_knowledge():
     user_id = session.get('user_id')
     # Get tags for filtering if provided
     tags = data.get('tags', [])
+    # Get conversation history for follow-up questions
+    conversation_history = data.get('conversation_history', [])
     
     # Get the answer using the knowledge manager
-    result = get_knowledge_manager().get_answer(query, user_id, stream=False, tags=tags)
+    result = get_knowledge_manager().get_answer(query, user_id, stream=False, tags=tags, conversation_history=conversation_history)
+    
+    # Audit log the knowledge base query
+    user_manager.log_audit_event(
+        user_id=user_id,
+        action='knowledge_query',
+        details=f"Knowledge base query",
+        ip_address=request.remote_addr,
+        query_text=query,
+        response=str(result.get('answer', ''))[:500] if isinstance(result, dict) else str(result)[:500]
+    )
     
     return jsonify(result)
 
@@ -179,50 +224,77 @@ def query_knowledge_stream():
             
         query = data.get('query')
         tags = data.get('tags', [])
+        conversation_history = data.get('conversation_history', [])
         
-        # Store the query and tags in session for the subsequent GET request
+        # Store the query, tags, and conversation history in session for the subsequent GET request
         session['current_knowledge_query'] = query
         session['current_knowledge_tags'] = tags
+        session['current_knowledge_conversation_history'] = conversation_history
         return jsonify({"success": True, "message": "Query received"})
     
     # Handle GET request (SSE streaming)
     elif request.method == 'GET':
         query = request.args.get('query') or session.get('current_knowledge_query')
         tags = session.get('current_knowledge_tags', [])
+        conversation_history = session.get('current_knowledge_conversation_history', [])
         
         if not query:
             return jsonify({"error": "No query found"}), 400
     
     try:
         # Get the streaming answer using the knowledge manager
-        result = get_knowledge_manager().get_answer(query, user_id, stream=True, tags=tags)
+        result = get_knowledge_manager().get_answer(query, user_id, stream=True, tags=tags, conversation_history=conversation_history)
         
         # Check if result is a tuple with two values (stream_generator, sources)
         if isinstance(result, tuple) and len(result) == 2:
             stream_generator, sources = result
         else:
+            import traceback
+            error_msg = f"Invalid response from knowledge manager. Result type: {type(result)}, value: {str(result)}"
+            current_app.logger.error(error_msg)
+            current_app.logger.error(f"Full traceback:\n{traceback.format_exc()}")
+            print(f"KNOWLEDGE ROUTE ERROR: {error_msg}")
             # If it's not a tuple with two values, handle the error case
             return jsonify({"error": "Invalid response from knowledge manager"}), 500
         
-        # Create a generator that yields server-sent events
+        # Create a generator that yields server-sent events and captures response for audit
         def generate_sse():
-            # Set the appropriate headers for SSE
-            yield "Content-Type: text/event-stream\n"
-            yield "Cache-Control: no-cache\n"
-            yield "Connection: keep-alive\n\n"
+            collected_response = []
             
-            # First event with sources information
-            sources_json = json.dumps(sources)
-            yield f"event: sources\ndata: {sources_json}\n\n"
-            
-            # Stream the actual answer chunks
-            for chunk in stream_generator:
-                if chunk:
-                    chunk_json = json.dumps({"text": chunk})
-                    yield f"data: {chunk_json}\n\n"
-            
-            # Signal completion
-            yield "event: done\ndata: {}\n\n"
+            try:
+                # Set the appropriate headers for SSE
+                yield "Content-Type: text/event-stream\n"
+                yield "Cache-Control: no-cache\n"
+                yield "Connection: keep-alive\n\n"
+                
+                # First event with sources information
+                sources_json = json.dumps(sources)
+                yield f"event: sources\ndata: {sources_json}\n\n"
+                
+                # Stream the actual answer chunks and collect them
+                for chunk in stream_generator:
+                    if chunk:
+                        collected_response.append(chunk)
+                        chunk_json = json.dumps({"text": chunk})
+                        yield f"data: {chunk_json}\n\n"
+                
+                # Signal completion
+                yield "event: done\ndata: {}\n\n"
+                
+            finally:
+                # Log the complete response for audit after streaming is done
+                full_response = ''.join(collected_response)
+                try:
+                    user_manager.log_audit_event(
+                        user_id=user_id,
+                        action='knowledge_query_stream',
+                        details=f"Knowledge base streaming query completed. Sources: {len(sources)}, Response length: {len(full_response)} chars",
+                        ip_address=request.remote_addr,
+                        query_text=query,
+                        response=full_response[:1000] if full_response else None  # Limit response to 1000 chars for audit
+                    )
+                except Exception as audit_error:
+                    current_app.logger.error(f"Error logging audit event for streaming query: {str(audit_error)}")
         
         # Return a streaming response
         response = Response(stream_with_context(generate_sse()), 
@@ -233,10 +305,18 @@ def query_knowledge_stream():
         return response
     
     except Exception as e:
-        current_app.logger.error(f"Error in streaming knowledge query: {str(e)}", exc_info=True)
+        import traceback
+        error_traceback = traceback.format_exc()
+        current_app.logger.error(f"Error in streaming knowledge query: {str(e)}")
+        current_app.logger.error(f"Full traceback:\n{error_traceback}")
+        
+        # For debugging, also print to console
+        print(f"KNOWLEDGE QUERY ERROR: {str(e)}")
+        print(f"FULL TRACEBACK:\n{error_traceback}")
+        
         return jsonify({
             "success": False,
-            "error": "An error occurred while processing your question."
+            "error": f"An error occurred while processing your question: {str(e)}"
         }), 500
 
 # Route to get all available tags
@@ -289,3 +369,90 @@ def remove_document_tag():
         return jsonify({'success': True, 'message': 'Tag removed successfully'})
     else:
         return jsonify({'success': False, 'error': 'Failed to remove tag'}), 500
+
+# Route to view original uploaded document
+@knowledge_bp.route('/api/knowledge/view/original/<document_id>')
+@login_required
+@admin_required
+def view_original_document(document_id):
+    """View the original uploaded document"""
+    try:
+        document_info = get_knowledge_manager().get_document_info(document_id)
+        if not document_info:
+            return jsonify({'success': False, 'error': 'Document not found'}), 404
+        
+        file_path = document_info['file_path']
+        original_filename = document_info['original_filename']
+        content_type = document_info['content_type']
+        
+        # Check if file exists
+        if not os.path.exists(file_path):
+            return jsonify({'success': False, 'error': 'File not found on disk'}), 404
+        
+        # Determine the MIME type for the response
+        mime_type = 'application/octet-stream'  # Default
+        if content_type:
+            content_type_lower = content_type.lower()
+            if content_type_lower == 'pdf':
+                mime_type = 'application/pdf'
+            elif content_type_lower in ['doc', 'docx']:
+                mime_type = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            elif content_type_lower in ['xls', 'xlsx']:
+                mime_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            elif content_type_lower in ['ppt', 'pptx']:
+                mime_type = 'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+            elif content_type_lower == 'txt':
+                mime_type = 'text/plain'
+        
+        return send_from_directory(
+            os.path.dirname(file_path),
+            os.path.basename(file_path),
+            as_attachment=False,
+            download_name=original_filename,
+            mimetype=mime_type
+        )
+    except Exception as e:
+        current_app.logger.error(f"Error viewing original document {document_id}: {str(e)}", exc_info=True)
+        return jsonify({'success': False, 'error': 'Failed to load document'}), 500
+
+# Route to view markdown output of document
+@knowledge_bp.route('/api/knowledge/view/markdown/<document_id>')
+@login_required
+@admin_required
+def view_markdown_document(document_id):
+    """View the markdown output of the processed document"""
+    try:
+        markdown_content = get_knowledge_manager().get_document_markdown(document_id)
+        if not markdown_content:
+            return jsonify({'success': False, 'error': 'Document not found or not processed'}), 404
+        
+        document_info = get_knowledge_manager().get_document_info(document_id)
+        original_filename = document_info['original_filename'] if document_info else 'Unknown'
+        
+        return jsonify({
+            'success': True,
+            'markdown_content': markdown_content,
+            'original_filename': original_filename
+        })
+    except Exception as e:
+        current_app.logger.error(f"Error viewing markdown document {document_id}: {str(e)}", exc_info=True)
+        return jsonify({'success': False, 'error': 'Failed to load markdown content'}), 500
+
+# Route to get document information
+@knowledge_bp.route('/api/knowledge/info/<document_id>')
+@login_required
+@admin_required
+def get_document_info(document_id):
+    """Get detailed information about a document"""
+    try:
+        document_info = get_knowledge_manager().get_document_info(document_id)
+        if not document_info:
+            return jsonify({'success': False, 'error': 'Document not found'}), 404
+        
+        return jsonify({
+            'success': True,
+            'document': document_info
+        })
+    except Exception as e:
+        current_app.logger.error(f"Error getting document info {document_id}: {str(e)}", exc_info=True)
+        return jsonify({'success': False, 'error': 'Failed to get document information'}), 500

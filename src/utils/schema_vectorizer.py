@@ -13,6 +13,7 @@ import numpy as np
 from src.utils.vector_store import VectorStore
 from src.utils.schema_manager import SchemaManager
 from src.utils.llm_engine import LLMEngine
+from src.utils.metadata_search_enhancer import MetadataSearchEnhancer
 
 logger = logging.getLogger('text2sql.schema_vectorizer')
 
@@ -35,6 +36,9 @@ class SchemaVectorizer:
         
         # Initialize LLM engine for embeddings
         self.llm_engine = LLMEngine()
+        
+        # Initialize metadata search enhancer
+        self.search_enhancer = MetadataSearchEnhancer()
         
         # Track processed metadata
         self.processed_count = 0
@@ -206,8 +210,8 @@ Description: {column_description}
         return embedding
     
     def search_schema_metadata(self, query: str, limit: int = 10, 
-                              filter_workspace: Optional[str] = None) -> List[Dict[str, Any]]:
-        """Search for schema metadata matching the query
+                              filter_workspace: Optional[str] = None) -> Tuple[List[Dict[str, Any]], str]:
+        """Search for schema metadata with enhanced accuracy using query reformatting and BM25
         
         Args:
             query: Search query
@@ -215,30 +219,43 @@ Description: {column_description}
             filter_workspace: Optional workspace to filter results by
             
         Returns:
-            List[Dict]: List of matching schema metadata
+            Tuple[List[Dict], str]: Enhanced search results and reformatted query
         """
         try:
-            # Get embedding for query
-            query_embedding = self._get_embedding(query)
+            # Step 1: Reformat query for better vector search accuracy
+            reformatted_query = self.search_enhancer.get_reformatted_query_for_vector_search(query)
             
-            # Create filter expression if workspace is specified
+            # Step 2: Get embedding for reformatted query
+            query_embedding = self._get_embedding(reformatted_query)
+            
+            # Step 3: Create filter expression if workspace is specified
             filter_expr = None
             if filter_workspace:
                 filter_expr = {"workspace": filter_workspace}
             
-            # Search for similar vectors
+            # Step 4: Search for similar vectors using reformatted query
+            # Use higher limit for BM25 reranking to have more candidates
+            search_limit = limit * 3
+            
             results = self.vector_store.search_similar(
                 'schema_metadata',
                 query_embedding,
-                limit=limit,
+                limit=search_limit,
                 filter_expr=filter_expr
             )
             
-            return results
+            # Step 5: Apply BM25 reranking (mandatory)
+            if results:
+                # Use original query for BM25 to match user intent, but skip query reformatting since we already did it
+                enhanced_results = self.search_enhancer.apply_bm25_reranking(query, results, top_k=limit)
+                results = enhanced_results
+            
+            self.logger.info(f"Enhanced metadata search completed: {len(results)} results")
+            return results, reformatted_query
             
         except Exception as e:
-            self.logger.error(f"Error searching schema metadata: {str(e)}", exc_info=True)
-            return []
+            self.logger.error(f"Error in enhanced schema metadata search: {str(e)}", exc_info=True)
+            return [], query
 
     def get_stats(self) -> Dict[str, Any]:
         """Get statistics about schema metadata in the vector database
@@ -287,7 +304,7 @@ Description: {column_description}
             return None
             
     def filter_with_llm(self, query: str, limit: int = 100) -> Tuple[List[Dict[str, Any]], str]:
-        """Use LLM to create ChromaDB filters from query and search filtered results
+        """Use LLM to extract entities from query and perform multi-level search with progressive filter reduction
         
         Args:
             query: User query
@@ -297,98 +314,105 @@ Description: {column_description}
             Tuple[List[Dict], str]: Search results and the filter expression used
         """
         try:
-            # Ask LLM to create ChromaDB filter from query
-            filter_prompt = f"""
-Analyze this database query and create a ChromaDB filter in JSON format for explicitly mentioned database, table, or column names:
+            # Ask LLM to extract specific entities from query
+            extraction_prompt = f"""
+Extract explicitly mentioned database, table, and column names from this query:
 "{query}"
 
-EXTRACTION RULES:
-1. Extract EXPLICITLY mentioned database/table/column names from the query
-2. Recognize column names that are clearly stated (e.g., "first_name", "user_id", "order_date")
-3. Do NOT infer or guess names from generic descriptions
-4. Use $and for specific column(s) within specific table(s)
-5. Use $or for multiple alternatives (different tables OR different columns)
-6. Generic terms like "customer information", "user data" are NOT explicit column names
-7. But explicit names like "first_name", "last_name", "email" ARE valid column names
+RULES:
+1. Extract ONLY explicitly mentioned names (e.g., "users", "first_name", "order_date")
+2. Do NOT infer from generic terms like "customer information" or "user data"
+3. Return multiple values if mentioned (e.g., "first_name, last_name, email")
 
-LOGICAL OPERATORS:
-- Use $and when query asks for specific column(s) IN/FROM/WITHIN specific table(s)
-- Use $or when query asks for multiple alternatives (table1 OR table2, column1 OR column2)
-- Single entity (just table OR just column) doesn't need logical operators
+Return a JSON object with arrays for each type:
+{{
+  "workspaces": ["database1", "database2"],
+  "tables": ["table1", "table2"],
+  "columns": ["column1", "column2"]
+}}
 
-Return a JSON object that can be used as a ChromaDB "where" clause filter.
-Use these field names: "workspace", "table", "column"
-
-Valid examples (explicit names):
-- "users table" → {{"table": "users"}}
-- "user_id column" → {{"column": "user_id"}}
-- "phone column from customers table" → {{"$and": [{{"table": "customers"}}, {{"column": "phone"}}]}}
-- "what does column phone from customers table contains" → {{"$and": [{{"table": "customers"}}, {{"column": "phone"}}]}}
-- "user_id column in users table" → {{"$and": [{{"table": "users"}}, {{"column": "user_id"}}]}}
-- "first_name and last_name columns" → {{"$or": [{{"column": "first_name"}}, {{"column": "last_name"}}]}}
-- "users table and orders table" → {{"$or": [{{"table": "users"}}, {{"table": "orders"}}]}}
-- "email, phone, address columns" → {{"$or": [{{"column": "email"}}, {{"column": "phone"}}, {{"column": "address"}}]}}
-- "email and phone from users table" → {{"$and": [{{"table": "users"}}, {{"$or": [{{"column": "email"}}, {{"column": "phone"}}]}}]}}
-- "sales database" → {{"workspace": "sales"}}
-
-Invalid examples (no explicit names):
-- "get me customer information" → null (generic term, no explicit column name)
-- "show user data" → null (generic term, no explicit table name)
-- "find sales information" → null (generic term, no explicit database name)
-- "column containing customer name" → null (no explicit column name mentioned)
-
-KEY DISTINCTION:
-- "column X FROM/IN table Y" = $and (specific column within specific table)
-- "column X AND column Y" = $or (multiple columns as alternatives)
-- "table X AND table Y" = $or (multiple tables as alternatives)
-
-If no EXPLICIT database/table/column names are found in the query, return: null
-
-Return only the JSON filter object, nothing else.
+If no explicit names found for a category, use an empty array.
+Return only the JSON object, nothing else.
             """
             
             formatted_prompt = [
-                {"role": "system", "content": "You are a database expert. Create ChromaDB filters from user queries for explicitly mentioned database/table/column names. Use $and for specific columns within specific tables (e.g., 'column X FROM table Y'). Use $or for multiple alternatives (e.g., 'table1 AND table2' or 'column1 AND column2'). Pay attention to prepositions like 'from', 'in', 'within' which indicate $and relationships. Return only valid JSON."},
-                {"role": "user", "content": filter_prompt}
+                {"role": "system", "content": "You are a database expert. Extract explicitly mentioned database/table/column names from queries. Return only valid JSON with arrays."},
+                {"role": "user", "content": extraction_prompt}
             ]
             
-            filter_result = self.llm_engine.generate_completion(formatted_prompt, log_prefix="ChromaDB Filter Creation")
-            self.logger.info(f"LLM filter result: {filter_result}")
+            extraction_result = self.llm_engine.generate_completion(formatted_prompt, log_prefix="Entity Extraction")
+            self.logger.info(f"LLM extraction result: {extraction_result}")
             
-            # Parse the filter result
-            filter_expr = None
-            filter_description = "No specific filter"
-            
+            # Parse extracted entities
+            entities = {"workspaces": [], "tables": [], "columns": []}
             try:
                 import json
-                filter_result_clean = filter_result.strip()
+                result_clean = extraction_result.strip()
                 
-                # Extract JSON from markdown code blocks if present
-                if filter_result_clean.startswith('```json'):
-                    # Remove markdown code block markers
-                    filter_result_clean = filter_result_clean[7:]  # Remove ```json
-                    if filter_result_clean.endswith('```'):
-                        filter_result_clean = filter_result_clean[:-3]  # Remove ```
-                    filter_result_clean = filter_result_clean.strip()
-                elif filter_result_clean.startswith('```'):
-                    # Remove generic code block markers
-                    filter_result_clean = filter_result_clean[3:]  # Remove ```
-                    if filter_result_clean.endswith('```'):
-                        filter_result_clean = filter_result_clean[:-3]  # Remove ```
-                    filter_result_clean = filter_result_clean.strip()
+                # Clean markdown code blocks
+                if result_clean.startswith('```json'):
+                    result_clean = result_clean[7:-3].strip()
+                elif result_clean.startswith('```'):
+                    result_clean = result_clean[3:-3].strip()
                 
-                if filter_result_clean and filter_result_clean.lower() != "null":
-                    filter_expr = json.loads(filter_result_clean)
-                    filter_description = f"Filter: {json.dumps(filter_expr, separators=(',', ':'))}"
-                    self.logger.info(f"Using ChromaDB filter: {filter_expr}")
+                if result_clean and result_clean.lower() != "null":
+                    entities = json.loads(result_clean)
+                    self.logger.info(f"Extracted entities: {entities}")
             except json.JSONDecodeError as e:
-                self.logger.warning(f"LLM didn't return valid JSON filter: {e}. Using unfiltered search.")
-                filter_expr = None
+                self.logger.warning(f"Failed to parse extraction result: {e}")
             
-            # Perform search based on whether we have a filter or not
-            if filter_expr:
-                # Direct hit detected - retrieve records by filter only, no vector search
-                self.logger.info(f"Direct hit detected with filter: {filter_expr}. Retrieving records by filter only.")
+            # Perform multi-level search with progressive filter reduction
+            results, filter_description = self._multi_level_search(entities, query, limit)
+            
+            return results, filter_description
+            
+        except Exception as e:
+            self.logger.error(f"Error in LLM filtering: {str(e)}", exc_info=True)
+            # Fallback to enhanced unfiltered search
+            try:
+                self.logger.info("Performing fallback enhanced unfiltered search due to error.")
+                results, _ = self.search_schema_metadata(query, limit=limit)
+                return results, "Error in filtering, using enhanced unfiltered search"
+            except Exception as fallback_e:
+                self.logger.error(f"Enhanced fallback search also failed: {str(fallback_e)}", exc_info=True)
+                return [], "All search methods failed"
+    
+    def _multi_level_search(self, entities: Dict[str, List[str]], query: str, limit: int) -> Tuple[List[Dict[str, Any]], str]:
+        """Simplified 3-level search with progressive filter reduction
+        
+        Args:
+            entities: Extracted entities from query
+            query: Original query
+            limit: Maximum number of results
+            
+        Returns:
+            Tuple[List[Dict], str]: Search results and filter description
+        """
+        workspaces = entities.get("workspaces", [])
+        tables = entities.get("tables", [])
+        columns = entities.get("columns", [])
+        
+        # If no entities found, use vector search
+        if not workspaces and not tables and not columns:
+            self.logger.info("No entities found. Using enhanced vector search.")
+            results, _ = self.search_schema_metadata(query, limit=limit)
+            return results, "No entities found, using enhanced vector search"
+        
+        # Level 1: Apply all filters (workspace + table + column)
+        filter_parts = []
+        if workspaces:
+            filter_parts.append({"workspace": {"$in": workspaces}})
+        if tables:
+            filter_parts.append({"table": {"$in": tables}})
+        if columns:
+            filter_parts.append({"column": {"$in": columns}})
+        
+        if filter_parts:
+            filter_expr = {"$and": filter_parts} if len(filter_parts) > 1 else filter_parts[0]
+            filter_desc = f"All filters: workspaces={workspaces}, tables={tables}, columns={columns}"
+            
+            self.logger.info(f"Level 1: Trying all filters - {filter_desc}")
+            try:
                 results = self.vector_store.query_by_filter(
                     'schema_metadata',
                     filter_expr=filter_expr,
@@ -396,43 +420,54 @@ Return only the JSON filter object, nothing else.
                     output_fields=["id", "text", "metadata"]
                 )
                 
-                # If no results with filter, fall back to vector search
-                if not results:
-                    self.logger.info(f"No results found with filter. Falling back to vector search.")
-                    results = self.vector_store.search_similar(
-                        'schema_metadata',
-                        self._get_embedding(query),
-                        limit=limit,
-                        filter_expr=None,
-                        output_fields=["id", "text", "metadata"]
-                    )
-                    filter_description = "Filter removed (no results), using vector search"
-            else:
-                # No filter - use vector search
-                self.logger.info("No filter detected. Using vector search.")
-                results = self.vector_store.search_similar(
-                    'schema_metadata',
-                    self._get_embedding(query),
-                    limit=limit,
-                    filter_expr=None,
-                    output_fields=["id", "text", "metadata"]
-                )
+                if results:
+                    self.logger.info(f"Level 1: Found {len(results)} results with all filters")
+                    return results, f"Level 1: {filter_desc}"
+            except Exception as e:
+                self.logger.warning(f"Level 1 failed: {str(e)}")
+        
+        # Level 2: Remove column filter, keep workspace + table
+        if workspaces or tables:
+            filter_parts = []
+            if workspaces:
+                filter_parts.append({"workspace": {"$in": workspaces}})
+            if tables:
+                filter_parts.append({"table": {"$in": tables}})
             
-            return results, filter_description
+            filter_expr = {"$and": filter_parts} if len(filter_parts) > 1 else filter_parts[0]
+            filter_desc = f"Without columns: workspaces={workspaces}, tables={tables}"
             
-        except Exception as e:
-            self.logger.error(f"Error in LLM filtering: {str(e)}", exc_info=True)
-            # Fallback to unfiltered search
+            self.logger.info(f"Level 2: Trying without column filter - {filter_desc}")
             try:
-                self.logger.info("Performing fallback unfiltered search due to error.")
-                results = self.vector_store.search_similar(
+                results = self.vector_store.query_by_filter(
                     'schema_metadata',
-                    self._get_embedding(query),
+                    filter_expr=filter_expr,
                     limit=limit,
-                    filter_expr=None,
                     output_fields=["id", "text", "metadata"]
                 )
-                return results, "Error in filtering, using unfiltered search"
-            except Exception as fallback_e:
-                self.logger.error(f"Fallback search also failed: {str(fallback_e)}", exc_info=True)
-                return [], "Search failed"
+                
+                if results:
+                    self.logger.info(f"Level 2: Found {len(results)} results without column filter")
+                    return results, f"Level 2: {filter_desc}"
+            except Exception as e:
+                self.logger.warning(f"Level 2 failed: {str(e)}")
+        
+        # Level 3: Use embedding search with workspace filter (if workspace exists)
+        if workspaces:
+            self.logger.info(f"Level 3: Using embedding search with workspace filter: {workspaces}")
+            try:
+                results, _ = self.search_schema_metadata(
+                    query, 
+                    limit=limit, 
+                    filter_workspace=workspaces[0] if len(workspaces) == 1 else None
+                )
+                
+                if results:
+                    return results, f"Level 3: Embedding search with workspace filter: {workspaces}"
+            except Exception as e:
+                self.logger.warning(f"Level 3 failed: {str(e)}")
+        
+        # Final fallback: Simple vector search without any filters
+        self.logger.info("All levels failed. Using simple vector search without filters.")
+        results, _ = self.search_schema_metadata(query, limit=limit)
+        return results, "Fallback: Simple vector search without filters"
