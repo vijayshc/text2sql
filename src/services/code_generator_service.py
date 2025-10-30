@@ -345,6 +345,7 @@ Return only the JSON object, no additional text or explanation.
                 "mapping_name": mapping_name,
                 "project_name": project_name,
                 "code": generated_code.get("code", ""),
+                "previous_code": existing_code,  # Add previous code to result
                 "file_path": save_result.get("file_path", ""),
                 "table_names": table_names,
                 "had_existing_code": existing_code is not None,

@@ -40,6 +40,7 @@ class CodeGenerator {
         
         // Monaco Editor state
         this.editor = null;
+        this.diffEditor = null; // Add diff editor reference
         this.hasChanges = false;
         this.currentFilePath = null;
         this.stepDetails = {}; // Store details for each step
@@ -50,6 +51,7 @@ class CodeGenerator {
         this.metaTimestamp = document.getElementById('metaTimestamp');
         this.metaTableCount = document.getElementById('metaTableCount');
         this.metaHadExisting = document.getElementById('metaHadExisting');
+        this.metaViewType = document.getElementById('metaViewType');
         this.metaStatus = document.getElementById('metaStatus');
         
         // Error elements
@@ -526,6 +528,9 @@ class CodeGenerator {
         
         this.metaHadExisting.textContent = result.had_existing_code ? 'Yes' : 'No';
         
+        // Set view type
+        this.metaViewType.textContent = result.previous_code ? 'Diff View' : 'Code';
+        
         // Update status badge
         this.metaStatus.textContent = 'Success';
         this.metaStatus.className = 'badge bg-success';
@@ -533,11 +538,11 @@ class CodeGenerator {
         // Store file path for saving
         this.currentFilePath = result.file_path;
         
-        // Initialize Monaco Editor
-        this.initializeMonacoEditor(result.code || '');
+        // Initialize Monaco Editor (diff view if previous code exists)
+        this.initializeMonacoEditor(result.code || '', result.previous_code);
     }
     
-    initializeMonacoEditor(code) {
+    initializeMonacoEditor(code, previousCode = null) {
         // Check if monaco is loaded via the loader
         if (typeof require === 'undefined' || typeof require.config === 'undefined') {
             console.error('Monaco Editor loader not available');
@@ -558,52 +563,110 @@ class CodeGenerator {
         
         // Load Monaco Editor
         require(['vs/editor/editor.main'], () => {
-            // Dispose existing editor
+            // Dispose existing editors
             if (this.editor) {
                 this.editor.dispose();
+                this.editor = null;
+            }
+            if (this.diffEditor) {
+                this.diffEditor.dispose();
+                this.diffEditor = null;
             }
             
-            // Create Monaco Editor with SQL language
-            this.editor = monaco.editor.create(this.monacoEditor, {
-                value: code,
-                language: 'sql',
-                theme: editorTheme,
-                automaticLayout: true,
-                minimap: { enabled: false },
-                fontSize: 14,
-                lineNumbers: 'on',
-                scrollBeyondLastLine: false,
-                wordWrap: 'on',
-                readOnly: false,
-                renderWhitespace: 'selection',
-                folding: true,
-                lineDecorationsWidth: 10,
-                lineNumbersMinChars: 3
-            });
+            // Check if we should show diff view
+            const showDiff = previousCode !== null && previousCode !== undefined;
             
-            // Force language to SQL to ensure syntax highlighting
-            if (this.editor.getModel()) {
-                monaco.editor.setModelLanguage(this.editor.getModel(), 'sql');
+            if (showDiff) {
+                // Create Monaco Diff Editor
+                this.diffEditor = monaco.editor.createDiffEditor(this.monacoEditor, {
+                    theme: editorTheme,
+                    automaticLayout: true,
+                    minimap: { enabled: false },
+                    fontSize: 14,
+                    lineNumbers: 'on',
+                    scrollBeyondLastLine: false,
+                    wordWrap: 'on',
+                    renderWhitespace: 'selection',
+                    folding: true,
+                    lineDecorationsWidth: 10,
+                    lineNumbersMinChars: 3,
+                    // Diff editor specific options
+                    renderSideBySide: true,
+                    ignoreTrimWhitespace: false,
+                    diffAlgorithm: 'advanced'
+                });
+                
+                // Set the diff model
+                const originalModel = monaco.editor.createModel(previousCode, 'sql');
+                const modifiedModel = monaco.editor.createModel(code, 'sql');
+                
+                this.diffEditor.setModel({
+                    original: originalModel,
+                    modified: modifiedModel
+                });
+                
+                // Track changes in the modified side
+                this.diffEditor.getModifiedEditor().onDidChangeModelContent(() => {
+                    this.hasChanges = true;
+                    this.saveCodeBtn.classList.remove('d-none');
+                });
+                
+                // Update editor reference for other methods
+                this.editor = this.diffEditor.getModifiedEditor();
+                
+            } else {
+                // Create regular Monaco Editor
+                this.editor = monaco.editor.create(this.monacoEditor, {
+                    value: code,
+                    language: 'sql',
+                    theme: editorTheme,
+                    automaticLayout: true,
+                    minimap: { enabled: false },
+                    fontSize: 14,
+                    lineNumbers: 'on',
+                    scrollBeyondLastLine: false,
+                    wordWrap: 'on',
+                    readOnly: false,
+                    renderWhitespace: 'selection',
+                    folding: true,
+                    lineDecorationsWidth: 10,
+                    lineNumbersMinChars: 3
+                });
+                
+                // Force language to SQL to ensure syntax highlighting
+                if (this.editor.getModel()) {
+                    monaco.editor.setModelLanguage(this.editor.getModel(), 'sql');
+                }
+                
+                // Track changes
+                this.hasChanges = false;
+                this.editor.onDidChangeModelContent(() => {
+                    this.hasChanges = true;
+                    this.saveCodeBtn.classList.remove('d-none');
+                });
             }
-            
-            // Track changes
-            this.hasChanges = false;
-            this.editor.onDidChangeModelContent(() => {
-                this.hasChanges = true;
-                this.saveCodeBtn.classList.remove('d-none');
-            });
         });
     }
     
     async saveCode() {
-        if (!this.editor || !this.currentFilePath) {
+        let code = '';
+        
+        if (this.diffEditor) {
+            // For diff editor, save from the modified side
+            code = this.diffEditor.getModifiedEditor().getValue();
+        } else if (this.editor) {
+            code = this.editor.getValue();
+        } else {
+            this.showError('No file to save');
+            return;
+        }
+        
+        if (!this.currentFilePath) {
             this.showError('No file to save');
             return;
         }
         
         try {
-            const code = this.editor.getValue();
-            
             const response = await fetch('/code-generator/api/save-code', {
                 method: 'POST',
                 headers: {
@@ -668,10 +731,14 @@ class CodeGenerator {
         if (stepsContainer) stepsContainer.innerHTML = '';
         if (stepsContainerResults) stepsContainerResults.innerHTML = '';
         
-        // Dispose Monaco Editor
+        // Dispose Monaco Editors
         if (this.editor) {
             this.editor.dispose();
             this.editor = null;
+        }
+        if (this.diffEditor) {
+            this.diffEditor.dispose();
+            this.diffEditor = null;
         }
         
         // Reset editor state
@@ -701,12 +768,17 @@ class CodeGenerator {
     }
     
     copyCode() {
-        if (!this.editor) {
+        let code = '';
+        
+        if (this.diffEditor) {
+            // For diff editor, copy from the modified side
+            code = this.diffEditor.getModifiedEditor().getValue();
+        } else if (this.editor) {
+            code = this.editor.getValue();
+        } else {
             alert('No code to copy');
             return;
         }
-        
-        const code = this.editor.getValue();
         
         if (!code) {
             alert('No code to copy');
@@ -732,12 +804,18 @@ class CodeGenerator {
     }
     
     downloadCode() {
-        if (!this.editor) {
+        let code = '';
+        
+        if (this.diffEditor) {
+            // For diff editor, download from the modified side
+            code = this.diffEditor.getModifiedEditor().getValue();
+        } else if (this.editor) {
+            code = this.editor.getValue();
+        } else {
             alert('No code to download');
             return;
         }
         
-        const code = this.editor.getValue();
         const mappingName = this.metaMappingName.textContent;
         
         if (!code) {
