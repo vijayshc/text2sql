@@ -551,9 +551,9 @@ class CodeGenerator {
             return;
         }
         
-        // Configure Monaco loader for CDN version
+        // Configure Monaco loader for local version
         require.config({ 
-            paths: { 'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs' }
+            paths: { 'vs': '/static/vendor/monaco-editor/0.45.0/min/vs' }
         });
         
         // Detect current theme

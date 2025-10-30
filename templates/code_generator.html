@@ -3,11 +3,11 @@
 {% block extra_css %}
 <link href="{{ url_for('static', filename='css/code-generator.css') }}" rel="stylesheet">
 <!-- Marked.js for markdown rendering -->
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="/static/vendor/marked.min.js"></script>
 <!-- Highlight.js for syntax highlighting -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+<link rel="stylesheet" href="/static/vendor/highlight/styles/github-dark.min.css">
+<script src="/static/vendor/highlight/highlight.min.js"></script>
+<script src="/static/vendor/highlight/languages/sql.min.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -166,8 +166,8 @@
 
 {% block scripts %}
 <!-- Monaco Editor -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/editor/editor.main.css">
-<script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/loader.js"></script>
+<link rel="stylesheet" href="/static/vendor/monaco-editor/0.45.0/min/vs/editor/editor.main.css">
+<script src="/static/vendor/monaco-editor/0.45.0/min/vs/loader.js"></script>
 <script src="{{ url_for('static', filename='js/code-generator.js') }}"></script>
 <script>
     // Initialize code generator on page load

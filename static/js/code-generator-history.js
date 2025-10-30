@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function initMonacoEditor() {
     require.config({ 
         paths: { 
-            'vs': '/static/vendor/monaco-editor/0.36.1/min/vs' 
+            'vs': '/static/vendor/monaco-editor/0.45.0/min/vs' 
         }
     });
     

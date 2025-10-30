@@ -6,7 +6,7 @@
 
 // Initialize Monaco editor for SQL tab
 let sqlEditor;
-require.config({ paths: { 'vs': '/static/vendor/monaco-editor/0.36.1/min/vs' }});
+require.config({ paths: { 'vs': '/static/vendor/monaco-editor/0.45.0/min/vs' }});
 
 // Wait for DOM to be fully loaded before initializing the editor
 document.addEventListener('DOMContentLoaded', function() {

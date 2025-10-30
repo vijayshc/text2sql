@@ -5,7 +5,7 @@
 {% block head %}
 {{ super() }}
 <!-- Monaco Editor -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/editor/editor.main.css">
+<link rel="stylesheet" href="/static/vendor/monaco-editor/0.45.0/min/vs/editor/editor.main.css">
 <!-- File Browser CSS -->
 <link rel="stylesheet" href="{{ url_for('static', filename='css/admin/file-browser.css') }}">
 {% endblock %}
@@ -128,7 +128,7 @@
 {% block scripts %}
 {{ super() }}
 <!-- Monaco Editor -->
-<script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/loader.js"></script>
+<script src="/static/vendor/monaco-editor/0.45.0/min/vs/loader.js"></script>
 <!-- File Browser JS -->
 <script src="{{ url_for('static', filename='js/admin/file-browser.js') }}"></script>
 <script>

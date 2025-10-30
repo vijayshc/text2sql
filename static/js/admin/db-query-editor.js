@@ -23,7 +23,7 @@ class DatabaseQueryEditor {
     
     initializeMonacoEditor() {
         // Configure RequireJS for Monaco
-        require.config({ paths: { 'vs': '/static/vendor/monaco-editor/0.40.0/min/vs' }});
+        require.config({ paths: { 'vs': '/static/vendor/monaco-editor/0.45.0/min/vs' }});
         
         // Load Monaco
         require(['vs/editor/editor.main'], () => {
