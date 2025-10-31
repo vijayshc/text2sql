@@ -81,12 +81,12 @@
         <div class="card-header">
             <ul class="nav nav-tabs card-header-tabs" id="resultsTabs" role="tablist">
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="steps-tab" data-bs-toggle="tab" data-bs-target="#steps-panel" type="button" role="tab" aria-controls="steps-panel" aria-selected="true">
+                    <button class="nav-link" id="steps-tab" data-bs-toggle="tab" data-bs-target="#steps-panel" type="button" role="tab" aria-controls="steps-panel" aria-selected="false">
                         <i class="fas fa-tasks me-1"></i>Processing Steps
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="code-tab" data-bs-toggle="tab" data-bs-target="#code-panel" type="button" role="tab" aria-controls="code-panel" aria-selected="false">
+                    <button class="nav-link active" id="code-tab" data-bs-toggle="tab" data-bs-target="#code-panel" type="button" role="tab" aria-controls="code-panel" aria-selected="true">
                         <i class="fas fa-file-code me-1"></i>Generated Code
                     </button>
                 </li>
@@ -94,15 +94,15 @@
         </div>
         <div class="card-body p-3">
             <div class="tab-content" id="resultsTabContent">
-                <!-- Steps Tab (Primary) -->
-                <div class="tab-pane fade show active" id="steps-panel" role="tabpanel" aria-labelledby="steps-tab">
+                <!-- Steps Tab -->
+                <div class="tab-pane fade" id="steps-panel" role="tabpanel" aria-labelledby="steps-tab">
                     <div id="stepsContainerResults" class="steps-timeline">
                         <!-- Steps will be moved here after completion -->
                     </div>
                 </div>
                 
-                <!-- Code Tab (Secondary) -->
-                <div class="tab-pane fade" id="code-panel" role="tabpanel" aria-labelledby="code-tab">
+                <!-- Code Tab (Default Active) -->
+                <div class="tab-pane fade show active" id="code-panel" role="tabpanel" aria-labelledby="code-tab">
                     <!-- Metadata -->
                     <div class="alert alert-info mb-2 py-2" id="generationMetadata">
                         <div class="row g-2">
